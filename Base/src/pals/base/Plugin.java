@@ -10,4 +10,8 @@ public class Plugin
     {
         return "default";
     }
+    public String test(int a, int b)
+    {
+        return "default";
+    }
 }

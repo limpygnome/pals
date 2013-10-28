@@ -1,9 +1,15 @@
 package pals.base.testing;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import pals.base.Plugin;
 
 /**
@@ -78,16 +84,56 @@ public class Main
         catch(Exception ex)
         {
             System.err.println("Failed to invoke method ~ '" + ex.getMessage() + "'.");
+            return;
         }
         // Invoke without reflection
         try
         {
             String data = obj.test();
             System.out.println("Data from non-reflected call: '" + data + "'.");
+            data = obj.test(5, 6);
+            System.out.println("Data from non-reflected call 2: '" + data + "'.");
         }
         catch(Exception ex)
         {
             System.out.println("Failed to call method without reflection: " + ex.getMessage());
+            return;
+        }
+        // Test loading a file from the jar
+        InputStream fs = loader.getResourceAsStream("example/files/test.txt");
+        try
+        {
+            if(fs == null)
+                throw new Exception("fs is null.");
+            InputStreamReader isr = new InputStreamReader(fs);
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder data = new StringBuilder();
+            int c;
+            while((c = br.read()) != -1)
+                data.append((char)c);
+            System.out.println("Data: '" + data.toString() + "'");
+        }
+        catch(Exception ex)
+        {
+            System.out.println("Error reading jar file: " + ex.getMessage());
+            return;
+        }
+        // List files in a jar
+        try
+        {
+            System.out.println("Files in jar:");
+            JarInputStream jis = new JarInputStream(new FileInputStream(path));
+            JarEntry je;
+            while((je = jis.getNextJarEntry()) != null)
+            {
+                if(!je.isDirectory())
+                    System.out.println("- '" + je.getName() + "'");
+            }
+        }
+        catch(Exception ex)
+        {
+            System.out.println("Error reading files in jar: " + ex.getMessage());
+            return;
         }
     }
 }

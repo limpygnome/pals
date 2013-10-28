@@ -11,4 +11,9 @@ public class Example extends pals.base.Plugin
     {
         return "plugin!";
     }
+    @Override
+    public String test(int a, int b)
+    {
+        return "sum: " + (a+b);
+    }
 }
