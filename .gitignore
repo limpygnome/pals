@@ -8,3 +8,6 @@ Netbeans 7.4.txt
 # Website
 /Website/build/
 /Website/dist/
+/Plugins/Example/nbproject/private/
+/Plugins/Example/build/
+/Plugins/Example/dist/
