@@ -1,5 +1,7 @@
 # Main Directory
 Netbeans 7.4.txt
+Todo.txt
+/Database/
 
 # Base
 /Base/dist/
@@ -13,3 +15,4 @@ Netbeans 7.4.txt
 /Plugins/Example/nbproject/private/
 /Plugins/Example/build/
 /Plugins/Example/dist/
+/Node/nbproject/private/
