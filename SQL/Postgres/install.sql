@@ -12,6 +12,29 @@ CREATE TABLE pals_templates
 	content				TEXT,
 	plugin_uuid			BYTEA(16)			REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+-- The users on the system; this does not include authentication, this is handled else-where; thus multiple authentication systems can use the same
+-- user table indepently for the same user.
+CREATE TABLE pals_users
+(
+	userid				SERIAL				PRIMARY KEY,
+	alias				VARCHAR(64)			-- Note: this is not a username; this is just used to display an 'alias' for the user.
+	email				VARCHAR(128)
+);
+-- Possible modules for student enrollment.
+CREATE TABLE pals_modules
+(
+	moduleid			SERIAL				PRIMARY KEY,
+);
+CREATE TABLE pals_modules_enrollment
+(
+	moduleid,
+	userid,
+	UNIQUE(moduleid, userid)
+);
+
+
+
 -- Possible types of questions; linked to plugins for rendering.
 CREATE TABLE pals_question_types
 (
@@ -35,38 +58,30 @@ CREATE TABLE pals_qtype_ctype
 	ctype_uuid			BYTEA(16)			REFERENCES `pals_criteria_types`(`ctype_uuid`) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
 	UNIQUE(qtype_uuid, ctype_uuid)
 );
+-- Possible questions, independent of assignments; this is so questions can be re-used across different assignments.
 CREATE TABLE pals_question
 (
 	qid					SERIAL				PRIMARY KEY,
 	qtype_uuid			BYTEA(16)			REFERENCES `pals_question_types`(`qtype_uuid`) ON UPDATE CASCADE ON DELETE RESTRICT		NOT NULL
 	title				VARCHAR(64)
 );
+-- Criteria for assessing a question; this will be responsible for assigning marks.
 CREATE TABLE pals_question_criteria
 (
 	qid					INT					REFERENCES `pals_question`(`qid`) ON UPDATE CASCADE ON DELETE CASCADE,
 	ctype_uuid			BYTEA(16)			REFERENCES `pals_criteria_types`(`ctype`) ON UPDATE CASCADE ON DELETE CASCADE,
-	
+	params				TEXT,		-- Any unique parameter data to be passeed to the criteria handler
+	UNIQUE(qid, ctype_uuid)
 	-- ctype qtype must be in qtype-ctype! mysql may have an issue with checking this.
 );
-
-
-
-
-CREATE TABLE pals_questions
-(
-	questionid,
-	typeid
-);
-CREATE TABLE pals_question_criteria
-(
-	questionid,
-	ctypeid,
-);
-
-
+-- Possible
 CREATE TABLE pals_assignments
 (
+	assid				SERIAL				PRIMARY KEY,
+	moduleid			INT					REFERENCES `pals_modules`(`moduleid`) ON UPDATE CASCADE ON DELETE CASCADE,
+	
 );
+
 CREATE TABLE pals_assignments_questions
 (
 	aqid,
