@@ -9,6 +9,8 @@ import pals.base.database.*;
  */
 public class MySQL extends Connector
 {
+    // Constants ***************************************************************
+    public static final int IDENTIFIER_TYPE = 1453673645;
     // Fields - Settings *******************************************************
     private final String    settingsHost,
                             settingsDatabase,
@@ -46,6 +48,6 @@ public class MySQL extends Connector
     @Override
     public int getConnectorType()
     {
-        return 1453673645;
+        return IDENTIFIER_TYPE;
     }
 }

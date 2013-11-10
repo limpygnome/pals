@@ -1,6 +1,7 @@
 
 package pals.testing;
 
+import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -68,6 +69,49 @@ public class Database
         System.out.println("- Dropping  table...");
         conn.execute("DROP TABLE test;");
         System.out.println("- Dropped table.");
+        
+        System.out.println("- Testing UUID; creating table...");
+        switch(conn.getConnectorType())
+        {
+            case Postgres.IDENTIFIER_TYPE:
+                conn.execute("CREATE TABLE test ( uuid BYTEA );"); break;
+            case MySQL.IDENTIFIER_TYPE:
+                conn.execute("CREATE TABLE test ( uuid BINARY(16) );"); break;
+        }
+        
+        System.out.println("- Inserting UUID data...");
+        int uuids = 4;
+        UUID[] uuidIndex = new UUID[uuids];
+        for(int i = 0; i < uuids; i++)
+        {
+            uuidIndex[i] = UUID.generateVersion4();
+            conn.execute("INSERT INTO test (uuid) VALUES(?);", uuidIndex[i].getBytes());
+        }
+        
+        System.out.println("- Reaading back UUID data and checking...");
+        result = conn.read("SELECT * FROM test;");
+        byte[] data;
+        UUID uuid;
+        int i = 0;
+        while(result.next())
+        {
+            data = result.get("uuid");
+            if((uuid = UUID.parse(data)) == null)
+                System.err.println("-- Failed to parse UUID!");
+            else
+            {
+                System.out.println("-- Parsed UUID ~ " + uuid.getHexHyphens());
+                if(uuid.getHex().equals(uuidIndex[i].getHex()))
+                    System.out.println("-- Data is correct...");
+                else
+                    System.err.println("-- Incorrect UUID data read ~ '" + uuid.getHex() + "' vs original '" + uuidIndex[i].getHex() + "'!");
+            }
+            i++;
+        }
+        result.dispose();
+        
+        System.out.println("- Dropping  table...");
+        conn.execute("DROP TABLE test;");
         
         System.out.println("- End of test!");
     }

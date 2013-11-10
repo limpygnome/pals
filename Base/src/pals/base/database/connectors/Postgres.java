@@ -9,6 +9,8 @@ import pals.base.database.*;
  */
 public class Postgres extends Connector
 {
+    // Constants ***************************************************************
+    public static final int IDENTIFIER_TYPE = 90326058;
     // Fields - Settings *******************************************************
     private final String    settingsHost,
                             settingsDatabase,
@@ -46,6 +48,6 @@ public class Postgres extends Connector
     @Override
     public int getConnectorType()
     {
-        return 90326058;
+        return IDENTIFIER_TYPE;
     }
 }

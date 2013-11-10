@@ -1,3 +1,6 @@
+# Ignore all Java key-stores
+*.jks
+
 # Main Directory
 Netbeans 7.4.txt
 Todo.txt

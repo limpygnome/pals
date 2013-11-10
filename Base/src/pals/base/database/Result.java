@@ -10,8 +10,8 @@ import java.sql.SQLException;
 public class Result
 {
     // Fields ******************************************************************
-    private ResultSet rs;               // The result-set of data from the query.
-    private PreparedStatement ps;       // The underlying prepared-statement.
+    private final ResultSet         rs;     // The result-set of data from the query.
+    private final PreparedStatement ps;     // The underlying prepared-statement.
     // Methods - Constructors **************************************************
     protected Result(ResultSet rs, PreparedStatement ps)
     {
