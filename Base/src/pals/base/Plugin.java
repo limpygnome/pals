@@ -1,5 +1,7 @@
 package pals.base;
 
+import pals.base.database.Connector;
+
 /**
  *
  * @author limpygnome
