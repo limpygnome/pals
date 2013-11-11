@@ -10,6 +10,7 @@ package pals.base;
  *
  * @author limpygnome
  */
-public class Logging {
+public class Logging 
+{
     
 }

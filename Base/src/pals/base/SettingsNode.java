@@ -1,9 +1,9 @@
 package pals.base;
 
 /**
- *
- * @author limpygnome
+ * Represents a setting, in a Settings collection.
  */
-public class SettingsNode {
+public class SettingsNode
+{
     
 }

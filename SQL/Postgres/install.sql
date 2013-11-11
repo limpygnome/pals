@@ -1,27 +1,78 @@
 -- The plugins which compromise of the system; these are responsible for assessment and handling web-pages.
 CREATE TABLE `pals_plugins`
 (
-	plugin_uuid			BYTEA(16)			PRIMARY KEY,
+	-- The UUID identifier of the plugin; only one instance of a plugin should ever run and a UUID will allow
+	-- inter-plugin communiation.
+	plugin_uuid			BYTEA				PRIMARY KEY,
+	-- The title of the plugin.
 	title				VARCHAR(64),
 	-- Indicates the plugin is a system-type (boolean); if so, it should not be removable.
-	system				VARCHAR(1) 			DEFAULT 0
+	system				VARCHAR(1) 			DEFAULT 0,
+	-- The class-path of the plugin.
+	classpath			VARCHAR(256)
 );
--- Collection of templates shared by all plugins for rendering; these are loaded and cached by each node.
+-- Collection of templates shared by all plugins for rendering web content.
 CREATE TABLE `pals_templates`
 (
+	-- The path of the template.
 	path				VARCHAR(64)			PRIMARY KEY,
+	-- The content of the template.
 	content				TEXT,
-	plugin_uuid			BYTEA(16)			REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+	-- The identifier of the plugin which owns the template, for automatic deletion (as a fail-safe).
+	plugin_uuid			BYTEA				REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
 );
-
+-- Functions which can render template content.
+CREATE TABLE `pals_temlate_functions`
+(
+	-- The function name/path.
+	path				VARCHAR(64)			PRIMARY KEY,
+	-- The plugin responsible for handling the event.
+	plugin_uuid			BYTEA				REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+);
 -- The users on the system; this does not include authentication, this is handled else-where; thus multiple authentication systems can use the same
 -- user table indepently for the same user.
 CREATE TABLE `pals_users`
 (
 	userid				SERIAL				PRIMARY KEY,
-	alias				VARCHAR(64)			-- Note: this is not a username; this is just used to display an 'alias' for the user.
+	-- The username for the user, used for logging-in.
+	username			VARCHAR(64)			NOT NULL,
+	-- The password for the user, used for authentication; this stores the hash.
+	password			VARCHAR(128)		NOT NULL,
+	-- The unique salt for the user.
+	password_salt		VARCHAR(32)			NOT NULL,
+	-- Optional; allows the system to e-mail users.
 	email				VARCHAR(128)
 );
+-- The nodes used for the assessment of work and other tasks.
+CREATE TABLE `pals_nodes`
+(
+	node_uuid			BYTEA,
+	title				VARCHAR(64)			DEFAULT 'Untitled Node',
+	-- 1 or 0 (boolean) ~ indicates if the node is a master
+	master				VARCHAR(1)			DEFAULT 0,
+	-- The IP address of the node; 45 characters to allow for IPv6
+	ip_address			VARCHAR(45)			NOT NULL,
+	-- Port of the node
+	port				INT
+);
+-- The e-mail queue; used to avoid loss of possible e-mails from the system rebooting.
+CREATE TABLE `pals_email_queue`
+(
+	emailid				SERIAL				PRIMARY KEY,
+	title				VARCHAR(128)		NOT NULL,
+	content				TEXT				NOT NULL,
+	-- The e-mail length is based on http://www.rfc-editor.org/errata_search.php?rfc=3696&eid=1690
+	destination			VARCHAR(254)		NOT NULL,
+	last_attempted		TIMESTAMP
+);
+-- Key/value settings used by plugins.
+CREATE TABLE `pals_settings`
+(
+	path				VARCHAR(64)			PRIMARY KEY,
+	data				TEXT,
+	plugin_uuid			BYTEA				REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 
 
 

@@ -26,11 +26,11 @@ public class Plugin
     // name -> priorityqueue
     
     // -- mandatory
-    public boolean eventHandler_pluginStart(Core core, Connector connector)
+    public boolean eventHandler_pluginStart(NodeCore core, Connector connector)
     {
         return false;
     }
-    public boolean eventHandler_pluginStop(Core core)
+    public boolean eventHandler_pluginSNodeCoreCore core)
     {
         return false;
     }
@@ -45,29 +45,29 @@ public class Plugin
     
     
     // -- optional + ideas currently
-    public boolean eventHandler_pluginAction(Core core)
+    public boolean eventHandler_plugiNodeCoreion(Core core)
     {
         return false;
     }
     
-    public boolean eventHandler_webRequestStart(Core core)
+    public boolean eventHandler_webRNodeCorestStart(Core core)
     {
         return false;
     }
-    public boolean eventHandler_webRequestEnd(Core core)
+    public boolean eventHandleNodeCorebRequestEnd(Core core)
     {
         return false;
     }
-    public boolean eventHandler_webRequestHandle(Core core)
+    public boolean eventHandlNodeCoreebRequestHandle(Core core)
     {
         return false;
     }
     
-    public boolean eventHandler_questionType_Render(Core core)
+    public boolean eventHandNodeCorequestionType_Render(Core core)
     {
         return false;
     }
-    public boolean eventHandler_questionType_NewQuestionWizard(Core core)
+    public boolean eventHandler_queNodeCorenType_NewQuestionWizard(Core core)
     {
         return false;
     }
