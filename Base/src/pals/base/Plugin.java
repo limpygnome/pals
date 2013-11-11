@@ -30,7 +30,7 @@ public class Plugin
     {
         return false;
     }
-    public boolean eventHandler_pluginSNodeCoreCore core)
+    public boolean eventHandler_pluginAction(NodeCore core)
     {
         return false;
     }
@@ -45,29 +45,29 @@ public class Plugin
     
     
     // -- optional + ideas currently
-    public boolean eventHandler_plugiNodeCoreion(Core core)
+    public boolean eventHandler_plugiNodeCoreion(NodeCore core)
     {
         return false;
     }
     
-    public boolean eventHandler_webRNodeCorestStart(Core core)
+    public boolean eventHandler_webRNodeCorestStart(NodeCore core)
     {
         return false;
     }
-    public boolean eventHandleNodeCorebRequestEnd(Core core)
+    public boolean eventHandleNodeCorebRequestEnd(NodeCore core)
     {
         return false;
     }
-    public boolean eventHandlNodeCoreebRequestHandle(Core core)
+    public boolean eventHandlNodeCoreebRequestHandle(NodeCore core)
     {
         return false;
     }
     
-    public boolean eventHandNodeCorequestionType_Render(Core core)
+    public boolean eventHandNodeCorequestionType_Render(NodeCore core)
     {
         return false;
     }
-    public boolean eventHandler_queNodeCorenType_NewQuestionWizard(Core core)
+    public boolean eventHandler_queNodeCorenType_NewQuestionWizard(NodeCore core)
     {
         return false;
     }

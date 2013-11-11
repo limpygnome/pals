@@ -92,14 +92,7 @@ public class JarIO
         InputStream is = loader.getResourceAsStream(path);
         try
         {
-            InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-            BufferedReader br = new BufferedReader(isr);
-            StringBuilder sb = new StringBuilder();
-            char[] chunk = new char[4096];
-            int len;
-            while((len = br.read(chunk)) != -1)
-                sb.append(chunk, 0, len);
-            return sb.toString();
+            return Files.fileRead(is);
         }
         catch(IOException ex)
         {

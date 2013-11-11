@@ -3,7 +3,7 @@ CREATE TABLE `pals_plugins`
 (
 	-- The UUID identifier of the plugin; only one instance of a plugin should ever run and a UUID will allow
 	-- inter-plugin communiation.
-	plugin_uuid			BYTEA				PRIMARY KEY,
+	uuid_plugin			BYTEA				PRIMARY KEY,
 	-- The title of the plugin.
 	title				VARCHAR(64),
 	-- Indicates the plugin is a system-type (boolean); if so, it should not be removable.
@@ -19,7 +19,7 @@ CREATE TABLE `pals_templates`
 	-- The content of the template.
 	content				TEXT,
 	-- The identifier of the plugin which owns the template, for automatic deletion (as a fail-safe).
-	plugin_uuid			BYTEA				REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+	uuid_plugin			BYTEA				REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- Functions which can render template content.
 CREATE TABLE `pals_temlate_functions`
@@ -27,7 +27,7 @@ CREATE TABLE `pals_temlate_functions`
 	-- The function name/path.
 	path				VARCHAR(64)			PRIMARY KEY,
 	-- The plugin responsible for handling the event.
-	plugin_uuid			BYTEA				REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+	uuid_plugin			BYTEA				REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE CASCADE
 );
 -- The users on the system; this does not include authentication, this is handled else-where; thus multiple authentication systems can use the same
 -- user table indepently for the same user.
@@ -65,14 +65,18 @@ CREATE TABLE `pals_email_queue`
 	destination			VARCHAR(254)		NOT NULL,
 	last_attempted		TIMESTAMP
 );
--- Key/value settings used by plugins.
-CREATE TABLE `pals_settings`
+-- Used for delegating paths to plugins.
+CREATE TABLE `pals_urlrewriting`
 (
-	path				VARCHAR(64)			PRIMARY KEY,
-	data				TEXT,
-	plugin_uuid			BYTEA				REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE CASCADE
+	-- The relative path; doesn't start or end with a slash.
+	path				VARCHAR(128)		NOT NULL,
+	-- The UUID of the plugin which owns the path.
+	uuid_plugin			BYTEA				REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE CASCADE,
+	-- The priority of the path; the paths with the highest priority are served first.
+	priority			INT					DEFAULT 0,
+	-- Allows for the same path to be shared by multiple plugins.
+	PRIMARY KEY(path, uuid_plugin);
 );
-
 
 
 
@@ -96,7 +100,7 @@ CREATE TABLE `pals_modules_enrollment`
 CREATE TABLE `pals_question_types`
 (
 	qtype_uuid			BYTEA(16)			PRIMARY KEY
-	plugin_uuid			BYTEA(16)			REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE NO ACTION			NOT NULL,
+	uuid_plugin			BYTEA(16)			REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE NO ACTION			NOT NULL,
 	title				VARCHAR(64),
 	description			TEXT
 );
@@ -104,7 +108,7 @@ CREATE TABLE `pals_question_types`
 CREATE TABLE `pals_criteria_types`
 (
 	ctype_uuid			BYTEA(16)			PRIMARY KEY,
-	plugin_uuid			BYTEA(16)			REFERENCES `pals_plugins`(`plugin_uuid`) ON UPDATE CASCADE ON DELETE NO ACTION 			NOT NULL,
+	uuid_plugin			BYTEA(16)			REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE NO ACTION 			NOT NULL,
 	title				VARCHAR(64),
 	description			TEXT
 );
