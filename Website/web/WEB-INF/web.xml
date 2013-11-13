@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <!-- The filter responsible for pushing requests to the PALS system -->
+    <filter>
+        <filter-name>RequestsFilter</filter-name>
+        <filter-class>RequestsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>RequestsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!-- The servlet for handling PAL requests -->
+    <servlet>
+        <servlet-name>RequestHandlerServlet</servlet-name>
+        <servlet-class>RequestHandlerServlet</servlet-class>
+        <!-- This shouldnt actually be required; this is just for Tomcat, or
+        another webserver, for manual mapping of servlets -->
+        <url-pattern>/home</url-pattern>
+    </servlet>
+</web-app>

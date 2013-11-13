@@ -9,7 +9,8 @@ import java.sql.SQLException;
  * The base class for handling database connectivity.
  * 
  * This is implemented by connectors for a specific RDBMS, allowing
- * cross-database communication using standard SQL.
+ * cross-database communication using standard SQL or switching on the
+ * getConnectorType method.
  */
 public abstract class Connector
 {
