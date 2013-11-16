@@ -1,15 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pals.base;
 
+import pals.base.web.WebRequestData;
+
 /**
- *
- * @author limpygnome
+ * The interface used by anonymous classes for template functions.
  */
-public class TemplateFunction {
-    
+public interface TemplateFunction
+{
+    public void render(WebRequestData data, String content, String[] args);
 }

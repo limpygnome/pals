@@ -1,8 +1,7 @@
 package pals.base;
 
 /**
- *
- * @author limpygnome
+ * Manages all the active plugins.
  */
 public class PluginManager
 {

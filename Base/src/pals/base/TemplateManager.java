@@ -1,34 +1,155 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package pals.base;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
+import pals.base.utils.Files;
+import pals.base.web.WebRequestData;
 
 /**
- *
- * @author limpygnome
+ * Used for caching templates from the file-system and registering template
+ * functions for rendering.
+ * 
+ * Thread-safe.
  */
 public class TemplateManager
 {
-    private HashMap<String, TemplateFunction> functions;
-    private HashMap<String, Template> templates;
-    // ability to configure so:
-    // -- list of possible templates are registered with file path, relative path
-    // -- ability to either load x templates, x size overall/bytes or all templates
-    // -- -- load templates in and out like a page file cache type of thing?
-    
-    // issue: templates inside jars
-    // -- cannot store a path to them...unless we're intelligent and state the
-    // -- jar and use a class-loader
-    
-    // maybe templates come with jar and self-extract on install
-    // -- empties config file etc into real-dir
-    
-    // -- or optionally install/load from path
-    
-    // method to render
+    // Fields ******************************************************************
+    private HashMap<String, TemplateFunction>   functions;  // The template functions used for rendering; function-name,function.
+    private HashMap<String, Template>           templates;  // Cached templates; path,template.
+    // Methods - Constructors **************************************************    
+    public TemplateManager()
+    {
+        this.functions = new HashMap<>();
+        this.templates = new HashMap<>();
+    }
+    // Methods *****************************************************************
+    /**
+     * Loads templates from a physical directory. Inside each file should be
+     * the content of the template. The file-name is concatanated with the
+     * name(s) of any sub-directories. If you were to specify 'C:/test' and a
+     * template was found at 'C:/test/hello/world.template', the name/path would
+     * be 'hello/world'.
+     * 
+     * @param core The current instance of the core.
+     * @param plugin The plugin which owns the templates.
+     * @param directory The path of the directory.
+     * @param pathPrefix The prefix to append to the files loaded.
+     * @return True = success, false = failed.
+     */
+    public synchronized boolean load(NodeCore core, Plugin plugin, String directory, String pathPrefix)
+    {
+        try
+        {
+            // Iterate each file and cache the contents
+            File[] files = Files.getAllFiles(directory, false);
+            String content, path;
+            for(File f : files)
+            {
+                if(f.getName().endsWith(".template"))
+                {
+                    content = Files.fileRead(f.getPath());
+                    path = f.getPath().substring(pathPrefix.length());
+                    // Attempt to register
+                    if(!registerTemplate(plugin, path, content))
+                    {
+                        core.getLogging().log("Failed to register template '" + path + "'; aborted loading dir '" + directory + "'!", Logging.EntryType.Warning);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        catch(FileNotFoundException ex)
+        {
+            core.getLogging().log("Failed to register templates at '" + directory + "' ~ FieNotFound ~ ", ex, Logging.EntryType.Warning);
+        }
+        catch(IOException ex)
+        {
+            core.getLogging().log("Failed to register templates at '" + directory + "' ~ IOException ~ ", ex, Logging.EntryType.Warning);
+        }
+        return false;
+    }
+    /**
+     * Registers a template function.
+     * 
+     * @param functionName The name of the function; can be alpha-numeric,
+     * contain hyphens, under-scrolls, forward slashes and dot.
+     * @param function
+     * @return True if registered, false if failed (invalid format, path
+     * already taken).
+     */
+    public synchronized boolean registerFunction(String functionName, TemplateFunction function)
+    {
+        // Check the function format is correct and does not already exist
+        if(!functionName.matches("^([a-zA-Z0-9\\.\\_\\-\\/]+)$") || functions.containsKey(functionName))
+            return false;
+        // Register
+        functions.put(functionName, function);
+        return true;
+    }
+    /**
+     * Registers a template.
+     * 
+     * @param plugin The plugin which owns the template; only the UUID is stored.
+     * @param path The path of the template; can contain alpha-numeric chars,
+     * hyphen,underscroll, dot and forward-slash.
+     * @param content The content of the template.
+     * @return True if registered, false if failed (invalid format, path
+     * already taken).
+     */
+    public synchronized boolean registerTemplate(Plugin plugin, String path, String content)
+    {
+        // Check the template doesn't exist
+        if(!path.contains("^([a-zA-Z0-9\\.\\_\\-\\/]+)$") || templates.containsKey(path))
+            return false;
+        // Create wrapper and cache
+        templates.put(path, new Template(path, content, plugin.getUUID()));
+        return true;
+    }
+    /**
+     * Renders content using template functions.
+     * 
+     * @param data The data from a web-request.
+     * @param content The content of the template.
+     * @return The rendered data.
+     */
+    public synchronized String render(WebRequestData data, String content)
+    {
+        return null;
+    }
+    // Methods - Accessors *****************************************************
+    /**
+     * Fetches the content of a template from the collection.
+     * 
+     * @param path The path of the template node.
+     * @return Template content or null.
+     */
+    public synchronized String getTemplate(String path)
+    {
+        return getTemplate(path, null);
+    }
+    /**
+     * Fetches the content of a template from the collection.
+     * 
+     * @param path The path of the template node.
+     * @param alternative If the node is not found, this is returned instead.
+     * @return Template content or the alternative parameter.
+     */
+    public synchronized String getTemplate(String path, String alternative)
+    {
+        Template node = getTemplateNode(path);
+        return node == null ? alternative : node.getContent();
+    }
+    /**
+     * Fetches a node from the collection.
+     * 
+     * @param path The path of the template node.
+     * @return Node or null.
+     */
+    public synchronized Template getTemplateNode(String path)
+    {
+        return templates.get(path);
+    }
 }

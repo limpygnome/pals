@@ -4,11 +4,7 @@ import pals.base.Plugin;
 import pals.base.utils.JarIO;
 import pals.base.utils.JarIOException;
 
-/**
- *
- * @author limpygnome
- */
-public class Main
+public class Test_Plugin
 {
     public static void main(String[] args)
     {
@@ -23,7 +19,7 @@ public class Main
             for(String str : jar.getFiles(null, true, false))
                 System.out.println("- '" + str + "'");
             Plugin example = (Plugin)jar.fetchClassType("pals.plugins.Example").newInstance();
-            System.out.println("Output from test method: '" + example.test() + "'");
+            //System.out.println("Output from test method: '" + example.test() + "'"); // commented-out -> no longer exists!
         }
         catch(InstantiationException | IllegalAccessException ex)
         {

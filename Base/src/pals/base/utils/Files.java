@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * A class of general utility functions for interfacing with the file-system.
@@ -69,5 +70,35 @@ public class Files
         
         fw.flush();
         fw.close();
+    }
+    /**
+     * Fetches an array of all the files available, including in sub-directories.
+     * @param path The path of the folder.
+     * @param includeDirs Indicates if to include directories.
+     * @return Array of file objects to represent the sub-files.
+     * @throws FileNotFoundException Thrown if the directory cannot be found.
+     */
+    public static File[] getAllFiles(String path, boolean includeDirs) throws FileNotFoundException
+    {
+        ArrayList<File> files = new ArrayList<>();
+        File f = new File(path);
+        // Check the dir exists and it's a directory
+        if(!f.exists() || !f.isDirectory())
+            throw new FileNotFoundException("Directory '" + path + "' does not exist or it's not a direcory!");
+        // Recursively iterate all dirs to build a tree of files
+        getFiles(f, files, includeDirs);
+        return files.toArray(new File[files.size()]);
+    }
+    private static void getFiles(File dir, ArrayList<File> files, boolean includeDirs)
+    {
+        for(File f : dir.listFiles())
+        {
+            // Decide if to add the file/directory
+            if(includeDirs || !f.isDirectory())
+                files.add(f);
+            // Iterate the items of the directory
+            if(f.isDirectory())
+                getFiles(f, files, includeDirs);
+        }
     }
 }

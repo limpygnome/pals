@@ -13,6 +13,4 @@ DROP TABLE IF EXISTS `pals_settings`					CASCADE;
 DROP TABLE IF EXISTS `pals_email_queue`					CASCADE;
 DROP TABLE IF EXISTS `pals_nodes`						CASCADE;
 DROP TABLE IF EXISTS `pals_users`						CASCADE;
-DROP TABLE IF EXISTS `pals_temlate_functions`			CASCADE;
-DROP TABLE IF EXISTS `pals_templates`					CASCADE;
 DROP TABLE IF EXISTS `pals_plugins`						CASCADE;

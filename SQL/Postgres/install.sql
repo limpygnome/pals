@@ -11,24 +11,6 @@ CREATE TABLE `pals_plugins`
 	-- The class-path of the plugin.
 	classpath			VARCHAR(256)
 );
--- Collection of templates shared by all plugins for rendering web content.
-CREATE TABLE `pals_templates`
-(
-	-- The path of the template.
-	path				VARCHAR(64)			PRIMARY KEY,
-	-- The content of the template.
-	content				TEXT,
-	-- The identifier of the plugin which owns the template, for automatic deletion (as a fail-safe).
-	uuid_plugin			BYTEA				REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE CASCADE
-);
--- Functions which can render template content.
-CREATE TABLE `pals_temlate_functions`
-(
-	-- The function name/path.
-	path				VARCHAR(64)			PRIMARY KEY,
-	-- The plugin responsible for handling the event.
-	uuid_plugin			BYTEA				REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE CASCADE
-);
 -- The users on the system; this does not include authentication, this is handled else-where; thus multiple authentication systems can use the same
 -- user table indepently for the same user.
 CREATE TABLE `pals_users`

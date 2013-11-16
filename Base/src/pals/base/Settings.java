@@ -27,8 +27,10 @@ import org.xml.sax.SAXException;
 import pals.base.utils.Files;
 
 /**
- * A thread-safe collection which holds key/value settings data, which can be
- * loaded/saved to file.
+ * A collection which holds key/value settings data, which can be loaded/saved
+ * to file.
+ * 
+ * Thread-safe.
  */
 public class Settings
 {
@@ -164,7 +166,7 @@ public class Settings
      * @throws SettingsException Thrown if an error occurs saving the
      * configuration to file.
      */
-    public void save(String path) throws SettingsException
+    public synchronized void save(String path) throws SettingsException
     {
         // Generate the XML
         String xml = save();
@@ -178,7 +180,7 @@ public class Settings
             throw new SettingsException(SettingsException.Type.FailedToSave_File, ex);
         }
     }
-    public String save() throws SettingsException
+    public synchronized String save() throws SettingsException
     {
         // Lock the collection
         synchronized(settings)
@@ -237,7 +239,7 @@ public class Settings
      * @param path The path of the node.
      * @return Node data or null.
      */
-    public SettingsNode getNode(String path)
+    public synchronized SettingsNode getNode(String path)
     {
         return settings.get(path);
     }
@@ -253,7 +255,7 @@ public class Settings
      * @param path The path of the node.
      * @return The data of the node as the specified type; possibly null.
      */
-    public <T> T get(String path)
+    public synchronized <T> T get(String path)
     {
         synchronized(settings)
         {
@@ -261,10 +263,75 @@ public class Settings
         }
     }
     /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @return Data as a string.
+     */
+    public synchronized String getStr(String path)
+    {
+        return (String)get(path);
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @return Data as a boolean.
+     */
+    public synchronized boolean getBool(String path)
+    {
+        return (Boolean)get(path);
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @return Data as an integer.
+     */
+    public synchronized int getInt(String path)
+    {
+        return (Integer)get(path);
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @return Data as a float.
+     */
+    public synchronized float getFloat(String path)
+    {
+        return (Float)get(path);
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @return Data as a double.
+     */
+    public synchronized double getDouble(String path)
+    {
+        return (Double)get(path);
+    }
+    /**
      * WARNING: this is not thread-safe!
      * @return EntrySet for iterating the settings.
      */
-    public Set<Map.Entry<String,SettingsNode>> getRaw()
+    public synchronized Set<Map.Entry<String,SettingsNode>> getRaw()
     {
         return settings.entrySet();
     }
@@ -279,7 +346,7 @@ public class Settings
      * @param value The value of the setting; can be null.
      * @return True if updated/created, false if failed.
      */
-    public boolean set(String path, SettingsNode.DataType dataType, Object value)
+    public synchronized boolean set(String path, SettingsNode.DataType dataType, Object value)
     {
         // Lock the collection - thread-safety
         synchronized(settings)
@@ -302,7 +369,7 @@ public class Settings
      * @param value The value of the setting.
      * @return True if set, false if failed.
      */
-    public boolean setString(String path, String value)
+    public synchronized boolean setString(String path, String value)
     {
         return set(path, SettingsNode.DataType.String, value);
     }
@@ -311,7 +378,7 @@ public class Settings
      * @param value The value of the setting.
      * @return True if set, false if failed.
      */
-    public boolean setBool(String path, Boolean value)
+    public synchronized boolean setBool(String path, Boolean value)
     {
         return set(path, SettingsNode.DataType.Boolean, value);
     }
@@ -320,7 +387,7 @@ public class Settings
      * @param value The value of the setting.
      * @return True if set, false if failed.
      */
-    public boolean setInt(String path, Integer value)
+    public synchronized boolean setInt(String path, Integer value)
     {
         return set(path, SettingsNode.DataType.Integer, value);
     }
@@ -329,7 +396,7 @@ public class Settings
      * @param value The value of the setting.
      * @return True if set, false if failed.
      */
-    public boolean setFloat(String path, Float value)
+    public synchronized boolean setFloat(String path, Float value)
     {
         return set(path, SettingsNode.DataType.Float, value);
     }
@@ -338,7 +405,7 @@ public class Settings
      * @param value The value of the setting.
      * @return True if set, false if failed.
      */
-    public boolean setDouble(String path, Double value)
+    public synchronized boolean setDouble(String path, Double value)
     {
         return set(path, SettingsNode.DataType.Double, value);
     }
