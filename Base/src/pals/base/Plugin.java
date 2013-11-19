@@ -1,6 +1,5 @@
 package pals.base;
 
-import pals.base.database.Connector;
 import pals.base.web.WebRequestData;
 
 /**
@@ -23,38 +22,30 @@ public class Plugin
         Uninstall
     }
     // Fields ******************************************************************
-    private UUID        uuid;           // The unique identifier of this plugin.
-    private String      title;          // The title of this plugin.
-    private boolean     system;         // Indicates if this is a system plugin.
+    private final UUID          uuid;           // The unique identifier of this plugin.
+    // Methods - Constructors **************************************************
+    public Plugin(UUID uuid)
+    {
+        this.uuid = uuid;
+    }
     // Methods - Mandatory *****************************************************
     /**
      * Invoked when the plugin is loaded into the runtime.
      * 
      * @param core The current instance of the core.
-     * @param connector The database connector.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginLoad(NodeCore core, Connector connector)
+    public boolean eventHandler_pluginLoad(NodeCore core)
     {
         return false;
-    }
-    /**
-     * Invoked before the plugin is unloaded from the runtime.
-     * 
-     * @param core The current instance of the core.
-     * @param connector The database connector.
-     */
-    public void eventHandler_pluginUnload(NodeCore core, Connector connector)
-    {
     }
     /**
      * Invoked to install the plugin.
      * 
      * @param core The current instance of the core.
-     * @param connector The database connector.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginInstall(NodeCore core, Connector connector)
+    public boolean eventHandler_pluginInstall(NodeCore core)
     {
         return false;
     }
@@ -62,14 +53,21 @@ public class Plugin
      * Invoked to uninstall the plugin.
      * 
      * @param core The current instance of the core.
-     * @param connector The database connector.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginUninstall(NodeCore core, Connector connector)
+    public boolean eventHandler_pluginUninstall(NodeCore core)
     {
         return false;
     }
     // Methods - Optional ******************************************************
+    /**
+     * Invoked before the plugin is unloaded from the runtime.
+     * 
+     * @param core The current instance of the core.
+     */
+    public void eventHandler_pluginUnload(NodeCore core)
+    {
+    }
     /**
      * Invoked when a plugin should register any template(s) or template
      * function(s).
@@ -83,17 +81,27 @@ public class Plugin
         return true;
     }
     /**
+     * Invoked when a plugin should register for global events.
+     * 
+     * @param core The current instance of the core.
+     * @param plugins The plugin manager.
+     * @return True if successfully registered, false if failed.
+     */
+    public boolean eventHandler_registerHooks(NodeCore core, PluginManager plugins)
+    {
+        return true;
+    }
+    /**
      * Invoked to handle an action applied to a plugin (not its self). This is
      * useful for aborting the install/uninstall of other plugins.
      * 
      * @param core The current instance of the core.
-     * @param conn The database connector.
      * @param plugin The plugin in question.
      * @param action The action being applied to the plugin.
      * @return True if successfully handled, false if to abort the action (if
      * possible).
      */
-    public boolean eventHandler_pluginAction(NodeCore core, Connector conn, Plugin plugin, ActionType action)
+    public boolean eventHandler_pluginAction(NodeCore core, Plugin plugin, ActionType action)
     {
         return true;
     }
@@ -155,7 +163,7 @@ public class Plugin
      */
     public String getTitle()
     {
-        return title;
+        return "Untitled Plugin";
     }
     /**
      * @return Indicates if the plugin is a system plugin; this means the
@@ -163,6 +171,6 @@ public class Plugin
      */
     public boolean isSystemPlugin()
     {
-        return system;
+        return false;
     }
 }

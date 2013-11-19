@@ -1,0 +1,19 @@
+ERROR	2013-11-19 00:19:49	Failed to node.config settings - 'FailedToLoad' ~ 'java.io.FileNotFoundException: node.config (The system cannot find the file specified)'.\EOE\
+ERROR	2013-11-19 00:23:00	Failed to load plugins.\EOE\
+ERROR	2013-11-19 00:23:30	Failed to load plugins.\EOE\
+WARNING	2013-11-19 00:33:38	Failed to load potential JAR at '_plugins\Example\Plugin__Example.jar'. - Exception: 'java.io.IOException: Invalid input-stream!'; cause: 'Invalid input-stream!' Stack-trace: 'pals.base.utils.JarIOException: java.io.IOException: Invalid input-stream!
+	at pals.base.utils.JarIO.fetchFileText(JarIO.java:99)
+	at pals.base.PluginManager.load(PluginManager.java:131)
+	at pals.base.PluginManager.load(PluginManager.java:107)
+	at pals.base.NodeCore.start(NodeCore.java:110)
+	at Main.main(Main.java:58)
+Caused by: java.io.IOException: Invalid input-stream!
+	at pals.base.utils.Files.fileRead(Files.java:75)
+	at pals.base.utils.JarIO.fetchFileText(JarIO.java:95)
+	... 4 more
+'.\EOE\
+ERROR	2013-11-19 00:33:38	Failed to load plugins.\EOE\
+ERROR	2013-11-19 00:37:48	Failed to load plugin at '_plugins\Example\Plugin__Example.jar' - incorrect UUID.\EOE\
+ERROR	2013-11-19 00:37:48	Failed to load plugins.\EOE\
+ERROR	2013-11-19 00:39:06	Failed to load plugin at '_plugins\Example\Plugin__Example.jar' - incorrect UUID 'null'.\EOE\
+ERROR	2013-11-19 00:39:06	Failed to load plugins.\EOE\

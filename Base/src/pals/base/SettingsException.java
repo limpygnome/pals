@@ -36,10 +36,15 @@ public class SettingsException extends Exception
         /**
          * Indicates the collection is read-only.
          */
-        CollectionReadOnly
+        CollectionReadOnly,
+        /**
+         * Indicates the node attempted to be retrieved is missing/not in the
+         * collection.
+         */
+        MissingNode
     }
     // Fields
-    private Type type;
+    private final Type type;
     // Methods - Constructors
     public SettingsException(Type type, Throwable rootCause)
     {

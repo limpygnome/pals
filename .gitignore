@@ -20,3 +20,5 @@ Todo.txt
 /Plugins/Example/build/
 /Plugins/Example/dist/
 /Node/nbproject/private/
+/Node/build/
+/Node/dist/

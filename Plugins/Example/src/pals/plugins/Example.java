@@ -1,19 +1,15 @@
 package pals.plugins;
 
+import pals.base.UUID;
+
 /**
  *
  * @author limpygnome
  */
 public class Example extends pals.base.Plugin
 {
-    @Override
-    public String test()
+    public Example(UUID uuid)
     {
-        return "plugin!";
-    }
-    @Override
-    public String test(int a, int b)
-    {
-        return "sum: " + (a+b);
+        super(uuid);
     }
 }

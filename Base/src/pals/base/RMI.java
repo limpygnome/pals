@@ -6,7 +6,9 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 /**
- * Used for RMI communication.
+ * Used for RMI (remote method invocation) communication; allows methods to be
+ * invoked over the network. Useful for inter-communication between different
+ * Java Virtual Machines.
  */
 public class RMI
 {
@@ -22,6 +24,10 @@ public class RMI
         this.serverInstance = serverInstance;
     }
     // Methods *****************************************************************
+    /**
+     * Starts the RMI service.
+     * @return True if successful, false if failed.
+     */
     public boolean start()
     {
         if(registry != null)
@@ -39,6 +45,9 @@ public class RMI
             return false;
         }
     }
+    /**
+     * Stops and disposes the RMI service.
+     */
     public void stop()
     {
         if(registry == null)

@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -257,9 +258,26 @@ public class Settings
      */
     public synchronized <T> T get(String path)
     {
+        return settings.containsKey(path) ? (T)settings.get(path).get() : null;
+    }
+    /**
+     * Refer to get method for documentation; this is similar, but throws a
+     * SettingsException if a node is missing.
+     * 
+     * @param <T> The data-type of the setting; refer to SettingsNode get for
+     * more information.
+     * @param path The path of the node.
+     * @return The data of the node as the specified type; possibly null.
+     * @throws SettingsException Thrown if a node at the specified path does not
+     * exist.
+     */
+    public synchronized <T> T get2(String path) throws SettingsException
+    {
         synchronized(settings)
         {
-            return settings.containsKey(path) ? (T)settings.get(path).get() : null;
+            if(!settings.containsKey(path))
+                throw new SettingsException(SettingsException.Type.MissingNode, new Exception("Node at '" + path + "' is missing!"));
+            return (T)settings.get(path).get();
         }
     }
     /**
@@ -282,11 +300,43 @@ public class Settings
      * Note: refer to get method for full documentation.
      * 
      * @param path The path of the node.
+     * @param alternative The alternative value if the node is null/does not
+     * exist.
+     * @return Data as a string.
+     */
+    public synchronized String getStr(String path, String alternative)
+    {
+        String obj = get(path);
+        return obj == null ? alternative : obj;
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
      * @return Data as a boolean.
      */
     public synchronized boolean getBool(String path)
     {
         return (Boolean)get(path);
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @param alternative The alternative value if the node is null/does not
+     * exist.
+     * @return Data as a boolean.
+     */
+    public synchronized boolean getBool(String path, boolean alternative)
+    {
+        Boolean obj = get(path);
+        return obj == null ? alternative : obj;
     }
     /**
      * Fetches the data of a node.
@@ -308,6 +358,22 @@ public class Settings
      * Note: refer to get method for full documentation.
      * 
      * @param path The path of the node.
+     * @param alternative The alternative value if the node is null/does not
+     * exist.
+     * @return Data as an integer.
+     */
+    public synchronized int getInt(String path, int alternative)
+    {
+        Integer obj = get(path);
+        return obj == null ? alternative : obj;
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
      * @return Data as a float.
      */
     public synchronized float getFloat(String path)
@@ -321,11 +387,43 @@ public class Settings
      * Note: refer to get method for full documentation.
      * 
      * @param path The path of the node.
+     * @param alternative The alternative value if the node is null/does not
+     * exist.
+     * @return Data as a float.
+     */
+    public synchronized float getFloat(String path, float alternative)
+    {
+        Float obj = get(path);
+        return obj == null ? alternative : obj;
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
      * @return Data as a double.
      */
     public synchronized double getDouble(String path)
     {
         return (Double)get(path);
+    }
+    /**
+     * Fetches the data of a node.
+     * 
+     * WARNING: this does not convert the data, it simply casts it.
+     * Note: refer to get method for full documentation.
+     * 
+     * @param path The path of the node.
+     * @param alternative The alternative value if the node is null/does not
+     * exist.
+     * @return Data as a double.
+     */
+    public synchronized double getDouble(String path, double alternative)
+    {
+        Double obj = get(path);
+        return obj == null ? alternative : obj;
     }
     /**
      * WARNING: this is not thread-safe!

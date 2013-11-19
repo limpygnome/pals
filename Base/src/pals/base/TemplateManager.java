@@ -16,15 +16,26 @@ import pals.base.web.WebRequestData;
 public class TemplateManager
 {
     // Fields ******************************************************************
-    private HashMap<String, TemplateFunction>   functions;  // The template functions used for rendering; function-name,function.
-    private HashMap<String, Template>           templates;  // Cached templates; path,template.
+    private final NodeCore                          core;       // The current instance of the core.
+    private final HashMap<String, TemplateFunction> functions;  // The template functions used for rendering; function-name,function.
+    private final HashMap<String, Template>         templates;  // Cached templates; path,template.
     // Methods - Constructors **************************************************    
-    public TemplateManager()
+    protected TemplateManager(NodeCore core)
     {
+        this.core = core;
         this.functions = new HashMap<>();
         this.templates = new HashMap<>();
     }
     // Methods *****************************************************************
+    /**
+     * Reloads all the templates by calling every active plugin to re-register
+     * all their functions and templates.
+     * @return True if successful, false if failed.
+     */
+    public synchronized boolean reload()
+    {
+        return false;
+    }
     /**
      * Loads templates from a physical directory. Inside each file should be
      * the content of the template. The file-name is concatanated with the
@@ -32,31 +43,27 @@ public class TemplateManager
      * template was found at 'C:/test/hello/world.template', the name/path would
      * be 'hello/world'.
      * 
-     * @param core The current instance of the core.
      * @param plugin The plugin which owns the templates.
      * @param directory The path of the directory.
      * @param pathPrefix The prefix to append to the files loaded.
      * @return True = success, false = failed.
      */
-    public synchronized boolean load(NodeCore core, Plugin plugin, String directory, String pathPrefix)
+    public synchronized boolean load(Plugin plugin, String directory, String pathPrefix)
     {
         try
         {
             // Iterate each file and cache the contents
-            File[] files = Files.getAllFiles(directory, false);
+            File[] files = Files.getAllFiles(directory, true, false, ".template", true);
             String content, path;
             for(File f : files)
             {
-                if(f.getName().endsWith(".template"))
+                content = Files.fileRead(f.getPath());
+                path = f.getPath().substring(pathPrefix.length());
+                // Attempt to register
+                if(!registerTemplate(plugin, path, content))
                 {
-                    content = Files.fileRead(f.getPath());
-                    path = f.getPath().substring(pathPrefix.length());
-                    // Attempt to register
-                    if(!registerTemplate(plugin, path, content))
-                    {
-                        core.getLogging().log("Failed to register template '" + path + "'; aborted loading dir '" + directory + "'!", Logging.EntryType.Warning);
-                        return false;
-                    }
+                    core.getLogging().log("Failed to register template '" + path + "'; aborted loading dir '" + directory + "'!", Logging.EntryType.Warning);
+                    return false;
                 }
             }
             return true;
@@ -70,6 +77,23 @@ public class TemplateManager
             core.getLogging().log("Failed to register templates at '" + directory + "' ~ IOException ~ ", ex, Logging.EntryType.Warning);
         }
         return false;
+    }
+    /**
+     * Unloads all the templates and registered template functions.
+     */
+    public synchronized void unload()
+    {
+        templates.clear();
+        functions.clear();
+    }
+    /**
+     * Unloads all the templates and registered template functions belonging to
+     * a plugin.
+     * 
+     * @param plugin The identifier of the plugin.
+     */
+    public synchronized void unload(UUID plugin)
+    {
     }
     /**
      * Registers a template function.
