@@ -39,7 +39,6 @@ public class RequestHandlerServlet extends HttpServlet
     {
         response.setContentType("text/html;charset=UTF-8");
         ResponseType rt = ResponseType.Success;
-        int t = 0;
         try
         {
             // Prepare remote request wrapper
@@ -50,7 +49,6 @@ public class RequestHandlerServlet extends HttpServlet
             RemoteResponse dataResponse = ri.handleWebRequest(dataRequest);
             // Handle response data
             {
-                t = dataResponse.test;
                 byte[] buffer = dataResponse.getBuffer();
                 if(buffer != null && buffer.length != 0)
                 {
@@ -87,7 +85,7 @@ public class RequestHandlerServlet extends HttpServlet
                 pw.println("<p>The system is unable to communicate with the node process, check it is running!</p>");
                 break;
             case Error_NoOutput:
-                pw.println("<p>Communication issue, please try again...</p>" + t);
+                pw.println("<p>Communication issue, please try again...</p>");
                 pw.println("<h2>Network Administrators</h2>");
                 pw.println("<p>No data for the web-page was returned from the node; check templates and plugins are loading correctly.</p>");
                 break;

@@ -155,7 +155,7 @@ public class PluginManager
             Plugin p = (Plugin)c.getDeclaredConstructor(UUID.class).newInstance(uuid);
             // Add the plugin to the runtime
             plugins.put(uuid, p);
-            // Inform the plugin to register to global events and templates/template-functions and that's being loaded into the runtime
+            // Inform the plugin to register to global events and templates/template-functions, urls and that's being loaded into the runtime
             if(!p.eventHandler_registerHooks(core, this))
             {
                 core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register global event hooks!", Logging.EntryType.Error);
@@ -165,6 +165,12 @@ public class PluginManager
             else if(!p.eventHandler_registerTemplates(core, core.getTemplates()))
             {
                 core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register templates/template-functions!", Logging.EntryType.Error);
+                unload(p);
+                return PluginLoad.Failed;
+            }
+            else if(!p.eventHandler_registerUrls(core, core.getWebManager()))
+            {
+                core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register paths/urls!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }

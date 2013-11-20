@@ -21,8 +21,13 @@ public class WebManager
     protected WebManager(NodeCore core)
     {
         this.core = core;
+        this.urls = new UrlTree();
     }
     // Methods *****************************************************************
+    public boolean reload()
+    {
+        return false; // reload all the urls; like templates reload
+    }
     /**
      * Handles a web-request to the system.
      * 
@@ -32,17 +37,16 @@ public class WebManager
      */
     public void handleWebRequest(RemoteRequest request, RemoteResponse response)
     {
-        response.setBuffer("hello world...");
-        response.test = 5;
+        response.setBuffer("buffer unset...");
         
         System.out.println("We have a request...");
-        if(1 == 1) return;
         
         // Create a new connection to the database
         Connector conn = core.createConnector();
         if(conn == null)
         {
             // set some sort of db error page
+            response.setBuffer("db failure...");
             
             return;
         }
@@ -53,7 +57,7 @@ public class WebManager
         for(Plugin plugin : plugins)
             plugin.eventHandler_webRequestStart(data);
         // Fetch plugins capable of serving the request, else fetch pagenotfound handlers
-        UUID[] uuids = urls.getUUIDs(null);
+        UUID[] uuids = urls.getUUIDs("hello_world");
         Plugin ph;
         boolean handled = false;
         for(UUID uuid : uuids)

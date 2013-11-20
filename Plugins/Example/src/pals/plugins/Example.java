@@ -3,6 +3,7 @@ package pals.plugins;
 import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.WebManager;
+import pals.base.web.WebRequestData;
 
 /**
  * An example plugin.
@@ -36,5 +37,12 @@ public class Example extends pals.base.Plugin
         {
             "hello_world"
         });
+    }
+
+    @Override
+    public boolean eventHandler_webRequest(WebRequestData data)
+    {
+        data.getResponseData().setBuffer("hello from example!");
+        return true;
     }
 }

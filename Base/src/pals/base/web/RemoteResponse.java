@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 public class RemoteResponse implements Serializable
 {
     private byte[] buffer;
-    public int test = 0;
     
     public RemoteResponse()
     {
