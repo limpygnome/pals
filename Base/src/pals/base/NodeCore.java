@@ -2,6 +2,7 @@ package pals.base;
 
 import java.rmi.RemoteException;
 import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
 import pals.base.database.connectors.*;
 
 /**
@@ -46,6 +47,7 @@ public class NodeCore
     // Fields - Core Components ************************************************
     private PluginManager       plugins;                            // A collection of plugins for the system.
     private TemplateManager     templates;                          // A collection of templates for the system.
+    private WebManager          web;                                // Handles web-requests.
     private Logging             logging;                            // Logging of system events.
     private Settings            settings;                           // Read-only core settings loaded from file.
     private RMI                 comms;                              // RMI communications.
@@ -56,6 +58,7 @@ public class NodeCore
         this.state = State.Stopped;
         this.plugins = null;
         this.templates = null;
+        this.web = null;
         this.logging = null;
         this.settings = null;
         this.comms = null;
@@ -76,6 +79,7 @@ public class NodeCore
             stop(true);
             return false;
         }
+        logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
         // Load base node settings
         try
         {
@@ -87,6 +91,7 @@ public class NodeCore
             stop(true);
             return false;
         }
+        logging.log("[CORE START] Loaded settings.", Logging.EntryType.Info);
         // Create an initial connection to the database
         Connector conn = createConnector();
         if(conn == null)
@@ -96,6 +101,13 @@ public class NodeCore
             stop(true);
             return false;
         }
+        logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
+        // Initialize the templates manager, load the required templates
+        templates = new TemplateManager(this);
+        logging.log("[CORE START] Initialized templates.", Logging.EntryType.Info);
+        // Initialize web manager
+        web = new WebManager(this);
+        logging.log("[CORE START] Initialized web manager.", Logging.EntryType.Info);
         // Initialize plugin manager, load all the plugins
         plugins = new PluginManager(this);
         // -- Attempt to load the plugins path from settings, if it exists
@@ -113,14 +125,7 @@ public class NodeCore
             stop(true);
             return false;
         }
-        // Initialize the templates manager, load the required templates
-        templates = new TemplateManager(this);
-        if(!templates.reload())
-        {
-            logging.log("Failed to load templates.", Logging.EntryType.Error);
-            stop(true);
-            return false;
-        }
+        logging.log("[CORE START] Loaded plugins.", Logging.EntryType.Info);
         // Setup comms
         try
         {
@@ -132,7 +137,8 @@ public class NodeCore
             stop(true);
             return false;
         }
-        return false;
+        logging.log("[CORE START] Started RMI service.", Logging.EntryType.Info);
+        return true;
     }
     public synchronized boolean stop()
     {
@@ -173,11 +179,15 @@ public class NodeCore
     }
     // Methods *****************************************************************
     /**
-     * @return Creates a new database connector.
+     * Creates a new database connector.
+     * 
+     * @return Instance, else null if the connector could not be made or
+     * connect.
      */
     public Connector createConnector()
     {
         Connector conn = null;
+        // Setup connector based on type
         switch(settings.getInt("database/type"))
         {
             case Postgres.IDENTIFIER_TYPE:
@@ -187,7 +197,20 @@ public class NodeCore
                 conn = new MySQL(settings.getStr("database/host"), settings.getStr("database/db"), settings.getStr("database/username"), settings.getStr("database/password"), settings.getInt("database/port"));
                 break;
         }
-        return conn;
+        // Check we have a valid connector setup
+        if(conn == null)
+            return null;
+        // Connect to the service
+        try
+        {
+            conn.connect();
+            return conn;
+        }
+        catch(DatabaseException ex)
+        {
+            logging.log("Could not create database connector.", ex, Logging.EntryType.Warning);
+        }
+        return null;
     }
     // Methods - Mutators ******************************************************
     /**

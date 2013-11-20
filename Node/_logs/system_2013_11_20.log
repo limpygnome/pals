@@ -1,0 +1,8 @@
+INFO	2013-11-20 01:08:41	[CORE START] Started logging.\EOE\
+INFO	2013-11-20 01:08:41	[CORE START] Loaded settings.\EOE\
+INFO	2013-11-20 01:08:41	[CORE START] Established database connection.\EOE\
+INFO	2013-11-20 01:08:41	[CORE START] Initialized templates.\EOE\
+INFO	2013-11-20 01:08:41	[CORE START] Initialized web manager.\EOE\
+INFO	2013-11-20 01:08:41	Loaded plugin 'Untitled Plugin' (46A55633-67E1-4FC1-96C6-0AEA6B1EF776).\EOE\
+INFO	2013-11-20 01:08:41	[CORE START] Loaded plugins.\EOE\
+INFO	2013-11-20 01:08:41	[CORE START] Started RMI service.\EOE\

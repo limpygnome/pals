@@ -1,6 +1,5 @@
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import pals.base.NodeCore;
 
@@ -9,7 +8,9 @@ import pals.base.NodeCore;
  */
 public class Main
 {
+    // Fields - Static *********************************************************
     private static NodeCore core;
+    // Methods - Entry-Points **************************************************
     public static void main(String[] args)
     {
         System.out.println("Node starting...");
@@ -62,6 +63,6 @@ public class Main
         }
         // Wait for the node to terminate
         while(true)
-            ;
+            ; // This is just temp until semaphores are introduced.
     }
 }

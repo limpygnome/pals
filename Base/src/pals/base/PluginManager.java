@@ -162,7 +162,7 @@ public class PluginManager
                 unload(p);
                 return PluginLoad.Failed;
             }
-            else if(!p.eventHandler_templatesLoad(core, core.getTemplates()))
+            else if(!p.eventHandler_registerTemplates(core, core.getTemplates()))
             {
                 core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register templates/template-functions!", Logging.EntryType.Error);
                 unload(p);

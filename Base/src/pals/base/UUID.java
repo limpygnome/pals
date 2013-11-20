@@ -10,6 +10,8 @@ import java.util.Random;
  */
 public class UUID
 {
+    // Fields - Static *********************************************************
+    private static Random rand = null;
     // Fields ******************************************************************
     private final String data;    // The UUID as a hexadecimal string without hyphens (32 characters), upper-case.
     // Methods - Constructors **************************************************
@@ -67,7 +69,10 @@ public class UUID
      */
     public static UUID generateVersion4()
     {
-        Random rand = new Random(System.currentTimeMillis()); // Seeded with time
+        // Check the RNG has been setup
+        if(rand == null)
+            rand = new Random(System.currentTimeMillis()); // Seeded with time
+        // Generate V4 random UUID
         char[] data = new char[32];
         for(int i = 0; i < 32; i++)
         {

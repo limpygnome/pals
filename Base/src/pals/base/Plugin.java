@@ -76,7 +76,7 @@ public class Plugin
      * @param manager The template manager.
      * @return True = success, false = failed.
      */
-    public boolean eventHandler_templatesLoad(NodeCore core, TemplateManager manager)
+    public boolean eventHandler_registerTemplates(NodeCore core, TemplateManager manager)
     {
         return true;
     }
@@ -88,6 +88,18 @@ public class Plugin
      * @return True if successfully registered, false if failed.
      */
     public boolean eventHandler_registerHooks(NodeCore core, PluginManager plugins)
+    {
+        return true;
+    }
+    /**
+     * Invoked when a plugin should register any URLs for forwarding
+     * web-requests back to the plugin for specific paths.
+     * 
+     * @param core The current instance of the core.
+     * @param web The web manager.
+     * @return True if successfully registered, false if failed.
+     */
+    public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
     {
         return true;
     }

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import pals.base.utils.Files;
 import pals.base.web.WebRequestData;
 
@@ -34,7 +36,18 @@ public class TemplateManager
      */
     public synchronized boolean reload()
     {
-        return false;
+        core.getLogging().log("Re-registering all templates...", Logging.EntryType.Info);
+        Plugin[] plugins = core.getPlugins().getPlugins();
+        for(Plugin plugin : plugins)
+        {
+            if(!plugin.eventHandler_registerTemplates(core, this))
+            {
+                core.getLogging().log("Failed to register templates for plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Warning);
+                return false;
+            }
+        }
+        core.getLogging().log("Finished re-registering all templates.", Logging.EntryType.Info);
+        return true;
     }
     /**
      * Loads templates from a physical directory. Inside each file should be
@@ -94,6 +107,14 @@ public class TemplateManager
      */
     public synchronized void unload(UUID plugin)
     {
+        Iterator<Map.Entry<String,Template>> it = templates.entrySet().iterator();
+        Map.Entry<String,Template> template;
+        while(it.hasNext())
+        {
+            template = it.next();
+            if(template.getValue().getPluginOwner().equals(plugin))
+                it.remove();
+        }
     }
     /**
      * Registers a template function.
