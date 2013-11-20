@@ -2,10 +2,10 @@ package pals.plugins;
 
 import pals.base.NodeCore;
 import pals.base.UUID;
+import pals.base.WebManager;
 
 /**
- *
- * @author limpygnome
+ * An example plugin.
  */
 public class Example extends pals.base.Plugin
 {
@@ -28,5 +28,13 @@ public class Example extends pals.base.Plugin
     public boolean eventHandler_pluginLoad(NodeCore core)
     {
         return true;
+    }
+    @Override
+    public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
+    {
+        return web.registerUrls(this, new String[]
+        {
+            "hello_world"
+        });
     }
 }

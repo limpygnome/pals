@@ -13,8 +13,8 @@ public interface RMI_Interface extends Remote
     /**
      * Used to remotely handle a web-request.
      * @param request The remote web request data.
-     * @param response The remote web response data.
+     * @return Response data for the request.
      * @throws RemoteException Thrown if an issue occurs with RMI.
      */
-    public void handleWebRequest(RemoteRequest request, RemoteResponse response) throws RemoteException;
+    public RemoteResponse handleWebRequest(RemoteRequest request) throws RemoteException;
 }

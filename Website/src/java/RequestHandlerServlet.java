@@ -5,11 +5,14 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import pals.base.RMI_Interface;
+import pals.base.web.RemoteRequest;
+import pals.base.web.RemoteResponse;
 
 /**
  * The servlet for handling web-requests to the PALS system.
@@ -17,6 +20,12 @@ import pals.base.RMI_Interface;
 @WebServlet(urlPatterns = {"/pals"})
 public class RequestHandlerServlet extends HttpServlet
 {
+    private enum ResponseType
+    {
+        Error_RMI,
+        Error_NoOutput,
+        Success
+    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -29,40 +38,64 @@ public class RequestHandlerServlet extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
+        ResponseType rt = ResponseType.Success;
+        int t = 0;
         try
         {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet RequestHandlerServlet</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet RequestHandlerServlet at " + request.getContextPath() + "</h1>");
-            
-            // -- test RMI
+            // Prepare remote request wrapper
+            RemoteRequest dataRequest = new RemoteRequest();
+            // Communicate to node using RMI
             Registry r = LocateRegistry.getRegistry(1099);
             RMI_Interface ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
-            out.println("<p><b>RMI response:</b> '" + ri.test(8, 5) + "'</p>");
-            
-            out.println("</body>");
-            out.println("</html>");
+            RemoteResponse dataResponse = ri.handleWebRequest(dataRequest);
+            // Handle response data
+            {
+                t = dataResponse.test;
+                byte[] buffer = dataResponse.getBuffer();
+                if(buffer != null && buffer.length != 0)
+                {
+                    ServletOutputStream sos = response.getOutputStream();
+                    sos.write(buffer);
+                    sos.flush();
+                }
+                else
+                    rt = ResponseType.Error_NoOutput;
+            }
         }
         catch(RemoteException ex)
         {
             System.err.println("RMI RemoteException ~ " + ex.getMessage() + "!");
+            rt = ResponseType.Error_RMI;
         }
         catch(NotBoundException ex)
         {
             System.err.println("RMI NotBoundException ~ " + ex.getMessage() + "!");
+            rt = ResponseType.Error_RMI;
         }
-        finally
+        // Check if we have handled the response correctly, else output a message to the user
+        if(rt == ResponseType.Success)
+            return;
+        // An error has occurred...
+        PrintWriter pw = response.getWriter();
+        pw.println("<!DOCTYPE html><html><head><title>PALS - Communication Issue</title></head><body>");
+        pw.println("<h1>Error</h1>");
+        switch(rt)
         {
-            out.close();
+            case Error_RMI:
+                pw.println("<p>Communication issue, please try again...</p>");
+                pw.println("<h2>Network Administrators</h2>");
+                pw.println("<p>The system is unable to communicate with the node process, check it is running!</p>");
+                break;
+            case Error_NoOutput:
+                pw.println("<p>Communication issue, please try again...</p>" + t);
+                pw.println("<h2>Network Administrators</h2>");
+                pw.println("<p>No data for the web-page was returned from the node; check templates and plugins are loading correctly.</p>");
+                break;
         }
+        pw.println("</body></html>");
+        pw.flush();
+        pw.close();
     }
-
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -77,7 +110,6 @@ public class RequestHandlerServlet extends HttpServlet
     {
         processRequest(request, response);
     }
-
     /**
      * Handles the HTTP <code>POST</code> method.
      *

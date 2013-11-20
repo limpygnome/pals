@@ -77,6 +77,8 @@ public class UrlTree
     }
     public synchronized RegisterStatus add(UUID uuid, String path)
     {
+        if(uuid == null)
+            return RegisterStatus.Failed_Malformed;
         // Either return malformed (null parts) or recurse parts and add them...
         String[] parts = createParts(path);
         return parts == null ? RegisterStatus.Failed_Malformed : add(uuid, root, 0, parts);

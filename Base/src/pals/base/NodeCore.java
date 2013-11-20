@@ -64,6 +64,10 @@ public class NodeCore
         this.comms = null;
     }
     // Methods - Core **********************************************************
+    /**
+     * Starts the core of the node.
+     * @return True = started, false = failed.
+     */
     public synchronized boolean start()
     {
         // Check the core is in either the stopped or failed state to start
@@ -127,44 +131,65 @@ public class NodeCore
         }
         logging.log("[CORE START] Loaded plugins.", Logging.EntryType.Info);
         // Setup comms
+        int rmiPort = settings.getInt("rmi/port", 1099);
         try
         {
-            comms = new RMI(settings.getInt("rmi/port", 1099), new RMI_DefaultServer());
+            comms = new RMI(rmiPort, new RMI_DefaultServer(this));
+            if(!comms.start())
+                throw new Exception("Could not setup RMI socket.");
         }
-        catch(RemoteException ex)
+        catch(Exception ex)
         {
             logging.log("Failed to setup RMI server.", ex, Logging.EntryType.Error);
             stop(true);
             return false;
         }
-        logging.log("[CORE START] Started RMI service.", Logging.EntryType.Info);
+        logging.log("[CORE START] Started RMI service on port '" + rmiPort + "'.", Logging.EntryType.Info);
+        logging.log("[CORE START] Core started.", Logging.EntryType.Info);
         return true;
     }
+    /**
+     * Stops the core of the node.
+     * @return True = stopped, false = no changes.
+     */
     public synchronized boolean stop()
     {
         return stop(false);
     }
+    /**
+     * Stops the core of the node.
+     * @param failure Indicates the core is to stop due to a failure.
+     * @return True = stopped, false = no changes.
+     */
     public synchronized boolean stop(boolean failure)
     {
+        if(state != State.Started)
+            return false;
         state = State.Stopping;
+        logging.log("[CORE STOP] Stopping core...", Logging.EntryType.Info);
         // Dispose RMI/comms
         if(comms != null)
         {
             comms.stop();
             comms = null;
         }
+        logging.log("[CORE STOP] Disposed RMI...", Logging.EntryType.Info);
         // Unload all the plugins
         if(plugins != null)
         {
             plugins.unload();
             plugins = null;
         }
+        logging.log("[CORE STOP] Disposed plugins...", Logging.EntryType.Info);
         // Unload all the templates
         if(templates != null)
         {
             templates.unload();
             templates = null;
         }
+        logging.log("[CORE STOP] Disposed templates...", Logging.EntryType.Info);
+        // Dispose web-manager
+        web = null;
         // Dispose settings
         settings = null;
         // Unload logging
@@ -173,8 +198,10 @@ public class NodeCore
             logging.dispose(); // This should always be last!
             logging = null;
         }
+        logging.log("[CORE STOP] Disposed logging...", Logging.EntryType.Info);
         // Update state
         state = failure ? State.Failed : State.Stopped;
+        logging.log("[CORE STOP] Core stopped.", Logging.EntryType.Info);
         return false;
     }
     // Methods *****************************************************************
@@ -252,6 +279,13 @@ public class NodeCore
     public TemplateManager getTemplates()
     {
         return templates;
+    }
+    /**
+     * @return The web manager responsible for handling web-requests.
+     */
+    public WebManager getWebManager()
+    {
+        return web;
     }
     /**
      * @return The logger responsible for logging any events with the core.

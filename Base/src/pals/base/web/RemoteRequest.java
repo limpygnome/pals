@@ -8,5 +8,7 @@ import java.io.Serializable;
  */
 public class RemoteRequest implements Serializable
 {
-    
+    public RemoteRequest()
+    {
+    }
 }
