@@ -59,6 +59,8 @@ public class RequestHandlerServlet extends HttpServlet
                 else
                     rt = ResponseType.Error_NoOutput;
             }
+            System.err.println("UID: '" + request.getSession().getAttribute("userid") + "'");
+            request.getSession().setAttribute("userid", -1);
         }
         catch(RemoteException ex)
         {

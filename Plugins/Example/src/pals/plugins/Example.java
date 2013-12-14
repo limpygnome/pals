@@ -42,7 +42,7 @@ public class Example extends pals.base.Plugin
     @Override
     public boolean eventHandler_webRequest(WebRequestData data)
     {
-        data.getResponseData().setBuffer("hello from example!");
+        data.getResponseData().setBuffer("<!--if:test-->case a<!--else:test-->case b<!--endif:test-->");
         return true;
     }
 }

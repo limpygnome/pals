@@ -1,5 +1,5 @@
 -- The plugins which compromise of the system; these are responsible for assessment and handling web-pages.
-CREATE TABLE `pals_plugins`
+CREATE TABLE pals_plugins
 (
 	-- The UUID identifier of the plugin; only one instance of a plugin should ever run and a UUID will allow
 	-- inter-plugin communiation.
@@ -11,9 +11,25 @@ CREATE TABLE `pals_plugins`
 	-- The class-path of the plugin.
 	classpath			VARCHAR(256)
 );
+-- Instances of HTTP sessions, used to store data between requests of web-users.
+CREATE TABLE pals_http_sessions
+(
+	sessid				BYTEA				PRIMARY KEY,
+	creation			TIMESTAMP			NOT NULL,
+	last_active			TIMESTAMP			NOT NULL,
+	ip					VARCHAR(45)			NOT NULL
+);
+-- Stores data belonging to a HTTP session.
+CREATE TABLE pals_http_session_data
+(
+	sessid				BYTEA				REFERENCES pals_http_sessions(sessid) ON UPDATE CASCADE ON DELETE CASCADE,
+	key					VARCHAR(32),
+	data				BYTEA,
+	PRIMARY KEY(sessid, key)
+);
 -- The users on the system; this does not include authentication, this is handled else-where; thus multiple authentication systems can use the same
 -- user table indepently for the same user.
-CREATE TABLE `pals_users`
+CREATE TABLE pals_users
 (
 	userid				SERIAL				PRIMARY KEY,
 	-- The username for the user, used for logging-in.
@@ -26,7 +42,7 @@ CREATE TABLE `pals_users`
 	email				VARCHAR(128)
 );
 -- The nodes used for the assessment of work and other tasks.
-CREATE TABLE `pals_nodes`
+CREATE TABLE pals_nodes
 (
 	node_uuid			BYTEA,
 	title				VARCHAR(64)			DEFAULT 'Untitled Node',
@@ -38,7 +54,7 @@ CREATE TABLE `pals_nodes`
 	port				INT
 );
 -- The e-mail queue; used to avoid loss of possible e-mails from the system rebooting.
-CREATE TABLE `pals_email_queue`
+CREATE TABLE pals_email_queue
 (
 	emailid				SERIAL				PRIMARY KEY,
 	title				VARCHAR(128)		NOT NULL,
@@ -47,29 +63,14 @@ CREATE TABLE `pals_email_queue`
 	destination			VARCHAR(254)		NOT NULL,
 	last_attempted		TIMESTAMP
 );
--- Used for delegating paths to plugins.
-CREATE TABLE `pals_urlrewriting`
-(
-	-- The relative path; doesn't start or end with a slash.
-	path				VARCHAR(128)		NOT NULL,
-	-- The UUID of the plugin which owns the path.
-	uuid_plugin			BYTEA				REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE CASCADE,
-	-- The priority of the path; the paths with the highest priority are served first.
-	priority			INT					DEFAULT 0,
-	-- Allows for the same path to be shared by multiple plugins.
-	PRIMARY KEY(path, uuid_plugin);
-);
-
-
-
 -- Possible modules for student enrollment.
-CREATE TABLE `pals_modules`
+CREATE TABLE pals_modules
 (
 	moduleid			SERIAL				PRIMARY KEY,
 	title				VARCHAR(64)			DEFAULT 'Untitled Module'
 );
 -- Modules of which a student is enrolled-upon
-CREATE TABLE `pals_modules_enrollment`
+CREATE TABLE pals_modules_enrollment
 (
 	moduleid,
 	userid,
@@ -79,7 +80,7 @@ CREATE TABLE `pals_modules_enrollment`
 
 
 -- Possible types of questions; linked to plugins which handle them.
-CREATE TABLE `pals_question_types`
+CREATE TABLE pals_question_types
 (
 	qtype_uuid			BYTEA(16)			PRIMARY KEY
 	uuid_plugin			BYTEA(16)			REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE NO ACTION			NOT NULL,
@@ -87,7 +88,7 @@ CREATE TABLE `pals_question_types`
 	description			TEXT
 );
 -- Possible types of criteria handlers for assessing work; linked to plugins for handling assessment of work.
-CREATE TABLE `pals_criteria_types`
+CREATE TABLE pals_criteria_types
 (
 	ctype_uuid			BYTEA(16)			PRIMARY KEY,
 	uuid_plugin			BYTEA(16)			REFERENCES `pals_plugins`(`uuid_plugin`) ON UPDATE CASCADE ON DELETE NO ACTION 			NOT NULL,
@@ -95,7 +96,7 @@ CREATE TABLE `pals_criteria_types`
 	description			TEXT
 );
 -- Possible criteria types for each question type; a single criteria may handle multiple question types.
-CREATE TABLE `pals_qtype_ctype`
+CREATE TABLE pals_qtype_ctype
 (
 	qtype_uuid			BYTEA(16)			REFERENCES `pals_question_types`(`qtype_uuid`) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
 	ctype_uuid			BYTEA(16)			REFERENCES `pals_criteria_types`(`ctype_uuid`) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
@@ -104,16 +105,15 @@ CREATE TABLE `pals_qtype_ctype`
 
 
 
-
 -- Possible questions, independent of assignments; this is so questions can be re-used across different assignments.
-CREATE TABLE `pals_question`
+CREATE TABLE pals_question
 (
 	qid					SERIAL				PRIMARY KEY,
 	qtype_uuid			BYTEA(16)			REFERENCES `pals_question_types`(`qtype_uuid`) ON UPDATE CASCADE ON DELETE RESTRICT		NOT NULL
 	title				VARCHAR(64)
 );
 -- Criteria for assessing a question; this will be responsible for assigning marks. Any criteria parameters are stored and handled by the criteria-type.
-CREATE TABLE `pals_question_criteria`
+CREATE TABLE pals_question_criteria
 (
 	qid					INT					REFERENCES `pals_question`(`qid`) 			ON UPDATE CASCADE ON DELETE CASCADE,
 	ctype_uuid			BYTEA(16)			REFERENCES `pals_criteria_types`(`ctype`) 	ON UPDATE CASCADE ON DELETE CASCADE,
@@ -124,7 +124,7 @@ CREATE TABLE `pals_question_criteria`
 
 
 -- An assignment, many to a single module.
-CREATE TABLE `pals_assignment`
+CREATE TABLE pals_assignment
 (
 	assid				SERIAL				PRIMARY KEY,
 	moduleid			INT					REFERENCES `pals_modules`(`moduleid`) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -133,7 +133,7 @@ CREATE TABLE `pals_assignment`
 	weight				INT																											NOT NULL
 );
 -- The questions which belong to an assignment; note: the same question may be used multiple times.
-CREATE TABLE `pals_assignment_questions`
+CREATE TABLE pals_assignment_questions
 (
 	aqid				SERIAL				PRIMARY KEY,
 	assid				INT					REFERENCES `pals_assignments`(`assid`) 	ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
@@ -150,7 +150,7 @@ CREATE TABLE `pals_assignment_questions`
 
 
 -- An instance of an assignment, created when a user attempts an assignment.
-CREATE TABLE `pals_assignment_instance`
+CREATE TABLE pals_assignment_instance
 (
 	aiid				SERIAL				PRIMARY KEY,
 	-- The user who has answered the assignment.
@@ -161,7 +161,7 @@ CREATE TABLE `pals_assignment_instance`
 	mark				INT					DEFAULT 0
 );
 -- Data for answered questions of an instance of an assignment; this table may not be used by plugins handling instance data on their own.
-CREATE TABLE `pals_assignment_instance_data`
+CREATE TABLE pals_assignment_instance_data
 (
 	aqid				INT					REFERENCES `pals_assignments_questions`(`aqid`) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
 	-- Contains data used to answer the question; this can be key/value or even null.
