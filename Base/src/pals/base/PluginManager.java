@@ -102,6 +102,7 @@ public class PluginManager
         // Attempt to load each JAR in the plugins directory
         try
         {
+            core.getLogging().log("Loading plugins at '" + core.getPathPlugins() + "'...", Logging.EntryType.Info);
             for(File jar : Files.getAllFiles(core.getPathPlugins(), false, true, ".jar", true))
             {
                 if(load(jar.getPath()) == PluginLoad.Failed)
@@ -194,7 +195,7 @@ public class PluginManager
             {
                 default:
                     core.getLogging().log("Failed to load potential JAR at '" + jarPath + "'.", ex, Logging.EntryType.Warning);
-                    break;
+                    return PluginLoad.FailedIrrelevant;
                 case ClassNotFound:
                     core.getLogging().log("Failed to load class of plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
                     break;

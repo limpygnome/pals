@@ -1,8 +1,11 @@
 package pals.base.web;
 
+import java.io.IOException;
 import java.util.HashMap;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
 
 /**
  * A wrapper for holding any instance data. transported around the node, when
@@ -21,8 +24,9 @@ public class WebRequestData
     private final RemoteRequest             request;        // Remote request data.
     private final RemoteResponse            response;       // Remote response data.
     private final HashMap<String,String>    templateData;   // Template data for the current request.
+    private DatabaseHttpSession             session;        // Session data.
     // Methods - Constructors **************************************************
-    public WebRequestData(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
+    private WebRequestData(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
     {
         this.core = core;
         this.connector = connector;
@@ -30,32 +34,57 @@ public class WebRequestData
         this.response = response;
         this.templateData = new HashMap<>();
     }
+    // Methods - Static ********************************************************
+    public static WebRequestData create(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
+    {
+        WebRequestData data = new WebRequestData(core, connector, request, response);
+        try
+        {
+            data.session = DatabaseHttpSession.load(connector, request.getSessionID(), request.getIpAddress());
+        }
+        catch(ClassNotFoundException | DatabaseException | IOException | IllegalArgumentException ex)
+        {
+            core.getLogging().log("Could not load session data for user.", ex, Logging.EntryType.Warning);
+            // Failed to load the session - give the user a new session...
+            try
+            {
+                data.session = DatabaseHttpSession.load(connector, null, request.getIpAddress());
+            }
+            catch(ClassNotFoundException | DatabaseException | IOException | IllegalArgumentException ex2)
+            {
+                // Possibly a serious error...log and abort handling the request...
+                core.getLogging().log("Could not load session data for user.", ex2, Logging.EntryType.Warning);
+                return null;
+            }
+        }
+        return data;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The current instance of the core.
      */
-    public NodeCore getCore()
+    public synchronized NodeCore getCore()
     {
         return core;
     }
     /**
      * @return The database connector for this request.
      */
-    public Connector getConnector()
+    public synchronized Connector getConnector()
     {
         return connector;
     }
     /**
      * @return The remote request data for this request.
      */
-    public RemoteRequest getRequestData()
+    public synchronized RemoteRequest getRequestData()
     {
         return request;
     }
     /**
      * @return The remote response data for this request.
      */
-    public RemoteResponse getResponseData()
+    public synchronized RemoteResponse getResponseData()
     {
         return response;
     }
@@ -66,6 +95,14 @@ public class WebRequestData
     public synchronized String getTemplateData(String key)
     {
         return templateData.get(key);
+    }
+    /**
+     * @return The session data/manager associated with the current user making
+     * the request.
+     */
+    public synchronized DatabaseHttpSession getSession()
+    {
+        return session;
     }
     // Methods - Mutators ******************************************************
     /**

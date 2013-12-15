@@ -1,6 +1,6 @@
 package pals.base;
 
-import java.rmi.RemoteException;
+import java.io.IOException;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.web.RemoteRequest;
@@ -33,25 +33,18 @@ public class WebManager
      * 
      * @param request The request data.
      * @param response The response data.
-     * @throws Thrown if an issue occurs with RMI communication.
      */
     public void handleWebRequest(RemoteRequest request, RemoteResponse response)
     {
-        response.setBuffer("buffer unset...");
-        
-        System.out.println("We have a request...");
-        
+        System.out.println("We have a request... '" + request.getRelativeUrl() + "'");
         // Create a new connection to the database
         Connector conn = core.createConnector();
         if(conn == null)
-        {
-            // set some sort of db error page
-            response.setBuffer("db failure...");
-            
-            return;
-        }
+            throw new IllegalStateException("Failed to connect to the database.");
         // Create wrapper to contain data
-        WebRequestData data = new WebRequestData(core, conn, request, response);
+        WebRequestData data = WebRequestData.create(core, conn, request, response);
+        if(data == null)
+            throw new IllegalStateException("Failed to prepare web-request, cannot continue (most likely an issue with loading session data)...");
         // Invoke webrequest start plugins
         Plugin[] plugins = core.getPlugins().getPlugins("base.web.request_start");
         for(Plugin plugin : plugins)
@@ -79,6 +72,17 @@ public class WebManager
             plugin.eventHandler_webRequestStop(data);
         // Render template and update response data
         
+        // Update session ID
+        response.setSessionID(data.getSession().getIdBase64());
+        // Persist session data
+        try
+        {
+            data.getSession().persist(conn);
+        }
+        catch(DatabaseException | IOException ex)
+        {
+            core.getLogging().log("Failed to persist session data of user.", ex, Logging.EntryType.Warning);
+        }
         // Dispose resources
         try
         {

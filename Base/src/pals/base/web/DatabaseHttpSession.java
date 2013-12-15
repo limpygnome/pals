@@ -14,7 +14,6 @@ import pals.base.database.Connector;
 import org.apache.commons.codec.binary.Base64;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
-import pals.base.utils.DateTime;
 
 /**
  * An alternate HttpSession manager, which persists a web-user's session to a
@@ -132,7 +131,8 @@ public class DatabaseHttpSession
                 }
             }
         }
-        else
+        // Check if to assign a new session ID...
+        if(session.sessid == null)
         {
             // Generate a new ID
             session.sessid = generateId();

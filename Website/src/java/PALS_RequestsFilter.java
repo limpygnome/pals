@@ -1,4 +1,3 @@
-
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,15 +11,22 @@ import javax.servlet.http.HttpServletRequest;
  * A filter used to determine if the current request to the web application
  * should be processed by PALS.
  */
-public class RequestsFilter implements Filter
+public class PALS_RequestsFilter implements Filter
 {
+    // Fields - Constants ******************************************************
+    /**
+     * The name of the attribute which contains the original URL of the request,
+     * before being dispatched/redirected.
+     */
+    public static final String REQUEST_ATTRIBUTE_NAME_ORIGINALURL = "url";
+    // Fields ******************************************************************
     // The filter configuration object we are associated with.  If
     // this value is null, this filter instance is not currently
     // configured. 
     private FilterConfig filterConfig = null;
-    
-    public RequestsFilter() {}
-
+    // Methods - Constructors **************************************************
+    public PALS_RequestsFilter() {}
+    // Methods *****************************************************************
     /**
      * Invoked during the chain of filter calls; this determines if to delegate
      * work to the servlet handling all requests interfacing with the PALS
@@ -40,10 +46,14 @@ public class RequestsFilter implements Filter
         if(request instanceof HttpServletRequest && !(url = ((HttpServletRequest)request).getRequestURI()).startsWith("/content"))
         {
             // PALS is to handle the request - forward to servlet!
+            request.setAttribute(REQUEST_ATTRIBUTE_NAME_ORIGINALURL, url);
             request.getRequestDispatcher("/pals").forward(request, response);
         }
-        // Continue chain of filters/to-servlet
-        chain.doFilter(request, response);
+        else
+        {
+            // Continue chain of filters/to-servlet
+            chain.doFilter(request, response);
+        }
     }
     /**
      * Return the filter configuration object for this filter.
@@ -77,9 +87,8 @@ public class RequestsFilter implements Filter
     @Override
     public String toString()
     {
-        if (filterConfig == null) {
+        if (filterConfig == null)
             return ("RequestsFilter()");
-        }
         StringBuffer sb = new StringBuffer("RequestsFilter(");
         sb.append(filterConfig);
         sb.append(")");

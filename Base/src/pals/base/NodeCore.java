@@ -1,6 +1,8 @@
 package pals.base;
 
-import java.rmi.RemoteException;
+import java.io.File;
+import java.io.IOException;
+import java.util.Random;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.connectors.*;
@@ -44,6 +46,8 @@ public class NodeCore
     // Fields ******************************************************************
     private State               state;                              // The current state of the core.
     private String              pathPlugins;                        // The path of where the plugins reside.
+    private String              pathShared;                         // The path of shared storage.
+    private Random              rng;                                // A random number generator (RNG) for general random usage; avoids multiple instances.
     // Fields - Core Components ************************************************
     private PluginManager       plugins;                            // A collection of plugins for the system.
     private TemplateManager     templates;                          // A collection of templates for the system.
@@ -62,6 +66,7 @@ public class NodeCore
         this.logging = null;
         this.settings = null;
         this.comms = null;
+        this.rng = null;
     }
     // Methods - Core **********************************************************
     /**
@@ -75,6 +80,8 @@ public class NodeCore
             return false;
         // Update the state to starting...
         state = State.Starting;
+        // Initialize RNG
+        rng = new Random(System.currentTimeMillis());
         // Start logging
         logging = Logging.createInstance("system", true);
         if(logging == null)
@@ -96,6 +103,48 @@ public class NodeCore
             return false;
         }
         logging.log("[CORE START] Loaded settings.", Logging.EntryType.Info);
+        // Check the storage path exists and we have read/write permissions
+        {
+            pathShared = settings.getStr("storage/path");
+            // Validate setting
+            if(pathShared == null || pathShared.length() == 0)
+            {
+                logging.log("[CORE START] Setting 'storage/path' is missing or invalid!", Logging.EntryType.Error);
+                stop(true);
+                return false;
+            }
+            // Validate access to path
+            Storage.StorageAccess access = Storage.checkAccess(pathShared, true, true, true, true);
+            switch(access)
+            {
+                case DoesNotExist:
+                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': path does not exist!", Logging.EntryType.Error);
+                    stop(true);
+                    return false;
+                case CannotRead:
+                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no read permissions!", Logging.EntryType.Error);
+                    stop(true);
+                    return false;
+                case CannotWrite:
+                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no write permissions!", Logging.EntryType.Error);
+                    stop(true);
+                    return false;
+                case CannotExecute:
+                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no execute permissions!", Logging.EntryType.Error);
+                    stop(true);
+                    return false;
+            }
+            // Log the storage path
+            File storage = new File(pathShared);
+            try
+            {
+                logging.log("[CORE START] Storage path '" + storage.getCanonicalPath() + "' checked, with r+w+e permissions.", Logging.EntryType.Info);
+            }
+            catch(IOException ex)
+            {
+                logging.log("[CORE START] Storage path '" + storage.getPath() + "' (#2) checked, with r+w+e permissions.", Logging.EntryType.Info);
+            }
+        }
         // Create an initial connection to the database
         Connector conn = createConnector();
         if(conn == null)
@@ -121,7 +170,7 @@ public class NodeCore
         }
         catch(SettingsException ex)
         {
-            // Doesn't exist - ignore and use default internal setting!
+            // Does not exist - ignore and use default internal setting!
         }
         if(!plugins.load())
         {
@@ -199,6 +248,8 @@ public class NodeCore
             logging = null;
         }
         logging.log("[CORE STOP] Disposed logging...", Logging.EntryType.Info);
+        // Destroy RNG
+        rng = null;
         // Update state
         state = failure ? State.Failed : State.Stopped;
         logging.log("[CORE STOP] Core stopped.", Logging.EntryType.Info);
@@ -260,9 +311,19 @@ public class NodeCore
             currentInstance = new NodeCore();
         return currentInstance;
     }
+    /**
+     * @return The path of where all the plugin libraries reside.
+     */
     public String getPathPlugins()
     {
         return pathPlugins;
+    }
+    /**
+     * @return The directory of shared files between node(s) and/or website(s).
+     */
+    public String getPathShared()
+    {
+        return pathShared;
     }
     // Methods - Accessors - Components ****************************************
     /**

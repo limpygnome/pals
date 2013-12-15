@@ -110,6 +110,7 @@ public class Logging
             switchLogFile();
         }
         String logEntry;
+        String logPrint;
         {
             StringBuilder sb = new StringBuilder();
             // Write the type of incident
@@ -127,14 +128,15 @@ public class Logging
             sb.append("\t");
             // Write the message -- escape EOR end tag too!
             sb.append(message.replace("\\EOE\\", "\\//EOE\\//"));
+            logPrint = sb.toString();
             sb.append("\\EOE\\");
             logEntry = sb.toString();
         }
         // Output to console and the log-file
         if(et == EntryType.Error)
-            System.err.println(logEntry);
+            System.err.println(logPrint);
         else
-            System.out.println(logEntry);
+            System.out.println(logPrint);
         pw.println(logEntry);
         pw.flush();
     }
