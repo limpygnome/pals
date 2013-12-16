@@ -125,6 +125,10 @@ public class PluginManager
     /**
      * Loads a JAR (Java Archive) plugin into the runtime.
      * 
+     * Note:
+     * - If a plugin with the same UUID is already loaded, that plugin is
+     *   unloaded.
+     * 
      * @param jarPath The path of the plugin.
      * @return True = successful, false = failed.
      */
@@ -146,10 +150,16 @@ public class PluginManager
                 return PluginLoad.Failed;
             }
             // Check the UUID is not already in-use
-            else if(plugins.containsKey(uuid))
+            System.out.println("checking if plugin is loaded...");
+            if(plugins.containsKey(uuid))
             {
-                core.getLogging().log("Failed to load plugin at '" + jarPath + "' - UUID (" + uuid.getHexHyphens() + ") already loaded.", Logging.EntryType.Error);
-                return PluginLoad.Failed;
+                // Unload the old plugin
+                Plugin p = plugins.get(uuid);
+                if(p == null || !unload(p))
+                {
+                    core.getLogging().log("Failed to load plugin at '" + jarPath + "' - UUID (" + uuid.getHexHyphens() + ") already loaded; could not be unloaded..", Logging.EntryType.Error);
+                    return PluginLoad.Failed;
+                }
             }
             // Fetch the plugin class and load an instance into the runtime
             String classPath = ps.getStr("plugin/classpath");
@@ -159,7 +169,7 @@ public class PluginManager
                 return PluginLoad.Failed;
             }
             Class c = jar.fetchClassType(classPath);
-            Plugin p = (Plugin)c.getDeclaredConstructor(UUID.class).newInstance(uuid);
+            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, Settings.class).newInstance(core, uuid, ps);
             // Add the plugin to the runtime
             plugins.put(uuid, p);
             // Inform the plugin to register to global events and templates/template-functions, urls and that's being loaded into the runtime
@@ -229,6 +239,7 @@ public class PluginManager
         plugin.eventHandler_pluginUnload(core);
         // Remove from manager
         plugins.remove(plugin.getUUID());
+        core.getLogging().log("Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
         return true;
     }
     /**

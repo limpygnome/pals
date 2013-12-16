@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -129,7 +128,7 @@ public class Settings
                     try
                     {
                         // Parse the data-type
-                        dt = SettingsNode.DataType.getType(Integer.parseInt(e.getAttribute(SETTINGS_XML_NODE__DATATYPE)));
+                        dt = SettingsNode.DataType.getType(e.getAttribute(SETTINGS_XML_NODE__DATATYPE));
                         // Parse the path
                         path = e.getAttribute(SETTINGS_XML_NODE__PATH).trim();
                         // Check the path is a valid format

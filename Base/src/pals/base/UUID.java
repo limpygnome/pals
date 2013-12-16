@@ -141,4 +141,21 @@ public class UUID
         // -- refer to getHexValue on why we use 55 and 48; should be pretty obvious.
         return (char)(intChar > 9 ? intChar+55 : intChar+48);
     }
+    // Methods - Overrides *****************************************************
+    @Override
+    public boolean equals(Object o)
+    {
+        return o instanceof UUID && ((UUID)o).data.equals(data);
+    }
+    @Override
+    public int hashCode()
+    {
+        // A very simple hash-code solution: simply add all the bytes and allow
+        // overflowing to occur
+        int hashval = 0;
+        for(char c : data.toCharArray())
+            hashval += c;
+        return hashval;
+    }
+    
 }

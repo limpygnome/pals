@@ -1,6 +1,7 @@
 package pals.plugins;
 
 import pals.base.NodeCore;
+import pals.base.Settings;
 import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.web.WebRequestData;
@@ -10,9 +11,9 @@ import pals.base.web.WebRequestData;
  */
 public class Example extends pals.base.Plugin
 {
-    public Example(UUID uuid)
+    public Example(NodeCore core, UUID uuid, Settings settings)
     {
-        super(uuid);
+        super(core, uuid, settings);
     }
     // Methods - Event Handlers ************************************************
     @Override
@@ -30,14 +31,12 @@ public class Example extends pals.base.Plugin
     {
         return true;
     }
-
     @Override
     public void eventHandler_pluginUnload(NodeCore core)
     {
         // Unregister URLs
         core.getWebManager().unregisterUrls(this);
     }
-    
     @Override
     public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
     {

@@ -33,20 +33,29 @@ public class SettingsNode
          * @param type The type to retrieve.
          * @return The enum of the data-type.
          */
-        public static DataType getType(int type)
+        public static DataType getType(String type)
         {
             switch(type)
             {
                 default:
-                case 0:
+                case "0":
+                case "string":
+                case "str":
                     return String;
-                case 1:
+                case "1":
+                case "bool":
+                case "boolean":
                     return Boolean;
-                case 2:
+                case "2":
+                case "int":
+                case "integer":
                     return Integer;
-                case 4:
+                case "4":
+                case "float":
+                case "fp":
                     return Float;
-                case 5:
+                case "5":
+                case "double":
                     return Double;
             }
         }

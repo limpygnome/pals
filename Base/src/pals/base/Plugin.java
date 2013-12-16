@@ -23,10 +23,14 @@ public class Plugin
     }
     // Fields ******************************************************************
     private final UUID          uuid;           // The unique identifier of this plugin.
+    private final NodeCore      core;           // The current instance of the core.
+    protected final Settings    settings;       // The plugin's settings (read-only).
     // Methods - Constructors **************************************************
-    public Plugin(UUID uuid)
+    public Plugin(NodeCore core, UUID uuid, Settings settings)
     {
+        this.core = core;
         this.uuid = uuid;
+        this.settings = settings;
     }
     // Methods - Mandatory *****************************************************
     /**
@@ -162,6 +166,13 @@ public class Plugin
     }
     
     // Methods - Accessors *****************************************************
+    /**
+     * @return The instance of the core of where this plugin is operating.
+     */
+    protected NodeCore getCore()
+    {
+        return core;
+    }
     /**
      * @return The unique identifier for this plugin.
      */
