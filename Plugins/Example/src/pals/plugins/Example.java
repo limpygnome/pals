@@ -30,6 +30,14 @@ public class Example extends pals.base.Plugin
     {
         return true;
     }
+
+    @Override
+    public void eventHandler_pluginUnload(NodeCore core)
+    {
+        // Unregister URLs
+        core.getWebManager().unregisterUrls(this);
+    }
+    
     @Override
     public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
     {
@@ -38,11 +46,15 @@ public class Example extends pals.base.Plugin
             "hello_world"
         });
     }
-
     @Override
     public boolean eventHandler_webRequest(WebRequestData data)
     {
         data.getResponseData().setBuffer("<!--if:test-->case a<!--else:test-->case b<!--endif:test-->");
         return true;
+    }
+    @Override
+    public String getTitle()
+    {
+        return "Example Plugin";
     }
 }

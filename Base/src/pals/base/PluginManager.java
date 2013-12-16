@@ -92,13 +92,19 @@ public class PluginManager
         return allSuccess;
     }
     /**
-     * Loads all of the plugins from the path specified in the current instance
+     * Reloads all of the plugins from the path specified in the current instance
      * of the NodeCore.
      * 
      * @return True if successful, false if failed.
      */
-    public synchronized boolean load()
+    public synchronized boolean reload()
     {
+        // Unload all the existing plugins
+        {
+            Plugin[] pgs = getPlugins();
+            for(Plugin p : pgs)
+                unload(p);
+        }
         // Attempt to load each JAR in the plugins directory
         try
         {
@@ -181,7 +187,8 @@ public class PluginManager
                 unload(p);
                 return PluginLoad.Failed;
             }
-            core.getLogging().log("Loaded plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ").", Logging.EntryType.Info);
+            core.getLogging().log("Loaded plugin '" + p.getTitle() + "' [" + jarPath + "](" + uuid.getHexHyphens() + ").", Logging.EntryType.Info);
+            jar.dispose();
             return PluginLoad.Loaded;
         }
         catch(SettingsException ex)
@@ -211,18 +218,26 @@ public class PluginManager
      * Unloads a plugin from the runtime.
      * 
      * @param plugin The plugin to be removed from the runtime.
+     * @return True = unloaded, false = not found/not unloaded.
      */
-    public synchronized void unload(Plugin plugin)
+    public synchronized boolean unload(Plugin plugin)
     {
-        // -- check it's loaded in the runtime!
-        // Unload a plugin from the runtime
-        // remember to un-reg hooks, template funcs etc.
+        // Check the plugin is valid
+        if(plugin == null || !(plugins.containsKey(plugin.getUUID()) && plugins.containsValue(plugin)))
+            return false;
+        // Unload the plugin from the runtime
+        plugin.eventHandler_pluginUnload(core);
+        // Remove from manager
+        plugins.remove(plugin.getUUID());
+        return true;
     }
     /**
-     * Unloads all the plugins from the runtime.
+     * Unloads all of the plugins.
      */
     public synchronized void unload()
     {
+        for(Plugin p : getPlugins())
+            unload(p);
     }
     // Methods - Accessors *****************************************************
     /**

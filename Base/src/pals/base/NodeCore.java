@@ -16,6 +16,12 @@ import pals.base.database.connectors.*;
 public class NodeCore
 {
     // Enums *******************************************************************
+    /**
+     * The state of the core.
+     * 
+     * The core can be in different states, which indicate the runtime
+     * operation mode of the base system.
+     */
     public enum State
     {
         /**
@@ -37,7 +43,30 @@ public class NodeCore
         /**
          * Indicates the core has failed and is not running.
          */
-        Failed
+        Failed,
+        /**
+         * Indicates the core has shutdown.
+         */
+        Shutdown
+    }
+    /**
+     * The type of core stop to occur.
+     */
+    public enum StopType
+    {
+        /**
+         * Indicates the core should just go into a normal stop state.
+         */
+        Normal,
+        /**
+         * Indicates the core should go into a failure/failed state.
+         */
+        Failure,
+        /**
+         * Indicates the core should go to a shutdown state; useful for sending
+         * a signal to daemon processes to cease execution.
+         */
+        Shutdown
     }
     // Constants ***************************************************************
     private static final String defaultPathPlugins = "_plugins";    // The default path of where plugins reside.
@@ -58,7 +87,7 @@ public class NodeCore
     // Methods - Constructors **************************************************
     private NodeCore()
     {
-        this.pathPlugins = defaultPathPlugins;
+        this.pathPlugins = this.pathShared = null;
         this.state = State.Stopped;
         this.plugins = null;
         this.templates = null;
@@ -80,6 +109,8 @@ public class NodeCore
             return false;
         // Update the state to starting...
         state = State.Starting;
+        // Notify any threads
+        notifyAll();
         // Initialize RNG
         rng = new Random(System.currentTimeMillis());
         // Start logging
@@ -87,7 +118,7 @@ public class NodeCore
         if(logging == null)
         {
             System.err.println("Failed to start core logging, aborted!");
-            stop(true);
+            stop(StopType.Failure);
             return false;
         }
         logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
@@ -99,7 +130,7 @@ public class NodeCore
         catch(SettingsException ex)
         {
             logging.log("Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.", Logging.EntryType.Error);
-            stop(true);
+            stop(StopType.Failure);
             return false;
         }
         logging.log("[CORE START] Loaded settings.", Logging.EntryType.Info);
@@ -110,7 +141,7 @@ public class NodeCore
             if(pathShared == null || pathShared.length() == 0)
             {
                 logging.log("[CORE START] Setting 'storage/path' is missing or invalid!", Logging.EntryType.Error);
-                stop(true);
+                stop(StopType.Failure);
                 return false;
             }
             // Validate access to path
@@ -119,19 +150,19 @@ public class NodeCore
             {
                 case DoesNotExist:
                     logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': path does not exist!", Logging.EntryType.Error);
-                    stop(true);
+                    stop(StopType.Failure);
                     return false;
                 case CannotRead:
                     logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no read permissions!", Logging.EntryType.Error);
-                    stop(true);
+                    stop(StopType.Failure);
                     return false;
                 case CannotWrite:
                     logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no write permissions!", Logging.EntryType.Error);
-                    stop(true);
+                    stop(StopType.Failure);
                     return false;
                 case CannotExecute:
                     logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no execute permissions!", Logging.EntryType.Error);
-                    stop(true);
+                    stop(StopType.Failure);
                     return false;
             }
             // Log the storage path
@@ -151,7 +182,7 @@ public class NodeCore
         {
             System.err.println("Failed to create database connector.");
             logging.log("Failed to create database connector.", Logging.EntryType.Error);
-            stop(true);
+            stop(StopType.Failure);
             return false;
         }
         logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
@@ -164,18 +195,22 @@ public class NodeCore
         // Initialize plugin manager, load all the plugins
         plugins = new PluginManager(this);
         // -- Attempt to load the plugins path from settings, if it exists
-        try
+        // -- -- Unless path has already been specified
+        if(pathPlugins == null)
         {
-            setPathPlugins((String)settings.get2("plugins/path"));
+            try
+            {
+                setPathPlugins((String)settings.get2("plugins/path"));
+            }
+            catch(SettingsException ex)
+            {
+                // Does not exist - ignore and use default internal setting!
+            }
         }
-        catch(SettingsException ex)
-        {
-            // Does not exist - ignore and use default internal setting!
-        }
-        if(!plugins.load())
+        if(!plugins.reload())
         {
             logging.log("Failed to load plugins.", Logging.EntryType.Error);
-            stop(true);
+            stop(StopType.Failure);
             return false;
         }
         logging.log("[CORE START] Loaded plugins.", Logging.EntryType.Info);
@@ -190,32 +225,36 @@ public class NodeCore
         catch(Exception ex)
         {
             logging.log("Failed to setup RMI server.", ex, Logging.EntryType.Error);
-            stop(true);
+            stop(StopType.Failure);
             return false;
         }
         logging.log("[CORE START] Started RMI service on port '" + rmiPort + "'.", Logging.EntryType.Info);
         logging.log("[CORE START] Core started.", Logging.EntryType.Info);
+        // Notify any threads
+        notifyAll();
         return true;
     }
     /**
-     * Stops the core of the node.
+     * Stops the core of the node (normal state).
      * @return True = stopped, false = no changes.
      */
     public synchronized boolean stop()
     {
-        return stop(false);
+        return stop(StopType.Normal);
     }
     /**
      * Stops the core of the node.
-     * @param failure Indicates the core is to stop due to a failure.
+     * @param type The type of core-stop to occur.
      * @return True = stopped, false = no changes.
      */
-    public synchronized boolean stop(boolean failure)
+    public synchronized boolean stop(StopType type)
     {
         if(state != State.Started)
             return false;
         state = State.Stopping;
         logging.log("[CORE STOP] Stopping core...", Logging.EntryType.Info);
+        // Notify any threads
+        notifyAll();
         // Dispose RMI/comms
         if(comms != null)
         {
@@ -241,18 +280,38 @@ public class NodeCore
         web = null;
         // Dispose settings
         settings = null;
+        // Destroy RNG
+        rng = null;
+        // Dispose paths
+        this.pathPlugins = this.pathShared = null;
+        // Decide on new state (and add any appropriate logging)
+        State newState;
+        switch(type)
+        {
+            case Failure:
+                logging.log("[CORE STOP] Going into failure state...", Logging.EntryType.Info);
+                newState = State.Failed;
+                break;
+            case Shutdown:
+                logging.log("[CORE STOP] Going into shutdown state...", Logging.EntryType.Info);
+                newState = State.Shutdown;
+                break;
+            case Normal:
+            default:
+                newState = State.Stopped;
+                break;
+        }
         // Unload logging
         if(logging != null)
         {
             logging.dispose(); // This should always be last!
             logging = null;
         }
-        logging.log("[CORE STOP] Disposed logging...", Logging.EntryType.Info);
-        // Destroy RNG
-        rng = null;
         // Update state
-        state = failure ? State.Failed : State.Stopped;
+        state = newState;
         logging.log("[CORE STOP] Core stopped.", Logging.EntryType.Info);
+        // Notify any threads
+        notifyAll();
         return false;
     }
     // Methods *****************************************************************
@@ -290,6 +349,18 @@ public class NodeCore
         }
         return null;
     }
+    // Methods - Waiting Related ***********************************************
+    /**
+     * Causes the invoking thread to wait until this object is notified; this
+     * will occur when the state of the core changes.
+     * 
+     * @throws InterruptedException Thrown by Object.wait(); refer to
+     * third-party documentation.
+     */
+    public synchronized void waitStateChange() throws InterruptedException
+    {
+        wait();
+    }
     // Methods - Mutators ******************************************************
     /**
      * @param pathPlugins The path of where plugins reside; this will be checked
@@ -310,6 +381,13 @@ public class NodeCore
         if(currentInstance == null)
             currentInstance = new NodeCore();
         return currentInstance;
+    }
+    /**
+     * @return The current state of the core.
+     */
+    public synchronized State getState()
+    {
+        return state;
     }
     /**
      * @return The path of where all the plugin libraries reside.
@@ -361,5 +439,13 @@ public class NodeCore
     public Settings getSettings()
     {
         return settings;
+    }
+    /**
+     * @return An instance of the Random class, which is created when the core
+     * first starts (seeded with the system time).
+     */
+    public Random getRNG()
+    {
+        return rng;
     }
 }

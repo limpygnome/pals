@@ -139,7 +139,7 @@ public class Files
         for(File f : dir.listFiles())
         {
             // Decide if to add the file/directory
-            if((includeDirs && f.isDirectory()) || (includeFiles && f.isFile()))
+            if(( (includeDirs && f.isDirectory()) || (includeFiles && f.isFile())) && (extFilter == null || f.getName().endsWith(extFilter)))
                 files.add(f);
             // Iterate the items of the directory
             if(subDirs && f.isDirectory())

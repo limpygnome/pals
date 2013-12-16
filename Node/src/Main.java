@@ -1,6 +1,3 @@
-
-import java.io.File;
-import java.io.IOException;
 import pals.base.NodeCore;
 
 /**
@@ -23,36 +20,11 @@ public class Main
             if(arg.equals("-dev"))
                 devMode = true;
         }
-        // Developers mode - copy plugins
+        // Developers mode - change plugins dir
         if(devMode)
         {
-            System.out.println("Warning: developer mode enabled!");
-            try
-            {
-                File root = new File("..");
-                String rootPath = root.getCanonicalPath();
-                int len;
-                String dirr;
-                String file;
-                System.out.println("[DEBUG] Copying plugins at '" + rootPath + "/Plugins'...");
-                for(File dir : pals.base.utils.Files.getAllFiles(rootPath + "/Plugins", true, false, ".jar", false))
-                {
-                    System.out.println("[DEBUG] Copying plugin at '" + dir.getPath() + "'...");
-                    dirr = dir.getCanonicalPath() + "/dist";
-                    len = dirr.length()+1;
-                    // Copy all the files in the dist dir
-                    for(File sf : pals.base.utils.Files.getAllFiles(dirr, false, true, null, true))
-                    {
-                        file = sf.getPath().substring(len);
-                        System.out.println("[DEBUG] - '" + dirr + "/" + file + "', 'Node/_plugins/" + dir.getName() + "/" + file  + "'");
-                        pals.base.utils.Files.fileCopy(dirr + "/" + file, rootPath + "/Node/_plugins/" + dir.getName() + "/" + file, true);
-                    }
-                }
-            }
-            catch(IOException ex)
-            {
-                System.out.println("[DEBUG] Failed to copy ~ '" + ex.getMessage() + "'.");
-            }
+            System.out.println("Warning: running node in developer-mode!");
+            core.setPathPlugins("../Plugins");
         }
         // Start the code...
         System.out.println("Starting node core...");
@@ -61,8 +33,17 @@ public class Main
             System.err.println("Failed to start core...");
             return;
         }
-        // Wait for the node to terminate
-        while(true)
-            ; // This is just temp until semaphores are introduced.
+        // Wait for the node to shutdown
+        while(core.getState() != NodeCore.State.Shutdown && core.getState() != NodeCore.State.Failed)
+        {
+            try
+            {
+                core.waitStateChange();
+            }
+            catch(InterruptedException ex)
+            {
+                System.err.println("Node error ~ InterruptedException ~ core.waitStateChange ~ '" + ex.getMessage() + "'!");
+            }
+        }
     }
 }

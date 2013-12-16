@@ -1,13 +1,11 @@
 package pals.base.utils;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -22,8 +20,8 @@ import java.util.jar.JarInputStream;
 public class JarIO
 {
     // Fields ******************************************************************
-    private final   String      path;       // The path of the JAR file.
-    private         ClassLoader loader;     // Used for accessing a JAR file.
+    private final   String          path;       // The path of the JAR file.
+    private         URLClassLoader  loader;     // Used for accessing a JAR file.
     // Methods - Constructors **************************************************
     private JarIO(String path)
     {
@@ -196,5 +194,20 @@ public class JarIO
         JarIO jio = new JarIO(fullPath);
         jio.loader = URLClassLoader.newInstance(new URL[]{fileURL});
         return jio;
+    }
+    /**
+     * Disposes any file streams used by this class.
+     */
+    public void dispose()
+    {
+        try
+        {
+            loader.close();
+        }
+        catch(IOException ex)
+        {
+        }
+        this.loader = null;
+        System.gc();
     }
 }
