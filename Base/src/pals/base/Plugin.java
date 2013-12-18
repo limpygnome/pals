@@ -167,7 +167,7 @@ public class Plugin
     /**
      * @return The instance of the core of where this plugin is operating.
      */
-    protected NodeCore getCore()
+    public NodeCore getCore()
     {
         return core;
     }
@@ -209,5 +209,12 @@ public class Plugin
     public DbPluginState getState()
     {
         return dbState;
+    }
+    /**
+     * @return The plugin's settings.
+     */
+    public Settings getSettings()
+    {
+        return settings;
     }
 }

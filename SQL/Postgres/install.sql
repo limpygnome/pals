@@ -2,7 +2,7 @@
 CREATE TABLE pals_nodes
 (
 	-- The UUID identifier of the node.
-	uuid_node			BYTEA,
+	uuid_node			BYTEA				PRIMARY KEY,
 	-- The title of the node; optional.
 	title				VARCHAR(64)			DEFAULT 'Untitled Node',
 	-- The date/time of when the node was last active.

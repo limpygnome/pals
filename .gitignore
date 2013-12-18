@@ -25,3 +25,6 @@ Todo.txt
 /Plugins/Runtime Plugin Reloader/nbproject/private/
 /Plugins/Runtime Plugin Reloader/dist/
 /Plugins/Runtime Plugin Reloader/build/
+/Plugins/NodeActive/nbproject/private/
+/Plugins/NodeActive/build/
+/Plugins/NodeActive/dist/
