@@ -18,6 +18,7 @@ public class NodeActiveThread implements Runnable
         this.na = na;
     }
     // Methods *****************************************************************
+    @Override
     public void run()
     {
         run = true;
@@ -41,15 +42,23 @@ public class NodeActiveThread implements Runnable
             {
                 lastUpdated = System.currentTimeMillis();
                 // Update the database
+                conn = na.getCore().createConnector();
                 try
                 {
-                    conn = na.getCore().createConnector();
+                    if(conn == null)
+                        throw new DatabaseException(DatabaseException.Type.ConnectionFailure);
                     conn.execute("UPDATE pals_nodes SET last_active=current_timestamp WHERE uuid_node=?;", na.getCore().getNodeUUID().getBytes());
                 }
                 catch(DatabaseException ex)
                 {
-                    na.getCore().getLogging().log("[NodeActive] Failed to update database.", ex, Logging.EntryType.Warning);
+                    na.getCore().getLogging().log("[NodeActive] Failed to update database.", ex, Logging.EntryType.Error);
                 }
+                // Disconnect from database
+                try
+                {
+                    conn.disconnect();
+                }
+                catch(DatabaseException ex){}
             }
         }
     }

@@ -28,3 +28,6 @@ Todo.txt
 /Plugins/NodeActive/nbproject/private/
 /Plugins/NodeActive/build/
 /Plugins/NodeActive/dist/
+/Plugins/SessionCleaner/nbproject/private/
+/Plugins/SessionCleaner/dist/
+/Plugins/SessionCleaner/build/
