@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import java.util.Random;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 import pals.base.database.connectors.*;
 
 /**
@@ -208,14 +209,36 @@ public class NodeCore
             logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
         }
         // Create an initial connection to the database
-        Connector conn = createConnector();
-        if(conn == null)
         {
-            logging.log("[CORE START] Failed to create database connector.", Logging.EntryType.Error);
-            stop(StopType.Failure);
-            return false;
+            Connector conn = createConnector();
+            if(conn == null)
+            {
+                logging.log("[CORE START] Failed to create database connector.", Logging.EntryType.Error);
+                stop(StopType.Failure);
+                return false;
+            }
+            else
+                logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
+            // Check this node exists in the database, else create the record
+            try
+            {
+                long result = (long)conn.executeScalar("SELECT COUNT('') FROM pals_nodes WHERE uuid_node=?;", uuidNode.getBytes());
+                if(result == 0)
+                {
+                    conn.execute("INSERT INTO pals_nodes (uuid_node,last_active) VALUES(?,current_timestamp);", uuidNode.getBytes());
+                    logging.log("[CORE START] Added node to database.", Logging.EntryType.Info);
+                }
+                // Dispose connection
+                conn.disconnect();
+            }
+            catch(DatabaseException ex)
+            {
+                logging.log("[CORE START] Failed to check existence of node in database.", ex, Logging.EntryType.Error);
+                stop(StopType.Failure);
+                return false;
+            }
         }
-        logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
+        // Update our IP address and RMI port
         // Initialize the templates manager, load the required templates
         templates = new TemplateManager(this);
         logging.log("[CORE START] Initialized templates.", Logging.EntryType.Info);
