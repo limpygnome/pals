@@ -47,4 +47,9 @@ public class SessionCleaner extends Plugin
     {
         return "PALS: Session Cleaner";
     }
+    @Override
+    public boolean isSystemPlugin()
+    {
+        return true;
+    }
 }

@@ -12,6 +12,8 @@ import pals.base.Settings;
 import pals.base.Storage;
 import pals.base.TemplateItem;
 import pals.base.UUID;
+import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
 
 /**
  * A plugin which monitors the file-system and automatically loads/reloads
@@ -34,7 +36,18 @@ public class RuntimePluginReloader extends pals.base.Plugin
     {
         super(core, uuid, settings, jarPath);
     }
+
     // Methods - Event Handlers ************************************************
+    @Override
+    public boolean eventHandler_pluginInstall(NodeCore core)
+    {
+        return true;
+    }
+    @Override
+    public boolean eventHandler_pluginUninstall(NodeCore core)
+    {
+        return true;
+    }
     @Override
     public boolean eventHandler_pluginLoad(NodeCore core)
     {
@@ -63,7 +76,21 @@ public class RuntimePluginReloader extends pals.base.Plugin
                 {
                     if(path.endsWith(".jar"))
                     {
-                        getCore().getPlugins().load(path);
+                        try
+                        {
+                            // Create connector
+                            Connector conn = getCore().createConnector();
+                            if(conn == null)
+                                throw new DatabaseException(DatabaseException.Type.ConnectionFailure);
+                            // Reload plugin
+                            getCore().getPlugins().load(conn, path);
+                            // Dispose connector
+                            conn.disconnect();
+                        }
+                        catch(DatabaseException ex)
+                        {
+                            getCore().getLogging().log("[RuntimePluginReloader] Failed to load plugin - database exception.", ex, Logging.EntryType.Error);
+                        }
                     }
                 }
             };

@@ -9,55 +9,11 @@ import pals.base.web.WebRequestData;
  */
 public class Plugin
 {
-    // Enums *******************************************************************
-    /**
-     * The state of the plugin, held in the database.
-     */
-    public enum DbPluginState
-    {
-        /**
-         * Indicates the state is unknown.
-         */
-        Unknown(0),
-        /**
-         * Indicates the plugin is pending installation.
-         */
-        PendingInstall(1),
-        /**
-         * Indicates the plugin has been installed.
-         */
-        Installed(2),
-        /**
-         * Indicates the plugin is pending uninstallation.
-         */
-        PendingUninstall(4);
-        
-        private int val;    // The value state in the database.
-        private DbPluginState(int val)
-        {
-            this.val = val;
-        }
-        public static DbPluginState getType(int value)
-        {
-            switch(value)
-            {
-                case 1:
-                    return PendingInstall;
-                case 2:
-                    return Installed;
-                case 4:
-                    return PendingUninstall;
-                default:
-                    return Unknown;
-            }
-        }
-    }
     // Fields ******************************************************************
     private final UUID          uuid;           // The unique identifier of this plugin.
     private final NodeCore      core;           // The current instance of the core.
     protected final Settings    settings;       // The plugin's settings (read-only).
     private final String        jarLocation;    // The location of where the plugin was loaded.
-    private DbPluginState       dbState;        // The state of the plugin.
     // Methods - Constructors **************************************************
     public Plugin(NodeCore core, UUID uuid, Settings settings, String jarLocation)
     {
@@ -202,13 +158,6 @@ public class Plugin
     public boolean isSystemPlugin()
     {
         return false;
-    }
-    /**
-     * @return The state of the plugin; used for installation/uninstallation.
-     */
-    public DbPluginState getState()
-    {
-        return dbState;
     }
     /**
      * @return The plugin's settings.

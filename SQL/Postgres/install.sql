@@ -6,7 +6,10 @@ CREATE TABLE pals_nodes
 	-- The title of the node; optional.
 	title				VARCHAR(64)			DEFAULT 'Untitled Node',
 	-- The date/time of when the node was last active.
-	last_active			TIMESTAMP			NOT NULL
+	last_active			TIMESTAMP			NOT NULL,
+	-- RMI information - updated everytime a node starts-up.
+	rmi_ip				VARCHAR(45),
+	rmi_port			INT
 );
 -- The plugins which compromise of the system; these are responsible for assessment, handling web-pages
 -- and other system tasks.

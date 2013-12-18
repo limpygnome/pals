@@ -191,6 +191,33 @@ public abstract class Connector
         }
     }
     /**
+     * Used to exclusively lock a table - from anything, including reads.
+     * 
+     * @param table The table being locked.
+     * @param inTransaction Used to specify if the connector is currently
+     * within a transaction. If you are not in a transaction, this will begin
+     * a transaction before the lock. Invoking tableUnlock will commit the
+     * transaction and thus release the lock.
+     * @throws DatabaseException Thrown if an issue occurs.
+     */
+    public void tableLock(String table, boolean inTransaction) throws DatabaseException
+    {
+        throw new IllegalStateException("Not implemented for this connector.");
+    }
+    /**
+     * Unlocks a table by committing the transaction created by tableLock, if
+     * the current connection was not in a transaction already.
+     * 
+     * @param inTransaction Indicates if the connector is within a
+     * transaction. If this was false for tableLock, this should be false
+     * again.
+     * @throws DatabaseException Thrown if an issue occurs.
+     */
+    public void tableUnlock(boolean inTransaction) throws DatabaseException
+    {
+        throw new IllegalStateException("Not implemented for this connector.");
+    }
+    /**
      * The type of connector, for anonymously identifying different connectors.
      * It may be possible for different connectors to use the same number,
      * therefore it is the responsibility of the user installing plugins to

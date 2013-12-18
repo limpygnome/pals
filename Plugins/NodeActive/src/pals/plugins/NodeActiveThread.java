@@ -7,7 +7,7 @@ import pals.base.database.DatabaseException;
 /**
  * The class used to handle the updating of the database for this node.
  */
-public class NodeActiveThread implements Runnable
+public class NodeActiveThread extends Thread
 {
     // Fields ******************************************************************
     private NodeActive na;
@@ -62,8 +62,9 @@ public class NodeActiveThread implements Runnable
             }
         }
     }
-    public void stop()
+    public void stopRunning()
     {
         run = false;
+        interrupt();
     }
 }

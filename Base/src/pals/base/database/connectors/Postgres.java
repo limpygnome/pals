@@ -45,6 +45,20 @@ public class Postgres extends Connector
             throw new DatabaseException(DatabaseException.Type.ConnectionFailure, ex);
         }
     }
+
+    @Override
+    public void tableLock(String table, boolean inTransaction) throws DatabaseException
+    {
+        if(!inTransaction)
+            execute("BEGIN;");
+        execute("LOCK TABLE "+table+" IN ACCESS EXCLUSIVE MODE;");
+    }
+    @Override
+    public void tableUnlock(boolean inTransaction) throws DatabaseException
+    {
+        if(!inTransaction)
+            execute("COMMIT;");
+    }
     @Override
     public int getConnectorType()
     {

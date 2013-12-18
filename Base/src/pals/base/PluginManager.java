@@ -6,6 +6,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import javax.security.auth.login.FailedLoginException;
+import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 import pals.base.utils.Files;
 import pals.base.utils.JarIO;
 import pals.base.utils.JarIOException;
@@ -24,6 +28,58 @@ import pals.base.utils.JarIOException;
 public class PluginManager
 {
     // Enums *******************************************************************
+    /**
+     * The state of the plugin, held in the database.
+     */
+    public enum DbPluginState
+    {
+        /**
+         * Indicates the state is unknown.
+         */
+        Unknown(0),
+        /**
+         * Indicates the plugin is pending installation.
+         */
+        PendingInstall(1),
+        /**
+         * Indicates the plugin has been installed.
+         */
+        Installed(2),
+        /**
+         * Indicates the plugin is pending uninstallation.
+         */
+        PendingUninstall(4),
+        /**
+         * Indicates the plugin has been uninstalled; such a plugin will be
+         * rejected from loading into the runtime.
+         */
+        Uninstalled(8);
+        
+        private int val;    // The value state in the database.
+        private DbPluginState(int val)
+        {
+            this.val = val;
+        }
+        public static DbPluginState getType(int value)
+        {
+            switch(value)
+            {
+                case 1:
+                    return PendingInstall;
+                case 2:
+                    return Installed;
+                case 4:
+                    return PendingUninstall;
+                case 8:
+                    return Uninstalled;
+                default:
+                    return Unknown;
+            }
+        }
+    }
+    /**
+     * The status from attempting to load a plugin.
+     */
     public enum PluginLoad
     {
         /**
@@ -35,6 +91,11 @@ public class PluginManager
          * has invalid plugin configuration.
          */
         FailedIrrelevant,
+        /**
+         * Indicates the plugin has been uninstalled; thus it has been rejected
+         * from loading into the runtime.
+         */
+        FailedRejected,
         /**
          * Indicates the JAR is most likely a plugin, since it contains a
          * configuration file, but could not be loaded.
@@ -101,9 +162,10 @@ public class PluginManager
      * Reloads all of the plugins from the path specified in the current instance
      * of the NodeCore.
      * 
+     * @param conn Database connector.
      * @return True if successful, false if failed.
      */
-    public synchronized boolean reload()
+    public synchronized boolean reload(Connector conn)
     {
         // Unload all the existing plugins
         {
@@ -117,7 +179,7 @@ public class PluginManager
             core.getLogging().log("[PLUGINS] Loading plugins at '" + core.getPathPlugins() + "'...", Logging.EntryType.Info);
             for(File jar : Files.getAllFiles(core.getPathPlugins(), false, true, ".jar", true))
             {
-                if(load(jar.getPath()) == PluginLoad.Failed)
+                if(load(conn, jar.getPath()) == PluginLoad.Failed)
                     return false;
             }
         }
@@ -135,10 +197,11 @@ public class PluginManager
      * - If a plugin with the same UUID is already loaded, that plugin is
      *   unloaded.
      * 
+     * @param conn Database connector.
      * @param jarPath The path of the plugin.
      * @return True = successful, false = failed.
      */
-    public synchronized PluginLoad load(String jarPath)
+    public synchronized PluginLoad load(Connector conn, String jarPath)
     {
         try
         {
@@ -175,30 +238,108 @@ public class PluginManager
             }
             Class c = jar.fetchClassType(classPath);
             Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, Settings.class, String.class).newInstance(core, uuid, ps, jarPath);
+            // Check the state of the plugin
+            try
+            {
+                // Lock the plugins table - in-case this plugin is loaded at the same time on another node
+                // -- http://www.postgresql.org/docs/current/static/explicit-locking.html
+                conn.tableLock("pals_plugins", false);
+                // Retrieve the state
+                boolean failed = false, rejected = false, exists = false;
+                Result res = conn.read("SELECT state FROM pals_plugins WHERE uuid_plugin=?;", p.getUUID().getBytes());
+                DbPluginState s = DbPluginState.PendingInstall;
+                if(res.next())
+                {
+                    exists = true;
+                    // Check the state
+                    s = DbPluginState.getType((int)res.get("state"));
+                }
+                // Handle state
+                DbPluginState newState = s;
+                switch(s)
+                {
+                    case Installed:
+                        // Do nothing...we will continue loading the plugin as normal...
+                        break;
+                    case PendingInstall:
+                        if(!exists)
+                        {
+                            // Create plugin record
+                            conn.execute("INSERT INTO pals_plugins (uuid_plugin, title, state, system) VALUES(?,?,?,?);", p.getUUID().getBytes(), p.getTitle(), DbPluginState.PendingInstall.val, p.isSystemPlugin() ? "1" : "0");
+                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - added to the database.", Logging.EntryType.Info);
+                        }
+                        // Run installation of plugin
+                        if(!p.eventHandler_pluginInstall(core))
+                        {
+                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to install!", Logging.EntryType.Error);
+                            failed = true;
+                        }
+                        else
+                        {
+                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - installed.", Logging.EntryType.Info);
+                            newState = DbPluginState.Installed;
+                        }
+                        break;
+                    case PendingUninstall:
+                        // Run uninstallation of plugin
+                        if(!p.eventHandler_pluginUninstall(core))
+                        {
+                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to uninstall!", Logging.EntryType.Error);
+                            failed = true;
+                        }
+                        else
+                        {
+                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - uninstalled.", Logging.EntryType.Info);
+                            newState = DbPluginState.Uninstalled;
+                            rejected = true;
+                        }
+                        break;
+                    case Uninstalled:
+                        rejected = true;
+                        break;
+                    case Unknown:
+                        failed = true;
+                        break;
+                }
+                // Update the state (if it has changed)
+                if(newState != s)
+                    conn.execute("UPDATE pals_plugins SET state=? WHERE uuid_plugin=?;", newState.val, uuid.getBytes());
+                // Unlock the table - if a connection issue occurred, the locks associated with the connection would be droped
+                conn.tableUnlock(false);
+                if(rejected)
+                    return PluginLoad.FailedRejected;
+                else if(failed)
+                    return PluginLoad.Failed;
+            }
+            catch(DatabaseException ex)
+            {
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to retrieve/update state from database!", ex, Logging.EntryType.Error);
+                return PluginLoad.Failed;
+            }
             // Add the plugin to the runtime
             plugins.put(uuid, p);
             // Inform the plugin to register to global events and templates/template-functions, urls and that's being loaded into the runtime
             if(!p.eventHandler_registerHooks(core, this))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to register global event hooks!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register global event hooks!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerTemplates(core, core.getTemplates()))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to register templates/template-functions!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register templates/template-functions!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerUrls(core, core.getWebManager()))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to register paths/urls!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register paths/urls!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_pluginLoad(core))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to load!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to load!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }

@@ -13,27 +13,24 @@ public class NodeActive extends Plugin
 {
     // Fields ******************************************************************
     private NodeActiveThread nat;
-    private Thread thread;
     // Methods - Constructor ***************************************************
     public NodeActive(NodeCore core, UUID uuid, Settings settings, String jarPath)
     {
         super(core, uuid, settings, jarPath);
         nat = new NodeActiveThread(this);
-        thread = new Thread(nat);
     }
     @Override
     public boolean eventHandler_pluginLoad(NodeCore core)
     {
         // Setup thread to update the database
-        thread.start();
+        nat.start();
         return true;
     }
     @Override
     public void eventHandler_pluginUnload(NodeCore core)
     {
         // Dispose thread
-        nat.stop();
-        thread.interrupt();
+        nat.stopRunning();
     }
     @Override
     public boolean eventHandler_pluginInstall(NodeCore core)

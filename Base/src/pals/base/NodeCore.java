@@ -2,6 +2,8 @@ package pals.base;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.EnumSet;
 import java.util.Random;
 import pals.base.database.Connector;
@@ -209,36 +211,41 @@ public class NodeCore
             logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
         }
         // Create an initial connection to the database
+        Connector conn = createConnector();
+        if(conn == null)
         {
-            Connector conn = createConnector();
-            if(conn == null)
-            {
-                logging.log("[CORE START] Failed to create database connector.", Logging.EntryType.Error);
-                stop(StopType.Failure);
-                return false;
-            }
-            else
-                logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
+            logging.log("[CORE START] Failed to create database connector.", Logging.EntryType.Error);
+            stop(StopType.Failure);
+            return false;
+        }
+        else
+            logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
+        // Perform node SQL operations
+        try
+        {
             // Check this node exists in the database, else create the record
+            long result = (long)conn.executeScalar("SELECT COUNT('') FROM pals_nodes WHERE uuid_node=?;", uuidNode.getBytes());
+            if(result == 0)
+            {
+                conn.execute("INSERT INTO pals_nodes (uuid_node,last_active) VALUES(?,current_timestamp);", uuidNode.getBytes());
+                logging.log("[CORE START] Added node to database.", Logging.EntryType.Info);
+            }
+            // Update RMI information for this node
             try
             {
-                long result = (long)conn.executeScalar("SELECT COUNT('') FROM pals_nodes WHERE uuid_node=?;", uuidNode.getBytes());
-                if(result == 0)
-                {
-                    conn.execute("INSERT INTO pals_nodes (uuid_node,last_active) VALUES(?,current_timestamp);", uuidNode.getBytes());
-                    logging.log("[CORE START] Added node to database.", Logging.EntryType.Info);
-                }
-                // Dispose connection
-                conn.disconnect();
+                conn.execute("UPDATE pals_nodes SET rmi_ip=?, rmi_port=? WHERE uuid_node=?", InetAddress.getLocalHost().getHostAddress(), settings.getInt("rmi/port", 1099), uuidNode.getBytes());
             }
-            catch(DatabaseException ex)
+            catch(UnknownHostException ex)
             {
-                logging.log("[CORE START] Failed to check existence of node in database.", ex, Logging.EntryType.Error);
-                stop(StopType.Failure);
-                return false;
+                logging.log("[CORE START] Could not update RMI information - address could not be found for the local host!", ex, Logging.EntryType.Warning);
             }
         }
-        // Update our IP address and RMI port
+        catch(DatabaseException ex)
+        {
+            logging.log("[CORE START] Failed to check existence of node in database.", ex, Logging.EntryType.Error);
+            stop(StopType.Failure);
+            return false;
+        }
         // Initialize the templates manager, load the required templates
         templates = new TemplateManager(this);
         logging.log("[CORE START] Initialized templates.", Logging.EntryType.Info);
@@ -281,7 +288,7 @@ public class NodeCore
                 // Does not exist - ignore and use default internal setting!
             }
         }
-        if(!plugins.reload())
+        if(!plugins.reload(conn))
         {
             logging.log("Failed to load plugins.", Logging.EntryType.Error);
             stop(StopType.Failure);
@@ -301,6 +308,15 @@ public class NodeCore
             logging.log("Failed to setup RMI server.", ex, Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
+        }
+        // Dispose connector
+        try
+        {
+            conn.disconnect();
+        }
+        catch(DatabaseException ex)
+        {
+            logging.log("[CORE START] Failed to dispose connector.", ex, Logging.EntryType.Warning);
         }
         logging.log("[CORE START] Started RMI service on port '" + rmiPort + "'.", Logging.EntryType.Info);
         logging.log("[CORE START] Core started.", Logging.EntryType.Info);
