@@ -13,11 +13,14 @@ public class UUID
     // Fields - Static *********************************************************
     private static Random rand = null;
     // Fields ******************************************************************
-    private final String data;    // The UUID as a hexadecimal string without hyphens (32 characters), upper-case.
+    private final String data, dataHyphens;    // The UUID as a hexadecimal string without hyphens (32 characters), upper-case.
+    private byte[] cacheBytes;
     // Methods - Constructors **************************************************
     private UUID(String data)
     {
+        this.cacheBytes = null;
         this.data = (data.length() == 32 ? data : data.replace("-", "")).toUpperCase();
+        this.dataHyphens = this.data.substring(0, 8) + "-" + this.data.substring(8, 12) + "-" + this.data.substring(12, 16) + "-" + this.data.substring(16, 20) + "-" + this.data.substring(20, 32);
     }
     // Methods - Static ********************************************************
     /**
@@ -106,7 +109,7 @@ public class UUID
      */
     public String getHexHyphens()
     {
-        return data.substring(0, 8) + "-" + data.substring(8, 12) + "-" + data.substring(12, 16) + "-" + data.substring(16, 20) + "-" + data.substring(20, 32);
+        return dataHyphens;
     }
     /**
      * Gets the UUID as a series of bytes; note: this is recompiled each time,
@@ -115,18 +118,21 @@ public class UUID
      */
     public byte[] getBytes()
     {
-        byte[] result = new byte[16];
-        // 1 2 4 8 - we can produce a hex character with just four bits (2^4=16),
-        // thus we can fit two characters per byte - efficient storage!
-        int index;
-        long t;
-        for(int i = 0; i < 31; i+=2)
+        if(cacheBytes == null)
         {
-            index = i/2;
-            t = (getHexValue(data.charAt(i)) << 4) | getHexValue(data.charAt(i+1));
-            result[index] = (byte)t;
+            cacheBytes = new byte[16];
+            // 1 2 4 8 - we can produce a hex character with just four bits (2^4=16),
+            // thus we can fit two characters per byte - efficient storage!
+            int index;
+            long t;
+            for(int i = 0; i < 31; i+=2)
+            {
+                index = i/2;
+                t = (getHexValue(data.charAt(i)) << 4) | getHexValue(data.charAt(i+1));
+                cacheBytes[index] = (byte)t;
+            }
         }
-        return result;
+        return cacheBytes;
     }
     private static long getHexValue(long hexChar)
     {
