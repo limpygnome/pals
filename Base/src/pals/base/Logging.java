@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.EnumSet;
 import pals.base.utils.DateTime;
 
 /**
@@ -19,9 +20,11 @@ import pals.base.utils.DateTime;
  */
 public class Logging 
 {
-    // Constants ***************************************************************
-    public static final String FOLDER = "_logs";
     // Enums *******************************************************************
+    /**
+     * The type of log entry being made; allows different priorities of
+     * messages regarding the system.
+     */
     public enum EntryType
     {
         /**
@@ -35,20 +38,68 @@ public class Logging
         /**
          * A log entry about a critical error.
          */
-        Error
+        Error;
+        /**
+         * Allows a comma-separated list of types to be parsed into an enum-set
+         * for this type.
+         * 
+         * @param data Comma-separated list; can be empty or null. Can be value
+         * "All" for all types.
+         * @return Representation of that list as an EnumSet; returns null if
+         * parsing error.
+         */
+        public static EnumSet<EntryType> getSet(String data)
+        {
+            // Check if to specify all or none types
+            if(data == null || data.length() == 0)
+                return EnumSet.noneOf(EntryType.class);
+            else if(data.toLowerCase().equals("all"))
+                return EnumSet.allOf(EntryType.class);
+            // Parse the types
+            EnumSet<EntryType> types = EnumSet.noneOf(EntryType.class);
+            String[] parts = data.split(",");
+            for(String part : parts)
+            {
+                if(part.length() > 0)
+                {
+                    try
+                    {
+                        types.add(Enum.valueOf(EntryType.class, part));
+                    }
+                    catch(IllegalArgumentException ex)
+                    {
+                        return null;
+                    }
+                }
+            }
+            return types;
+        }
     }
     // Fields ******************************************************************
-    private final String    alias;          // The name for the current log-file.
-    private PrintWriter     pw;             // The stream to the current log-file.
-    private DateTime        logDt;          // The current day of the current log-file, used for deciding if to switch logs when the day changes.
-    private boolean         stackTraces;    // Indicates if to log stack-traces of exceptions.
+    private NodeCore            core;           // The current instance of the core.
+    private final String        alias;          // The name for the current log-file.
+    private PrintWriter         pw;             // The stream to the current log-file.
+    private DateTime            logDt;          // The current day of the current log-file, used for deciding if to switch logs when the day changes.
+    private boolean             stackTraces;    // Indicates if to log stack-traces of exceptions.
+    private EnumSet<EntryType>  typesLogged;    // The types of errors logged.
     // Methods - Constructors **************************************************
-    private Logging(String alias, boolean stackTraces)
+    /**
+     * Creates a new instance for logging system events.
+     * 
+     * @param core The current instance of the core.
+     * @param alias The alias/name of the file.
+     * @param stackTraces Indicates if to log stack-traces.
+     * @param typesLogged The type of events to log; use bit-wise OR for multiple
+     * types.
+     */
+    private Logging(NodeCore core, String alias, boolean stackTraces, EnumSet<EntryType> typesLogged)
     {
+        this.core = core;
         this.alias = alias;
         this.pw = null;
         this.logDt = DateTime.getInstance();
         this.stackTraces = stackTraces;
+        this.typesLogged = typesLogged;
     }
     // Methods *****************************************************************
     /**
@@ -94,13 +145,17 @@ public class Logging
     }
     /**
      * Logs a message.
+     * 
      * @param message The message to be logged.
      * @param et The log entry type.
      */
     public synchronized void log(String message, EntryType et)
     {
+        // Check we log the type of event
+        if(!typesLogged.contains(et))
+            return;
         // Verify the message is not null, else ignore...
-        if(message == null)
+        else if(message == null)
             return;
         // Check if the day has changed
         DateTime dt = DateTime.getInstance();
@@ -150,13 +205,14 @@ public class Logging
         }
         try
         {
+            String folder = Storage.getPath_logs(core.getPathShared()) + "/" + core.getNodeUUID().getHexHyphens();
             // Check the logs folder exists, else create it
-            File dir = new File(FOLDER);
+            File dir = new File(folder);
             if(!dir.exists())
                 dir.mkdir();
             // Build the log path
             // Note: %0x = x padding of digit
-            String path = String.format("%s/%s_%04d_%02d_%02d.log", FOLDER, alias, logDt.getYear(), logDt.getMonth(), logDt.getDay());
+            String path = String.format("%s/%s_%04d_%02d_%02d.log", folder, alias, logDt.getYear(), logDt.getMonth(), logDt.getDay());
             // Open new log-file - set to append data too!
             pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(path), true)));
             return true;
@@ -191,15 +247,17 @@ public class Logging
      * WARNING: only one instance should exist for the specified name, else
      * another logging instance will not be able to access the file.
      * 
+     * @param core The current instance of the core.
      * @param alias The name of the logging file; the date of the current day
      * is also appended.
      * @param stackTraces Indicates if to log stack-traces.
+     * @param typesLogged The type of events logged.
      * 
      * @return Instance or null if an error occurred.
      */
-    public static Logging createInstance(String alias, boolean stackTraces)
+    public static Logging createInstance(NodeCore core, String alias, boolean stackTraces, EnumSet<EntryType> typesLogged)
     {
-        Logging l = new Logging(alias, stackTraces);
+        Logging l = new Logging(core, alias, stackTraces, typesLogged);
         if(!l.switchLogFile())
         {
             l.dispose();

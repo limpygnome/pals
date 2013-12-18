@@ -2,6 +2,7 @@ package pals.base;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.Random;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -71,6 +72,7 @@ public class NodeCore
     // Fields - Instance *******************************************************
     private static NodeCore     currentInstance = null;             // The current instance of the NodeCore.
     // Fields ******************************************************************
+    private UUID                uuidNode;                           // The UUID used to represent this node.
     private State               state;                              // The current state of the core.
     private String              pathPlugins;                        // The path of where the plugins reside.
     private String              pathShared;                         // The path of shared storage.
@@ -85,6 +87,7 @@ public class NodeCore
     // Methods - Constructors **************************************************
     private NodeCore()
     {
+        this.uuidNode = null;
         this.pathPlugins = this.pathShared = null;
         this.state = State.Stopped;
         this.plugins = null;
@@ -111,15 +114,6 @@ public class NodeCore
         notifyAll();
         // Initialize RNG
         rng = new Random(System.currentTimeMillis());
-        // Start logging
-        logging = Logging.createInstance("system", true);
-        if(logging == null)
-        {
-            System.err.println("[CORE START] Failed to start core logging, aborted!");
-            stop(StopType.Failure);
-            return false;
-        }
-        logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
         // Load base node settings
         try
         {
@@ -127,18 +121,28 @@ public class NodeCore
         }
         catch(SettingsException ex)
         {
-            logging.log("[CORE START] Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.", Logging.EntryType.Error);
+            System.err.println("[CORE START] Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.");
             stop(StopType.Failure);
             return false;
         }
-        logging.log("[CORE START] Loaded settings.", Logging.EntryType.Info);
+        System.out.println("[CORE START] Loaded settings.");
+        // Parse the UUID for this node
+        uuidNode = UUID.parse(settings.getStr("node/uuid"));
+        if(uuidNode == null)
+        {
+            System.err.println("[CORE START] Failed to parse UUID for this node (settings: node/uuid) ~ data: '" + settings.getStr("node/uuid") + "'!");
+            stop(StopType.Failure);
+            return false;
+        }
+        else
+            System.out.println("[CORE START] Node identifier: '" + uuidNode.getHexHyphens() + "'.");
         // Check the storage path exists and we have read/write permissions
         {
             pathShared = settings.getStr("storage/path");
             // Validate setting
             if(pathShared == null || pathShared.length() == 0)
             {
-                logging.log("[CORE START] Setting 'storage/path' is missing or invalid!", Logging.EntryType.Error);
+                System.err.println("[CORE START] Setting 'storage/path' is missing or invalid!");
                 stop(StopType.Failure);
                 return false;
             }
@@ -147,19 +151,19 @@ public class NodeCore
             switch(access)
             {
                 case DoesNotExist:
-                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': path does not exist!", Logging.EntryType.Error);
+                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': path does not exist!");
                     stop(StopType.Failure);
                     return false;
                 case CannotRead:
-                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no read permissions!", Logging.EntryType.Error);
+                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no read permissions!");
                     stop(StopType.Failure);
                     return false;
                 case CannotWrite:
-                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no write permissions!", Logging.EntryType.Error);
+                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no write permissions!");
                     stop(StopType.Failure);
                     return false;
                 case CannotExecute:
-                    logging.log("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no execute permissions!", Logging.EntryType.Error);
+                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no execute permissions!");
                     stop(StopType.Failure);
                     return false;
             }
@@ -167,12 +171,41 @@ public class NodeCore
             File storage = new File(pathShared);
             try
             {
-                logging.log("[CORE START] Storage path '" + storage.getCanonicalPath() + "' checked, with r+w+e permissions.", Logging.EntryType.Info);
+                System.out.println("[CORE START] Storage path '" + storage.getCanonicalPath() + "' checked, with r+w+e permissions.");
             }
             catch(IOException ex)
             {
-                logging.log("[CORE START] Storage path '" + storage.getPath() + "' (#2) checked, with r+w+e permissions.", Logging.EntryType.Info);
+                System.err.println("[CORE START] Storage path '" + storage.getPath() + "' (#2) checked, with r+w+e permissions.");
             }
+        }
+        // Ensure temp folder exists for web uploads
+        {
+            File dirTemp = new File(Storage.getPath_webTemp(pathShared));
+            if(!dirTemp.exists())
+                dirTemp.mkdir();
+        }
+        // Ensure logs folder exists
+        {
+            File dirLogs = new File(Storage.getPath_logs(pathShared));
+            if(!dirLogs.exists())
+                dirLogs.mkdir();
+        }
+        // Start logging
+        {
+            EnumSet loggingTypes = Logging.EntryType.getSet(settings.getStr("node/logging_types"));
+            if(loggingTypes == null)
+            {
+                System.err.println("[CORE START] Invalid logging types specified on config (setting: node/logging_types), value: '" + settings.getStr("node/logging_types") + "'!");
+                stop(StopType.Failure);
+                return false;
+            }
+            if((logging = Logging.createInstance(this, "system", true, loggingTypes)) == null)
+            {
+                System.err.println("[CORE START] Failed to start core logging, aborted!");
+                stop(StopType.Failure);
+                return false;
+            }
+            logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
         }
         // Create an initial connection to the database
         Connector conn = createConnector();
@@ -187,22 +220,25 @@ public class NodeCore
         templates = new TemplateManager(this);
         logging.log("[CORE START] Initialized templates.", Logging.EntryType.Info);
         // Load templates from shared folder
-        File dirTemlates = new File(pathShared + "/templates");
-        if(dirTemlates.exists() && dirTemlates.isDirectory())
         {
-            if(!templates.loadDir(null, pathShared + "/templates"))
+            String pathTemplates = Storage.getPath_templates(pathShared);
+            File dirTemlates = new File(pathTemplates);
+            if(dirTemlates.exists() && dirTemlates.isDirectory())
             {
-                logging.log("[CORE START] Failed to load shared storage templates at '" + dirTemlates.getPath() + "'!", Logging.EntryType.Error);
-                stop(StopType.Failure);
-                return false;
+                if(!templates.loadDir(null, pathTemplates))
+                {
+                    logging.log("[CORE START] Failed to load shared storage templates at '" + dirTemlates.getPath() + "'!", Logging.EntryType.Error);
+                    stop(StopType.Failure);
+                    return false;
+                }
+                else
+                    logging.log("[CORE START] Loaded shared storage templates.", Logging.EntryType.Info);
             }
             else
-                logging.log("[CORE START] Loaded shared storage templates.", Logging.EntryType.Info);
-        }
-        else
-        {
-            dirTemlates.mkdir();
-            logging.log("[CORE START] Created templates directory in shared file storage.", Logging.EntryType.Info);
+            {
+                dirTemlates.mkdir();
+                logging.log("[CORE START] Created templates directory in shared file storage.", Logging.EntryType.Info);
+            }
         }
         // Initialize web manager
         web = new WebManager(this);
@@ -322,6 +358,8 @@ public class NodeCore
             logging.dispose(); // This should always be last!
             logging = null;
         }
+        // Reset uuid
+        uuidNode = null;
         // Update state
         state = newState;
         logging.log("[CORE STOP] Core stopped.", Logging.EntryType.Info);
@@ -462,5 +500,12 @@ public class NodeCore
     public Random getRNG()
     {
         return rng;
+    }
+    /**
+     * @return The UUID used to identify this node.
+     */
+    public UUID getNodeUUID()
+    {
+        return uuidNode;
     }
 }

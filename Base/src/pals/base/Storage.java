@@ -51,11 +51,32 @@ public class Storage
      * Temporary web directory; items in this directory should not be left for
      * longer than 15 minutes.
      * 
-     * @param pathShared The path of the shared directory.
+     * @param pathShared The path of the shared directory/storage.
      * @return The path of the temporary web directory.
      */
     public static String getPath_webTemp(String pathShared)
     {
         return pathShared + "/temp_web";
+    }
+    /**
+     * The templates directory. Any core templates, not belonging to plugins,
+     * should be stored in this directory.
+     * 
+     * @param pathShared The path of the shared directory/storage.
+     * @return The path of the templates directory.
+     */
+    public static String getPath_templates(String pathShared)
+    {
+        return pathShared + "/templates";
+    }
+    /**
+     * The root-path for all log files.
+     * 
+     * @param pathShared The path of the shared directory/storage.
+     * @return The path of the logs directory.
+     */
+    public static String getPath_logs(String pathShared)
+    {
+        return pathShared + "/logs";
     }
 }

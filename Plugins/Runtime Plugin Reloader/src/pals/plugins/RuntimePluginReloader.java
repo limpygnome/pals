@@ -9,6 +9,7 @@ import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
+import pals.base.Storage;
 import pals.base.TemplateItem;
 import pals.base.UUID;
 
@@ -37,7 +38,7 @@ public class RuntimePluginReloader extends pals.base.Plugin
     @Override
     public boolean eventHandler_pluginLoad(NodeCore core)
     {
-        pathTemplates = core.getPathShared() + "/templates";
+        pathTemplates = Storage.getPath_templates(core.getPathShared());
         // Setup the plugins dir to be watched
         filesObserverPlugins = new FileAlterationObserver(core.getPathPlugins());
         filesObserverTemplates = new FileAlterationObserver(pathTemplates);
