@@ -16,7 +16,7 @@ public class Test_Plugin
             JarIO jar = JarIO.open(path);
             System.out.println("Path: '" + jar.getPath() + "'.");
             System.out.println("Files:");
-            for(String str : jar.getFiles(null, true, false))
+            for(String str : jar.getFiles(null, null, true, false))
                 System.out.println("- '" + str + "'");
             Plugin example = (Plugin)jar.fetchClassType("pals.plugins.Example").newInstance();
             //System.out.println("Output from test method: '" + example.test() + "'"); // commented-out -> no longer exists!

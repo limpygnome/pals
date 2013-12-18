@@ -15,6 +15,11 @@ import pals.base.utils.JarIOException;
  * operations.
  * 
  * Thread-safe.
+ * *****************************************************************************
+ * Base hooks:
+ * base.web.request_start           RemoteRequest,RemoteResponse        Invoked at the start of a web-request.
+ * base.web.request_end             RemoteRequest,RemoteResponse        Invoked at the end of a web-request.
+ * base.web.request_404             RemoteRequest,RemoteResponse        Invoked to handle page not found event.
  */
 public class PluginManager
 {
@@ -60,18 +65,19 @@ public class PluginManager
      */
     public synchronized boolean registerGlobalEvent(Plugin plugin, String event)
     {
-        ArrayList<Plugin> plugins;
+        // Check the event has an array-list
+        if(!registerGlobalEvents.containsKey(event))
+            registerGlobalEvents.put(event, new ArrayList<Plugin>());
         // Grab the list of plugins already hooked
-        if(registerGlobalEvents.containsKey(event))
-            plugins = registerGlobalEvents.get(event);
-        else
-            plugins = registerGlobalEvents.put(event, new ArrayList<Plugin>());
+        ArrayList<Plugin> pgs = registerGlobalEvents.get(event);
         // Add the plugin if it doesnt exist
-        if(!plugins.contains(plugin))
-            plugins.add(plugin);
+        if(!pgs.contains(plugin))
+        {
+            pgs.add(plugin);
+            return true;
+        }
         else
             return false;
-        return true;
     }
     /**
      * Re-registers all the global events.
@@ -108,7 +114,7 @@ public class PluginManager
         // Attempt to load each JAR in the plugins directory
         try
         {
-            core.getLogging().log("Loading plugins at '" + core.getPathPlugins() + "'...", Logging.EntryType.Info);
+            core.getLogging().log("[PLUGINS] Loading plugins at '" + core.getPathPlugins() + "'...", Logging.EntryType.Info);
             for(File jar : Files.getAllFiles(core.getPathPlugins(), false, true, ".jar", true))
             {
                 if(load(jar.getPath()) == PluginLoad.Failed)
@@ -146,18 +152,17 @@ public class PluginManager
             UUID uuid = UUID.parse(rawUuid);
             if(uuid == null)
             {
-                core.getLogging().log("Failed to load plugin at '" + jarPath + "' - incorrect UUID '" + rawUuid + "'.", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - incorrect UUID '" + rawUuid + "'.", Logging.EntryType.Error);
                 return PluginLoad.Failed;
             }
             // Check the UUID is not already in-use
-            System.out.println("checking if plugin is loaded...");
             if(plugins.containsKey(uuid))
             {
                 // Unload the old plugin
                 Plugin p = plugins.get(uuid);
                 if(p == null || !unload(p))
                 {
-                    core.getLogging().log("Failed to load plugin at '" + jarPath + "' - UUID (" + uuid.getHexHyphens() + ") already loaded; could not be unloaded..", Logging.EntryType.Error);
+                    core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ already loaded; could not be unloaded..", Logging.EntryType.Error);
                     return PluginLoad.Failed;
                 }
             }
@@ -165,45 +170,45 @@ public class PluginManager
             String classPath = ps.getStr("plugin/classpath");
             if(classPath == null)
             {
-                core.getLogging().log("Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Error);
                 return PluginLoad.Failed;
             }
             Class c = jar.fetchClassType(classPath);
-            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, Settings.class).newInstance(core, uuid, ps);
+            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, Settings.class, String.class).newInstance(core, uuid, ps, jarPath);
             // Add the plugin to the runtime
             plugins.put(uuid, p);
             // Inform the plugin to register to global events and templates/template-functions, urls and that's being loaded into the runtime
             if(!p.eventHandler_registerHooks(core, this))
             {
-                core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register global event hooks!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to register global event hooks!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerTemplates(core, core.getTemplates()))
             {
-                core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register templates/template-functions!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to register templates/template-functions!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerUrls(core, core.getWebManager()))
             {
-                core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to register paths/urls!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to register paths/urls!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_pluginLoad(core))
             {
-                core.getLogging().log("Plugin '" + p.getTitle() + "' (" + uuid.getHexHyphens() + ") failed to load!", Logging.EntryType.Error);
+                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] failed to load!", Logging.EntryType.Error);
                 unload(p);
                 return PluginLoad.Failed;
             }
-            core.getLogging().log("Loaded plugin '" + p.getTitle() + "' [" + jarPath + "](" + uuid.getHexHyphens() + ").", Logging.EntryType.Info);
+            core.getLogging().log("[PLUGINS] Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "].", Logging.EntryType.Info);
             jar.dispose();
             return PluginLoad.Loaded;
         }
         catch(SettingsException ex)
         {
-            core.getLogging().log("Failed to load plugin at '" + jarPath + "' - incorrect settings file.", ex, Logging.EntryType.Error);
+            core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - incorrect settings file.", ex, Logging.EntryType.Error);
             return PluginLoad.FailedIrrelevant;
         }
         catch(JarIOException ex)
@@ -211,16 +216,16 @@ public class PluginManager
             switch(ex.getReason())
             {
                 default:
-                    core.getLogging().log("Failed to load potential JAR at '" + jarPath + "'.", ex, Logging.EntryType.Warning);
+                    core.getLogging().log("[PLUGINS] Failed to load potential JAR at '" + jarPath + "'.", ex, Logging.EntryType.Warning);
                     return PluginLoad.FailedIrrelevant;
                 case ClassNotFound:
-                    core.getLogging().log("Failed to load class of plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
+                    core.getLogging().log("[PLUGINS] Failed to load class of plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
                     break;
             }
         }
         catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex)
         {
-            core.getLogging().log("Invalid class for plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
+            core.getLogging().log("[PLUGINS] Invalid class for plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
         }
         return PluginLoad.Failed;
     }
@@ -239,7 +244,7 @@ public class PluginManager
         plugin.eventHandler_pluginUnload(core);
         // Remove from manager
         plugins.remove(plugin.getUUID());
-        core.getLogging().log("Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
+        core.getLogging().log("[PLUGINS] Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
         return true;
     }
     /**

@@ -48,14 +48,19 @@ public class RemoteRequest implements Serializable
      */
     public synchronized void setRelativeUrl(String relativeUrl)
     {
-        // Ensure the relative URL does not start or end with a forward-slash
-        if(relativeUrl.startsWith("/"))
+        if(relativeUrl == null)
+            this.relativeUrl = "";
+        else
         {
-            relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(1) : "";
-            if(relativeUrl.endsWith("/"))
-                relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(0, relativeUrl.length()-2) : "";
+            // Ensure the relative URL does not start or end with a forward-slash
+            if(relativeUrl.startsWith("/"))
+            {
+                relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(1) : "";
+                if(relativeUrl.endsWith("/"))
+                    relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(0, relativeUrl.length()-2) : "";
+            }
+            this.relativeUrl = relativeUrl;
         }
-        this.relativeUrl = relativeUrl;
     }
     /**
      * @param key The key of the field to set.
@@ -103,7 +108,8 @@ public class RemoteRequest implements Serializable
         return sessionID;
     }
     /**
-     * @return The requested relative URL; can be null.
+     * @return The requested relative URL; null-protected (becomes
+     * empty-string).
      */
     public synchronized String getRelativeUrl()
     {

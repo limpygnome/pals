@@ -31,6 +31,9 @@ import java.util.Map;
 public class UrlTree
 {
     // Enums *******************************************************************
+    /**
+     * The status of registering a URL/path.
+     */
     public enum RegisterStatus
     {
         Failed_Malformed,
@@ -40,6 +43,9 @@ public class UrlTree
     // Fields ******************************************************************
     private UrlTreeNode root;   // The root node of the tree.
     // Methods - Constructors **************************************************
+    /**
+     * Creates a new empty URL tree.
+     */
     public UrlTree()
     {
         reset();
@@ -69,19 +75,29 @@ public class UrlTree
         return path.split("/");
     }
     // Methods - Mutators ******************************************************
+    /**
+     * Resets the URL tree.
+     */
     public synchronized void reset()
     {
         // Note: terminator must be false due to methods such as getUuids
         // using the terminator indicator to add paths
         this.root = new UrlTreeNode(null, false);
     }
-    public synchronized RegisterStatus add(UUID uuid, String path)
+    /**
+     * Adds a new path to the URL tree.
+     * 
+     * @param plugin The owner of the path.
+     * @param path The path of the URL; without tailing forward slashes.
+     * @return The status of attempting to add the URL.
+     */
+    public synchronized RegisterStatus add(Plugin plugin, String path)
     {
-        if(uuid == null)
+        if(plugin == null)
             return RegisterStatus.Failed_Malformed;
         // Either return malformed (null parts) or recurse parts and add them...
         String[] parts = createParts(path);
-        return parts == null ? RegisterStatus.Failed_Malformed : add(uuid, root, 0, parts);
+        return parts == null ? RegisterStatus.Failed_Malformed : add(plugin.getUUID(), root, 0, parts);
     }
     private synchronized RegisterStatus add(UUID uuid, UrlTreeNode currNode, int pathOffset, String[] pathParts)
     {
@@ -111,12 +127,26 @@ public class UrlTree
         // Recurse new node to add further parts
         return add(uuid, nextChild, ++pathOffset, pathParts);
     }
-    public synchronized void remove(UUID uuid)
+    /**
+     * Removes all of the paths associated with a plugin.
+     * 
+     * @param plugin The plugin which owns the path(s).
+     */
+    public synchronized void remove(Plugin plugin)
     {
         // Iterate each node recursively
-        root.purge(uuid);
+        root.purge(plugin.getUUID());
     }
     // Methods - Accessors *****************************************************
+    /**
+     * Fetches all the plugins associated with a path. Since a path can
+     * have multiple directories, e.g. path/a/b/c, each directory can be
+     * owned by a different plugin. The order of UUIDs returned starts from
+     * the highest directory, towards the root. UUIDs are also unique.
+     * 
+     * @param path The path of which to fetch plugins.
+     * @return Array of plugins for the specified path.
+     */
     public UUID[] getUUIDs(String path)
     {
         ArrayList<UUID> result = new ArrayList<>();

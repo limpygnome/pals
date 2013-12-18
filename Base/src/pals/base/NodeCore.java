@@ -68,8 +68,6 @@ public class NodeCore
          */
         Shutdown
     }
-    // Constants ***************************************************************
-    private static final String defaultPathPlugins = "_plugins";    // The default path of where plugins reside.
     // Fields - Instance *******************************************************
     private static NodeCore     currentInstance = null;             // The current instance of the NodeCore.
     // Fields ******************************************************************
@@ -117,7 +115,7 @@ public class NodeCore
         logging = Logging.createInstance("system", true);
         if(logging == null)
         {
-            System.err.println("Failed to start core logging, aborted!");
+            System.err.println("[CORE START] Failed to start core logging, aborted!");
             stop(StopType.Failure);
             return false;
         }
@@ -129,7 +127,7 @@ public class NodeCore
         }
         catch(SettingsException ex)
         {
-            logging.log("Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.", Logging.EntryType.Error);
+            logging.log("[CORE START] Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.", Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
         }
@@ -180,8 +178,7 @@ public class NodeCore
         Connector conn = createConnector();
         if(conn == null)
         {
-            System.err.println("Failed to create database connector.");
-            logging.log("Failed to create database connector.", Logging.EntryType.Error);
+            logging.log("[CORE START] Failed to create database connector.", Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
         }
@@ -189,6 +186,24 @@ public class NodeCore
         // Initialize the templates manager, load the required templates
         templates = new TemplateManager(this);
         logging.log("[CORE START] Initialized templates.", Logging.EntryType.Info);
+        // Load templates from shared folder
+        File dirTemlates = new File(pathShared + "/templates");
+        if(dirTemlates.exists() && dirTemlates.isDirectory())
+        {
+            if(!templates.loadDir(null, pathShared + "/templates"))
+            {
+                logging.log("[CORE START] Failed to load shared storage templates at '" + dirTemlates.getPath() + "'!", Logging.EntryType.Error);
+                stop(StopType.Failure);
+                return false;
+            }
+            else
+                logging.log("[CORE START] Loaded shared storage templates.", Logging.EntryType.Info);
+        }
+        else
+        {
+            dirTemlates.mkdir();
+            logging.log("[CORE START] Created templates directory in shared file storage.", Logging.EntryType.Info);
+        }
         // Initialize web manager
         web = new WebManager(this);
         logging.log("[CORE START] Initialized web manager.", Logging.EntryType.Info);
@@ -272,7 +287,7 @@ public class NodeCore
         // Unload all the templates
         if(templates != null)
         {
-            templates.unload();
+            templates.clear();
             templates = null;
         }
         logging.log("[CORE STOP] Disposed templates...", Logging.EntryType.Info);

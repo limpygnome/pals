@@ -100,12 +100,13 @@ public class JarIO
     /**
      * Fetches a list of files in the archive.
      * @param filter Base directory for files to retrieve. Can be empty or null.
+     * @param extFilter Extension filter (for files). Can be empty or null.
      * @param files Indicates if to retrieve files.
      * @param directories Indicates if to retrieve directories.
      * @return An array of paths of files found matching the specified criteria.
      * @throws JarIOException Throws ResourceFetchError and FileReadPermissions.
      */
-    public String[] getFiles(String filter, boolean files, boolean directories) throws JarIOException
+    public String[] getFiles(String filter, String extFilter, boolean files, boolean directories) throws JarIOException
     {
         // Check if nothing is to be matched; if so, do no work.
         if(!files && !directories)
@@ -113,6 +114,7 @@ public class JarIO
         try
         {
             boolean useFilter = filter != null && filter.length() > 0;
+            boolean useExt = extFilter != null && extFilter.length() > 0;
             // Iterate each file in the archive
             JarInputStream jis = new JarInputStream(new FileInputStream(path));
             JarEntry je;
@@ -120,7 +122,7 @@ public class JarIO
             ArrayList<String> result = new ArrayList<>();
             while((je = jis.getNextJarEntry()) != null)
             {
-                if((je.isDirectory() && directories) || (!je.isDirectory() && files) && (!useFilter || je.getName().startsWith(filter)))
+                if((je.isDirectory() && directories) || (!je.isDirectory() && files) && (!useFilter || je.getName().startsWith(filter)) && (!useExt || (je.isDirectory() || je.getName().endsWith(extFilter))))
                 {
                     result.add(je.getName());
                 }

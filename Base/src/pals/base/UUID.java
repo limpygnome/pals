@@ -145,7 +145,7 @@ public class UUID
     @Override
     public boolean equals(Object o)
     {
-        return o instanceof UUID && ((UUID)o).data.equals(data);
+        return o instanceof UUID && o != null && ((UUID)o).data.equals(data);
     }
     @Override
     public int hashCode()

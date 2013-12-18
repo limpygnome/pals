@@ -43,7 +43,7 @@ public class RemoteResponse implements Serializable
      */
     public void setBuffer(String data)
     {
-        this.buffer = data.getBytes(Charset.forName("UTF-8"));
+        this.buffer = data == null ? null : data.getBytes(Charset.forName("UTF-8"));
     }
     /**
      * @param sessionID Sets the session ID to deliver to the user, for cookie

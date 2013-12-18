@@ -81,6 +81,7 @@ public class Files
         int len;
         while((len = br.read(chunk)) != -1)
             sb.append(chunk, 0, len);
+        br.close();
         return sb.toString();
     }
     /**

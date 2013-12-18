@@ -8,7 +8,7 @@ import pals.base.web.RemoteResponse;
 import pals.base.web.WebRequestData;
 
 /**
- * Responsible for managing requests forwarded to plugins.
+ * Responsible for forwarding web-requests to plugins.
  * 
  * Thread-safe.
  */
@@ -18,15 +18,37 @@ public class WebManager
     private NodeCore    core;           // The current instance of the node core.
     private UrlTree     urls;           // Used for finding which plugins are used when forwarding requests.
     // Methods - Constructors **************************************************
+    /**
+     * Creates a new web-manager.
+     * 
+     * @param core The current instance of the core.
+     */
     protected WebManager(NodeCore core)
     {
         this.core = core;
         this.urls = new UrlTree();
     }
     // Methods *****************************************************************
-    public boolean reload()
+    /**
+     * Reloads all of the URL hooks.
+     * 
+     * @return True = successful, false = failed.
+     */
+    public synchronized boolean reload()
     {
-        return false; // reload all the urls; like templates reload
+        core.getLogging().log("[WEB] Reloading all URLs.", Logging.EntryType.Info);
+        // Clear existing tree
+        urls.reset();
+        // Invoke all the plugins to re-register their URLs
+        for(Plugin p : core.getPlugins().getPlugins())
+        {
+            if(!p.eventHandler_registerUrls(core, this))
+            {
+                core.getLogging().log("[WEB] Failed to register URLs for plugin [" + p.getUUID().getHexHyphens() + "]!", null, Logging.EntryType.Error);
+                return false;
+            }
+        }
+        return true;
     }
     /**
      * Handles a web-request to the system.
@@ -36,7 +58,7 @@ public class WebManager
      */
     public void handleWebRequest(RemoteRequest request, RemoteResponse response)
     {
-        System.out.println("We have a request... '" + request.getRelativeUrl() + "'");
+        core.getLogging().log("[WEB] New request from '" + request.getIpAddress() + "' ~ '" + request.getRelativeUrl() + "'.", Logging.EntryType.Info);
         // Create a new connection to the database
         Connector conn = core.createConnector();
         if(conn == null)
@@ -47,10 +69,11 @@ public class WebManager
             throw new IllegalStateException("Failed to prepare web-request, cannot continue (most likely an issue with loading session data)...");
         // Invoke webrequest start plugins
         Plugin[] plugins = core.getPlugins().getPlugins("base.web.request_start");
+        Object[] args = new Object[]{data};
         for(Plugin plugin : plugins)
-            plugin.eventHandler_webRequestStart(data);
+            plugin.eventHandler_handleHook("base.web.request_start", args);
         // Fetch plugins capable of serving the request, else fetch pagenotfound handlers
-        UUID[] uuids = urls.getUUIDs("hello_world");
+        UUID[] uuids = urls.getUUIDs(request.getRelativeUrl());
         Plugin ph;
         boolean handled = false;
         for(UUID uuid : uuids)
@@ -64,14 +87,33 @@ public class WebManager
         }
         if(!handled)
         {
-            // Set 404 page...
+            // Fetch 404 handlers
+            plugins = core.getPlugins().getPlugins("base.web.request_404");
+            for(Plugin p : plugins)
+            {
+                if(p.eventHandler_handleHook("base.web.request_404", args))
+                {
+                    handled = true;
+                    break;
+                }
+            }
+            if(!handled)
+            {
+                // Set default 404 page
+                data.setTemplateData("pals_content", "pals/404");
+            }
         }
         // Invoke webrequest end plugins
         plugins = core.getPlugins().getPlugins("base.web.request_end");
         for(Plugin plugin : plugins)
-            plugin.eventHandler_webRequestStop(data);
+            plugin.eventHandler_handleHook("base.web.request_end", args);
         // Render template and update response data
-        
+        // -- Unless the buffer has been set manually
+        if((response.getBuffer() == null || response.getBuffer().length == 0) && data.getTemplateData("pals_content") != null)
+        {
+            String dd = core.getTemplates().render(data, "pals/page");
+            response.setBuffer(dd);
+        }
         // Update session ID
         response.setSessionID(data.getSession().getIdBase64());
         // Persist session data
@@ -81,7 +123,7 @@ public class WebManager
         }
         catch(DatabaseException | IOException ex)
         {
-            core.getLogging().log("Failed to persist session data of user.", ex, Logging.EntryType.Warning);
+            core.getLogging().log("[WEB] Failed to persist session data of user.", ex, Logging.EntryType.Warning);
         }
         // Dispose resources
         try
@@ -90,11 +132,17 @@ public class WebManager
         }
         catch(DatabaseException ex)
         {
-            core.getLogging().log("Exception thrown disposing web connector.", ex, Logging.EntryType.Warning);
+            core.getLogging().log("[WEB] Exception thrown disposing web connector.", ex, Logging.EntryType.Warning);
         }
     }
     // Methods - Accessors *****************************************************
-    
+    /**
+     * @return The URL tree used to store the plugins used to handle paths/URLs.
+     */
+    public synchronized UrlTree getUrlTree()
+    {
+        return urls;
+    }
     // Methods - Mutators ******************************************************
     /**
      * Used to register paths for forwarding web-requests to a plugin.
@@ -113,9 +161,9 @@ public class WebManager
         UrlTree.RegisterStatus rs;
         for(String path : paths)
         {
-            if((rs = urls.add(plugin.getUUID(), path)) != UrlTree.RegisterStatus.Success)
+            if((rs = urls.add(plugin, path)) != UrlTree.RegisterStatus.Success)
             {
-                core.getLogging().log("[WebManager] Failed to add path '" + path + "' for plugin '" + plugin.getUUID().getHexHyphens() + "' - '" + rs + "'!", Logging.EntryType.Warning);
+                core.getLogging().log("[WEB] Failed to add path '" + path + "' for plugin '" + plugin.getUUID().getHexHyphens() + "' - '" + rs + "'!", Logging.EntryType.Warning);
                 return false;
             }
         }
@@ -129,6 +177,6 @@ public class WebManager
     public synchronized void unregisterUrls(Plugin plugin)
     {
         if(plugin != null)
-            urls.remove(plugin.getUUID());
+            urls.remove(plugin);
     }
 }
