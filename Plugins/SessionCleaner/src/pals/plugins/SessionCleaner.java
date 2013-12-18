@@ -42,4 +42,9 @@ public class SessionCleaner extends Plugin
         // Stop thread
         thread.stopRunning();
     }
+    @Override
+    public String getTitle()
+    {
+        return "PALS: Session Cleaner";
+    }
 }

@@ -58,6 +58,7 @@ public class WebManager
      */
     public void handleWebRequest(RemoteRequest request, RemoteResponse response)
     {
+        long timeStart = System.currentTimeMillis();
         core.getLogging().log("[WEB] New request from '" + request.getIpAddress() + "' ~ '" + request.getRelativeUrl() + "'.", Logging.EntryType.Info);
         // Create a new connection to the database
         Connector conn = core.createConnector();
@@ -107,6 +108,9 @@ public class WebManager
         plugins = core.getPlugins().getPlugins("base.web.request_end");
         for(Plugin plugin : plugins)
             plugin.eventHandler_handleHook("base.web.request_end", args);
+        // Setup node and time variables
+        data.setTemplateData("pals_node", core.getNodeUUID().getHexHyphens());
+        data.setTemplateData("pals_time", System.currentTimeMillis()-timeStart);
         // Render template and update response data
         // -- Unless the buffer has been set manually
         if((response.getBuffer() == null || response.getBuffer().length == 0) && data.getTemplateData("pals_content") != null)
