@@ -16,13 +16,19 @@ import pals.base.database.DatabaseException;
  * *****************************************************************************
  * The following template data items are used:
  * 
- * pals_page        The path of the template to use for rendering.
- * pals_content     The template to be used for rendering content.
- * pals_title       The current title of the page.
- * pals_header      Any additional HTML to be appended to the header of the
- *                  page.
- * pals_node        The UUID of the node responsible for rendering the page.
- * pals_time        The time taken to process the request.
+ * pals_page            The path of the template to use for rendering; can be
+ *                      left optional for pals/page to be used by default.
+ * pals_content         The template to be used for rendering content.
+ * pals_title           The current title of the page.
+ * pals_header          Any additional HTML to be appended to the header of the
+ *                      page.
+ * pals_node            The UUID of the node responsible for rendering the page.
+ * pals_time            The time taken to process the request.
+ * pals_institution     The name of the institution; this can be null
+ *                      (optional). This is controlled by the node setting:
+ *                      'templates/institution' ~ str/string
+ * user                 The user object from pals.base.auth; this is not set
+ *                      if the end-user is not an  authenticated user.
  * 
  * Optionally the buffer of the RemoteResponse object can be set, which will
  * avoid any template rendering and send raw bytes.
@@ -107,6 +113,16 @@ public class WebRequestData
     public synchronized RemoteResponse getResponseData()
     {
         return response;
+    }
+    /**
+     * Indicates if a template data item exists.
+     * 
+     * @param key The key/name of the item.
+     * @return True = exists, false = does not exist.
+     */
+    public synchronized boolean containsTemplateData(String key)
+    {
+        return templateData.containsKey(key);
     }
     /**
      * @param key The key of the template data.

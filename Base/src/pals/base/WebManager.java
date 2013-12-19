@@ -111,11 +111,17 @@ public class WebManager
         // Setup node and time variables
         data.setTemplateData("pals_node", core.getNodeUUID().getHexHyphens());
         data.setTemplateData("pals_time", System.currentTimeMillis()-timeStart);
+        if(!data.containsTemplateData("pals_institution"))
+        {
+            String s = core.getSettings().getStr("templates/institution");
+            data.setTemplateData("pals_institution", s);
+        }
         // Render template and update response data
         // -- Unless the buffer has been set manually
         if((response.getBuffer() == null || response.getBuffer().length == 0) && data.getTemplateData("pals_content") != null)
         {
-            String dd = core.getTemplates().render(data, "pals/page");
+            String template = (String)data.getTemplateData("pals_page");
+            String dd = core.getTemplates().render(data,  template != null ? template : "pals/page");
             response.setBuffer(dd);
         }
         // Update session ID

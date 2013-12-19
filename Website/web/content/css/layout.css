@@ -1,0 +1,308 @@
+::selection
+{
+	background: #0C0;
+}
+html
+{
+	background: #CCC;
+}
+body
+{
+	font: normal 14px Arial,Helvetica;
+	margin: 0em;
+	padding: 0em 0em 1em 0em;
+}
+.clear
+{
+	clear: both;
+}
+.layout_body .banner
+{
+	width: 100%;
+}
+.layout_body .banner .items
+{
+	padding: 0.5em;
+	width: 64em;
+	margin: auto;
+}
+.layout_body .banner .items h1
+{
+	margin: 0em;
+	color: #999;
+	font-weight: normal;
+}
+.layout_body .nav
+{
+	position: relative;
+	width: 100%;
+	background: #999;
+	z-index: 1;
+}
+.layout_body .nav .ritems
+{
+	float: right;
+	color: #080;
+	padding: 0.4em;
+	height: 1em;
+	line-height: 1em;
+}
+.layout_body .nav .ritems a
+{
+	color: #FFF;
+	font-size: smaller;
+}
+.layout_body .nav .ritems a:hover, .layout_body .nav .ritems a:focus
+{
+	color: #DDD;
+}
+.layout_body .nav .items
+{
+	/* Root items container */
+	background: #0C0;
+	width: 65em;
+	margin: auto;
+	padding: 0em;
+	list-style: none;
+	color: #030;
+}
+.layout_body .nav .items li
+{
+	/* Root item */
+	display: inline-block;
+	float: left;
+	padding: 0.5em;
+	overflow: hidden;
+	height: 1em;
+	line-height: 1em;
+	text-align: center;
+	border-right: solid 0.2em #0B0;
+}
+.layout_body .nav .items li:hover, .layout_body .nav .items li:focus
+{
+	/* Root item hover */
+	background: #090;
+	overflow: visible;
+}
+.layout_body .nav .items li ul
+{
+	/* Sub-item container */
+	display: block;
+	position: relative;
+	left: -0.5em;
+	top: 0.5em;
+	padding: 0em;
+	margin: 0em;
+}
+.layout_body .nav .items li ul li
+{
+	/* Sub-item */
+	display: block;
+	width: 100%;
+	background: #0C0;
+	float: none;
+	border: none;
+}
+.layout_body .nav .items li ul li:hover, .layout_body .nav .items li ul li:focus
+{
+	/* Sub-item hover */
+	background: #060;
+}
+.layout_body .nav .items li a
+{
+	/* All hyperlinks */
+	display: block;
+	width: 100%;
+	color: #FFF;
+	text-decoration: none;
+}
+.layout_body .content
+{
+	border-radius: 0.8em;
+	border-top-left-radius: 0em;
+	border-top-right-radius: 0em;
+	width: 65em;
+	background: #FFF;
+	margin: auto;
+	min-height: 40em;
+	box-shadow: 0em 0em 0.7em #666;
+}
+.layout_body .footer
+{
+	margin: 0.5em;
+	text-align: center;
+	color: #999;
+	text-shadow: 0em 0em 0.2em #BBB;
+}
+.footer a
+{
+	color: #999;
+}
+.layout_body .footer a:hover, .layout_body .footer a:focus
+{
+	color: #090;
+}
+/* Content */
+.layout_body .content h2
+{
+	margin: 0em;
+	padding: 0.25em;
+	font-weight: normal;
+	color: #0C0;
+}
+.layout_body .content p
+{
+	margin: 0em;
+	padding: 0.5em;
+}
+.layout_body .content a
+{
+	color: #090;
+}
+.layout_body .content a:hover, .layout_body .content a:focus
+{
+	color: #333;
+}
+/* Table 1 ~ data */
+.layout_body .content .table
+{
+	margin: 0.5em auto;
+	border-collapse: collapse;
+}
+.layout_body .content .table tr:nth-child(odd)
+{
+	background: #EEE;
+}
+.layout_body .content .table th, .layout_body .content .table td
+{
+	border: solid 0.2em #999;
+	padding: 0.25em 0.5em;
+}
+.layout_body .content .table th
+{
+	background: #CCC;
+	color: #333;
+}
+/* Table 2 ~ forms */
+.layout_body .content .table2
+{
+	margin: 0.5em auto;
+	border-collapse: collapse;
+}
+.layout_body .content .table2 th, .layout_body .content .table2 td
+{
+	padding: 0.5em;
+}
+.layout_body .content .table2 th
+{
+	background: #CCC;
+}
+.layout_body .content .table2 .cells2 th, .layout_body .content .table2 .cells2 td
+{
+	width: 50%;
+}
+.layout_body .content .table2 input[type=submit]
+{
+	border: 0em;
+	border-radius: 0.4em;
+	padding: 0.25em 0.5em;
+	background: #0C0;
+	color: #FFF;
+	background-image: url('../images/layout_button.png');
+	background-repeat: repeat-x;
+	background-size: auto 100%;
+	text-shadow: 0em -0.1em 0.1em #333;
+}
+.layout_body .content .table2 input[type=submit]:hover, .layout_body .content .table2 input[type=submit]:focus
+{
+	background-color: #999;
+	cursor: pointer;
+}
+.layout_body .content .table2 input[type=text], .layout_body .content .table2 textarea
+{
+	border: solid 0.2em #CCC;
+	background: #EEE;
+	padding: 0.25em;
+	color: #333;
+}
+.layout_body .content .table2 input[type=file]
+{
+	border: solid 0.2em #CCC;
+	background: #DDD;
+}
+.layout_body .content .table2 textarea
+{
+	width: 100%;
+}
+.layout_body .content .table2 input[type=text]:focus, .layout_body .content .table2 input[type=text]:hover,
+.layout_body .content .table2 input[type=file]:focus, .layout_body .content .table2 input[type=file]:hover,
+.layout_body .content .table2 textarea:focus, .layout_body .content .table2 textarea:hover
+{
+	background: #EEE;
+}
+.layout_body .content .table2 input[type=checkbox] + label
+{
+	border: solid 0.2em #CCC;
+	border-radius: 0.25em;
+	padding: 0.2em;
+	cursor: pointer;
+	text-indent: 12em;
+}
+.layout_body .content .table2 input[type=checkbox] + label:hover, .layout_body .content .table2 input[type=checkbox] + label:focus
+{
+	border-color: #999;
+	background: #DDD;
+}
+.layout_body .content .table2 input[type=checkbox]:checked + label
+{
+	border-color: #999;
+	background: #CCC;
+	color: #333;
+}
+/* Table 3 ~ page related */
+.layout_body .table3
+{
+	margin: 0.5em auto;
+	border-collapse: collapse;
+	border: solid 0.2em #CCC;
+}
+.layout_body .table3 tr th, .layout_body .table3 tr td
+{
+	padding: 0.5em;
+	color: #333;
+}
+.layout_body .table3 tr th
+{
+	background: #CCC;
+}
+.layout_body .table3 tr td
+{
+	border-left: dashed 0.2em #CCC;
+	border-right: dashed 0.2em #CCC;
+	border-bottom: solid 0.2em #CCC;
+}
+.layout_body .table3 tr td:first-child
+{
+	border-left: none;
+}
+.layout_body .table3 tr td:last-child
+{
+	border-right: none;
+}
+.layout_body .table3 tr td:nth-child(odd)
+{
+}
+/* Container */
+.container
+{
+	margin: 0.5em;
+	border: solid 0.2em #0C0;
+}
+.container .title
+{
+	background: #0C0;
+	padding: 0.25em;
+	font-size: larger;
+	color: #FFF;
+}
+

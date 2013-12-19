@@ -40,21 +40,55 @@ CREATE TABLE pals_http_session_data
 	data				BYTEA,
 	PRIMARY KEY(sessid, key)
 );
+-- Used to assign permissions to different classes of users.
+CREATE TABLE pals_users_group
+(
+	groupid				SERIAL				PRIMARY KEY,
+	title				VARCHAR(64)			DEFAULT 'Untitled Group',
+	-- User permissions
+	-- -- Login
+	user_login			VARCHAR(1)			DEFAULT 0,
+	
+	-- Marker permissions
+	-- -- Marking in general
+	marker_general		VARCHAR(1)			DEFAULT 0,
+	
+	-- Admin permissions
+	-- -- Manage modules.
+	admin_modules		VARCHAR(1)			DEFAULT 0,
+	-- -- Manage assignments for modules.
+	admin_assignments	VARCHAR(1)			DEFAULT 0,
+	-- -- Manage users.
+	admin_users			VARCHAR(1)			DEFAULT 0,
+	-- -- Manage the system (nodes/logs/plugins/etc).
+	admin_system		VARCHAR(1)			DEFAULT 0
+);
+-- -- Add default user-groups
+INSERT INTO pals_users_group (title,user_login,marker_general,admin_modules,admin_assignments,admin_users,admin_system) VALUES
+('Admins','1','1','1','1','1','1'),
+('Users','0','0','0','0','0','0')
+;
 -- Represents abstract users on the system. Columns password and password_salt columns are optional,
 -- used for default authentication.
 CREATE TABLE pals_users
 (
 	userid				SERIAL				PRIMARY KEY,
 	-- The username for the user; displayed as an alias and used for logging-in with default authentication.
-	username			VARCHAR(64)			NOT NULL,
+	username			VARCHAR(24)			NOT NULL,
 	-- Optional; the password for the user, used for authentication; this stores the hash.
-	password			VARCHAR(128),
+	password			TEXT,
 	-- Optional; the unique salt for the user.
 	password_salt		VARCHAR(32),
 	-- Optional; allows the system to e-mail users.
-	email				VARCHAR(128)
+	email				VARCHAR(128),
+	-- The user-group of the user.
+	groupid				INT					REFERENCES pals_users_group(groupid) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL
 );
-CREATE INDEX index_pals_users_username ON pals_users (username);
+-- -- Ensure all usernames and e-mails are unique, regardless of case.
+-- -- -- Index on usernames is also needed to speed-up account searches.
+CREATE UNIQUE INDEX index_pals_users_username ON pals_users (lower(username));
+CREATE UNIQUE INDEX index_pals_users_email ON pals_users (lower(email));
+
 -- The e-mail queue; used to avoid loss of possible e-mails from the system rebooting. Also
 -- allows multiple nodes to process emails.
 CREATE TABLE pals_email_queue

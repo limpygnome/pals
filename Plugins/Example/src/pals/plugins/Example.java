@@ -54,6 +54,7 @@ public class Example extends pals.base.Plugin
                     WebRequestData data = (WebRequestData)args[0];
                     if(data.getRequestData().getRelativeUrl().equals("hello_404"))
                     {
+                        data.setTemplateData("pals_title", "Example 404 Page");
                         data.setTemplateData("pals_content", "example_404");
                         return true;
                     }
@@ -92,6 +93,7 @@ public class Example extends pals.base.Plugin
     @Override
     public boolean eventHandler_webRequest(WebRequestData data)
     {
+        data.setTemplateData("pals_title", "Hello World!");
         data.setTemplateData("pals_content", "test");
         return true;
     }
