@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import javax.security.auth.login.FailedLoginException;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -17,6 +17,10 @@ import pals.base.utils.JarIOException;
 /**
  * Manages all the plugins loaded into the runtime, as well as general plugin
  * operations.
+ * 
+ * Allows plugins to be assigned to global hooks, which can be used to retrieve
+ * a list of plugins associated with a hook/event. This allows open-ended events
+ * for e.g. processing work and handling the start/end of web-requests.
  * 
  * Thread-safe.
  * *****************************************************************************
@@ -115,6 +119,24 @@ public class PluginManager
     }
     // Methods *****************************************************************
     /**
+     * Re-registers all the global events.
+     * 
+     * @return True if successful, false if failed.
+     */
+    public synchronized boolean globalHookRegisterAll()
+    {
+        boolean allSuccess = true;
+        // Clear old events
+        registerGlobalEvents.clear();
+        // Invoke each plugin to register events
+        for(Map.Entry<UUID,Plugin> plugin : plugins.entrySet())
+        {
+            if(!plugin.getValue().eventHandler_registerHooks(core, this))
+                allSuccess = false;
+        }
+        return allSuccess;
+    }
+    /**
      * Registers a plugin to a global event; this is used by the base, but it
      * can also be used by other plugins for their own cross-plugin global
      * events system.
@@ -124,7 +146,7 @@ public class PluginManager
      * @return True if subscribed, false if failed (most likely already
      * subscribed).
      */
-    public synchronized boolean registerGlobalEvent(Plugin plugin, String event)
+    public synchronized boolean globalHookRegister(Plugin plugin, String event)
     {
         // Check the event has an array-list
         if(!registerGlobalEvents.containsKey(event))
@@ -141,22 +163,42 @@ public class PluginManager
             return false;
     }
     /**
-     * Re-registers all the global events.
+     * Unregisters a global hook for a plugin.
      * 
-     * @return True if successful, false if failed.
+     * @param plugin The plugin of the event to unregister.
+     * @param event The event to unregister.
      */
-    public synchronized boolean registerAllEvents()
+    public synchronized void globalHookUnregister(Plugin plugin, String event)
     {
-        boolean allSuccess = true;
-        // Clear old events
-        registerGlobalEvents.clear();
-        // Invoke each plugin to register events
-        for(Map.Entry<UUID,Plugin> plugin : plugins.entrySet())
+        // Fetch arraylist of event
+        ArrayList<Plugin> pgs = registerGlobalEvents.get(event);
+        // Remove event
+        if(pgs != null)
+            pgs.remove(plugin);
+        // Remove the event list if it's now empty - waste of storage and potentially processing...
+        if(pgs.isEmpty())
+            registerGlobalEvents.remove(event);
+    }
+    /**
+     * Unregisters all global hooks associated with a plugin.
+     * 
+     * @param plugin The plugin of the events to unregister.
+     */
+    public synchronized void globalHookUnregister(Plugin plugin)
+    {
+        ArrayList<Plugin> pgs;
+        Iterator<Map.Entry<String,ArrayList<Plugin>>> it = registerGlobalEvents.entrySet().iterator();
+        Map.Entry<String,ArrayList<Plugin>> p;
+        while(it.hasNext())
         {
-            if(!plugin.getValue().eventHandler_registerHooks(core, this))
-                allSuccess = false;
+            p = it.next();
+            pgs = p.getValue();
+            // Remove plugin
+            pgs.remove(plugin);
+            // Remove the list if it's now empty
+            if(pgs.isEmpty())
+                it.remove();
         }
-        return allSuccess;
     }
     /**
      * Reloads all of the plugins from the path specified in the current instance

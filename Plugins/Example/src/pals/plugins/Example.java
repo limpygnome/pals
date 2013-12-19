@@ -33,15 +33,13 @@ public class Example extends pals.base.Plugin
     {
         return true;
     }
-
     @Override
     public boolean eventHandler_registerHooks(NodeCore core, PluginManager plugins)
     {
         // Hook 404 event
-        plugins.registerGlobalEvent(this, "base.web.request_404");
+        plugins.globalHookRegister(this, "base.web.request_404");
         return true;
     }
-
     @Override
     public boolean eventHandler_handleHook(String event, Object[] args)
     {
@@ -67,9 +65,11 @@ public class Example extends pals.base.Plugin
     public void eventHandler_pluginUnload(NodeCore core)
     {
         // Unregister URLs
-        core.getWebManager().unregisterUrls(this);
+        core.getWebManager().urlsUnregister(this);
         // Unregister templates
         core.getTemplates().remove(this);
+        // Unregister hooks
+        core.getPlugins().globalHookUnregister(this);
     }
     @Override
     public boolean eventHandler_registerTemplates(NodeCore core, TemplateManager manager)
@@ -85,7 +85,7 @@ public class Example extends pals.base.Plugin
     @Override
     public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
     {
-        return web.registerUrls(this, new String[]
+        return web.urlsRegister(this, new String[]
         {
             "hello_world"
         });

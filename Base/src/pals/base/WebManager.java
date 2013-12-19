@@ -163,7 +163,7 @@ public class WebManager
      * @return True = added successfully, false = an error occurred (most likely
      * a conflicting plugin or possibly a malformed path).
      */
-    public synchronized boolean registerUrls(Plugin plugin, String[] paths)
+    public synchronized boolean urlsRegister(Plugin plugin, String[] paths)
     {
         if(plugin == null)
             return false;
@@ -184,7 +184,7 @@ public class WebManager
      * 
      * @param plugin The plugin associated with the paths to be removed.
      */
-    public synchronized void unregisterUrls(Plugin plugin)
+    public synchronized void urlsUnregister(Plugin plugin)
     {
         if(plugin != null)
             urls.remove(plugin);

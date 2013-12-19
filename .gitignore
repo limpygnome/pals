@@ -31,3 +31,6 @@ Todo.txt
 /Plugins/SessionCleaner/nbproject/private/
 /Plugins/SessionCleaner/dist/
 /Plugins/SessionCleaner/build/
+/Plugins/DefaultAuth/nbproject/private/
+/Plugins/DefaultAuth/build/
+/Plugins/DefaultAuth/dist/
