@@ -67,7 +67,6 @@ public class PALS_Servlet extends HttpServlet
             Settings settings;
             if((settings = PALS_SettingsListener.getSettings()) == null)
                 throw new SettingsException(SettingsException.Type.FailedToLoad, null);
-            
             // Build request
             // -- Fetch session identifier
             String sessid = getCookie(request, SESSION_COOKIE_NAME);
@@ -77,7 +76,9 @@ public class PALS_Servlet extends HttpServlet
             RemoteRequest dataRequest = new RemoteRequest(sessid, relUrl, request.getRemoteAddr());
             // -- Add request fields
             for(Map.Entry<String,String[]> param : request.getParameterMap().entrySet())
+            {
                 dataRequest.setField(param.getKey(), param.getValue()[0]);
+            }
             // -- Add request files (and possibly fields)
             if(ServletFileUpload.isMultipartContent(request))
             {
@@ -135,7 +136,7 @@ public class PALS_Servlet extends HttpServlet
                     System.err.println("Failed to receive upload from user '" + request.getRemoteAddr() + "' ~ " + ex.getMessage());
                 }
             }
-            
+
             // Communicate to node using RMI
             Registry r = LocateRegistry.getRegistry(settings.getStr("rmi/ip"), settings.getInt("rmi/port"));
             RMI_Interface ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
@@ -146,21 +147,35 @@ public class PALS_Servlet extends HttpServlet
             if(!dataResponse.getSessionID().equals(sessid))
             {
                 Cookie cookieSess = new Cookie(SESSION_COOKIE_NAME, dataResponse.getSessionID());
+                cookieSess.setPath("/");
                 response.addCookie(cookieSess);
             }
-            // -- Handle response type
-            response.setContentType(dataResponse.getResponseType());
-            // -- Handle response data
+            // -- Check for redirect
+            String redirect = dataResponse.getRedirectUrl();
+            if(redirect != null)
             {
-                byte[] buffer = dataResponse.getBuffer();
-                if(buffer != null && buffer.length != 0)
+                if(!redirect.startsWith("/"))
+                    redirect = "/" + redirect;
+                response.sendRedirect(request.getContextPath() + redirect);
+            }
+            else
+            {
+                // -- Handle response type
+                response.setContentType(dataResponse.getResponseType());
+                // -- Set response code
+                response.setStatus(dataResponse.getResponseCode());
+                // -- Handle response data
                 {
-                    ServletOutputStream sos = response.getOutputStream();
-                    sos.write(buffer);
-                    sos.flush();
+                    byte[] buffer = dataResponse.getBuffer();
+                    if(buffer != null && buffer.length != 0)
+                    {
+                        ServletOutputStream sos = response.getOutputStream();
+                        sos.write(buffer);
+                        sos.flush();
+                    }
+                    else
+                        rt = ResponseType.Error_NoOutput;
                 }
-                else
-                    rt = ResponseType.Error_NoOutput;
             }
             // Note: nothing else can be sent now; thus do not set any
             // cookies or headers at this point.

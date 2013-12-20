@@ -1,5 +1,7 @@
 package pals.base.auth;
 
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -13,10 +15,11 @@ public class User
     /**
      * The status from persisting this model.
      */
-    public enum PersistStatus
+    public enum PersistStatus_User
     {
         Success,
         Failed,
+        InvalidUsername_format,
         InvalidUsername_length,
         InvalidUsername_exists,
         InvalidPassword_length,
@@ -127,33 +130,36 @@ public class User
      * Note:
      * - The password minimum length is only checked if non-null.
      * 
+     * @param core The current instance of the core.
      * @param conn Database connector.
      * @return Status of the operation.
      */
-    public PersistStatus persist(Connector conn)
+    public PersistStatus_User persist(NodeCore core, Connector conn)
     {
         // Validate fields
         if(username == null || username.length() < getUsernameMin() || username.length() > getUsernameMax())
-            return PersistStatus.InvalidUsername_length;
+            return PersistStatus_User.InvalidUsername_length;
+        else if(!username.matches("^[a-zA-Z0-9]+$"))
+            return PersistStatus_User.InvalidUsername_format;
         else if(password != null && (password.length() < getPasswordMin()))
-            return PersistStatus.InvalidPassword_length;
-        else if(email != null && (email.length() < getEmailMin() || email.length() > getEmailMax()))
-            return PersistStatus.InvalidEmail_format;
+            return PersistStatus_User.InvalidPassword_length;
+        // Regex from: http://www.regular-expressions.info/email.html
+        else if(email != null && (email.length() < getEmailMin() || email.length() > getEmailMax() || !email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$")))
+            return PersistStatus_User.InvalidEmail_format;
         else if(group == null || group.getGroupid() == -1)
-            return PersistStatus.InvalidGroup;
+            return PersistStatus_User.InvalidGroup;
         try
         {
             // Validate uniqueness
             if(email != null && (long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE email=?;", email) > 0)
-                return PersistStatus.InvalidEmail_exists;
-            else if((long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE username=?;") > 0)
-                return PersistStatus.InvalidUsername_exists;
+                return PersistStatus_User.InvalidEmail_exists;
+            else if((long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE username=?;", username) > 0)
+                return PersistStatus_User.InvalidUsername_exists;
             // Persist the data
             if(userid == -1)
             {
-                userid = (int)(long)conn.executeScalar("INSERT INTO pals_users (username, password, password_salt, email, groupid) VALUES (?,?,?,?,?);"
-                        + "SELECT lastval();"
-                        ,
+                userid = (int)conn.executeScalar("INSERT INTO pals_users (username, password, password_salt, email, groupid) VALUES (?,?,?,?,?) "
+                        + "RETURNING userid;",
                         username,
                         password,
                         passwordSalt,
@@ -172,19 +178,15 @@ public class User
                         userid
                         );
             }
-            return PersistStatus.Success;
+            return PersistStatus_User.Success;
         }
         catch(DatabaseException ex)
         {
-            return PersistStatus.Failed;
+            core.getLogging().log("[AbstractUser] Failed to persist user.", ex, Logging.EntryType.Warning);
+            return PersistStatus_User.Failed;
         }
     }
-    // Methods *****************************************************************
     // Methods - Mutators ******************************************************
-    public void setUserid(int userid)
-    {
-        this.userid = userid;
-    }
     public void setUsername(String username)
     {
         this.username = username;
@@ -242,6 +244,10 @@ public class User
     public int getPasswordMin()
     {
         return 1;
+    }
+    public int getPasswordMax()
+    {
+        return 24;
     }
     public int getPasswordSaltMin()
     {

@@ -73,26 +73,16 @@ public class WebManager
         Object[] args = new Object[]{data};
         for(Plugin plugin : plugins)
             plugin.eventHandler_handleHook("base.web.request_start", args);
-        // Fetch plugins capable of serving the request, else fetch pagenotfound handlers
-        UUID[] uuids = urls.getUUIDs(request.getRelativeUrl());
-        Plugin ph;
-        boolean handled = false;
-        for(UUID uuid : uuids)
+        try
         {
-            ph = core.getPlugins().getPlugin(uuid);
-            if(ph != null && ph.eventHandler_webRequest(data))
+            // Fetch plugins capable of serving the request, else fetch pagenotfound handlers
+            UUID[] uuids = urls.getUUIDs(request.getRelativeUrl());
+            Plugin ph;
+            boolean handled = false;
+            for(UUID uuid : uuids)
             {
-                handled = true;
-                break;
-            }
-        }
-        if(!handled)
-        {
-            // Fetch 404 handlers
-            plugins = core.getPlugins().getPlugins("base.web.request_404");
-            for(Plugin p : plugins)
-            {
-                if(p.eventHandler_handleHook("base.web.request_404", args))
+                ph = core.getPlugins().getPlugin(uuid);
+                if(ph != null && ph.eventHandler_webRequest(data))
                 {
                     handled = true;
                     break;
@@ -100,9 +90,28 @@ public class WebManager
             }
             if(!handled)
             {
-                // Set default 404 page
-                data.setTemplateData("pals_content", "pals/404");
+                // Set response code to 404 - page not found
+                response.setResponseCode(404);
+                // Fetch 404 handlers
+                plugins = core.getPlugins().getPlugins("base.web.request_404");
+                for(Plugin p : plugins)
+                {
+                    if(p.eventHandler_handleHook("base.web.request_404", args))
+                    {
+                        handled = true;
+                        break;
+                    }
+                }
+                if(!handled)
+                {
+                    // Set default 404 page
+                    data.setTemplateData("pals_content", "pals/404");
+                }
             }
+        }
+        catch(Throwable ex)
+        {
+            core.getLogging().log("Failed to serve web-request.", ex, Logging.EntryType.Warning);
         }
         // Invoke webrequest end plugins
         plugins = core.getPlugins().getPlugins("base.web.request_end");
@@ -116,6 +125,8 @@ public class WebManager
             String s = core.getSettings().getStr("templates/institution");
             data.setTemplateData("pals_institution", s);
         }
+        if(data.getUser() != null)
+            data.setTemplateData("user", data.getUser());
         // Render template and update response data
         // -- Unless the buffer has been set manually
         if((response.getBuffer() == null || response.getBuffer().length == 0) && data.getTemplateData("pals_content") != null)

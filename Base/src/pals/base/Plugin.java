@@ -1,15 +1,19 @@
 package pals.base;
 
+import pals.base.utils.JarIO;
 import pals.base.web.WebRequestData;
 
 /**
  * The base class for all plugins.
  * 
- * Note: if a plugin is not installed, it will not be allowed near the runtime.
+ * Notes:
+ * - If a plugin is not installed, it will not be allowed near the runtime.
+ * - An uninstalled plugin will be rejected when being loaded into the runtime.
  */
 public class Plugin
 {
     // Fields ******************************************************************
+    private JarIO               jario;          // Used for interfacing with the plugin's jar.
     private final UUID          uuid;           // The unique identifier of this plugin.
     private final NodeCore      core;           // The current instance of the core.
     protected final Settings    settings;       // The plugin's settings (read-only).
@@ -17,6 +21,7 @@ public class Plugin
     // Methods - Constructors **************************************************
     public Plugin(NodeCore core, UUID uuid, Settings settings, String jarLocation)
     {
+        this.jario = null;
         this.core = core;
         this.uuid = uuid;
         this.settings = settings;
@@ -119,6 +124,15 @@ public class Plugin
     {
         return false;
     }
+    // Methods - Mutators ******************************************************
+    /**
+     * @param jario The new Jar IO class; this should be set to null if a
+     * previous JarIO has been disposed.
+     */
+    protected void setJarIO(JarIO jario)
+    {
+        this.jario = jario;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The instance of the core of where this plugin is operating.
@@ -165,5 +179,13 @@ public class Plugin
     public Settings getSettings()
     {
         return settings;
+    }
+    /**
+     * @return The underlying class handling I/O for this jar; this may be
+     * null if disposed.
+     */
+    public JarIO getJarIO()
+    {
+        return jario;
     }
 }

@@ -25,9 +25,9 @@ import pals.base.utils.JarIOException;
  * Thread-safe.
  * *****************************************************************************
  * Base hooks:
- * base.web.request_start           RemoteRequest,RemoteResponse        Invoked at the start of a web-request.
- * base.web.request_end             RemoteRequest,RemoteResponse        Invoked at the end of a web-request.
- * base.web.request_404             RemoteRequest,RemoteResponse        Invoked to handle page not found event.
+ * base.web.request_start           WebRequestData        Invoked at the start of a web-request.
+ * base.web.request_end             WebRequestData        Invoked at the end of a web-request.
+ * base.web.request_404             WebRequestData        Invoked to handle page not found event.
  */
 public class PluginManager
 {
@@ -258,6 +258,7 @@ public class PluginManager
             if(uuid == null)
             {
                 core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - incorrect UUID '" + rawUuid + "'.", Logging.EntryType.Error);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             // Check the UUID is not already in-use
@@ -268,6 +269,7 @@ public class PluginManager
                 if(p == null || !unload(p))
                 {
                     core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ already loaded; could not be unloaded..", Logging.EntryType.Error);
+                    jar.dispose();
                     return PluginLoad.Failed;
                 }
             }
@@ -276,6 +278,7 @@ public class PluginManager
             if(classPath == null)
             {
                 core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Error);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             Class c = jar.fetchClassType(classPath);
@@ -349,13 +352,20 @@ public class PluginManager
                 // Unlock the table - if a connection issue occurred, the locks associated with the connection would be droped
                 conn.tableUnlock(false);
                 if(rejected)
+                {
+                    jar.dispose();
                     return PluginLoad.FailedRejected;
+                }
                 else if(failed)
+                {
+                    jar.dispose();
                     return PluginLoad.Failed;
+                }
             }
             catch(DatabaseException ex)
             {
                 core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to retrieve/update state from database!", ex, Logging.EntryType.Error);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             // Add the plugin to the runtime
@@ -365,28 +375,34 @@ public class PluginManager
             {
                 core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register global event hooks!", Logging.EntryType.Error);
                 unload(p);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerTemplates(core, core.getTemplates()))
             {
                 core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register templates/template-functions!", Logging.EntryType.Error);
                 unload(p);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerUrls(core, core.getWebManager()))
             {
                 core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register paths/urls!", Logging.EntryType.Error);
                 unload(p);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_pluginLoad(core))
             {
                 core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to load!", Logging.EntryType.Error);
                 unload(p);
+                jar.dispose();
                 return PluginLoad.Failed;
             }
             core.getLogging().log("[PLUGINS] Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "].", Logging.EntryType.Info);
-            jar.dispose();
+            // Set the plugin's JarIO for future loading of dependencies
+            //jar.dispose();
+            p.setJarIO(jar);
             return PluginLoad.Loaded;
         }
         catch(SettingsException ex)
@@ -399,7 +415,7 @@ public class PluginManager
             switch(ex.getReason())
             {
                 default:
-                    core.getLogging().log("[PLUGINS] Failed to load potential JAR at '" + jarPath + "'.", ex, Logging.EntryType.Warning);
+                    //core.getLogging().log("[PLUGINS] Failed to load potential JAR at '" + jarPath + "'.", ex, Logging.EntryType.Warning);
                     return PluginLoad.FailedIrrelevant;
                 case ClassNotFound:
                     core.getLogging().log("[PLUGINS] Failed to load class of plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);

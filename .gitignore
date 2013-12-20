@@ -34,3 +34,6 @@ Todo.txt
 /Plugins/DefaultAuth/nbproject/private/
 /Plugins/DefaultAuth/build/
 /Plugins/DefaultAuth/dist/
+/Plugins/Captcha/nbproject/private/
+/Plugins/Captcha/build/
+/Plugins/Captcha/dist/

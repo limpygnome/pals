@@ -192,6 +192,7 @@ body
 .layout_body .content .table2 th, .layout_body .content .table2 td
 {
 	padding: 0.5em;
+	vertical-align: top;
 }
 .layout_body .content .table2 th
 {
@@ -203,7 +204,7 @@ body
 }
 .layout_body .content .table2 input[type=submit]
 {
-	border: 0em;
+	border: solid 0.1em #060;
 	border-radius: 0.4em;
 	padding: 0.25em 0.5em;
 	background: #0C0;
@@ -216,9 +217,10 @@ body
 .layout_body .content .table2 input[type=submit]:hover, .layout_body .content .table2 input[type=submit]:focus
 {
 	background-color: #999;
+	border-color: #666;
 	cursor: pointer;
 }
-.layout_body .content .table2 input[type=text], .layout_body .content .table2 textarea
+.layout_body .content .table2 input[type=text], .layout_body .content .table2 input[type=password], .layout_body .content .table2 textarea
 {
 	border: solid 0.2em #CCC;
 	background: #EEE;
@@ -235,6 +237,7 @@ body
 	width: 100%;
 }
 .layout_body .content .table2 input[type=text]:focus, .layout_body .content .table2 input[type=text]:hover,
+.layout_body .content .table2 input[type=password]:focus, .layout_body .content .table2 input[type=password]:hover,
 .layout_body .content .table2 input[type=file]:focus, .layout_body .content .table2 input[type=file]:hover,
 .layout_body .content .table2 textarea:focus, .layout_body .content .table2 textarea:hover
 {
@@ -270,6 +273,7 @@ body
 {
 	padding: 0.5em;
 	color: #333;
+	vertical-align: top;
 }
 .layout_body .table3 tr th
 {
@@ -293,16 +297,33 @@ body
 {
 }
 /* Container */
-.container
+.layout_body .container
 {
 	margin: 0.5em;
 	border: solid 0.2em #0C0;
 }
-.container .title
+.layout_body .container .title
 {
 	background: #0C0;
 	padding: 0.25em;
 	font-size: larger;
 	color: #FFF;
 }
-
+/* Success/error containers */
+.layout_body .success, .layout_body .error
+{
+	margin: 0.5em !important;
+	padding: 0.5em;
+}
+.layout_body .success
+{
+	border: solid 0.2em #060;
+	background: #9F9;
+	color: #060;
+}
+.layout_body .error
+{
+	border: solid 0.2em #F00;
+	background: #FCC;
+	color: #F00;
+}

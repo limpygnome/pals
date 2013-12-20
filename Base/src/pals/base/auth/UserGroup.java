@@ -13,7 +13,7 @@ public class UserGroup
     /**
      * The status from persisting this model.
      */
-    public enum PersistStatus
+    public enum PersistStatus_UserGroup
     {
         Success,
         Failed,
@@ -80,12 +80,12 @@ public class UserGroup
             return new UserGroup(
                     (int)result.get("groupid"),
                     (String)result.get("title"),
-                    ((String)result.get("userLogin")).equals("1"),
-                    ((String)result.get("markerGeneral")).equals("1"),
-                    ((String)result.get("adminModules")).equals("1"),
-                    ((String)result.get("adminAssignments")).equals("1"),
-                    ((String)result.get("adminUsers")).equals("1"),
-                    ((String)result.get("adminSystem")).equals("1")
+                    ((String)result.get("user_login")).equals("1"),
+                    ((String)result.get("marker_general")).equals("1"),
+                    ((String)result.get("admin_modules")).equals("1"),
+                    ((String)result.get("admin_assignments")).equals("1"),
+                    ((String)result.get("admin_users")).equals("1"),
+                    ((String)result.get("admin_system")).equals("1")
             );
         }
         catch(DatabaseException ex)
@@ -100,18 +100,18 @@ public class UserGroup
      * @param conn Database connector.
      * @return Status of the operation.
      */
-    public PersistStatus persist(Connector conn)
+    public PersistStatus_UserGroup persist(Connector conn)
     {
         // Validate data
         if(title == null || title.length() < getTitleMin() || title.length() > getTitleMax())
-            return PersistStatus.Title_Length;
+            return PersistStatus_UserGroup.Title_Length;
         // Persist the data
         try
         {
             if(groupid == -1)
             {
-                groupid = (int)(long)conn.executeScalar("INSERT INTO pals_users_group (title, user_login, marker_general, admin_modules, admin_assignments, admin_users, admin_system) VALUES(?,?,?,?,?,?,?);"
-                        + "SELECT lastval();"
+                groupid = (int)conn.executeScalar("INSERT INTO pals_users_group (title, user_login, marker_general, admin_modules, admin_assignments, admin_users, admin_system) VALUES(?,?,?,?,?,?,?) "
+                        + "RETURNING groupid;"
                         ,
                         title,
                         userLogin,
@@ -135,11 +135,11 @@ public class UserGroup
                         groupid
                         );
             }
-            return PersistStatus.Success;
+            return PersistStatus_UserGroup.Success;
         }
         catch(DatabaseException ex)
         {
-            return PersistStatus.Failed;
+            return PersistStatus_UserGroup.Failed;
         }
     }
     // Methods - Mutators ******************************************************

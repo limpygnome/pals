@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import pals.base.Logging;
 import pals.base.NodeCore;
+import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 
@@ -51,6 +52,7 @@ public class WebRequestData
     private final RemoteResponse            response;       // Remote response data.
     private final HashMap<String,Object>    templateData;   // Template data for the current request.
     private DatabaseHttpSession             session;        // Session data.
+    private User                            user;           // The current user for the request.
     // Methods - Constructors **************************************************
     private WebRequestData(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
     {
@@ -59,6 +61,7 @@ public class WebRequestData
         this.request = request;
         this.response = response;
         this.templateData = new HashMap<>();
+        this.user = null;
     }
     // Methods - Static ********************************************************
     public static WebRequestData create(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
@@ -70,7 +73,7 @@ public class WebRequestData
         }
         catch(ClassNotFoundException | DatabaseException | IOException | IllegalArgumentException ex)
         {
-            core.getLogging().log("Could not load session data for user.", ex, Logging.EntryType.Warning);
+            core.getLogging().log("[WebRequestData] Could not load session data for user.", ex, Logging.EntryType.Warning);
             // Failed to load the session - give the user a new session...
             try
             {
@@ -79,7 +82,7 @@ public class WebRequestData
             catch(ClassNotFoundException | DatabaseException | IOException | IllegalArgumentException ex2)
             {
                 // Possibly a serious error...log and abort handling the request...
-                core.getLogging().log("Could not load session data for user.", ex2, Logging.EntryType.Warning);
+                core.getLogging().log("[WebRequestData] Could not load session data for user.", ex2, Logging.EntryType.Warning);
                 return null;
             }
         }
@@ -145,6 +148,13 @@ public class WebRequestData
     {
         return session;
     }
+    /**
+     * @return A model of the current, abstract, user for the current request.
+     */
+    public synchronized User getUser()
+    {
+        return user;
+    }
     // Methods - Mutators ******************************************************
     /**
      * @param key The key of the template data.
@@ -153,5 +163,12 @@ public class WebRequestData
     public synchronized void setTemplateData(String key, Object data)
     {
         templateData.put(key, data);
+    }
+    /**
+     * @param user Sets the current user for the request.
+     */
+    public synchronized void setUser(User user)
+    {
+        this.user = user;
     }
 }

@@ -22,12 +22,16 @@ public class RemoteResponse implements Serializable
     private String  sessionID;      // Session identifier.
     private byte[]  buffer;         // Response data to be written to the user.
     private String  responseType;   // The MIME response type of the data.
+    private String  urlRedirect;    // Used for redirecting to a new URL.
+    private int     responseCode;   // The response status/code.
     // Methods - Constructors **************************************************
     public RemoteResponse()
     {
         this.sessionID = null;
         this.buffer = null;
         this.responseType = DEFAULT_MIME_TYPE;
+        this.urlRedirect = null;
+        this.responseCode = 200;
     }
     // Methods - Mutators ******************************************************
     /**
@@ -62,6 +66,20 @@ public class RemoteResponse implements Serializable
             throw new IllegalArgumentException("MIME response type cannot be null!");
         this.responseType = responseType;
     }
+    /**
+     * @param url The URL of where to redirect the response.
+     */
+    public void setRedirectUrl(String url)
+    {
+        urlRedirect = url;
+    }
+    /**
+     * @param responseCode The new response code.
+     */
+    public void setResponseCode(int responseCode)
+    {
+        this.responseCode = responseCode;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The buffer of data to write to the end-user.
@@ -84,5 +102,19 @@ public class RemoteResponse implements Serializable
     public String getResponseType()
     {
         return responseType;
+    }
+    /**
+     * @return Gets the redirect URL.
+     */
+    public String getRedirectUrl()
+    {
+        return urlRedirect;
+    }
+    /**
+     * @return The response-code for the current request.
+     */
+    public int getResponseCode()
+    {
+        return responseCode;
     }
 }

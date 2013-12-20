@@ -1,0 +1,11 @@
+<tr>
+    <td>
+        Captcha Verification:
+    </td>
+    <td>
+        <#include "captcha">
+        <br />
+        <input type="text" name="captcha" placeholder="Enter text above..." />
+        <a href="/account/register" onclick="document.getElementById('captcha').src = '/captcha'; return false;">Refresh</a>
+    </td>
+</tr>

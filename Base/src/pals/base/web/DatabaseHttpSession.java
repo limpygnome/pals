@@ -287,6 +287,13 @@ public class DatabaseHttpSession
     }
     // Methods - Accessors *****************************************************
     /**
+     * @return Indicates if the session is empty.
+     */
+    public boolean isEmpty()
+    {
+        return data.isEmpty();
+    }
+    /**
      * @return The number of session attributes.
      */
     public int size()
@@ -306,6 +313,14 @@ public class DatabaseHttpSession
     public String getIdBase64()
     {
         return Base64.encodeBase64String(sessid);
+    }
+    /**
+     * @param key The key to check.
+     * @return True = exists, false = does not exist.
+     */
+    public boolean contains(String key)
+    {
+        return data.containsKey(key);
     }
     /**
      * Retrieves a session attribute.

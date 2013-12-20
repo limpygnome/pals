@@ -8,7 +8,6 @@ import java.util.EnumSet;
 import java.util.Random;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
-import pals.base.database.Result;
 import pals.base.database.connectors.*;
 
 /**
