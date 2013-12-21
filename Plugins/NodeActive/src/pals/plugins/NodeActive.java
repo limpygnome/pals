@@ -4,6 +4,7 @@ import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.UUID;
+import pals.base.utils.JarIO;
 
 /**
  * A very simple plugin to update the active-time, periodically, of a node in
@@ -14,9 +15,9 @@ public class NodeActive extends Plugin
     // Fields ******************************************************************
     private NodeActiveThread nat;
     // Methods - Constructor ***************************************************
-    public NodeActive(NodeCore core, UUID uuid, Settings settings, String jarPath)
+    public NodeActive(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {
-        super(core, uuid, settings, jarPath);
+        super(core, uuid, jario, settings, jarPath);
         nat = new NodeActiveThread(this);
     }
     @Override

@@ -161,19 +161,7 @@ public class TemplateManager
      */
     public synchronized boolean load(Plugin plugin, String directory)
     {
-        try
-        {
-            // Open the archive, load the templates and dispose
-            JarIO jio = JarIO.open(plugin.getJarLocation());
-            boolean result = load(plugin, jio, directory);
-            jio.dispose();
-            return result;
-        }
-        catch(JarIOException ex)
-        {
-            core.getLogging().log("[TEMPLATES] Failed to load templates for plugin [" + plugin.getUUID().getHexHyphens() + "].", ex, Logging.EntryType.Error);
-            return false;
-        }
+        return load(plugin, plugin.getJarIO(), directory);
     }
     /**
      * Loads templates from a Java Archive (JAR). These templates should end

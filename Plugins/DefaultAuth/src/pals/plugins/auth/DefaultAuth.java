@@ -12,11 +12,13 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.auth.User;
 import pals.base.auth.UserGroup;
+import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.base.web.security.Escaping;
+import pals.plugins.web.Captcha;
 
 /**
  * Default authentication handler for PALS.
@@ -26,9 +28,9 @@ public class DefaultAuth extends Plugin
     // Constants ***************************************************************
     private static final String SESSION_KEY__USERID = "defaultauth_userid";
     // Methods - Constructors **************************************************
-    public DefaultAuth(NodeCore core, UUID uuid, Settings settings, String jarPath)
+    public DefaultAuth(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {
-        super(core, uuid, settings, jarPath);
+        super(core, uuid, jario, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override
@@ -193,7 +195,6 @@ public class DefaultAuth extends Plugin
                         data.setTemplateData("error", "An unknown issue occurred ("+ps.name()+"); please try again or contact an administrator!");
                         break;
                 }
-                getJarIO().dispose();
             }
         }
         // Setup the page
@@ -221,8 +222,8 @@ public class DefaultAuth extends Plugin
             // Check security
             if(!CSRF.isSecure(data, csrf))
                 data.setTemplateData("error", "Invalid request, please try again or contact an administrator!");
-            //else if(!Captcha.isCaptchaCorrect(data))
-            //    data.setTemplateData("error", "Incorrect captcha verification code!");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Incorrect captcha verification code!");
             else
             {
                 String salt = getNewSalt();

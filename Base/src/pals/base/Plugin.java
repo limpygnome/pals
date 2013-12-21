@@ -19,9 +19,9 @@ public class Plugin
     protected final Settings    settings;       // The plugin's settings (read-only).
     private final String        jarLocation;    // The location of where the plugin was loaded.
     // Methods - Constructors **************************************************
-    public Plugin(NodeCore core, UUID uuid, Settings settings, String jarLocation)
+    public Plugin(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarLocation)
     {
-        this.jario = null;
+        this.jario = jario;
         this.core = core;
         this.uuid = uuid;
         this.settings = settings;
@@ -123,15 +123,6 @@ public class Plugin
     public boolean eventHandler_handleHook(String event, Object[] args)
     {
         return false;
-    }
-    // Methods - Mutators ******************************************************
-    /**
-     * @param jario The new Jar IO class; this should be set to null if a
-     * previous JarIO has been disposed.
-     */
-    protected void setJarIO(JarIO jario)
-    {
-        this.jario = jario;
     }
     // Methods - Accessors *****************************************************
     /**

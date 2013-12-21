@@ -159,14 +159,16 @@ public class JarIO
     /**
      * Opens a JAR file.
      * @param path The path of the file.
+     * @param dependencies The paths of any dependencies to be added to the
+     * underlying class-loader. Can be null.
      * @return An instance of this class for handling the JAR file.
      * @throws JarIOException Throws FileNotFound, FileReadPermissions and
      * FileReadError.
      */
-    public static JarIO open(String path) throws JarIOException
+    public static JarIO open(String path, String[] dependencies) throws JarIOException
     {
         // Open up a file-handle to the path
-        URL fileURL;
+        URL[] urls = new URL[1+(dependencies != null ? dependencies.length : 0)];
         String fullPath;
         {
             File file = new File(path);
@@ -179,9 +181,17 @@ public class JarIO
             // Convert the path to a URL
             try
             {
-                fileURL = file.toURI().toURL();
+                urls[0] = file.toURI().toURL();
                 // Fetch the absolute path of the file, in-case the path provided is relative
                 fullPath = file.getCanonicalPath();
+                // Setup the URL of each dependency
+                if(dependencies != null)
+                {   
+                    for(int d = 0; d < dependencies.length; d++)
+                    {
+                        urls[d+1] = new File(dependencies[d]).toURI().toURL();
+                    }
+                }
             }
             catch(SecurityException | MalformedURLException ex)
             {
@@ -194,7 +204,7 @@ public class JarIO
         }
         // Create class-loader for JAR file
         JarIO jio = new JarIO(fullPath);
-        jio.loader = URLClassLoader.newInstance(new URL[]{fileURL});
+        jio.loader = URLClassLoader.newInstance(urls);
         return jio;
     }
     /**

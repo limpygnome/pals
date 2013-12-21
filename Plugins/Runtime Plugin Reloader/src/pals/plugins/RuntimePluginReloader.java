@@ -14,6 +14,7 @@ import pals.base.TemplateItem;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.utils.JarIO;
 
 /**
  * A plugin which monitors the file-system and automatically loads/reloads
@@ -32,9 +33,9 @@ public class RuntimePluginReloader extends pals.base.Plugin
     private FileAlterationMonitor   filesMonitorTemplates;
     private FileAlterationListener  filesListenerTemplates;
     // Methods - Constructors **************************************************
-    public RuntimePluginReloader(NodeCore core, UUID uuid, Settings settings, String jarPath)
+    public RuntimePluginReloader(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {
-        super(core, uuid, settings, jarPath);
+        super(core, uuid, jario, settings, jarPath);
     }
 
     // Methods - Event Handlers ************************************************

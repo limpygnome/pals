@@ -6,6 +6,7 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.WebManager;
+import pals.base.utils.JarIO;
 import pals.base.web.WebRequestData;
 
 /**
@@ -13,9 +14,9 @@ import pals.base.web.WebRequestData;
  */
 public class Example extends pals.base.Plugin
 {
-    public Example(NodeCore core, UUID uuid, Settings settings, String jarPath)
+    public Example(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {
-        super(core, uuid, settings, jarPath);
+        super(core, uuid, jario, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override

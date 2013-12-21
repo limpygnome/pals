@@ -6,9 +6,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.EnumSet;
 import java.util.Random;
+import org.apache.commons.io.FileUtils;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.connectors.*;
+import pals.base.utils.Files;
 
 /**
  * A class used for an instance of a node; this is responsible for node features
@@ -208,6 +210,29 @@ public class NodeCore
                 return false;
             }
             logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
+        }
+        // Ensure temp_plugins exists for plugins
+        {
+            File tempPlugins = new File(getPathPlugins_Temp());
+            // Delete the directory if it already exists (we'll recreate it)
+            if(tempPlugins.exists())
+            {
+                try
+                {
+                    FileUtils.deleteDirectory(tempPlugins);
+                }
+                catch(IOException ex)
+                {
+                    logging.log("[CORE START] Failed to delete temporary directory for plugins ["+tempPlugins.getAbsolutePath()+"]!", ex, Logging.EntryType.Warning);
+                }
+            }
+            // (Re)create directory
+            if(!tempPlugins.mkdir())
+            {
+                logging.log("[CORE START] Failed to create temporary directory for plugins ["+tempPlugins.getAbsolutePath()+"]!", Logging.EntryType.Error);
+                stop(StopType.Failure);
+                return false;
+            }
         }
         // Create an initial connection to the database
         Connector conn = createConnector();
@@ -486,6 +511,14 @@ public class NodeCore
     public String getPathPlugins()
     {
         return pathPlugins;
+    }
+    /**
+     * @return The path of where plugins, and their dependencies, are copied
+     * to be loaded into the runtime.
+     */
+    public String getPathPlugins_Temp()
+    {
+        return "_temp_plugins";
     }
     /**
      * @return The directory of shared files between node(s) and/or website(s).

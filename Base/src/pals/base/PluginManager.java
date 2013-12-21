@@ -2,11 +2,13 @@ package pals.base;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -247,8 +249,9 @@ public class PluginManager
     {
         try
         {
-            // Load the JAR
-            JarIO jar = JarIO.open(jarPath);
+            File filePath = new File(jarPath);
+            // Load the original JAR
+            JarIO jar = JarIO.open(jarPath, null);
             // Read configuration file
             String xml = jar.fetchFileText("plugin.config");
             Settings ps = Settings.loadXml(xml, true);
@@ -273,6 +276,81 @@ public class PluginManager
                     return PluginLoad.Failed;
                 }
             }
+            // Build list of files (relative paths)
+            String pathOriginal = filePath.getParent();
+            String pathNew = core.getPathPlugins_Temp() + "/" + uuid.getHexHyphens();
+            // -- Open-ended in-case of future changes
+            ArrayList<String> fileDependencies = new ArrayList<>(); // new file paths of dependencies
+            HashMap<String,String> files = new HashMap<>(); // original path,dest path
+            files.put(filePath.getName(), "plugin.jar");
+            {
+                // Add plugin dependencies
+                String pluginDependencies = ps.getStr("plugin/plugin_dependencies");
+                if(pluginDependencies != null)
+                {
+                    UUID dp;
+                    for(String s : pluginDependencies.split(","))
+                    {
+                        if((dp = UUID.parse(s)) != null)
+                            fileDependencies.add(core.getPathPlugins_Temp() + "/" + dp.getHexHyphens() + "/plugin.jar");
+                        else
+                        {
+                            core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ invalid plugin dependency '"+s+"' - must be a UUID!", Logging.EntryType.Error);
+                            jar.dispose();
+                            return PluginLoad.Failed;
+                        }
+                    }
+                }
+                // Add dependencies
+                String dependencies = ps.getStr("plugin/dependencies");
+                if(dependencies != null)
+                {
+                    // Iterate each dependency
+                    for(String d : dependencies.split(","))
+                    {
+                        if(d.endsWith("*"))
+                        {
+                            // Relative directory - add all the files
+                            try
+                            {
+                                for(File f : Files.getAllFiles(pathOriginal + "/" + d, false, true, null, true))
+                                {
+                                    files.put(f.getPath(), f.getPath());
+                                    fileDependencies.add(f.getPath());
+                                }
+                            }
+                            catch(FileNotFoundException ex)
+                            {
+                                core.getLogging().log("Failed to load files of dependency path '"+d+"'; plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
+                                jar.dispose();
+                                return PluginLoad.Failed;
+                            }
+                        }
+                        else
+                        {
+                            files.put(d, d);
+                            fileDependencies.add(d);
+                        }
+                    }
+                }
+            }
+            // Dispose jar
+            jar.dispose();
+            // Copy list of files
+            for(Map.Entry<String,String> kv : files.entrySet())
+            {
+                try
+                {
+                    FileUtils.copyFile(new File(pathOriginal + "/" + kv.getKey()), new File(pathNew + "/" + kv.getValue()));
+                }
+                catch(IOException ex)
+                {
+                    core.getLogging().log("Failed to copy plugin file '"+kv.getKey()+"' to '"+kv.getValue()+"' plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
+                    return PluginLoad.Failed;
+                }
+            }
+            // Open jar at new location
+            jar = JarIO.open(pathNew + "/plugin.jar", fileDependencies.toArray(new String[fileDependencies.size()]));
             // Fetch the plugin class and load an instance into the runtime
             String classPath = ps.getStr("plugin/classpath");
             if(classPath == null)
@@ -282,7 +360,8 @@ public class PluginManager
                 return PluginLoad.Failed;
             }
             Class c = jar.fetchClassType(classPath);
-            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, Settings.class, String.class).newInstance(core, uuid, ps, jarPath);
+            // -- Create a new instance
+            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, JarIO.class, Settings.class, String.class).newInstance(core, uuid, jar, ps, jarPath);
             // Check the state of the plugin
             try
             {
@@ -400,9 +479,6 @@ public class PluginManager
                 return PluginLoad.Failed;
             }
             core.getLogging().log("[PLUGINS] Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "].", Logging.EntryType.Info);
-            // Set the plugin's JarIO for future loading of dependencies
-            //jar.dispose();
-            p.setJarIO(jar);
             return PluginLoad.Loaded;
         }
         catch(SettingsException ex)
@@ -443,6 +519,8 @@ public class PluginManager
         plugin.eventHandler_pluginUnload(core);
         // Remove from manager
         plugins.remove(plugin.getUUID());
+        // Dispose I/O
+        plugin.getJarIO().dispose();
         core.getLogging().log("[PLUGINS] Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
         return true;
     }

@@ -13,7 +13,7 @@ public class Test_Plugin
         
         try
         {
-            JarIO jar = JarIO.open(path);
+            JarIO jar = JarIO.open(path,null);
             System.out.println("Path: '" + jar.getPath() + "'.");
             System.out.println("Files:");
             for(String str : jar.getFiles(null, null, true, false))
