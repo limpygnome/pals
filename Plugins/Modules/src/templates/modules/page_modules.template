@@ -1,0 +1,55 @@
+<h2>Modules</h2>
+
+<#if user.getModules(data.getConnector())?has_content>
+    <table class="table3 modules">
+        <tr>
+            <td>&nbsp;</td>
+            <th colspan="4">Assignments</th>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <th class="module_col1">Title</th>
+            <th title="Total">T</th>
+            <th title="Unanswered">U</th>
+            <th title="Answered">A</th>
+            <th title="Incomplete">I</th>
+            <th>Options</th>
+        </tr>
+        <#list user.getModules(data.getConnector()) as module>
+        <tr>
+            <td>
+                <a href="/modules/${module.getModuleID()?string}">
+                    ${module.getTitle()}
+                </a>
+            </td>
+            <td>
+                to-do.
+            </td>
+            <td>
+                to-do.
+            </td>
+            <td>
+                to-do.
+            </td>
+            <td>
+                to-do.
+            </td>
+            <td>
+                <a href="/modules/${module.getModuleID()?string}">
+                    View
+                </a>
+                <#if user.getGroup().isAdminModules()>
+                &nbsp;
+                <a href="/admin/modules/${module.getModuleID()?string}">
+                    Manage
+                </a>
+                </#if>
+            </td>
+        </tr>
+        </#list>
+    </table>
+<#else>
+<p>
+    You are not currently enrolled on any modules.
+</p>
+</#if>

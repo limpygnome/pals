@@ -1,0 +1,55 @@
+<h2>Admin - Modules</h2>
+
+<table class="table3 modules_admin">
+    <tr>
+        <th class="module_col1">Title</th>
+        <th>Students</th>
+        <th>Assignments</th>
+        <th>Options</th>
+    </tr>
+    <#if modules?has_content>
+        <#list modules as module>
+        <tr>
+            <td>
+                <a href="/admin/modules/${module.getModuleID()?string}">
+                    ${module.getTitle()}
+                </a>
+            </td>
+            <td>
+                to-do.
+            </td>
+            <td>
+                to-do.
+            </td>
+            <td>
+                <a href="/admin/modules/${module.getModuleID()?string}">
+                    View
+                </a>
+                &nbsp;
+                <a href="/admin/modules/${module.getModuleID()?string}/delete">
+                    Delete
+                </a>
+                &nbsp;
+                <a href="/admin/modules/${module.getModuleID()?string}/assignments">
+                    Assignments
+                </a>
+                <a href="/admin/modules/${module.getModuleID()?string}/enrollment">
+                    Enrollment
+                </a>
+            </td>
+        </tr>
+        </#list>
+    <#else>
+    <tr>
+        <td colspan="4">
+            No modules exist.
+        </td>
+    </tr>
+    </#if>
+</table>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/create">
+        Create Module
+    </a>
+</p>

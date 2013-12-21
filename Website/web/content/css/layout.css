@@ -16,6 +16,14 @@ body
 {
 	clear: both;
 }
+.tac
+{
+	text-align: center;
+}
+.tar
+{
+	text-align: right;
+}
 .layout_body .banner
 {
 	width: 100%;
@@ -31,6 +39,7 @@ body
 	margin: 0em;
 	color: #999;
 	font-weight: normal;
+	text-shadow: 0.1em 0.1em 0.1em #BBB;
 }
 .layout_body .nav
 {
@@ -42,7 +51,7 @@ body
 .layout_body .nav .ritems
 {
 	float: right;
-	color: #080;
+	color: #050;
 	padding: 0.4em;
 	height: 1em;
 	line-height: 1em;
@@ -50,7 +59,6 @@ body
 .layout_body .nav .ritems a
 {
 	color: #FFF;
-	font-size: smaller;
 }
 .layout_body .nav .ritems a:hover, .layout_body .nav .ritems a:focus
 {
@@ -163,6 +171,76 @@ body
 {
 	color: #333;
 }
+/* Tables ~ shared */
+.layout_body .content table tr th,
+.layout_body .content table tr td
+{
+	text-align: center;
+}
+.layout_body .content table input[type=submit], .layout_body .button
+{
+	margin: 0em;
+	border: solid 0.1em #060;
+	border-radius: 0.4em;
+	padding: 0.25em 0.5em;
+	background: #0C0;
+	color: #FFF !important;
+	background-image: url('../images/layout_button.png');
+	background-repeat: repeat-x;
+	background-size: auto 100%;
+	text-shadow: 0em -0.1em 0.1em #333;
+	text-decoration: none;
+	font: inherit;
+}
+.layout_body .content table input[type=submit]:hover, .layout_body .content table input[type=submit]:focus,
+.layout_body .content .button:hover, .layout_body .content .button:focus
+{
+	background-color: #999;
+	border-color: #666;
+	cursor: pointer;
+}
+.layout_body .content table input[type=text], .layout_body .content table input[type=password], .layout_body table textarea
+{
+	border: solid 0.2em #CCC;
+	background: #EEE;
+	padding: 0.25em;
+	color: #333;
+}
+.layout_body .content table input[type=file]
+{
+	border: solid 0.2em #CCC;
+	background: #DDD;
+}
+.layout_body .content table textarea
+{
+	width: 100%;
+}
+.layout_body .content table input[type=text]:focus, .layout_body .content table input[type=text]:hover,
+.layout_body .content table input[type=password]:focus, .layout_body .content table input[type=password]:hover,
+.layout_body .content table input[type=file]:focus, .layout_body .content table input[type=file]:hover,
+.layout_body .content table textarea:focus, .layout_body .content table textarea:hover
+{
+	background: #EEE;
+}
+.layout_body .content table input[type=checkbox] + label
+{
+	border: solid 0.2em #CCC;
+	border-radius: 0.25em;
+	padding: 0.2em;
+	cursor: pointer;
+	text-indent: 12em;
+}
+.layout_body .content table input[type=checkbox] + label:hover, .layout_body .content table input[type=checkbox] + label:focus
+{
+	border-color: #999;
+	background: #DDD;
+}
+.layout_body .content table input[type=checkbox]:checked + label
+{
+	border-color: #999;
+	background: #CCC;
+	color: #333;
+}
 /* Table 1 ~ data */
 .layout_body .content .table
 {
@@ -202,72 +280,11 @@ body
 {
 	width: 50%;
 }
-.layout_body .content .table2 input[type=submit]
-{
-	border: solid 0.1em #060;
-	border-radius: 0.4em;
-	padding: 0.25em 0.5em;
-	background: #0C0;
-	color: #FFF;
-	background-image: url('../images/layout_button.png');
-	background-repeat: repeat-x;
-	background-size: auto 100%;
-	text-shadow: 0em -0.1em 0.1em #333;
-}
-.layout_body .content .table2 input[type=submit]:hover, .layout_body .content .table2 input[type=submit]:focus
-{
-	background-color: #999;
-	border-color: #666;
-	cursor: pointer;
-}
-.layout_body .content .table2 input[type=text], .layout_body .content .table2 input[type=password], .layout_body .content .table2 textarea
-{
-	border: solid 0.2em #CCC;
-	background: #EEE;
-	padding: 0.25em;
-	color: #333;
-}
-.layout_body .content .table2 input[type=file]
-{
-	border: solid 0.2em #CCC;
-	background: #DDD;
-}
-.layout_body .content .table2 textarea
-{
-	width: 100%;
-}
-.layout_body .content .table2 input[type=text]:focus, .layout_body .content .table2 input[type=text]:hover,
-.layout_body .content .table2 input[type=password]:focus, .layout_body .content .table2 input[type=password]:hover,
-.layout_body .content .table2 input[type=file]:focus, .layout_body .content .table2 input[type=file]:hover,
-.layout_body .content .table2 textarea:focus, .layout_body .content .table2 textarea:hover
-{
-	background: #EEE;
-}
-.layout_body .content .table2 input[type=checkbox] + label
-{
-	border: solid 0.2em #CCC;
-	border-radius: 0.25em;
-	padding: 0.2em;
-	cursor: pointer;
-	text-indent: 12em;
-}
-.layout_body .content .table2 input[type=checkbox] + label:hover, .layout_body .content .table2 input[type=checkbox] + label:focus
-{
-	border-color: #999;
-	background: #DDD;
-}
-.layout_body .content .table2 input[type=checkbox]:checked + label
-{
-	border-color: #999;
-	background: #CCC;
-	color: #333;
-}
 /* Table 3 ~ page related */
 .layout_body .table3
 {
 	margin: 0.5em auto;
 	border-collapse: collapse;
-	border: solid 0.2em #CCC;
 }
 .layout_body .table3 tr th, .layout_body .table3 tr td
 {
@@ -281,8 +298,8 @@ body
 }
 .layout_body .table3 tr td
 {
-	border-left: dashed 0.2em #CCC;
-	border-right: dashed 0.2em #CCC;
+	border-left: solid 0.2em #CCC;
+	border-right: solid 0.2em #CCC;
 	border-bottom: solid 0.2em #CCC;
 }
 .layout_body .table3 tr td:first-child
@@ -292,9 +309,6 @@ body
 .layout_body .table3 tr td:last-child
 {
 	border-right: none;
-}
-.layout_body .table3 tr td:nth-child(odd)
-{
 }
 /* Container */
 .layout_body .container
@@ -327,3 +341,14 @@ body
 	background: #FCC;
 	color: #F00;
 }
+/* Modules */
+.layout_body .content .table3 .module_col1
+{
+	width: 30em;
+}
+.layout_body .content .modules tr td:nth-child(1),
+.layout_body .content .modules_admin tr td:nth-child(1)
+{
+	text-align: left;
+}
+

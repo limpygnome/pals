@@ -324,7 +324,7 @@ public class DefaultAuth extends Plugin
                 if(passHashed.equals(user.getPassword()))
                 {
                     // Correct! Setup the user and redirect to home
-                    data.getSession().setAttribute(SESSION_KEY__USERID, user.getUserid());
+                    data.getSession().setAttribute(SESSION_KEY__USERID, user.getUserID());
                     data.setUser(user);
                     data.getResponseData().setRedirectUrl("/");
                 }

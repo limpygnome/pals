@@ -37,3 +37,6 @@ Todo.txt
 /Plugins/Captcha/nbproject/private/
 /Plugins/Captcha/build/
 /Plugins/Captcha/dist/
+/Plugins/Modules/nbproject/private/
+/Plugins/Modules/build/
+/Plugins/Modules/dist/

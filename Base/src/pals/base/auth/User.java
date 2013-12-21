@@ -2,12 +2,19 @@ package pals.base.auth;
 
 import pals.base.Logging;
 import pals.base.NodeCore;
+import pals.base.assessment.Module;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
 
 /**
  * An abstract user of the system.
+ * 
+ * The idea is for all authentication plugins to use a single user model from
+ * the base (this class) to avoid a lack of third-party plugin support.
+ * Therefore the password, password-salt and e-mail fields in this model are
+ * completely optional and may need to be validated, from an input source
+ * (such as a web-interface), manually.
  */
 public class User
 {
@@ -34,6 +41,8 @@ public class User
     private String      passwordSalt;   // The password salt used for the password.
     private String      email;          // The user's e-mail.
     private UserGroup   group;          // The class/group of the user.
+    // Fields - Caching ********************************************************
+    private Module[] modules;           // The modules a user belongs to.
     // Methods - Constructors **************************************************
     private User(int userid, String username, String password, String passwordSalt, String email, UserGroup group)
     {
@@ -128,7 +137,10 @@ public class User
      * successful).
      * 
      * Note:
-     * - The password minimum length is only checked if non-null.
+     * - The password minimum length is only checked if non-null; therefore
+     *   a password is optional.
+     * - A password salt is also optional.
+     * - An e-mail address is optional.
      * 
      * @param core The current instance of the core.
      * @param conn Database connector.
@@ -187,80 +199,150 @@ public class User
         }
     }
     // Methods - Mutators ******************************************************
+    /**
+     * @param username The new username for the user; can only consist of
+     * alpha-numeric characters.
+     */
     public void setUsername(String username)
     {
         this.username = username;
     }
+    /**
+     * @param password The new password; can be null.
+     */
     public void setPassword(String password)
     {
         this.password = password;
     }
+    /**
+     * @param passwordSalt The new password salt; can be null.
+     */
     public void setPasswordSalt(String passwordSalt)
     {
         this.passwordSalt = passwordSalt;
     }
+    /**
+     * @param email The new e-mail for the user.
+     */
     public void setEmail(String email)
     {
         this.email = email;
     }
+    /**
+     * @param group The new user-group of the user.
+     */
     public void setGroup(UserGroup group)
     {
         this.group = group;
     }
     // Methods - Accessors *****************************************************
-    public int getUserid()
+    /**
+     * @return The user's identifier; -1 if the model has not been persisted.
+     */
+    public int getUserID()
     {
         return userid;
     }
+    /**
+     * @return The user's username/alias; only alpha-numeric.
+     */
     public String getUsername()
     {
         return username;
     }
+    /**
+     * @return The user's password.
+     */
     public String getPassword()
     {
         return password;
     }
+    /**
+     * @return The user's password salt.
+     */
     public String getPasswordSalt()
     {
         return passwordSalt;
     }
+    /**
+     * @return The user's e-mail address.
+     */
     public String getEmail()
     {
         return email;
     }
+    /**
+     * @return The class/user-group of the user.
+     */
     public UserGroup getGroup()
     {
         return group;
     }
+    /**
+     * @param conn Database connector.
+     * @return The modules the user is enrolled on.
+     */
+    public Module[] getModules(Connector conn)
+    {
+        // Check if the user's modules have been loaded, else cache them
+        // -- Expensive operation
+        if(modules == null)
+            modules = Module.load(conn, this);
+        return modules;
+    }
     // Methods - Accessors - Limits ********************************************
+    /**
+     * @return Minimum length of a username.
+     */
     public int getUsernameMin()
     {
         return 1;
     }
+    /**
+     * @return Maximum length of a username.
+     */
     public int getUsernameMax()
     {
         return 24;
     }
+    /**
+     * @return Minimum length of a password.
+     */
     public int getPasswordMin()
     {
         return 1;
     }
+    /**
+     * @return The maximum length of a password.
+     */
     public int getPasswordMax()
     {
         return 24;
     }
+    /**
+     * @return The minimum length of a password salt.
+     */
     public int getPasswordSaltMin()
     {
         return 0;
     }
+    /**
+     * @return The maximum length of a password.
+     */
     public int getPasswordSaltMax()
     {
         return 32;
     }
+    /**
+     * @return The minimum length of an e-mail.
+     */
     public int getEmailMin()
     {
         return 1;
     }
+    /**
+     * @return The maximum length of an e-mail.
+     */
     public int getEmailMax()
     {
         return 128;

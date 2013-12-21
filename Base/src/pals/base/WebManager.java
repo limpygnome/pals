@@ -8,7 +8,16 @@ import pals.base.web.RemoteResponse;
 import pals.base.web.WebRequestData;
 
 /**
- * Responsible for forwarding web-requests to plugins.
+ * Responsible for forwarding web-requests to plugins and management of
+ * URLs assigned to plugins.
+ * 
+ * Relative URLs are assigned as belonging to a plugin, with different folders
+ * able to go to different plugins. If a plugin is unable to handle a request,
+ * the next root folder of the URL is sent the request. Thus this means
+ * regular expression matching is not needed; URLs are also stored as a
+ * tree for efficiency, rather than iterating a list of regular expressions.
+ * Therefore only one plugin may own a folder, however a sub-directory or/and
+ * root can be owned by different plugins.
  * 
  * Thread-safe.
  */
@@ -127,9 +136,10 @@ public class WebManager
         }
         if(data.getUser() != null)
             data.setTemplateData("user", data.getUser());
+        data.setTemplateData("data", data);
         // Render template and update response data
         // -- Unless the buffer has been set manually
-        if((response.getBuffer() == null || response.getBuffer().length == 0) && data.getTemplateData("pals_content") != null)
+        if(response.getBuffer() == null || response.getBuffer().length == 0)
         {
             String template = (String)data.getTemplateData("pals_page");
             String dd = core.getTemplates().render(data,  template != null ? template : "pals/page");

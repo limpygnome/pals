@@ -105,7 +105,7 @@ CREATE TABLE pals_email_queue
 CREATE TABLE pals_modules
 (
 	moduleid			SERIAL				PRIMARY KEY,
-	title				VARCHAR(64)			DEFAULT 'Untitled Module'
+	title				VARCHAR(64)			DEFAULT 'Untitled Module'		NOT NULL
 );
 -- Modules of which a student is enrolled-upon
 CREATE TABLE pals_modules_enrollment

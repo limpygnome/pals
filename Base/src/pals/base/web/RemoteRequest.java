@@ -52,12 +52,15 @@ public class RemoteRequest implements Serializable
             this.relativeUrl = "";
         else
         {
-            // Ensure the relative URL does not start or end with a forward-slash
+            // Ensure the relative URL does not start with a forward slash
             if(relativeUrl.startsWith("/"))
             {
                 relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(1) : "";
-                if(relativeUrl.endsWith("/"))
-                    relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(0, relativeUrl.length()-2) : "";
+            }
+            // Ensure the relative URL does not end with a forward-slash
+            if(relativeUrl.endsWith("/"))
+            {
+                relativeUrl = relativeUrl.length() > 1 ? relativeUrl.substring(0, relativeUrl.length()-1) : "";
             }
             this.relativeUrl = relativeUrl;
         }
