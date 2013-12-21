@@ -222,6 +222,13 @@ public class UserGroup
         return markerGeneral;
     }
     /**
+     * @return Indicates if the group has any admin roles.
+     */
+    public boolean isAdmin()
+    {
+        return adminModules || adminAssignments || adminSystem || adminUsers;
+    }
+    /**
      * @return Indicates if the group can manage modules.
      */
     public boolean isAdminModules()

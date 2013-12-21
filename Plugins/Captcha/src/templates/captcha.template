@@ -1,1 +1,1 @@
-<img src="/captcha" alt="Captcha Verification Image" title="Captcha Verification Image" id="captcha" width="240" height="90" />
+<img src="/captcha" alt="Captcha Verification Image" title="Captcha Verification Image" onclick="this.src = '/captcha'; return false;" id="captcha" width="240" height="90" />

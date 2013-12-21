@@ -109,7 +109,7 @@ public class Captcha extends Plugin
         // Fetch RNG
         Random rand = data.getCore().getRNG();
         // Generate random string and place into session data
-        String text = Misc.randomText(data.getCore(), charsMin+rand.nextInt(charsMax-charsMin));
+        String text = Misc.randomText(data.getCore(), charsMin+rand.nextInt(charsMax-charsMin)).toLowerCase();
         data.getSession().setAttribute(SESSION_KEY__CAPTCHA, text);
         // Create image for rendering
         BufferedImage img = new BufferedImage(captchaWidth, captchaHeight, BufferedImage.TYPE_INT_ARGB);
@@ -182,6 +182,6 @@ public class Captcha extends Plugin
      */
     public static boolean isCaptchaCorrect(WebRequestData data)
     {
-        return isCaptchaCorrect(data, "captcha");
+        return isCaptchaCorrect(data, data.getRequestData().getField("captcha"));
     }
 }

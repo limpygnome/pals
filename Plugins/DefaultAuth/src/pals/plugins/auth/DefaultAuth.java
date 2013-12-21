@@ -202,6 +202,8 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("pals_content", "default_auth/page_settings");
         // -- Fields
         data.setTemplateData("csrf", CSRF.set(data));
+        if(email != null)
+            data.setTemplateData("email", email);
         return true;
     }
     public boolean pageAccountRegister(WebRequestData data)
@@ -253,26 +255,35 @@ public class DefaultAuth extends Plugin
                         // Attempt to persist
                         User.PersistStatus_User ps = user.persist(getCore(), data.getConnector());
                         // Handle persist status
-                        // IMPORTANT NOTE: if-statements are used, instead of a switch, due to a JVM bug,
-                        // whereby runtime execution halts without any exception. Reason unknown.
-                        // This behaviour even occurs if a variable with a type of the neum is defined
-                        // and switched within the same scope.
-                        if(ps == User.PersistStatus_User.InvalidEmail_exists)
-                            data.setTemplateData("error", "E-mail address already in-use.");
-                        else if(ps == User.PersistStatus_User.InvalidEmail_format)
-                            data.setTemplateData("error", "Invalid e-mail.");
-                        else if(ps == User.PersistStatus_User.InvalidPassword_length)
-                            data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
-                        else if(ps == User.PersistStatus_User.InvalidUsername_exists)
-                            data.setTemplateData("error", "Username already in-use.");
-                        else if(ps == User.PersistStatus_User.InvalidUsername_format)
-                            data.setTemplateData("error", "Invalid username; must contain only alpha-numeric characters.");
-                        else if(ps == User.PersistStatus_User.InvalidUsername_length)
-                            data.setTemplateData("error", "Username must be "+user.getUsernameMin()+" to "+user.getUsernameMax()+" characters in length.");
-                        else if(ps == User.PersistStatus_User.Success)
-                            data.getResponseData().setRedirectUrl("/account/login");
-                        else
-                            data.setTemplateData("error", "An error occurred ("+ps.toString()+"); please try again or contact an administrator!");
+                        switch(ps)
+                        {
+                            default:
+                            case InvalidGroup:
+                            case Failed:
+                                data.setTemplateData("error", "An error occurred ("+ps.toString()+"); please try again or contact an administrator!");
+                                break;
+                            case InvalidEmail_exists:
+                                data.setTemplateData("error", "E-mail address already in-use.");
+                                break;
+                            case InvalidEmail_format:
+                                data.setTemplateData("error", "Invalid e-mail.");
+                                break;
+                            case InvalidPassword_length:
+                                data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
+                                break;
+                            case InvalidUsername_exists:
+                                data.setTemplateData("error", "Username already in-use.");
+                                break;
+                            case InvalidUsername_format:
+                                data.setTemplateData("error", "Invalid username; must contain only alpha-numeric characters.");
+                                break;
+                            case InvalidUsername_length:
+                                data.setTemplateData("error", "Username must be "+user.getUsernameMin()+" to "+user.getUsernameMax()+" characters in length.");
+                                break;
+                            case Success:
+                                data.getResponseData().setRedirectUrl("/account/login");
+                                break;
+                        }
                     }
                 }
             }

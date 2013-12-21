@@ -151,9 +151,9 @@ public class User
         try
         {
             // Validate uniqueness
-            if(email != null && (long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE email=?;", email) > 0)
+            if(email != null && (long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE email=? AND NOT userid=?;", email, userid) > 0)
                 return PersistStatus_User.InvalidEmail_exists;
-            else if((long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE username=?;", username) > 0)
+            else if((long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE username=? AND NOT userid=?;", username, userid) > 0)
                 return PersistStatus_User.InvalidUsername_exists;
             // Persist the data
             if(userid == -1)
