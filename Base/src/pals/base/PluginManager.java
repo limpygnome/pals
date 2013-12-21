@@ -279,6 +279,7 @@ public class PluginManager
             // Build list of files (relative paths)
             String pathOriginal = filePath.getParent();
             String pathNew = core.getPathPlugins_Temp() + "/" + uuid.getHexHyphens();
+            File filePathOriginal = new File(pathOriginal);
             // -- Open-ended in-case of future changes
             ArrayList<String> fileDependencies = new ArrayList<>(); // new file paths of dependencies
             HashMap<String,String> files = new HashMap<>(); // original path,dest path
@@ -313,10 +314,12 @@ public class PluginManager
                             // Relative directory - add all the files
                             try
                             {
-                                for(File f : Files.getAllFiles(pathOriginal + "/" + d, false, true, null, true))
+                                String n; // -- used to compute the relative path to the base
+                                for(File f : Files.getAllFiles(pathOriginal + "/" + d.substring(0, d.length()-2), false, true, null, true))
                                 {
-                                    files.put(f.getPath(), f.getPath());
-                                    fileDependencies.add(f.getPath());
+                                    n = filePathOriginal.toURI().relativize(f.toURI()).getPath();
+                                    files.put(n,n);
+                                    fileDependencies.add(n);
                                 }
                             }
                             catch(FileNotFoundException ex)
