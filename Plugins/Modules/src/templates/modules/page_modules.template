@@ -1,4 +1,4 @@
-<h2>Modules</h2>
+<h2>${pals_title}</h2>
 
 <#if user.getModules(data.getConnector())?has_content>
     <table class="table3 modules">

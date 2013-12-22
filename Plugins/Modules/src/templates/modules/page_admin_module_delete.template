@@ -1,0 +1,39 @@
+<h2><a href="/admin/">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/delete">Delete Module</a></h2>
+
+<p>
+    WARNING: this action cannot be reversed; make sure you have backups in-case this is a mistake! This will delete ALL informaiton
+    associated with a module (assignments, results, enrollment, etc).
+</p>
+
+<form method="post" action="/admin/modules/${module.getModuleID()?string}/delete">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                Confirm Action
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Module ID:
+            </td>
+            <td>
+                ${module.getModuleID()?string}
+            </td>
+        </tr>
+        <#include "../captcha_form">
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+                <input type="submit" value="Delete" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="delete_module" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+<p class="error">
+    ${error?html}
+</p>
+</#if>

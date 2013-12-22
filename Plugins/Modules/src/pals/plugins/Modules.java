@@ -8,12 +8,14 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Module;
 import pals.base.auth.User;
+import pals.base.database.DatabaseException;
 import pals.base.utils.JarIO;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.base.web.security.Escaping;
+import pals.plugins.web.Captcha;
 
 /**
  * The default interface for modules.
@@ -202,6 +204,8 @@ public class Modules extends Plugin
                     return pageAdminModule_assignments(data, mup, module);
                 case "enrollment":
                     return pageAdminModule_enrollment(data, mup, module);
+                case "delete":
+                    return pageAdminModule_delete(data, mup, module);
                 default:
                     return false;
             }
@@ -212,16 +216,128 @@ public class Modules extends Plugin
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle()));
         data.setTemplateData("pals_content", "modules/page_admin_module");
-        // -- Set fields
+        data.setTemplateData("module", module);
+        // -- Assignments
         
+        // -- Module Users
+        data.setTemplateData("module_users", module.usersEnrolled(data.getConnector()));
         return true;
     }
     private boolean pageAdminModule_delete(WebRequestData data, MultipartUrlParser mup, Module module)
     {
+        // Check for postback
+        RemoteRequest request = data.getRequestData();
+        String deleteModule = request.getField("delete_module");
+        String csrf = request.getField("csrf");
+        if(deleteModule != null && deleteModule.equals("1"))
+        {
+            // Validate security
+            if(!CSRF.isSecure(data, csrf))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Incorrect captcha verification code!");
+            else
+            {
+                // Delete the module...
+                module.delete(data.getConnector());
+                // Redirect to modules page
+                data.getResponseData().setRedirectUrl("/admin/modules");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle()) + " - Delete");
+        data.setTemplateData("pals_content", "modules/page_admin_module_delete");
+        data.setTemplateData("module", module);
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
     private boolean pageAdminModule_enrollment(WebRequestData data, MultipartUrlParser mup, Module module)
     {
+        // Check field data
+        RemoteRequest request = data.getRequestData();
+        String moduleUsersAdd = request.getField("module_users_add");
+        String remove = request.getField("remove");
+        String removeAll = request.getField("remove_all");
+        String csrf = request.getField("csrf");
+        // -- Adding users
+        if(moduleUsersAdd != null && moduleUsersAdd.length() > 0)
+        {
+            if(!CSRF.isSecure(data, csrf))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                // Iterate each line of the input, load the user and add
+                boolean failed = false;
+                User user;
+                String un;
+                for(String line : moduleUsersAdd.replace("\r", "").split("\n"))
+                {
+                    un = line.trim();
+                    if(un.length() > 0)
+                    {
+                        if((user = User.load(data.getConnector(), un)) != null)
+                        {
+                            module.usersAdd(data.getConnector(), user);
+                        }
+                        else
+                        {
+                            data.setTemplateData("error", "User '"+un+"' does not exist!");
+                            failed = true;
+                            break;
+                        }
+                    }
+                }
+                // End transaction
+                if(!failed)
+                {
+                    data.setTemplateData("success", "Successfully enrolled users.");
+                }
+            }
+        }
+        // -- Removing a user
+        if(remove != null && remove.length() > 0)
+        {
+            if(!CSRF.isSecure(data, csrf))
+                data.setTemplateData("error2", "Invalid request; try again or contact an administrator!");
+            else
+            {
+                try
+                {
+                    int userid = Integer.parseInt(remove);
+                    User user = User.load(data.getConnector(), userid);
+                    if(user == null)
+                        data.setTemplateData("error2", "User does not exist!");
+                    else if(!module.usersRemove(data.getConnector(), user))
+                        data.setTemplateData("error2", "Could not remove user, please try again!");
+                }
+                catch(NumberFormatException ex)
+                {
+                    data.setTemplateData("error2", "Invalid request; try again or contact an administrator!");
+                }
+            }
+        }
+        // -- Removing all users
+        if(removeAll != null && removeAll.equals("1"))
+        {
+            if(!CSRF.isSecure(data, csrf))
+                data.setTemplateData("error2", "Invalid request; try again or contact an administrator!");
+            else
+            {
+                // Remove all the users for the module
+                module.usersRemoveAll(data.getConnector());
+                // Redirect back to overview (to hide long url)
+                data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/enrollment");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Enrollment");
+        data.setTemplateData("pals_content", "modules/page_admin_enrollment");
+        data.setTemplateData("module", module);
+        data.setTemplateData("module_users", module.usersEnrolled(data.getConnector()));
+        // -- Fields
+        data.setTemplateData("module_users_add", moduleUsersAdd);
+        data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
     private boolean pageAdminModule_assignments(WebRequestData data, MultipartUrlParser mup, Module module)

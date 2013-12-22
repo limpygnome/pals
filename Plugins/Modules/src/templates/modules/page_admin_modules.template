@@ -1,4 +1,4 @@
-<h2>Admin - Modules</h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a></h2>
 
 <table class="table3 modules_admin">
     <tr>
@@ -12,11 +12,11 @@
         <tr>
             <td>
                 <a href="/admin/modules/${module.getModuleID()?string}">
-                    ${module.getTitle()}
+                    ${module.getTitle()?html}
                 </a>
             </td>
             <td>
-                to-do.
+                ${module.getUsersEnrolled(data.getConnector())}
             </td>
             <td>
                 to-do.

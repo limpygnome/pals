@@ -1,4 +1,4 @@
-<h2>Admin - Modules - Create</h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/create">Create</a></h2>
 
 <form method="post" action="/admin/modules/create">
     <table class="table2">
@@ -7,7 +7,7 @@
                 Title:
             </td>
             <td>
-                <input type="text" name="module_title" placeholder="Module's title..." value="${module_title}" />
+                <input type="text" name="module_title" placeholder="Module's title..." value="${module_title?html}" />
             </td>
         </tr>
         <tr>
@@ -21,6 +21,6 @@
 </form>
 <#if error??>
 <p class="error">
-    ${error}
+    ${error?html}
 </p>
 </#if>

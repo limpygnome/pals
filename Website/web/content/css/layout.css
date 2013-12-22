@@ -156,7 +156,19 @@ body
 	margin: 0em;
 	padding: 0.25em;
 	font-weight: normal;
+}
+.layout_body .content h2, .layout_body .content h2 a
+{
 	color: #0C0;
+}
+.layout_body .content h3
+{
+	margin: 0em;
+	padding: 0.25em;
+}
+.layout_body .content h3, .layout_body .content h3 a
+{
+	color: #999;
 }
 .layout_body .content p
 {

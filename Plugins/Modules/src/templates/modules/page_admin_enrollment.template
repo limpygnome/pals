@@ -1,0 +1,82 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/enrollment">Enrollment</a></h2>
+
+<h3>Add User(s)</h3>
+<p>
+    Type the name of each user on a new line:
+</p>
+
+<form method="post" action="/admin/modules/${module.getModuleID()?string}/enrollment">
+    <table class="table2">
+        <tr>
+            <td>
+                <textarea name="module_users_add" placeholder="One username per line..." cols="40" rows="5"><#if module_users_add??>${module_users_add?html}</#if></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="submit" value="Add" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+<p class="error">
+    ${error?html}
+</p>
+</#if>
+<#if success??>
+<p class="success">
+    ${success?html}
+</p>
+</#if>
+
+<h3>Enrolled Users</h3>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/enrollment?remove_all=1&amp;csrf=${csrf}">Remove All</a>
+</p>
+
+<#if error2??>
+<p class="error">
+    ${error2?html}
+</p>
+</#if>
+
+<table class="table3">
+    <tr>
+        <th>UserID</th>
+        <th>Username/Alias</th>
+        <th>E-mail</th>
+        <th>Group</th>
+        <th>Options</th>
+    </tr>
+    <#if module_users?has_content>
+        <#list module_users as user>
+        <tr>
+            <td>
+                ${user.getUserID()?string}
+            </td>
+            <td>
+                ${user.getUsername()?html}
+            </td>
+            <td>
+                ${user.getEmail()?html}
+            </td>
+            <td>
+                ${user.getGroup().getTitle()?html}
+            </td>
+            <td>
+                <a href="/admin/modules/${module.getModuleID()?string}/enrollment?remove=${user.getUserID()?string}&amp;csrf=${csrf}">
+                    Remove
+                </a>
+            </td>
+        </tr>
+        </#list>
+    <#else>
+        <td colspan="4">
+            No users are enrolled on this module.
+        </td>
+    </#if>
+</table>

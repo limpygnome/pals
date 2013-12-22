@@ -135,7 +135,7 @@ public class DefaultAuth extends Plugin
         return "PALS: Default Authentication";
     }
     // Methods - Pages *********************************************************
-    public boolean pageAccountSettings(WebRequestData data)
+    private boolean pageAccountSettings(WebRequestData data)
     {
         // Fetch the current user
         User user = data.getUser();
@@ -206,7 +206,7 @@ public class DefaultAuth extends Plugin
             data.setTemplateData("email", email);
         return true;
     }
-    public boolean pageAccountRegister(WebRequestData data)
+    private boolean pageAccountRegister(WebRequestData data)
     {
         if(data.getUser() != null)
             return false;
@@ -300,7 +300,7 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    public boolean pageAccountLogin(WebRequestData data)
+    private boolean pageAccountLogin(WebRequestData data)
     {
         if(data.getUser() != null)
             return false;
@@ -340,7 +340,7 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    public boolean pageAccountLogout(WebRequestData data)
+    private boolean pageAccountLogout(WebRequestData data)
     {
         // Fetch the current user
         User user = data.getUser();

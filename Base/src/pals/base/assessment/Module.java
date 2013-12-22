@@ -61,7 +61,6 @@ public class Module
         }
         catch(DatabaseException ex)
         {
-            System.out.println(ex.getMessage());
             return new Module[0];
         }
     }
@@ -197,7 +196,7 @@ public class Module
             return false;
         try
         {
-            conn.execute("INSERT INTO pals_modules enrollment(moduleid,userid) VALUES(?,?);", moduleid, user.getUserID());
+            conn.execute("INSERT INTO pals_modules_enrollment(moduleid,userid) VALUES(?,?);", moduleid, user.getUserID());
             return true;
         }
         catch(DatabaseException ex)
@@ -300,6 +299,33 @@ public class Module
             return false;
         }
     }
+    /**
+     * Fetches all of the users enrolled on a module; this is an expensive
+     * operation.
+     * 
+     * @param conn Database connector.
+     * @return Array of users; may be empty.
+     */
+    public User[] usersEnrolled(Connector conn)
+    {
+        try
+        {
+            ArrayList<User> users = new ArrayList<>();
+            // Execute query and parse results
+            Result q = conn.read("SELECT * FROM pals_users WHERE userid IN (SELECT userid FROM pals_modules_enrollment WHERE moduleid=?);", moduleid);
+            User u;
+            while(q.next())
+            {
+                if((u = User.load(conn, q)) != null)
+                    users.add(u);
+            }
+            return users.toArray(new User[users.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new User[0];
+        }
+    }
     // Methods - Mutators ******************************************************
     /**
      * @param title The new title for the module.
@@ -322,6 +348,21 @@ public class Module
     public String getTitle()
     {
         return title;
+    }
+    /**
+     * @param conn Database connector.
+     * @return Total number of enrolled users.
+     */
+    public int getUsersEnrolled(Connector conn)
+    {
+        try
+        {
+            return (int)(long)conn.executeScalar("SELECT COUNT('') FROM pals_modules_enrollment WHERE moduleid=?;", moduleid);
+        }
+        catch(DatabaseException ex)
+        {
+            return 0;
+        }
     }
     // Methods - Accessors - Limits ********************************************
     /**

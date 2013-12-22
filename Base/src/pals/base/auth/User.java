@@ -77,6 +77,7 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().log("Failed to load user model (1).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -96,6 +97,7 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().log("Failed to load user model (2).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -128,6 +130,7 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().log("Failed to load user model (3).", ex, Logging.EntryType.Warning);
             return null;
         }
     }

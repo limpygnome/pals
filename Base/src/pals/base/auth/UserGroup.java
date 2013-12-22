@@ -1,5 +1,7 @@
 package pals.base.auth;
 
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -64,6 +66,7 @@ public class UserGroup
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().log("Failed to load user-group model (1).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -90,6 +93,7 @@ public class UserGroup
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().log("Failed to load user-group model (2).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -139,6 +143,7 @@ public class UserGroup
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().log("Failed to load user-group model (3).", ex, Logging.EntryType.Warning);
             return PersistStatus_UserGroup.Failed;
         }
     }
