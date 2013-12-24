@@ -218,7 +218,7 @@ CREATE TABLE pals_assignment_instance_question
 	-- Data used to answer the question; defined by question-type handler, used by criteria-type handlers for marking.
 	data				BYTEA,
 	-- Ensure aqid and aiid are unique; also creates indexes for fast reverse querying.
-	UNIQUE(aqid, aiid);
+	UNIQUE(aqid, aiid)
 );
 -- Used to allocate marks to specific criterias for an instance of an assignment's question.
 CREATE TABLE pals_assignment_instance_question_criteria
@@ -231,5 +231,5 @@ CREATE TABLE pals_assignment_instance_question_criteria
 	status				INT					DEFAULT 0,
 	-- The mark allocated to the criteria; 0 to 100.
 	mark				INT					DEFAULT 0,
-	PRIMARY KEY(aiqid, qcid);
+	PRIMARY KEY(aiqid, qcid)
 );
