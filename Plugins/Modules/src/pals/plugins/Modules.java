@@ -8,7 +8,6 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Module;
 import pals.base.auth.User;
-import pals.base.database.DatabaseException;
 import pals.base.utils.JarIO;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
@@ -22,8 +21,6 @@ import pals.plugins.web.Captcha;
  */
 public class Modules extends Plugin
 {
-    // Fields ******************************************************************
-    
     // Methods - Constructors **************************************************
     public Modules(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {

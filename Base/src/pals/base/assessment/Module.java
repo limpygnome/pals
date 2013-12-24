@@ -26,19 +26,24 @@ public class Module
     private int     moduleid;   // The module's identifier.
     private String  title;      // The title of the module.
     // Methods - Constructors **************************************************
-    private Module(int moduleid, String title)
+    /**
+     * Creates a new unpersisted model.
+     */
+    public Module()
     {
-        this.moduleid = moduleid;
+        this(null);
+    }
+    /**
+     * Creates a new unpersisted model.
+     * 
+     * @param title The title of the module.
+     */
+    public Module(String title)
+    {
+        this.moduleid = -1;
         this.title = title;
     }
     // Methods - Persistence ***************************************************
-    /**
-     * @return A new, unpersisted, model.
-     */
-    public static Module create()
-    {
-        return new Module(-1, null);
-    }
     /**
      * @param conn Database connector.
      * @return An array with all of the modules (can be empty).
@@ -115,7 +120,9 @@ public class Module
     {
         try
         {
-            return new Module((int)result.get("moduleid"), (String)result.get("title"));
+            Module m = new Module((String)result.get("title"));
+            m.moduleid = result.get("moduleid");
+            return m;
         }
         catch(DatabaseException ex)
         {
@@ -335,6 +342,13 @@ public class Module
         this.title = title;
     }
     // Methods - Accessors *****************************************************
+    /**
+     * @return Indicates if the model has been persisted.
+     */
+    public boolean isPersisted()
+    {
+        return moduleid == -1;
+    }
     /**
      * @return The identifier of the module.
      */

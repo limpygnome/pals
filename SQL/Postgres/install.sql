@@ -117,7 +117,7 @@ CREATE TABLE pals_modules_enrollment
 
 
 
--- Possible types of questions; linked to plugins which handle them.
+-- Possible types of questions; linked to plugins which handle them (text, multiple-choice, etc).
 CREATE TABLE pals_question_types
 (
 	uuid_qtype			BYTEA				PRIMARY KEY,
@@ -126,6 +126,7 @@ CREATE TABLE pals_question_types
 	description			TEXT
 );
 -- Possible types of criteria handlers for assessing work; linked to plugins for handling assessment of work.
+-- -- Allows plugins to be created for makring different types of questions in different ways.
 CREATE TABLE pals_criteria_types
 (
 	uuid_ctype			BYTEA				PRIMARY KEY,
@@ -148,16 +149,19 @@ CREATE TABLE pals_question
 (
 	qid					SERIAL				PRIMARY KEY,
 	uuid_qtype			BYTEA				REFERENCES pals_question_types(uuid_qtype) ON UPDATE CASCADE ON DELETE RESTRICT		NOT NULL,
-	title				VARCHAR(64)
+	title				VARCHAR(64)			DEFAULT 'Untitled Question'		NOT NULL,
+	data				BYTEA
 );
 -- Criteria for assessing a question; this will be responsible for assigning marks. Any criteria parameters are stored and handled by the criteria-type.
 CREATE TABLE pals_question_criteria
 (
-	qid					INT					REFERENCES pals_question(qid) 				ON UPDATE CASCADE ON DELETE CASCADE,
-	uuid_ctype			BYTEA				REFERENCES pals_criteria_types(uuid_ctype) 	ON UPDATE CASCADE ON DELETE CASCADE,
-	PRIMARY KEY(qid, uuid_ctype)
+	qcid				SERIAL				PRIMARY KEY,
+	qid					INT					REFERENCES pals_question(qid) 				ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
+	uuid_ctype			BYTEA				REFERENCES pals_criteria_types(uuid_ctype) 	ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
+	data				BYTEA,
+	weight				INT					NOT NULL
 );
-
+CREATE UNIQUE INDEX index_pals_question_criteria_qid ON pals_question_criteria (qid);
 
 
 -- An assignment, many to a single module.
@@ -165,9 +169,9 @@ CREATE TABLE pals_assignment
 (
 	assid				SERIAL				PRIMARY KEY,
 	moduleid			INT					REFERENCES pals_modules(moduleid) ON UPDATE CASCADE ON DELETE CASCADE,
-	title				VARCHAR(64)			DEFAULT 'Untitled Assignment',
+	title				VARCHAR(64)			DEFAULT 'Untitled Assignment' NOT NULL,
 	-- The weight of the assignment; similiar to weight in pals_assignment_questions.
-	weight				INT																										NOT NULL
+	weight				INT					NOT NULL
 );
 -- The questions which belong to an assignment; note: the same question may be used multiple times.
 CREATE TABLE pals_assignment_questions
@@ -183,7 +187,7 @@ CREATE TABLE pals_assignment_questions
 	-- field is used purely for dislay purposes.
 	page				INT																										NOT NULL,
 	-- The order of a question on a page.
-	zindex				INT					DEFAULT 0																			NOT NULL
+	page_order			INT					DEFAULT 0																			NOT NULL
 );
 
 
@@ -194,19 +198,38 @@ CREATE TABLE pals_assignment_instance
 	aiid				SERIAL				PRIMARY KEY,
 	-- The user who has answered the assignment.
 	userid				INT					REFERENCES pals_users(userid) ON UPDATE CASCADE ON DELETE CASCADE					NOT NULL,
-	-- The status of the assignment.
-	status				INT					DEFAULT 0,
-	-- The mark achieved for the assignment; this is cached to avoid SUM queries.
-	mark				INT					DEFAULT 0
+	-- The assignment to which the instance belongs.
+	assid				INT					REFERENCES pals_assignment(assid) ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
+	-- Indicates if the assignment has been marked.
+	marked				VARCHAR(1)			DEFAULT 0,
+	-- The mark achieved for the assignment; calculated when an assignment has been completely marked.
+	-- -- Acts as a cache to avoid expensive aggregate functions.
+	-- -- 0 to 100.
+	mark				DECIMAL					DEFAULT 0
 );
 -- Data for answered questions of an instance of an assignment; this table may not be used by plugins handling instance data on their own.
-CREATE TABLE pals_assignment_instance_data
+CREATE TABLE pals_assignment_instance_question
 (
+	aiqid				SERIAL				PRIMARY KEY,
+	-- The assignment question.
 	aqid				INT					REFERENCES pals_assignment_questions(aqid) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
-	-- Contains data used to answer the question; this can be key/value or even null.
-	data				TEXT,
-	-- The status of the question (answered/marking error/etc).
+	-- The instance of the assignment.
+	aiid				INT					REFERENCES pals_assignment_instance(aiid) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
+	-- Data used to answer the question; defined by question-type handler, used by criteria-type handlers for marking.
+	data				BYTEA,
+	-- Ensure aqid and aiid are unique; also creates indexes for fast reverse querying.
+	UNIQUE(aqid, aiid);
+);
+-- Used to allocate marks to specific criterias for an instance of an assignment's question.
+CREATE TABLE pals_assignment_instance_question_criteria
+(
+	-- The instance of the question.
+	aiqid				INT					REFERENCES pals_assignment_instance_question(aiqid) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
+	-- The question criteria.
+	qcid				INT					REFERENCES pals_question_criteria(qcid) ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
+	-- The status of marking the criteria; refer to pals.base.assessment.InstanceAssignmentCriteria.Status for values.
 	status				INT					DEFAULT 0,
-	-- The mark achieved for this question; this is set after the question has been marked.
-	mark				INT					DEFAULT 0
+	-- The mark allocated to the criteria; 0 to 100.
+	mark				INT					DEFAULT 0,
+	PRIMARY KEY(aiqid, qcid);
 );

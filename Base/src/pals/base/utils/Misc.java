@@ -1,5 +1,11 @@
 package pals.base.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Random;
 import pals.base.NodeCore;
 
@@ -36,5 +42,36 @@ public class Misc
                 return false;
         }
         return true;
+    }
+    /**
+     * Serializes an object.
+     * 
+     * @param obj The object to be serialized; can be null. This must extend
+     * Serializable!
+     * @return Byte-array of the serialized data; data is returned for null,
+     * which can be converted back to null.
+     * @throws IOException Thrown if this operation fails.
+     */
+    public static byte[] bytesSerialize(Object obj) throws IOException
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(obj);
+        oos.flush();
+        return baos.toByteArray();
+    }
+    /**
+     * Deserializes an object from byte-data.
+     * 
+     * @param data The byte-array of data to deserialize into an object.
+     * @return An instance of the object, or possibly null if it was serialized
+     * as null.
+     * @throws IOException Thrown if this operation fails.
+     */
+    public static Object bytesDeserialize(byte[] data) throws IOException, ClassNotFoundException
+    {
+        ByteArrayInputStream deserialBais = new ByteArrayInputStream(data);
+        ObjectInputStream deserialOis = new ObjectInputStream(deserialBais);
+        return deserialOis.readObject();
     }
 }

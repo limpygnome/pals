@@ -22,6 +22,8 @@ public class DateTime
         this.minute = minute;
         this.second = second;
     }
+    // Methods - Static ********************************************************
+    
     // Methods *****************************************************************
     /**
      * Indicates if an object is the same as the current one; if the object is

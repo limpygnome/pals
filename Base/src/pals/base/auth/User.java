@@ -240,6 +240,13 @@ public class User
     }
     // Methods - Accessors *****************************************************
     /**
+     * @return Indicates if the model has been persisted.
+     */
+    public boolean isPersisted()
+    {
+        return userid == -1;
+    }
+    /**
      * @return The user's identifier; -1 if the model has not been persisted.
      */
     public int getUserID()
