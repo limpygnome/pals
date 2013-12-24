@@ -153,8 +153,7 @@ public class Modules extends Plugin
                 data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
             else
             {
-                Module m = Module.create();
-                m.setTitle(moduleTitle);
+                Module m = new Module(moduleTitle);
                 switch(m.persist(data.getConnector()))
                 {
                     case Failed:
