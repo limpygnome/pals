@@ -27,6 +27,8 @@ import pals.base.web.WebRequestData;
  */
 public class TemplateManager
 {
+    // Fields - Constants ******************************************************
+    private static final String                     LOGGING_ALIAS = "PALS Templates";
     // Fields ******************************************************************
     private final NodeCore                          core;               // The current instance of the core.
     private final HashMap<String, TemplateFunction> functions;          // The template functions used for rendering; function-name,function.
@@ -61,7 +63,7 @@ public class TemplateManager
      */
     public synchronized boolean reload()
     {
-        core.getLogging().log("[TEMPLATES] Re-registering all templates...", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "Re-registering all templates...", Logging.EntryType.Info);
         // Clear templates
         fmLoader.clear();
         // Reset template cache
@@ -72,11 +74,11 @@ public class TemplateManager
         {
             if(!plugin.eventHandler_registerTemplates(core, this))
             {
-                core.getLogging().log("[TEMPLATES] Failed to register templates for plugin '" + plugin.getTitle() + "' [" + plugin.getUUID().getHexHyphens() + "].", Logging.EntryType.Warning);
+                core.getLogging().log(LOGGING_ALIAS, "Failed to register templates for plugin '" + plugin.getTitle() + "' [" + plugin.getUUID().getHexHyphens() + "].", Logging.EntryType.Warning);
                 return false;
             }
         }
-        core.getLogging().log("[TEMPLATES] Finished re-registering all templates.", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "Finished re-registering all templates.", Logging.EntryType.Info);
         return true;
     }
     /**
@@ -96,7 +98,7 @@ public class TemplateManager
         }
         catch(IOException ex)
         {
-            core.getLogging().log("[TEMPLATES] Failed to load template at '" + path + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "]!", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Failed to load template at '" + path + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "]!", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -126,7 +128,7 @@ public class TemplateManager
                 // Attempt to register
                 if(!registerTemplate(plugin, path, content))
                 {
-                    core.getLogging().log("[TEMPLATES] Failed to register template '" + path + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "]; aborted loading dir '" + directory + "'!", Logging.EntryType.Warning);
+                    core.getLogging().log(LOGGING_ALIAS, "Failed to register template '" + path + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "]; aborted loading dir '" + directory + "'!", Logging.EntryType.Warning);
                     return false;
                 }
             }
@@ -134,11 +136,11 @@ public class TemplateManager
         }
         catch(FileNotFoundException ex)
         {
-            core.getLogging().log("[TEMPLATES] Failed to register templates at '" + directory + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "] ~ FieNotFound ~ ", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Failed to register templates at '" + directory + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "] ~ FieNotFound ~ ", ex, Logging.EntryType.Warning);
         }
         catch(IOException ex)
         {
-            core.getLogging().log("[TEMPLATES] Failed to register templates at '" + directory + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "] ~ IOException ~ ", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Failed to register templates at '" + directory + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "] ~ IOException ~ ", ex, Logging.EntryType.Warning);
         }
         return false;
     }
@@ -202,7 +204,7 @@ public class TemplateManager
         }
         catch(JarIOException ex)
         {
-            core.getLogging().log("[TEMPLATES] Could not load templates from jar directory '" + directory + "' ~ plugin [" + plugin.getUUID().getHexHyphens() + "]!", ex, Logging.EntryType.Error);
+            core.getLogging().logEx(LOGGING_ALIAS, "Could not load templates from jar directory '" + directory + "' ~ plugin [" + plugin.getUUID().getHexHyphens() + "]!", ex, Logging.EntryType.Error);
             return false;
         }
     }
@@ -224,7 +226,7 @@ public class TemplateManager
             return false;
         // Add the function to the collection
         functions.put(functionName, function);
-        core.getLogging().log("[TEMPLATES] Registered template function '" + functionName + "' (" + function.getClass().getName() + ") ~ plugin [" + function.getPlugin().getHexHyphens() + "].", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "Registered template function '" + functionName + "' (" + function.getClass().getName() + ") ~ plugin [" + function.getPlugin().getHexHyphens() + "].", Logging.EntryType.Info);
         return true;
     }
     /**
@@ -247,12 +249,12 @@ public class TemplateManager
         // Check the template doesn't exist
         if(!path.matches("^([a-zA-Z0-9\\.\\_\\-\\/]+)$"))
         {
-            core.getLogging().log("[TEMPLATES] Could not register template '" + path + "' ~ invalid path ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "];", Logging.EntryType.Error);
+            core.getLogging().log(LOGGING_ALIAS, "Could not register template '" + path + "' ~ invalid path ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "];", Logging.EntryType.Error);
             return false;
         }
         // Pass to loader for processing
         fmLoader.put(plugin, path, content);
-        core.getLogging().log("[TEMPLATES] Registered template '" + path + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "].", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "Registered template '" + path + "' ~ plugin [" + (plugin != null ? plugin.getUUID().getHexHyphens() : "unknown") + "].", Logging.EntryType.Info);
         return true;
     }
     /**
@@ -294,7 +296,7 @@ public class TemplateManager
         }
         catch(IOException | TemplateException ex)
         {
-            core.getLogging().log("[TEMPLATES] Could not render template for request '" + data.getRequestData().getRelativeUrl() + "', IP: '" + data.getRequestData().getIpAddress() + "'.", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Could not render template for request '" + data.getRequestData().getRelativeUrl() + "', IP: '" + data.getRequestData().getIpAddress() + "'.", ex, Logging.EntryType.Warning);
             return null;
         }
     }

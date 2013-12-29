@@ -45,6 +45,8 @@ import pals.base.database.DatabaseException;
  */
 public class WebRequestData
 {
+    // Fields - Constants ******************************************************
+    private static final String             LOGGING_ALIAS = "PALS W.R Data";
     // Fields ******************************************************************
     private final NodeCore                  core;           // Current instance of the core.
     private final Connector                 connector;      // Database connector.
@@ -73,7 +75,7 @@ public class WebRequestData
         }
         catch(ClassNotFoundException | DatabaseException | IOException | IllegalArgumentException ex)
         {
-            core.getLogging().log("[WebRequestData] Could not load session data for user.", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Could not load session data for user.", ex, Logging.EntryType.Warning);
             // Failed to load the session - give the user a new session...
             try
             {
@@ -82,7 +84,7 @@ public class WebRequestData
             catch(ClassNotFoundException | DatabaseException | IOException | IllegalArgumentException ex2)
             {
                 // Possibly a serious error...log and abort handling the request...
-                core.getLogging().log("[WebRequestData] Could not load session data for user.", ex2, Logging.EntryType.Warning);
+                core.getLogging().logEx(LOGGING_ALIAS, "Could not load session data for user.", ex2, Logging.EntryType.Warning);
                 return null;
             }
         }

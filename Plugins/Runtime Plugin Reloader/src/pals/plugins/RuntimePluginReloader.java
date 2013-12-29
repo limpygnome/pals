@@ -90,7 +90,7 @@ public class RuntimePluginReloader extends pals.base.Plugin
                         }
                         catch(DatabaseException ex)
                         {
-                            getCore().getLogging().log("[RuntimePluginReloader] Failed to load plugin - database exception.", ex, Logging.EntryType.Error);
+                            getCore().getLogging().logEx("RuntimePluginReloader", "Failed to load plugin - database exception.", ex, Logging.EntryType.Error);
                         }
                     }
                 }
@@ -146,7 +146,7 @@ public class RuntimePluginReloader extends pals.base.Plugin
         }
         catch(Exception ex)
         {
-            core.getLogging().log("[RuntimePluginReloader] Failed to start file monitor.", ex, Logging.EntryType.Error);
+            core.getLogging().logEx("RuntimePluginReloader", "Failed to start file monitor.", ex, Logging.EntryType.Error);
             return false;
         }
         // Begin template monitor
@@ -164,7 +164,7 @@ public class RuntimePluginReloader extends pals.base.Plugin
             catch(Exception ex2)
             {
             }
-            core.getLogging().log("[RuntimePluginReloader] Failed to start templates monitor.", ex, Logging.EntryType.Error);
+            core.getLogging().logEx("RuntimePluginReloader", "Failed to start templates monitor.", ex, Logging.EntryType.Error);
             return false;
         }
         return true;

@@ -12,6 +12,7 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.auth.User;
 import pals.base.auth.UserGroup;
+import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
@@ -27,6 +28,7 @@ public class DefaultAuth extends Plugin
 {
     // Constants ***************************************************************
     private static final String SESSION_KEY__USERID = "defaultauth_userid";
+    private static final String LOGGING_ALIAS = "DefaultAuth";
     // Methods - Constructors **************************************************
     public DefaultAuth(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {
@@ -36,6 +38,42 @@ public class DefaultAuth extends Plugin
     @Override
     public boolean eventHandler_pluginInstall(NodeCore core)
     {
+        // Create a connector
+        Connector conn = core.createConnector();
+        if(conn == null)
+        {
+            core.getLogging().log(LOGGING_ALIAS, "Failed to create database connector during installation.", Logging.EntryType.Error);
+            return false;
+        }
+        // Create a default user with 'admin','admin' (u/p) (if admin does not exist)
+        User user = User.load(conn, "admin");
+        if(user == null)
+        {
+            // Fetch the default user-group for admins
+            UserGroup ug = UserGroup.load(conn, settings.getInt("auth/default_group_admin"));
+            if(ug == null)
+            {
+                core.getLogging().log(LOGGING_ALIAS, "Could not load default user-group for admin during installation; cannot create default admin user.", Logging.EntryType.Error);
+                conn.disconnect();
+                return false;
+            }
+            // Attempt to create a new admin user
+            String passwordSalt = getNewSalt();
+            user = new User("admin", hash("admin", passwordSalt), passwordSalt, "admin@localhost.com", ug);
+            User.PersistStatus_User ps = user.persist(core, conn);
+            if(ps != User.PersistStatus_User.Success)
+            {
+                core.getLogging().log(LOGGING_ALIAS, "Failed to create default admin user during installation (persist-status: '"+ps.name()+"').", Logging.EntryType.Error);
+                conn.disconnect();
+                return false;
+            }
+            core.getLogging().log(LOGGING_ALIAS, "Created default admin with username 'admin' and password 'admin during installation.", Logging.EntryType.Info);
+        }
+        else
+            core.getLogging().log(LOGGING_ALIAS, "User 'admin' already exists, skipped creation during installation.", Logging.EntryType.Info);
+        // Dispose connector
+        conn.disconnect();
+        
         return true;
     }
     @Override
@@ -234,7 +272,7 @@ public class DefaultAuth extends Plugin
                     data.setTemplateData("error", "An error occurred (invalid default group); please try again or contact an administrator!");
                 else
                 {
-                    User user = User.create();
+                    User user = new User();
                     // Validate data reliant on user model
                     if(password.length() < user.getPasswordMin() || password.length() > user.getPasswordMax())
                         data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
@@ -380,7 +418,7 @@ public class DefaultAuth extends Plugin
         }
         catch(NoSuchAlgorithmException ex)
         {
-            getCore().getLogging().log("SHA-512 algorithm not found.", ex, Logging.EntryType.Error);
+            getCore().getLogging().logEx(LOGGING_ALIAS, "SHA-512 algorithm not found.", ex, Logging.EntryType.Error);
             return null;
         }
     }

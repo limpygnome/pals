@@ -23,6 +23,8 @@ import pals.base.web.WebRequestData;
  */
 public class WebManager
 {
+    // Fields - Constants ******************************************************
+    private static final String LOGGING_ALIAS = "PALS Web Man.";
     // Fields ******************************************************************
     private NodeCore    core;           // The current instance of the node core.
     private UrlTree     urls;           // Used for finding which plugins are used when forwarding requests.
@@ -45,7 +47,7 @@ public class WebManager
      */
     public synchronized boolean reload()
     {
-        core.getLogging().log("[WEB] Reloading all URLs.", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "Reloading all URLs.", Logging.EntryType.Info);
         // Clear existing tree
         urls.reset();
         // Invoke all the plugins to re-register their URLs
@@ -68,7 +70,7 @@ public class WebManager
     public void handleWebRequest(RemoteRequest request, RemoteResponse response)
     {
         long timeStart = System.currentTimeMillis();
-        core.getLogging().log("[WEB] New request from '" + request.getIpAddress() + "' ~ '" + request.getRelativeUrl() + "'.", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "New request from '" + request.getIpAddress() + "' ~ '" + request.getRelativeUrl() + "'.", Logging.EntryType.Info);
         // Create a new connection to the database
         Connector conn = core.createConnector();
         if(conn == null)
@@ -120,7 +122,7 @@ public class WebManager
         }
         catch(Throwable ex)
         {
-            core.getLogging().log("Failed to serve web-request.", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Failed to serve web-request.", ex, Logging.EntryType.Warning);
         }
         // Invoke webrequest end plugins
         plugins = core.getPlugins().getPlugins("base.web.request_end");
@@ -154,17 +156,10 @@ public class WebManager
         }
         catch(DatabaseException | IOException ex)
         {
-            core.getLogging().log("[WEB] Failed to persist session data of user.", ex, Logging.EntryType.Warning);
+            core.getLogging().logEx(LOGGING_ALIAS, "Failed to persist session data of user.", ex, Logging.EntryType.Warning);
         }
         // Dispose resources
-        try
-        {
-            conn.disconnect();
-        }
-        catch(DatabaseException ex)
-        {
-            core.getLogging().log("[WEB] Exception thrown disposing web connector.", ex, Logging.EntryType.Warning);
-        }
+        conn.disconnect();
     }
     // Methods - Accessors *****************************************************
     /**
@@ -194,7 +189,7 @@ public class WebManager
         {
             if((rs = urls.add(plugin, path)) != UrlTree.RegisterStatus.Success)
             {
-                core.getLogging().log("[WEB] Failed to add path '" + path + "' for plugin '" + plugin.getUUID().getHexHyphens() + "' - '" + rs + "'!", Logging.EntryType.Warning);
+                core.getLogging().log(LOGGING_ALIAS, "Failed to add path '" + path + "' for plugin '" + plugin.getUUID().getHexHyphens() + "' - '" + rs + "'!", Logging.EntryType.Warning);
                 return false;
             }
         }

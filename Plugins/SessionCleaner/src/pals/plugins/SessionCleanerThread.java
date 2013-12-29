@@ -40,7 +40,7 @@ public class SessionCleanerThread extends Thread
             catch(InterruptedException ex)
             {
                 if(shouldRun)
-                    sc.getCore().getLogging().log("[SessionCleaner] Unexpectedly woken.", ex, Logging.EntryType.Error);
+                    sc.getCore().getLogging().logEx("SessionCleaner", "Unexpectedly woken.", ex, Logging.EntryType.Error);
             }
             // Check if to perform a cleanup
             if(System.currentTimeMillis()-lastRan >= interval)
@@ -56,14 +56,10 @@ public class SessionCleanerThread extends Thread
                 }
                 catch(DatabaseException ex)
                 {
-                    sc.getCore().getLogging().log("[SessionCleaner] Could not delete old database session data.", ex, Logging.EntryType.Error);
+                    sc.getCore().getLogging().logEx("SessionCleaner", "Could not delete old database session data.", ex, Logging.EntryType.Error);
                 }
                 // Disconnect from database
-                try
-                {
-                    conn.disconnect();
-                }
-                catch(DatabaseException ex){}
+                conn.disconnect();
                 // Cleanup temp web files
                 try
                 {

@@ -15,6 +15,11 @@ import pals.base.database.Result;
  * Therefore the password, password-salt and e-mail fields in this model are
  * completely optional and may need to be validated, from an input source
  * (such as a web-interface), manually.
+ * 
+ * Therefore if you write your own authentication manager, ensure the
+ * password/password-salt/e-mail fields are valid! The password should also
+ * be salted with the salt provided, hashing is not performed by this model
+ * (which simply acts as a data container).
  */
 public class User
 {
@@ -44,9 +49,22 @@ public class User
     // Fields - Caching ********************************************************
     private Module[] modules;           // The modules a user belongs to.
     // Methods - Constructors **************************************************
-    private User(int userid, String username, String password, String passwordSalt, String email, UserGroup group)
+    public User()
     {
-        this.userid = userid;
+        this(null, null, null, null, null);
+    }
+    /**
+     * Creates a new instance of an abstract user.
+     * 
+     * @param username The username/alias of the user.
+     * @param password The password of the user; can be null if unused.
+     * @param passwordSalt THe password-salt of the user; can be null if unused.
+     * @param email The e-mail for the user; can be null if unused.
+     * @param group The user-group of the user.
+     */
+    public User(String username, String password, String passwordSalt, String email, UserGroup group)
+    {
+        this.userid = -1;
         this.username = username;
         this.password = password;
         this.passwordSalt = passwordSalt;
@@ -54,13 +72,6 @@ public class User
         this.group = group;
     }
     // Methods - Database Persistence ******************************************
-    /**
-     * @return Creates a new, unpersisted, user.
-     */
-    public static User create()
-    {
-        return new User(-1, null, null, null, null, null);
-    }
     /**
      * Loads a user from a username.
      * 
@@ -77,7 +88,6 @@ public class User
         }
         catch(DatabaseException ex)
         {
-            NodeCore.getInstance().getLogging().log("Failed to load user model (1).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -97,7 +107,6 @@ public class User
         }
         catch(DatabaseException ex)
         {
-            NodeCore.getInstance().getLogging().log("Failed to load user model (2).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -119,18 +128,18 @@ public class User
             if(ug == null)
                 return null;
             // Load and return new instance
-            return new User(
-                    (int)result.get("userid"),
+            User user = new User(
                     (String)result.get("username"),
                     (String)result.get("password"),
                     (String)result.get("password_salt"),
                     (String)result.get("email"),
                     ug
                     );
+            user.userid = (int)result.get("userid");
+            return user;
         }
         catch(DatabaseException ex)
         {
-            NodeCore.getInstance().getLogging().log("Failed to load user model (3).", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -197,7 +206,6 @@ public class User
         }
         catch(DatabaseException ex)
         {
-            core.getLogging().log("[AbstractUser] Failed to persist user.", ex, Logging.EntryType.Warning);
             return PersistStatus_User.Failed;
         }
     }

@@ -35,7 +35,7 @@ public class NodeActiveThread extends Thread
             catch(InterruptedException ex)
             {
                 if(run)
-                    na.getCore().getLogging().log("[NodeActive] Unexpectedly woken.", ex, Logging.EntryType.Warning);
+                    na.getCore().getLogging().logEx("NodeActive", "Unexpectedly woken.", ex, Logging.EntryType.Warning);
             }
             // Check if we need to update yet
             if(System.currentTimeMillis()-lastUpdated >= interval)
@@ -51,14 +51,10 @@ public class NodeActiveThread extends Thread
                 }
                 catch(DatabaseException ex)
                 {
-                    na.getCore().getLogging().log("[NodeActive] Failed to update database.", ex, Logging.EntryType.Error);
+                    na.getCore().getLogging().logEx("NodeActive", "Failed to update database.", ex, Logging.EntryType.Error);
                 }
-                // Disconnect from database
-                try
-                {
-                    conn.disconnect();
-                }
-                catch(DatabaseException ex){}
+                // Disconnect from the database
+                conn.disconnect();
             }
         }
     }

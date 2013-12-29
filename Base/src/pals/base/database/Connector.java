@@ -25,10 +25,8 @@ public abstract class Connector
     public abstract void connect()                                              throws DatabaseException;
     /**
      * Disconnects from the database.
-     * @throws DatabaseException Thrown if a database exception occurs with the
-     * connector.
      */
-    public void disconnect()                                                    throws DatabaseException
+    public void disconnect()
     {
         if(this.connection != null)
         {
@@ -39,7 +37,7 @@ public abstract class Connector
             }
             catch(SQLException ex)
             {
-                throw new DatabaseException(DatabaseException.Type.DisconnectionFailure, ex);
+                // Do nothing...
             }
         }
     }

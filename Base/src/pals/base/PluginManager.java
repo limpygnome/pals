@@ -108,6 +108,8 @@ public class PluginManager
          */
         Failed
     }
+    // Fields - Constants ******************************************************
+    private static final String                 LOGGING_ALIAS = "PALS Plugin Man.";
     // Fields ******************************************************************
     private NodeCore                            core;                   // The current instance of the core.
     private HashMap<String,ArrayList<Plugin>>   registerGlobalEvents;   // Global registered events; <event name,<list of plugins>>.
@@ -220,7 +222,7 @@ public class PluginManager
         // Attempt to load each JAR in the plugins directory
         try
         {
-            core.getLogging().log("[PLUGINS] Loading plugins at '" + core.getPathPlugins() + "'...", Logging.EntryType.Info);
+            core.getLogging().log(LOGGING_ALIAS, "Loading plugins at '" + core.getPathPlugins() + "'...", Logging.EntryType.Info);
             for(File jar : Files.getAllFiles(core.getPathPlugins(), false, true, ".jar", true))
             {
                 if(load(conn, jar.getPath()) == PluginLoad.Failed)
@@ -229,7 +231,7 @@ public class PluginManager
         }
         catch(FileNotFoundException ex)
         {
-            core.getLogging().log(ex, Logging.EntryType.Error);
+            core.getLogging().logEx(LOGGING_ALIAS, ex, Logging.EntryType.Error);
             return false;
         }
         return true;
@@ -260,7 +262,7 @@ public class PluginManager
             UUID uuid = UUID.parse(rawUuid);
             if(uuid == null)
             {
-                core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - incorrect UUID '" + rawUuid + "'.", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - incorrect UUID '" + rawUuid + "'.", Logging.EntryType.Error);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
@@ -271,7 +273,7 @@ public class PluginManager
                 Plugin p = plugins.get(uuid);
                 if(p == null || !unload(p))
                 {
-                    core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ already loaded; could not be unloaded..", Logging.EntryType.Error);
+                    core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ already loaded; could not be unloaded..", Logging.EntryType.Error);
                     jar.dispose();
                     return PluginLoad.Failed;
                 }
@@ -296,7 +298,7 @@ public class PluginManager
                             fileDependencies.add(core.getPathPlugins_Temp() + "/" + dp.getHexHyphens() + "/plugin.jar");
                         else
                         {
-                            core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ invalid plugin dependency '"+s+"' - must be a UUID!", Logging.EntryType.Error);
+                            core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' ~ plugin [" + uuid.getHexHyphens() + "] ~ invalid plugin dependency '"+s+"' - must be a UUID!", Logging.EntryType.Error);
                             jar.dispose();
                             return PluginLoad.Failed;
                         }
@@ -324,7 +326,7 @@ public class PluginManager
                             }
                             catch(FileNotFoundException ex)
                             {
-                                core.getLogging().log("Failed to load files of dependency path '"+d+"'; plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
+                                core.getLogging().logEx(LOGGING_ALIAS, "Failed to load files of dependency path '"+d+"'; plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
                                 jar.dispose();
                                 return PluginLoad.Failed;
                             }
@@ -348,7 +350,7 @@ public class PluginManager
                 }
                 catch(IOException ex)
                 {
-                    core.getLogging().log("Failed to copy plugin file '"+kv.getKey()+"' to '"+kv.getValue()+"' plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
+                    core.getLogging().logEx(LOGGING_ALIAS, "Failed to copy plugin file '"+kv.getKey()+"' to '"+kv.getValue()+"' plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
                     return PluginLoad.Failed;
                 }
             }
@@ -358,7 +360,7 @@ public class PluginManager
             String classPath = ps.getStr("plugin/classpath");
             if(classPath == null)
             {
-                core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Error);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
@@ -393,17 +395,17 @@ public class PluginManager
                         {
                             // Create plugin record
                             conn.execute("INSERT INTO pals_plugins (uuid_plugin, title, state, system) VALUES(?,?,?,?);", p.getUUID().getBytes(), p.getTitle(), DbPluginState.PendingInstall.val, p.isSystemPlugin() ? "1" : "0");
-                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - added to the database.", Logging.EntryType.Info);
+                            core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - added to the database.", Logging.EntryType.Info);
                         }
                         // Run installation of plugin
                         if(!p.eventHandler_pluginInstall(core))
                         {
-                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to install!", Logging.EntryType.Error);
+                            core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to install!", Logging.EntryType.Error);
                             failed = true;
                         }
                         else
                         {
-                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - installed.", Logging.EntryType.Info);
+                            core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - installed.", Logging.EntryType.Info);
                             newState = DbPluginState.Installed;
                         }
                         break;
@@ -411,12 +413,12 @@ public class PluginManager
                         // Run uninstallation of plugin
                         if(!p.eventHandler_pluginUninstall(core))
                         {
-                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to uninstall!", Logging.EntryType.Error);
+                            core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to uninstall!", Logging.EntryType.Error);
                             failed = true;
                         }
                         else
                         {
-                            core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - uninstalled.", Logging.EntryType.Info);
+                            core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - uninstalled.", Logging.EntryType.Info);
                             newState = DbPluginState.Uninstalled;
                             rejected = true;
                         }
@@ -446,7 +448,7 @@ public class PluginManager
             }
             catch(DatabaseException ex)
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to retrieve/update state from database!", ex, Logging.EntryType.Error);
+                core.getLogging().logEx(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to retrieve/update state from database!", ex, Logging.EntryType.Error);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
@@ -455,38 +457,38 @@ public class PluginManager
             // Inform the plugin to register to global events and templates/template-functions, urls and that's being loaded into the runtime
             if(!p.eventHandler_registerHooks(core, this))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register global event hooks!", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register global event hooks!", Logging.EntryType.Error);
                 unload(p);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerTemplates(core, core.getTemplates()))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register templates/template-functions!", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register templates/template-functions!", Logging.EntryType.Error);
                 unload(p);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_registerUrls(core, core.getWebManager()))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register paths/urls!", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to register paths/urls!", Logging.EntryType.Error);
                 unload(p);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
             else if(!p.eventHandler_pluginLoad(core))
             {
-                core.getLogging().log("[PLUGINS] Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to load!", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to load!", Logging.EntryType.Error);
                 unload(p);
                 jar.dispose();
                 return PluginLoad.Failed;
             }
-            core.getLogging().log("[PLUGINS] Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "].", Logging.EntryType.Info);
+            core.getLogging().log(LOGGING_ALIAS, "Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "].", Logging.EntryType.Info);
             return PluginLoad.Loaded;
         }
         catch(SettingsException ex)
         {
-            core.getLogging().log("[PLUGINS] Failed to load plugin at '" + jarPath + "' - incorrect settings file.", ex, Logging.EntryType.Error);
+            core.getLogging().logEx(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - incorrect settings file.", ex, Logging.EntryType.Error);
             return PluginLoad.FailedIrrelevant;
         }
         catch(JarIOException ex)
@@ -494,16 +496,16 @@ public class PluginManager
             switch(ex.getReason())
             {
                 default:
-                    //core.getLogging().log("[PLUGINS] Failed to load potential JAR at '" + jarPath + "'.", ex, Logging.EntryType.Warning);
+                    // Not currently logged to avoid log-spam from third-party library jars
                     return PluginLoad.FailedIrrelevant;
                 case ClassNotFound:
-                    core.getLogging().log("[PLUGINS] Failed to load class of plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
+                    core.getLogging().logEx(LOGGING_ALIAS, "Failed to load class of plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
                     break;
             }
         }
         catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex)
         {
-            core.getLogging().log("[PLUGINS] Invalid class for plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
+            core.getLogging().logEx(LOGGING_ALIAS, "Invalid class for plugin at '" + jarPath + "'.", ex, Logging.EntryType.Error);
         }
         return PluginLoad.Failed;
     }
@@ -524,7 +526,7 @@ public class PluginManager
         plugins.remove(plugin.getUUID());
         // Dispose I/O
         plugin.getJarIO().dispose();
-        core.getLogging().log("[PLUGINS] Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
+        core.getLogging().log(LOGGING_ALIAS, "Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
         return true;
     }
     /**

@@ -75,6 +75,12 @@ public class Logging
             return types;
         }
     }
+    // Fields - Constants ******************************************************
+    /**
+     * Maximum length of a logging alias, used to identify the source of a
+     * logging entry.
+     */
+    private final static int    ALIAS_MAX_LENGTH    = 16;
     // Fields ******************************************************************
     private NodeCore            core;           // The current instance of the core.
     private final String        alias;          // The name for the current log-file.
@@ -105,21 +111,23 @@ public class Logging
     /**
      * Logs a new exception.
      * 
+     * @param alias The name of the component producing the message.
      * @param ex The exception which has occurred.
      * @param et The log entry type.
      */
-    public synchronized void log(Throwable ex, EntryType et)
+    public synchronized void logEx(String alias, Throwable ex, EntryType et)
     {
-        log(null, ex, et);
+        logEx(alias, null, ex, et);
     }
     /**
      * Logs a new exception.
      * 
+     * @param alias The name of the component producing the message.
      * @param message The message to append with the exception, can be null.
      * @param ex The exception which has occurred.
      * @param et The log entry type.
      */
-    public synchronized void log(String message, Throwable ex, EntryType et)
+    public synchronized void logEx(String alias, String message, Throwable ex, EntryType et)
     {
         Throwable cause = ex.getCause();
         StringBuilder sb = new StringBuilder();
@@ -141,15 +149,16 @@ public class Logging
             sb.append(" Stack-trace: '").append(s.toString()).append("'.");
         }
         // Log the message
-        log(sb.toString(), et);
+        log(alias, sb.toString(), et);
     }
     /**
      * Logs a message.
      * 
+     * @param alias The name of the component producing the message.
      * @param message The message to be logged.
      * @param et The log entry type.
      */
-    public synchronized void log(String message, EntryType et)
+    public synchronized void log(String alias, String message, EntryType et)
     {
         // Check we log the type of event
         if(!typesLogged.contains(et))
@@ -181,6 +190,8 @@ public class Logging
             // Write the date
             sb.append(String.format("%04d-%02d-%02d %02d:%02d:%02d", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond()));
             sb.append("\t");
+            // Write the alias
+            sb.append(padRestrictAlias(alias)).append("\t");
             // Write the message -- escape EOR end tag too!
             sb.append(message.replace("\\EOE\\", "\\//EOE\\//"));
             logPrint = sb.toString();
@@ -194,6 +205,17 @@ public class Logging
             System.out.println(logPrint);
         pw.println(logEntry);
         pw.flush();
+    }
+    private static String padRestrictAlias(String alias)
+    {
+        // Ensure the alias is not too long
+        if(alias.length() > ALIAS_MAX_LENGTH)
+            return alias.substring(0, ALIAS_MAX_LENGTH);
+        else
+        {
+            // Padd empty-space with spaces
+            return String.format("%1$-"+ALIAS_MAX_LENGTH+"s", alias);
+        }
     }
     private synchronized boolean switchLogFile()
     {

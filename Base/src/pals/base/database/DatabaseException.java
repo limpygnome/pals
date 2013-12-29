@@ -15,10 +15,6 @@ public class DatabaseException extends Exception
          */
         ConnectionAlreadyEstablished,
         /**
-         * An exception occurred whilst disconnecting from a database.
-         */
-        DisconnectionFailure,
-        /**
          * A connection related exception, after an initial connection.
          */
         ConnectionException,

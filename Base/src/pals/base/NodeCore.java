@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.connectors.*;
-import pals.base.utils.Files;
 
 /**
  * A class used for an instance of a node; this is responsible for node features
@@ -73,6 +72,9 @@ public class NodeCore
          */
         Shutdown
     }
+    // Fields - Constants ******************************************************
+    private static final String LOGGING_ALIAS_START = "PALS CORE START";
+    private static final String LOGGING_ALIAS_STOP  = "PALS CORE STOP";
     // Fields - Instance *******************************************************
     private static NodeCore     currentInstance = null;             // The current instance of the NodeCore.
     // Fields ******************************************************************
@@ -125,28 +127,28 @@ public class NodeCore
         }
         catch(SettingsException ex)
         {
-            System.err.println("[CORE START] Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.");
+            System.err.println(LOGGING_ALIAS_START+" Failed to node.config settings - '" + ex.getExceptionType().toString() + "' ~ '" + ex.getMessage() + "'.");
             stop(StopType.Failure);
             return false;
         }
-        System.out.println("[CORE START] Loaded settings.");
+        System.out.println(LOGGING_ALIAS_START+" Loaded settings.");
         // Parse the UUID for this node
         uuidNode = UUID.parse(settings.getStr("node/uuid"));
         if(uuidNode == null)
         {
-            System.err.println("[CORE START] Failed to parse UUID for this node (settings: node/uuid) ~ data: '" + settings.getStr("node/uuid") + "'!");
+            System.err.println(LOGGING_ALIAS_START+" Failed to parse UUID for this node (settings: node/uuid) ~ data: '" + settings.getStr("node/uuid") + "'!");
             stop(StopType.Failure);
             return false;
         }
         else
-            System.out.println("[CORE START] Node identifier: '" + uuidNode.getHexHyphens() + "'.");
+            System.out.println(LOGGING_ALIAS_START+" Node identifier: '" + uuidNode.getHexHyphens() + "'.");
         // Check the storage path exists and we have read/write permissions
         {
             pathShared = settings.getStr("storage/path");
             // Validate setting
             if(pathShared == null || pathShared.length() == 0)
             {
-                System.err.println("[CORE START] Setting 'storage/path' is missing or invalid!");
+                System.err.println(LOGGING_ALIAS_START+" Setting 'storage/path' is missing or invalid!");
                 stop(StopType.Failure);
                 return false;
             }
@@ -155,19 +157,19 @@ public class NodeCore
             switch(access)
             {
                 case DoesNotExist:
-                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': path does not exist!");
+                    System.err.println(LOGGING_ALIAS_START+" Setting 'storage/path', with value '" + pathShared + "': path does not exist!");
                     stop(StopType.Failure);
                     return false;
                 case CannotRead:
-                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no read permissions!");
+                    System.err.println(LOGGING_ALIAS_START+" Setting 'storage/path', with value '" + pathShared + "': no read permissions!");
                     stop(StopType.Failure);
                     return false;
                 case CannotWrite:
-                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no write permissions!");
+                    System.err.println(LOGGING_ALIAS_START+" Setting 'storage/path', with value '" + pathShared + "': no write permissions!");
                     stop(StopType.Failure);
                     return false;
                 case CannotExecute:
-                    System.err.println("[CORE START] Setting 'storage/path', with value '" + pathShared + "': no execute permissions!");
+                    System.err.println(LOGGING_ALIAS_START+" Setting 'storage/path', with value '" + pathShared + "': no execute permissions!");
                     stop(StopType.Failure);
                     return false;
             }
@@ -175,11 +177,11 @@ public class NodeCore
             File storage = new File(pathShared);
             try
             {
-                System.out.println("[CORE START] Storage path '" + storage.getCanonicalPath() + "' checked, with r+w+e permissions.");
+                System.out.println(LOGGING_ALIAS_START+" Storage path '" + storage.getCanonicalPath() + "' checked, with r+w+e permissions.");
             }
             catch(IOException ex)
             {
-                System.err.println("[CORE START] Storage path '" + storage.getPath() + "' (#2) checked, with r+w+e permissions.");
+                System.err.println(LOGGING_ALIAS_START+" Storage path '" + storage.getPath() + "' (#2) checked, with r+w+e permissions.");
             }
         }
         // Ensure temp folder exists for web uploads
@@ -199,17 +201,17 @@ public class NodeCore
             EnumSet loggingTypes = Logging.EntryType.getSet(settings.getStr("node/logging_types"));
             if(loggingTypes == null)
             {
-                System.err.println("[CORE START] Invalid logging types specified on config (setting: node/logging_types), value: '" + settings.getStr("node/logging_types") + "'!");
+                System.err.println(LOGGING_ALIAS_START+" Invalid logging types specified on config (setting: node/logging_types), value: '" + settings.getStr("node/logging_types") + "'!");
                 stop(StopType.Failure);
                 return false;
             }
             if((logging = Logging.createInstance(this, "system", true, loggingTypes)) == null)
             {
-                System.err.println("[CORE START] Failed to start core logging, aborted!");
+                System.err.println(LOGGING_ALIAS_START+" Failed to start core logging, aborted!");
                 stop(StopType.Failure);
                 return false;
             }
-            logging.log("[CORE START] Started logging.", Logging.EntryType.Info);
+            logging.log(LOGGING_ALIAS_START, "Started logging.", Logging.EntryType.Info);
         }
         // Ensure temp_plugins exists for plugins
         {
@@ -223,13 +225,13 @@ public class NodeCore
                 }
                 catch(IOException ex)
                 {
-                    logging.log("[CORE START] Failed to delete temporary directory for plugins ["+tempPlugins.getAbsolutePath()+"]!", ex, Logging.EntryType.Warning);
+                    logging.logEx(LOGGING_ALIAS_START, "Failed to delete temporary directory for plugins ["+tempPlugins.getAbsolutePath()+"]!", ex, Logging.EntryType.Warning);
                 }
             }
             // (Re)create directory
             if(!tempPlugins.mkdir())
             {
-                logging.log("[CORE START] Failed to create temporary directory for plugins ["+tempPlugins.getAbsolutePath()+"]!", Logging.EntryType.Error);
+                logging.log(LOGGING_ALIAS_START, "Failed to create temporary directory for plugins ["+tempPlugins.getAbsolutePath()+"]!", Logging.EntryType.Error);
                 stop(StopType.Failure);
                 return false;
             }
@@ -238,12 +240,12 @@ public class NodeCore
         Connector conn = createConnector();
         if(conn == null)
         {
-            logging.log("[CORE START] Failed to create database connector.", Logging.EntryType.Error);
+            logging.log(LOGGING_ALIAS_START, "Failed to create database connector.", Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
         }
         else
-            logging.log("[CORE START] Established database connection.", Logging.EntryType.Info);
+            logging.log(LOGGING_ALIAS_START, "Established database connection.", Logging.EntryType.Info);
         // Perform node SQL operations
         try
         {
@@ -252,7 +254,7 @@ public class NodeCore
             if(result == 0)
             {
                 conn.execute("INSERT INTO pals_nodes (uuid_node,last_active) VALUES(?,current_timestamp);", uuidNode.getBytes());
-                logging.log("[CORE START] Added node to database.", Logging.EntryType.Info);
+                logging.log(LOGGING_ALIAS_START, "Added node to database.", Logging.EntryType.Info);
             }
             // Update RMI information for this node
             try
@@ -261,18 +263,18 @@ public class NodeCore
             }
             catch(UnknownHostException ex)
             {
-                logging.log("[CORE START] Could not update RMI information - address could not be found for the local host!", ex, Logging.EntryType.Warning);
+                logging.logEx(LOGGING_ALIAS_START, "Could not update RMI information - address could not be found for the local host!", ex, Logging.EntryType.Warning);
             }
         }
         catch(DatabaseException ex)
         {
-            logging.log("[CORE START] Failed to check existence of node in database.", ex, Logging.EntryType.Error);
+            logging.logEx(LOGGING_ALIAS_START, "Failed to check existence of node in database.", ex, Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
         }
         // Initialize the templates manager, load the required templates
         templates = new TemplateManager(this);
-        logging.log("[CORE START] Initialized templates.", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_START, "Initialized templates.", Logging.EntryType.Info);
         // Load templates from shared folder
         {
             String pathTemplates = Storage.getPath_templates(pathShared);
@@ -281,22 +283,22 @@ public class NodeCore
             {
                 if(!templates.loadDir(null, pathTemplates))
                 {
-                    logging.log("[CORE START] Failed to load shared storage templates at '" + dirTemlates.getPath() + "'!", Logging.EntryType.Error);
+                    logging.log(LOGGING_ALIAS_START, "Failed to load shared storage templates at '" + dirTemlates.getPath() + "'!", Logging.EntryType.Error);
                     stop(StopType.Failure);
                     return false;
                 }
                 else
-                    logging.log("[CORE START] Loaded shared storage templates.", Logging.EntryType.Info);
+                    logging.log(LOGGING_ALIAS_START, "Loaded shared storage templates.", Logging.EntryType.Info);
             }
             else
             {
                 dirTemlates.mkdir();
-                logging.log("[CORE START] Created templates directory in shared file storage.", Logging.EntryType.Info);
+                logging.log(LOGGING_ALIAS_START, "Created templates directory in shared file storage.", Logging.EntryType.Info);
             }
         }
         // Initialize web manager
         web = new WebManager(this);
-        logging.log("[CORE START] Initialized web manager.", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_START, "Initialized web manager.", Logging.EntryType.Info);
         // Initialize plugin manager, load all the plugins
         plugins = new PluginManager(this);
         // -- Attempt to load the plugins path from settings, if it exists
@@ -314,11 +316,11 @@ public class NodeCore
         }
         if(!plugins.reload(conn))
         {
-            logging.log("Failed to load plugins.", Logging.EntryType.Error);
+            logging.log(LOGGING_ALIAS_START, "Failed to load plugins.", Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
         }
-        logging.log("[CORE START] Loaded plugins.", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_START, "Loaded plugins.", Logging.EntryType.Info);
         // Setup comms
         int rmiPort = settings.getInt("rmi/port", 1099);
         try
@@ -329,21 +331,14 @@ public class NodeCore
         }
         catch(Exception ex)
         {
-            logging.log("Failed to setup RMI server.", ex, Logging.EntryType.Error);
+            logging.logEx(LOGGING_ALIAS_START, "Failed to setup RMI server.", ex, Logging.EntryType.Error);
             stop(StopType.Failure);
             return false;
         }
         // Dispose connector
-        try
-        {
-            conn.disconnect();
-        }
-        catch(DatabaseException ex)
-        {
-            logging.log("[CORE START] Failed to dispose connector.", ex, Logging.EntryType.Warning);
-        }
-        logging.log("[CORE START] Started RMI service on port '" + rmiPort + "'.", Logging.EntryType.Info);
-        logging.log("[CORE START] Core started.", Logging.EntryType.Info);
+        conn.disconnect();
+        logging.log(LOGGING_ALIAS_START, "Started RMI service on port '" + rmiPort + "'.", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_START, "Core started.", Logging.EntryType.Info);
         // Notify any threads
         notifyAll();
         return true;
@@ -366,7 +361,7 @@ public class NodeCore
         if(state != State.Started)
             return false;
         state = State.Stopping;
-        logging.log("[CORE STOP] Stopping core...", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_STOP, "Stopping core...", Logging.EntryType.Info);
         // Notify any threads
         notifyAll();
         // Dispose RMI/comms
@@ -375,21 +370,21 @@ public class NodeCore
             comms.stop();
             comms = null;
         }
-        logging.log("[CORE STOP] Disposed RMI...", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_STOP, "Disposed RMI...", Logging.EntryType.Info);
         // Unload all the plugins
         if(plugins != null)
         {
             plugins.unload();
             plugins = null;
         }
-        logging.log("[CORE STOP] Disposed plugins...", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_STOP, "Disposed plugins...", Logging.EntryType.Info);
         // Unload all the templates
         if(templates != null)
         {
             templates.clear();
             templates = null;
         }
-        logging.log("[CORE STOP] Disposed templates...", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_STOP, "Disposed templates...", Logging.EntryType.Info);
         // Dispose web-manager
         web = null;
         // Dispose settings
@@ -403,11 +398,11 @@ public class NodeCore
         switch(type)
         {
             case Failure:
-                logging.log("[CORE STOP] Going into failure state...", Logging.EntryType.Info);
+                logging.log(LOGGING_ALIAS_STOP, "Going into failure state...", Logging.EntryType.Info);
                 newState = State.Failed;
                 break;
             case Shutdown:
-                logging.log("[CORE STOP] Going into shutdown state...", Logging.EntryType.Info);
+                logging.log(LOGGING_ALIAS_STOP, "Going into shutdown state...", Logging.EntryType.Info);
                 newState = State.Shutdown;
                 break;
             case Normal:
@@ -425,7 +420,7 @@ public class NodeCore
         uuidNode = null;
         // Update state
         state = newState;
-        logging.log("[CORE STOP] Core stopped.", Logging.EntryType.Info);
+        logging.log(LOGGING_ALIAS_STOP, "Core stopped.", Logging.EntryType.Info);
         // Notify any threads
         notifyAll();
         return false;
@@ -461,7 +456,7 @@ public class NodeCore
         }
         catch(DatabaseException ex)
         {
-            logging.log("Could not create database connector.", ex, Logging.EntryType.Warning);
+            logging.logEx(LOGGING_ALIAS_START, "Could not create database connector.", ex, Logging.EntryType.Warning);
         }
         return null;
     }
