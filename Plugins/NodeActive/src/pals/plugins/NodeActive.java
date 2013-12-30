@@ -4,6 +4,7 @@ import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.UUID;
+import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 
 /**
@@ -34,12 +35,12 @@ public class NodeActive extends Plugin
         nat.stopRunning();
     }
     @Override
-    public boolean eventHandler_pluginInstall(NodeCore core)
+    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
     {
         return true;
     }
     @Override
-    public boolean eventHandler_pluginUninstall(NodeCore core)
+    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return true;
     }

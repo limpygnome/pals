@@ -16,6 +16,14 @@ body
 {
 	clear: both;
 }
+.fl
+{
+	float: left;
+}
+.fr
+{
+	float: right;
+}
 .tac
 {
 	text-align: center;
@@ -170,7 +178,7 @@ body
 {
 	color: #999;
 }
-.layout_body .content p
+.layout_body .content p, .layout_body .content .p
 {
 	margin: 0em;
 	padding: 0.5em;
@@ -359,8 +367,19 @@ body
 	width: 30em;
 }
 .layout_body .content .modules tr td:nth-child(1),
-.layout_body .content .modules_admin tr td:nth-child(1)
+.layout_body .content .modules_admin tr td:nth-child(1),
+.layout_body .content .modules_assignments tr td:nth-child(1)
 {
 	text-align: left;
 }
+/* Questions */
+.layout_body .table3.questions tr th:nth-child(1)
+{
+	width: 30em;
+}
+.layout_body .table3.questions tr td:nth-child(1)
+{
+	text-align: left;
+}
+
 

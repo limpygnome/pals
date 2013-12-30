@@ -15,6 +15,7 @@ import pals.base.auth.UserGroup;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
+import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
@@ -36,15 +37,8 @@ public class DefaultAuth extends Plugin
     }
     // Methods - Event Handlers ************************************************
     @Override
-    public boolean eventHandler_pluginInstall(NodeCore core)
+    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
     {
-        // Create a connector
-        Connector conn = core.createConnector();
-        if(conn == null)
-        {
-            core.getLogging().log(LOGGING_ALIAS, "Failed to create database connector during installation.", Logging.EntryType.Error);
-            return false;
-        }
         // Create a default user with 'admin','admin' (u/p) (if admin does not exist)
         User user = User.load(conn, "admin");
         if(user == null)
@@ -54,7 +48,6 @@ public class DefaultAuth extends Plugin
             if(ug == null)
             {
                 core.getLogging().log(LOGGING_ALIAS, "Could not load default user-group for admin during installation; cannot create default admin user.", Logging.EntryType.Error);
-                conn.disconnect();
                 return false;
             }
             // Attempt to create a new admin user
@@ -64,20 +57,17 @@ public class DefaultAuth extends Plugin
             if(ps != User.PersistStatus_User.Success)
             {
                 core.getLogging().log(LOGGING_ALIAS, "Failed to create default admin user during installation (persist-status: '"+ps.name()+"').", Logging.EntryType.Error);
-                conn.disconnect();
                 return false;
             }
             core.getLogging().log(LOGGING_ALIAS, "Created default admin with username 'admin' and password 'admin during installation.", Logging.EntryType.Info);
         }
         else
             core.getLogging().log(LOGGING_ALIAS, "User 'admin' already exists, skipped creation during installation.", Logging.EntryType.Info);
-        // Dispose connector
-        conn.disconnect();
-        
+
         return true;
     }
     @Override
-    public boolean eventHandler_pluginUninstall(NodeCore core)
+    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return true;
     }
@@ -111,7 +101,8 @@ public class DefaultAuth extends Plugin
             "account/settings",
             "account/register",
             "account/login",
-            "account/logout"
+            "account/logout",
+            "admin/users",
         }))
             return false;
         return true;
@@ -153,16 +144,37 @@ public class DefaultAuth extends Plugin
     @Override
     public boolean eventHandler_webRequest(WebRequestData data)
     {
-        switch(data.getRequestData().getRelativeUrl())
+        MultipartUrlParser mup = new MultipartUrlParser(data);
+        switch(mup.getPart(0))
         {
-            case "account/settings":
-                return pageAccountSettings(data);
-            case "account/register":
-                return pageAccountRegister(data);
-            case "account/login":
-                return pageAccountLogin(data);
-            case "account/logout":
-                return pageAccountLogout(data);
+            case "account":
+                switch(data.getRequestData().getRelativeUrl())
+                {
+                    case "account/settings":
+                        return pageAccountSettings(data);
+                    case "account/register":
+                        return pageAccountRegister(data);
+                    case "account/login":
+                        return pageAccountLogin(data);
+                    case "account/logout":
+                        return pageAccountLogout(data);
+                    default:
+                        return false;
+                }
+            case "admin":
+                switch(mup.getPart(1))
+                {
+                    case "users":
+                        String page = mup.getPart(2);
+                        if(page == null)
+                            return pageAdminUsers_find(data);
+                        else if(page.equals("create"))
+                            return pageAdminUsers_create(data);
+                        else
+                            return pageAdminUsers_edit(data, page);
+                    default:
+                        return false;
+                }
             default:
                 return false;
         }
@@ -391,6 +403,76 @@ public class DefaultAuth extends Plugin
         // Setup confirmation page
         data.setTemplateData("pals_title", "Account - Logout");
         data.setTemplateData("pals_content", "default_auth/page_logout");
+        return true;
+    }
+    private boolean pageAdminUsers_find(WebRequestData data)
+    {
+        // Check the user's permissions
+        if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
+            return false;
+        // Check for postback
+        
+        // Fetch and display users
+        
+        return true;
+    }
+    private boolean pageAdminUsers_edit(WebRequestData data, String rawUserid)
+    {
+        // Check the user's permissions
+        if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
+            return false;
+        // Parse the user ID
+        int userid;
+        try
+        {
+            userid = Integer.parseInt(rawUserid);
+        }
+        catch(NumberFormatException ex)
+        {
+            return false;
+        }
+        // Load the user-model
+        User user = User.load(data.getConnector(), userid);
+        if(user != null)
+        {
+            RemoteRequest request = data.getRequestData();
+            // Check for postback
+            String csrf = request.getField("csrf");
+            String username = request.getField("username");
+            String password = request.getField("password");
+            String passwordConfirm = request.getField("password_confirm");
+            String userGroup = request.getField("user_group");
+            String email = request.getField("email");
+            if(username != null && password != null && passwordConfirm != null && userGroup != null && email != null)
+            {
+                // Update the user's account
+                
+                // Attempt to persist
+            }
+            // Setup page fields
+            data.setTemplateData("edit_user", user);
+            if(username != null)
+                data.setTemplateData("edit_username", username);
+            if(email != null)
+                data.setTemplateData("edit_email", email);
+            data.setTemplateData("csrf", CSRF.set(data));
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Users - Edit");
+        data.setTemplateData("pals_content", "default_auth/page_admin_user_create");
+        return true;
+    }
+    private boolean pageAdminUsers_create(WebRequestData data)
+    {
+        // Check the user's permissions
+        if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
+            return false;
+        // Check for postback
+        
+        // Setup the page
+        
+        // -- Fields
+        
         return true;
     }
     // Methods *****************************************************************

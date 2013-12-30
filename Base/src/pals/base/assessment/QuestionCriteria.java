@@ -233,7 +233,7 @@ public class QuestionCriteria
      */
     public boolean isPersisted()
     {
-        return qcid == -1;
+        return qcid != -1;
     }
     /**
      * @return The identifier of this criteria.

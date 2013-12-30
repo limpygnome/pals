@@ -216,7 +216,7 @@ public class InstanceAssignment
      */
     public boolean isPersisted()
     {
-        return aiid == -1;
+        return aiid != -1;
     }
     /**
      * @return The identifier of this model.

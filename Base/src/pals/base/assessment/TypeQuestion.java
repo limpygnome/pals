@@ -1,5 +1,6 @@
 package pals.base.assessment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import pals.base.UUID;
@@ -49,6 +50,31 @@ public class TypeQuestion
         this.criterias = new HashMap<>();
     }
     // Methods - Persistence ***************************************************
+    /**
+     * Loads all the persisted question-types.
+     * 
+     * @param conn Database connector.
+     * @return Array of types of questions available.
+     */
+    public static TypeQuestion[] loadAll(Connector conn)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_question_types;");
+            TypeQuestion q;
+            ArrayList<TypeQuestion> buffer = new ArrayList<>();
+            while(res.next())
+            {
+                if((q = load(res)) != null)
+                    buffer.add(q);
+            }
+            return buffer.toArray(new TypeQuestion[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new TypeQuestion[0];
+        }
+    }
     /**
      * Loads a persisted model from the database.
      * 
@@ -168,7 +194,7 @@ public class TypeQuestion
             // Begin transaction
             conn.execute("BEGIN;");
             // Delete existing criteria
-            conn.execute("DELETE FROM pals_qtype_ctype WHERE qtype=?;", uuidQType.getBytes());
+            conn.execute("DELETE FROM pals_qtype_ctype WHERE uuid_qtype=?;", uuidQType.getBytes());
             // Insert each criteria
             for(Map.Entry<UUID,TypeCriteria> kv : criterias.entrySet())
             {

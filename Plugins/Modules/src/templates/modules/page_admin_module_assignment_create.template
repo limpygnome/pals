@@ -1,0 +1,36 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/create">Create</a></h2>
+
+<form method="post" action="/admin/modules/${module.getModuleID()?string}/assignments/create">
+    <table class="table2">
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="ass_title" value="<#if ass_title??>${ass_title?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="ass_weight" value="<#if ass_weight??>${ass_weight?html}</#if>" /><br />
+                A numeric value greater than zero; the weight forms the percentage towards the overall module grade.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Create" />
+                <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">Back</a>
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+<p class="error">
+    ${error}
+</p>
+</#if>

@@ -40,12 +40,12 @@ public class RuntimePluginReloader extends pals.base.Plugin
 
     // Methods - Event Handlers ************************************************
     @Override
-    public boolean eventHandler_pluginInstall(NodeCore core)
+    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
     {
         return true;
     }
     @Override
-    public boolean eventHandler_pluginUninstall(NodeCore core)
+    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return true;
     }

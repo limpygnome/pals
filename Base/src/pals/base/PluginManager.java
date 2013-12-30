@@ -398,7 +398,7 @@ public class PluginManager
                             core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - added to the database.", Logging.EntryType.Info);
                         }
                         // Run installation of plugin
-                        if(!p.eventHandler_pluginInstall(core))
+                        if(!p.eventHandler_pluginInstall(core, conn))
                         {
                             core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to install!", Logging.EntryType.Error);
                             failed = true;
@@ -411,7 +411,7 @@ public class PluginManager
                         break;
                     case PendingUninstall:
                         // Run uninstallation of plugin
-                        if(!p.eventHandler_pluginUninstall(core))
+                        if(!p.eventHandler_pluginUninstall(core, conn))
                         {
                             core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - failed to uninstall!", Logging.EntryType.Error);
                             failed = true;

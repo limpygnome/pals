@@ -212,7 +212,7 @@ public class InstanceAssignmentQuestion
      */
     public boolean isPersisted()
     {
-        return aiqid == -1;
+        return aiqid != -1;
     }
     /**
      * @return The unique identifier of this model.

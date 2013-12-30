@@ -6,6 +6,7 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.WebManager;
+import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.web.WebRequestData;
 
@@ -20,12 +21,12 @@ public class Example extends pals.base.Plugin
     }
     // Methods - Event Handlers ************************************************
     @Override
-    public boolean eventHandler_pluginInstall(NodeCore core)
+    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
     {
         return true;
     }
     @Override
-    public boolean eventHandler_pluginUninstall(NodeCore core)
+    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return true;
     }

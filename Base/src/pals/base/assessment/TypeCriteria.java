@@ -1,6 +1,8 @@
 package pals.base.assessment;
 
+import java.util.ArrayList;
 import pals.base.UUID;
+import static pals.base.assessment.TypeQuestion.load;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -41,6 +43,31 @@ public class TypeCriteria
     }
 
     // Methods - Persistence ***************************************************
+    /**
+     * Loads all the persisted question-types.
+     * 
+     * @param conn Database connector.
+     * @return Array of types of questions available.
+     */
+    public static TypeCriteria[] loadAll(Connector conn)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_criteria_types;");
+            TypeCriteria c;
+            ArrayList<TypeCriteria> buffer = new ArrayList<>();
+            while(res.next())
+            {
+                if((c = load(res)) != null)
+                    buffer.add(c);
+            }
+            return buffer.toArray(new TypeCriteria[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new TypeCriteria[0];
+        }
+    }
     /**
      * Loads a persisted model from the database.
      * 
@@ -87,17 +114,17 @@ public class TypeCriteria
      * @param conn Database connector.
      * @return Status from the operation.
      */
-    public TypeQuestion.PersistStatus persist(Connector conn)
+    public TypeCriteria.PersistStatus persist(Connector conn)
     {
         // Validate data
         if(uuidCType == null)
-            return TypeQuestion.PersistStatus.Invalid_UUID;
+            return TypeCriteria.PersistStatus.Invalid_UUID;
         else if(uuidPlugin == null)
-            return TypeQuestion.PersistStatus.Invalid_PluginUUID;
+            return TypeCriteria.PersistStatus.Invalid_PluginUUID;
         else if(title == null)
-            return TypeQuestion.PersistStatus.Invalid_Title;
+            return TypeCriteria.PersistStatus.Invalid_Title;
         else if(description == null || description.length() < 0)
-            return TypeQuestion.PersistStatus.Invalid_Description;
+            return TypeCriteria.PersistStatus.Invalid_Description;
         else
         {
             // Attempt to persist data
@@ -112,11 +139,11 @@ public class TypeCriteria
                     conn.execute("INSERT INTO pals_criteria_types (uuid_ctype, uuid_plugin, title, description) VALUES(?,?,?,?);", uuidCType.getBytes(), uuidPlugin.getBytes(), title, description);
                     persisted = true;
                 }
-                return TypeQuestion.PersistStatus.Success;
+                return TypeCriteria.PersistStatus.Success;
             }
             catch(DatabaseException ex)
             {
-                return TypeQuestion.PersistStatus.Failed;
+                return TypeCriteria.PersistStatus.Failed;
             }
         }
     }

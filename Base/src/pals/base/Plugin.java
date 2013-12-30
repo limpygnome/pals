@@ -1,5 +1,6 @@
 package pals.base;
 
+import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.web.WebRequestData;
 
@@ -42,9 +43,10 @@ public class Plugin
      * Invoked to install the plugin.
      * 
      * @param core The current instance of the core.
+     * @param conn Database connector; this must not be disconnected.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginInstall(NodeCore core)
+    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
     {
         return false;
     }
@@ -52,9 +54,10 @@ public class Plugin
      * Invoked to uninstall the plugin.
      * 
      * @param core The current instance of the core.
+     * @param conn Database connector; this must not be disconnected.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginUninstall(NodeCore core)
+    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return false;
     }

@@ -56,6 +56,35 @@ public class Assignment
     }
     // Methods - Persistence ***************************************************
     /**
+     * Loads the persisted assignments for a module.
+     * 
+     * @param conn Database connector.
+     * @param module The module.
+     * @return Array of assignments for the specified module; possibly empty.
+     */
+    public static Assignment[] load(Connector conn, Module module)
+    {
+        if(module == null)
+            return new Assignment[0];
+        try
+        {
+            ArrayList<Assignment> buffer = new ArrayList<>();
+            Assignment ass;
+            Result res = conn.read("SELECT * FROM pals_assignment WHERE moduleid=?;", module.getModuleID());
+            while(res.next())
+            {
+                ass = load(conn, module, res);
+                if(ass != null)
+                    buffer.add(ass);
+            }
+            return buffer.toArray(new Assignment[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new Assignment[0];
+        }
+    }
+    /**
      * Loads a persisted model.
      * 
      * @param conn Database connector.
@@ -200,7 +229,7 @@ public class Assignment
      */
     public boolean isPersisted()
     {
-        return assid == -1;
+        return assid != -1;
     }
     /**
      * @return The identifier of the assignment.

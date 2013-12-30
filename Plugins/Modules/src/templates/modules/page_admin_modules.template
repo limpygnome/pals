@@ -33,6 +33,7 @@
                 <a href="/admin/modules/${module.getModuleID()?string}/assignments">
                     Assignments
                 </a>
+                &nbsp;
                 <a href="/admin/modules/${module.getModuleID()?string}/enrollment">
                     Enrollment
                 </a>

@@ -217,7 +217,7 @@ public class AssignmentQuestion
      */
     public boolean isPersisted()
     {
-        return aqid == -1;
+        return aqid != -1;
     }
     /**
      * @return The identifier of the assignment question; allows for multiple

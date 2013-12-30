@@ -40,3 +40,9 @@ Todo.txt
 /Plugins/Modules/nbproject/private/
 /Plugins/Modules/build/
 /Plugins/Modules/dist/
+/Plugins/DefaultQuestionCriteriaHandlers/nbproject/private/
+/Plugins/DefaultQuestionCriteriaHandlers/build/
+/Plugins/DefaultQuestionCriteriaHandlers/dist/
+/Plugins/Questions/nbproject/private/
+/Plugins/Questions/build/
+/Plugins/Questions/dist/

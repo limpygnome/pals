@@ -347,7 +347,7 @@ public class Module
      */
     public boolean isPersisted()
     {
-        return moduleid == -1;
+        return moduleid != -1;
     }
     /**
      * @return The identifier of the module.

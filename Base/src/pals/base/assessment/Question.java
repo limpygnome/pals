@@ -2,6 +2,7 @@ package pals.base.assessment;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -50,6 +51,33 @@ public class Question
         this.data = data;
     }
     // Methods - Persistence ***************************************************
+    /**
+     * Loads persisted models.
+     * 
+     * @param conn Database connector.
+     * @param amount The number of models to retrieve at a time.
+     * @param pageOffset The number of models skipped.
+     * @return Array of models; can be empty.
+     */
+    public static Question[] load(Connector conn, int amount, int offset)
+    {
+        try
+        {
+            ArrayList<Question> buffer = new ArrayList<>();
+            Result res = conn.read("SELECT * FROM pals_question ORDER BY title ASC LIMIT ? OFFSET ?;", amount, offset);
+            Question q;
+            while(res.next())
+            {
+                if((q = load(conn, res)) != null)
+                    buffer.add(q);
+            }
+            return buffer.toArray(new Question[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new Question[0];
+        }
+    }
     /**
      * Loads a persisted model by its identifier.
      * 
@@ -115,26 +143,34 @@ public class Question
     {
         try
         {
-            byte[] bdata;
-            // Serialize data field
-            try
+            // Validate data
+            if(qtype == null)
+                return PersistStatus.Invalid_QuestionType;
+            else if(title.length() < getTitleMin() || title.length() > getTitleMax())
+                return PersistStatus.Invalid_Title;
+            else
             {
-                bdata = Misc.bytesSerialize(data);
+                byte[] bdata;
+                // Serialize data field
+                try
+                {
+                    bdata = Misc.bytesSerialize(data);
+                }
+                catch(IOException ex)
+                {
+                    return PersistStatus.Failed_Serialize;
+                }
+                // Persist data
+                if(qid == -1)
+                {
+                    qid = (int)conn.executeScalar("INSERT INTO pals_question (uuid_qtype, title, data) VALUES(?,?,?) RETURNING qid;", qtype.getUuidQType().getBytes(), title, bdata);
+                }
+                else   
+                {
+                    conn.execute("UPDATE pals_question SET uuid_qtype=?, title=?, data=? WHERE qid=?;", qtype.getUuidQType().getBytes(), title, bdata, qid);
+                }
+                return PersistStatus.Success;
             }
-            catch(IOException ex)
-            {
-                return PersistStatus.Failed_Serialize;
-            }
-            // Persist
-            if(qid == -1)
-            {
-                qid = (int)conn.executeScalar("INSERT INTO pals_question (uuid_qtype, title, data) VALUES(?,?,?) RETURNING qid;", qtype.getUuidQType().getBytes(), title, bdata);
-            }
-            else   
-            {
-                conn.execute("UPDATE pals_question SET uuid_qtype=?, title=?, data=? WHERE qid=?;", qtype.getUuidQType().getBytes(), title, bdata, qid);
-            }
-            return PersistStatus.Success;
         }
         catch(DatabaseException ex)
         {
@@ -189,7 +225,7 @@ public class Question
      */
     public boolean isPersisted()
     {
-        return qid == -1;
+        return qid != -1;
     }
     /**
      * @return The identifier of this question.
@@ -219,5 +255,35 @@ public class Question
     public <T extends Serializable> T getData()
     {
         return (T)data;
+    }
+    /**
+     * @param conn Database connector.
+     * @return The number of assignments reliant on this question.
+     */
+    public int getDependentAssignments(Connector conn)
+    {
+        try
+        {
+            return (int)(long)conn.executeScalar("SELECT COUNT('') FROM pals_assignment_questions WHERE qid=?;", qid);
+        }
+        catch(DatabaseException ex)
+        {
+            return 0;
+        }
+    }
+    // Methods - Accessors - Limits ********************************************
+    /**
+     * @return The minimum length of a question's title.
+     */
+    public int getTitleMin()
+    {
+        return 1;
+    }
+    /**
+     * @return The maximum length of a question's title.
+     */
+    public int getTitleMax()
+    {
+        return 64;
     }
 }

@@ -6,8 +6,10 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.WebManager;
+import pals.base.assessment.Assignment;
 import pals.base.assessment.Module;
 import pals.base.auth.User;
+import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
@@ -17,7 +19,7 @@ import pals.base.web.security.Escaping;
 import pals.plugins.web.Captcha;
 
 /**
- * The default interface for modules.
+ * The default web-interface for modules.
  */
 public class Modules extends Plugin
 {
@@ -28,12 +30,12 @@ public class Modules extends Plugin
     }
     // Methods - Event Handlers ************************************************
     @Override
-    public boolean eventHandler_pluginInstall(NodeCore core)
+    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
     {
         return true;
     }
     @Override
-    public boolean eventHandler_pluginUninstall(NodeCore core)
+    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return true;
     }
@@ -191,23 +193,33 @@ public class Modules extends Plugin
         // Handle the page
         String page = mup.getPart(3);
         if(page == null)
-            return pageAdminModule_view(data, mup, module);
+            return pageAdminModule_view(data, module);
         else
         {
             switch(page)
             {
                 case "assignments":
-                    return pageAdminModule_assignments(data, mup, module);
+                    page = mup.getPart(4);
+                    if(page == null)
+                        return pageAdminModule_assignments_view(data, module);
+                    else
+                        switch(page)
+                        {
+                            case "create":
+                                return pageAdminModule_assignment_create(data, module);
+                            default:
+                                return pageAdminModule_assignment_view(data, module, page);
+                        }
                 case "enrollment":
-                    return pageAdminModule_enrollment(data, mup, module);
+                    return pageAdminModule_enrollment(data, module);
                 case "delete":
-                    return pageAdminModule_delete(data, mup, module);
+                    return pageAdminModule_delete(data, module);
                 default:
                     return false;
             }
         }
     }
-    private boolean pageAdminModule_view(WebRequestData data, MultipartUrlParser mup, Module module)
+    private boolean pageAdminModule_view(WebRequestData data, Module module)
     {
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle()));
@@ -219,7 +231,7 @@ public class Modules extends Plugin
         data.setTemplateData("module_users", module.usersEnrolled(data.getConnector()));
         return true;
     }
-    private boolean pageAdminModule_delete(WebRequestData data, MultipartUrlParser mup, Module module)
+    private boolean pageAdminModule_delete(WebRequestData data, Module module)
     {
         // Check for postback
         RemoteRequest request = data.getRequestData();
@@ -248,7 +260,7 @@ public class Modules extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    private boolean pageAdminModule_enrollment(WebRequestData data, MultipartUrlParser mup, Module module)
+    private boolean pageAdminModule_enrollment(WebRequestData data, Module module)
     {
         // Check field data
         RemoteRequest request = data.getRequestData();
@@ -336,8 +348,72 @@ public class Modules extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    private boolean pageAdminModule_assignments(WebRequestData data, MultipartUrlParser mup, Module module)
+    private boolean pageAdminModule_assignments_view(WebRequestData data, Module module)
     {
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments");
+        data.setTemplateData("pals_content", "modules/page_admin_module_assignments");
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignments", Assignment.load(data.getConnector(), module));
+        return true;
+    }
+    private boolean pageAdminModule_assignment_create(WebRequestData data, Module module)
+    {
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String assTitle = req.getField("ass_title");
+        String assWeight = req.getField("ass_weight");
+        String csrf = req.getField("csrf");
+        if(assTitle != null)
+        {
+            // Validate request
+            if(!CSRF.isSecure(data, csrf))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                try
+                {
+                    // Attempt to persist a new assignment
+                    Assignment ass = new Assignment(module, assTitle, Integer.parseInt(assWeight));
+                    Assignment.PersistStatus ps = ass.persist(data.getConnector());
+                    switch(ps)
+                    {
+                        case Failed:
+                        case Invalid_Module:
+                            data.setTemplateData("error", "An unknown error occurred ('"+ps.name()+"'); please try again or contact an administrator!");
+                            break;
+                        case Invalid_Title:
+                            data.setTemplateData("error", "Invalid title; must be "+ass.getTitleMin()+" to "+ass.getTitleMax()+" characters in length!");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Invalid weight; must be greater than zero!");
+                            break;
+                        case Success:
+                            data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID());
+                            break;
+                    }
+                }
+                catch(NumberFormatException ex)
+                {
+                    data.setTemplateData("error", "Invalid weight; must be a numeric value!");
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - Create");
+        data.setTemplateData("pals_content", "modules/page_admin_module_assignment_create");
+        data.setTemplateData("module", module);
+        // -- Fields
+        data.setTemplateData("ass_title", assTitle);
+        data.setTemplateData("ass_weight", assWeight);
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAdminModule_assignment_view(WebRequestData data, Module module, String assId)
+    {
+        // Parse assignment identifier
+        
         return true;
     }
 }

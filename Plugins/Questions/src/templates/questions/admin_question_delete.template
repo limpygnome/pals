@@ -1,0 +1,57 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?string}/delete">Delete</a></h2>
+
+<p>
+    Deleting a question could break assignments and result in a loss of data for a question! Ensure any grades, involving a question, have been logged
+    away from this system; this action is permanent.
+</p>
+
+<form method="post" action="/admin/questions/${question.getQID()?string}/delete">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                Confirm Deletion
+            </th>
+        </tr>
+        <tr>
+            <td>
+                QID:
+            </td>
+            <td>
+                ${question.getQID()?string}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                ${question.getTitle()?html}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Dependent Assignments:
+            </td>
+            <td>
+                ${question.getDependentAssignments(data.getConnector())}
+            </td>
+        </tr>
+        <tr>
+            <#include "../captcha_form">
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Delete" />
+                <a class="button" href="/admin/questions/${question.getQID()?string}">Back</a>
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="question_delete" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
