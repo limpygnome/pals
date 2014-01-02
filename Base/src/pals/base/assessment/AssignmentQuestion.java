@@ -1,5 +1,6 @@
 package pals.base.assessment;
 
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -56,18 +57,19 @@ public class AssignmentQuestion
     /**
      * Loads a persisted assignment question.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param ass Assignment; if null, this is loaded - possibly quite
      * expensive.
      * @param aqid The identifier of the assignment question.
      * @return An instance of the model or null.
      */
-    public static AssignmentQuestion load(Connector conn, Assignment ass, int aqid)
+    public static AssignmentQuestion load(NodeCore core, Connector conn, Assignment ass, int aqid)
     {
         try
         {
             Result res = conn.read("SELECT * FROM pals_assignment_questions WHERE aqid=?;", aqid);
-            return res.next() ? load(conn, ass, res) : null;
+            return res.next() ? load(core, conn, ass, res) : null;
         }
         catch(DatabaseException ex)
         {
@@ -77,13 +79,14 @@ public class AssignmentQuestion
     /**
      * Loads a persisted assignment question.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param ass Assignment; if null, this is loaded - possibly quite
      * expensive.
      * @param res The result of the query; this should have next() pre-invoked.
      * @return An instance of the model or null.
      */
-    public static AssignmentQuestion load(Connector conn, Assignment ass, Result res)
+    public static AssignmentQuestion load(NodeCore core, Connector conn, Assignment ass, Result res)
     {
         try
         {
@@ -93,7 +96,7 @@ public class AssignmentQuestion
                 ass = Assignment.load(conn, null, (int)res.get("assid"));
             }
             // Load the question
-            Question question = Question.load(conn, (int)res.get("qid"));
+            Question question = Question.load(core, conn, (int)res.get("qid"));
             // Create and return instance
             AssignmentQuestion aq = new AssignmentQuestion(ass, question, (int)res.get("weight"), (int)res.get("page"), (int)res.get("page_order"));
             aq.aqid = (int)res.get("aqid");

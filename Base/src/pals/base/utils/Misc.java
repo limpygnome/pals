@@ -67,11 +67,31 @@ public class Misc
      * @return An instance of the object, or possibly null if it was serialized
      * as null.
      * @throws IOException Thrown if this operation fails.
+     * @throws ClassNotFoundException Thrown if a class is not found.
      */
     public static Object bytesDeserialize(byte[] data) throws IOException, ClassNotFoundException
     {
         ByteArrayInputStream deserialBais = new ByteArrayInputStream(data);
         ObjectInputStream deserialOis = new ObjectInputStream(deserialBais);
+        return deserialOis.readObject();
+    }
+    /**
+     * Deserializes an object from byte-data.
+     * 
+     * Resolves classes, whilst deserializing, by going to each plugin for a
+     * class. This is potentially quite expensive.
+     * 
+     * @param core The current instance of the core.
+     * @param data The byte-array of data to deserialize into an object.
+     * @return An instance of the object, or possibly null if it was serialized
+     * as null.
+     * @throws IOException Thrown if this operation fails.
+     * @throws ClassNotFoundException Thrown if a class is not found.
+     */
+    public static Object bytesDeserialize(NodeCore core, byte[] data) throws IOException, ClassNotFoundException
+    {
+        ByteArrayInputStream deserialBais = new ByteArrayInputStream(data);
+        ObjectInputStream deserialOis = new PluginObjectInputStream(core, deserialBais);
         return deserialOis.readObject();
     }
 }

@@ -2,6 +2,7 @@ package pals.base.assessment;
 
 import java.io.IOException;
 import java.io.Serializable;
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -57,6 +58,7 @@ public class QuestionCriteria
     /**
      * Loads a persisted model.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param question The question to which this criteria belongs; if this is
      * null, the question model is loaded (could be expensive for multiple
@@ -64,12 +66,12 @@ public class QuestionCriteria
      * @param qcid The identifier of the criteria.
      * @return An instance of the model or null.
      */
-    public static QuestionCriteria load(Connector conn, Question question, int qcid)
+    public static QuestionCriteria load(NodeCore core, Connector conn, Question question, int qcid)
     {
         try
         {
             Result res = conn.read("SELECT * FROM pals_question_criteria WHERE qcid=?;", qcid);
-            return res.next() ? load(conn, question, res) : null;
+            return res.next() ? load(core, conn, question, res) : null;
         }
         catch(DatabaseException ex)
         {
@@ -79,6 +81,7 @@ public class QuestionCriteria
     /**
      * Loads a persisted model.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param question The question to which this criteria belongs; if this is
      * null, the question model is loaded (could be expensive for multiple
@@ -86,7 +89,7 @@ public class QuestionCriteria
      * @param result The result of a query, with the method next() pre-invoked.
      * @return An instance of the model or null.
      */
-    public static QuestionCriteria load(Connector conn, Question question, Result result)
+    public static QuestionCriteria load(NodeCore core, Connector conn, Question question, Result result)
     {
         try
         {
@@ -97,7 +100,7 @@ public class QuestionCriteria
             // Load question, if null
             if(question == null)
             {
-                question = Question.load(conn, (int)result.get("qid"));
+                question = Question.load(core, conn, (int)result.get("qid"));
             }
             // Deserialize data
             Object data;

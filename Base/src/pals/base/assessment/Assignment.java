@@ -2,6 +2,7 @@ package pals.base.assessment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -328,12 +329,13 @@ public class Assignment
     /**
      * Loads the persisted questions associated with this assignment.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param page The page; if greater than zero, questions are filtered by
      * their page.
      * @return True = loaded, false = failed.
      */
-    public boolean questionsLoad(Connector conn, int page)
+    public boolean questionsLoad(NodeCore core, Connector conn, int page)
     {
         try
         {
@@ -349,7 +351,7 @@ public class Assignment
             AssignmentQuestion question;
             while(res.next())
             {
-                question = AssignmentQuestion.load(conn, this, res);
+                question = AssignmentQuestion.load(core, conn, this, res);
                 if(question != null)
                 {
                     questionsAdd(question);

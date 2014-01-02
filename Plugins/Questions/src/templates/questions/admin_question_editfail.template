@@ -1,0 +1,28 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()}/edit">Edit</a></h2>
+
+<p class="error">
+    Could not load question-type handler to render page.
+</p>
+
+<p>
+    This means the plugin responsible for handling the question-type is either not loaded in the runtime or
+    did not manage the global hook.
+</p>
+
+<p>
+    Question-Type UUID: ${question.getQtype().getUuidQType().getHexHyphens()?html}
+</p>
+
+<p>
+    Question-Type Plugin UUID: ${question.getQtype().getUuidPlugin().getHexHyphens()}
+</p>
+
+<#if plugin??>
+    <p>
+        Plugin title: ${plugin.getTitle()?html}
+    </p>
+<#else>
+    <p class="error">
+        The plugin is not loaded in the runtime!
+    </p>
+</#if>

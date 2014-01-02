@@ -1,6 +1,7 @@
 package pals.base.assessment;
 
 import java.io.IOException;
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -51,18 +52,19 @@ public class InstanceAssignmentQuestion
     /**
      * Loads a persisted model.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param ia The instance of the assignment (if known); can be null to be
      * loaded automatically.
      * @param aiqid The identifier of the model to load.
      * @return An instance of the model or null.
      */
-    public static InstanceAssignmentQuestion load(Connector conn, InstanceAssignment ia, int aiqid)
+    public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, int aiqid)
     {
         try
         {
             Result res = conn.read("SELECT * FROM pals_assignment_instance_question WHERE aiqid=?;", aiqid);
-            return res.next() ? load(conn, ia, res) : null;
+            return res.next() ? load(core, conn, ia, res) : null;
         }
         catch(DatabaseException ex)
         {
@@ -72,6 +74,7 @@ public class InstanceAssignmentQuestion
     /**
      * Loads a persisted model.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param ia The instance of the assignment (if known); can be null to be
      * loaded automatically.
@@ -79,7 +82,7 @@ public class InstanceAssignmentQuestion
      * pre-invoked.
      * @return An instance of the model or null.
      */
-    public static InstanceAssignmentQuestion load(Connector conn, InstanceAssignment ia, Result res)
+    public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, Result res)
     {
         try
         {
@@ -101,7 +104,7 @@ public class InstanceAssignmentQuestion
                     return null;
             }
             // Load assignment question
-            AssignmentQuestion aq = AssignmentQuestion.load(conn, ia.getAss(), (int)res.get("aqid"));
+            AssignmentQuestion aq = AssignmentQuestion.load(core, conn, ia.getAss(), (int)res.get("aqid"));
             if(aq == null)
                 return null;
             InstanceAssignmentQuestion iaq = new InstanceAssignmentQuestion(aq, ia, data);

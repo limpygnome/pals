@@ -3,6 +3,7 @@ package pals.base.assessment;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -54,12 +55,13 @@ public class Question
     /**
      * Loads persisted models.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param amount The number of models to retrieve at a time.
-     * @param pageOffset The number of models skipped.
+     * @param offset The number of models skipped.
      * @return Array of models; can be empty.
      */
-    public static Question[] load(Connector conn, int amount, int offset)
+    public static Question[] load(NodeCore core, Connector conn, int amount, int offset)
     {
         try
         {
@@ -68,7 +70,7 @@ public class Question
             Question q;
             while(res.next())
             {
-                if((q = load(conn, res)) != null)
+                if((q = load(core, conn, res)) != null)
                     buffer.add(q);
             }
             return buffer.toArray(new Question[buffer.size()]);
@@ -81,16 +83,17 @@ public class Question
     /**
      * Loads a persisted model by its identifier.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param qid Question identifier.
      * @return Instance of model or null.
      */
-    public static Question load(Connector conn, int qid)
+    public static Question load(NodeCore core, Connector conn, int qid)
     {
         try
         {
             Result res = conn.read("SELECT * FROM pals_question WHERE qid=?;", qid);
-            return res.next() ? load(conn, res) : null;
+            return res.next() ? load(core, conn, res) : null;
         }
         catch(DatabaseException ex)
         {
@@ -100,11 +103,12 @@ public class Question
     /**
      * Loads a persisted model from a result; next() should be pre-invoked.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param result Database result.
      * @return Instance of model or null.
      */
-    public static Question load(Connector conn, Result result)
+    public static Question load(NodeCore core, Connector conn, Result result)
     {
         try
         {
@@ -116,10 +120,11 @@ public class Question
             Object obj;
             try
             {
-                obj = Misc.bytesDeserialize((byte[])result.get("data"));
+                obj = Misc.bytesDeserialize(core, (byte[])result.get("data"));
             }
             catch(IOException | ClassNotFoundException ex)
             {
+                System.out.println(ex.getMessage());
                 return null;
             }
             // Create and return instance

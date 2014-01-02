@@ -1,0 +1,54 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?string}/edit">Edit</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()}/edit">
+    <table class="table2 questions_form">
+        <tr>
+            <td>
+                Question:
+            </td>
+            <td>
+                <textarea rows="5" name="mc_text"><#if mc_text??>${mc_text}</#if></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Possible Answers (one per line):
+            </td>
+            <td>
+                <textarea rows="8" name="mc_answers">${mc_answers}</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Single Answer Only:
+            </td>
+            <td>
+                <input type="checkbox" name="mc_single_answer" <#if mc_single_answer??>checked</#if> />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Update" />
+                <a class="button" href="/admin/questions/${question.getQID()}">Back</a>
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<p>
+    Note: to check the correct answers, create text matching criteria(s). You should not change the index of answers,
+    or this may break assignments marked afterwards.
+</p>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>

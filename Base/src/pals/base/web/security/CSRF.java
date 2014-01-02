@@ -34,6 +34,20 @@ public class CSRF
      * Validates a token, provided by a user, is the same as the token
      * generated earlier.
      * 
+     * The request should have a field called "csrf"; this is
+     * null-protected.
+     * 
+     * @param data The data for the current web-request.
+     * @return True = secure/valid, false = insecure/invalid.
+     */
+    public static boolean isSecure(WebRequestData data)
+    {
+        return isSecure(data, data.getRequestData().getField("csrf"));
+    }
+    /**
+     * Validates a token, provided by a user, is the same as the token
+     * generated earlier.
+     * 
      * @param data The data for the current web-request.
      * @param userInput The token provided by the user for the current
      * request.

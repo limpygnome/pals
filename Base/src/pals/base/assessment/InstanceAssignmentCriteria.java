@@ -1,5 +1,6 @@
 package pals.base.assessment;
 
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -108,6 +109,7 @@ public class InstanceAssignmentCriteria
     /**
      * Loads a model from the database.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param ia Instance of the assignment; can be null and automatically
      * loaded.
@@ -116,16 +118,16 @@ public class InstanceAssignmentCriteria
      * @param res The result from a query, with next() pre-invoked.
      * @return An instance of the model or null.
      */
-    public static InstanceAssignmentCriteria load(Connector conn, InstanceAssignment ia, Question q, Result res)
+    public static InstanceAssignmentCriteria load(NodeCore core, Connector conn, InstanceAssignment ia, Question q, Result res)
     {
         try
         {
             // Load the instance of the question
-            InstanceAssignmentQuestion iaq = InstanceAssignmentQuestion.load(conn, ia, (int)res.get("aiqid"));
+            InstanceAssignmentQuestion iaq = InstanceAssignmentQuestion.load(core, conn, ia, (int)res.get("aiqid"));
             if(iaq == null)
                 return null;
             // Load the question criteria
-            QuestionCriteria qc = QuestionCriteria.load(conn, q, (int)res.get("qcid"));
+            QuestionCriteria qc = QuestionCriteria.load(core, conn, q, (int)res.get("qcid"));
             if(qc == null)
                 return null;
             // Load model

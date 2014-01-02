@@ -24,6 +24,10 @@ body
 {
 	float: right;
 }
+.tal
+{
+	text-align: left;
+}
 .tac
 {
 	text-align: center;
@@ -381,5 +385,12 @@ body
 {
 	text-align: left;
 }
-
-
+/* Questions: Forms */
+.layout_body .questions_form tr td
+{
+	text-align: left !important;
+}
+.layout_body .questions_form tr td textarea
+{
+	width: 30em !important;
+}

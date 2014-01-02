@@ -1,5 +1,6 @@
 package pals.plugins;
 
+import java.util.Arrays;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
@@ -104,7 +105,7 @@ public class Questions extends Plugin
                                                 return pageAdminQuestions_delete(data, temp);
                                             // Modify question-type properties
                                             case "edit":
-                                                ;
+                                                return pageAdminQuestions_edit(data, temp);
                                             // Add a criteria to the question
                                             case "add_criteria":
                                                 ;
@@ -142,12 +143,12 @@ public class Questions extends Plugin
         {
         }
         // Fetch questions
-        Question[] questions = Question.load(data.getConnector(), QUESTIONS_PER_PAGE+1, (page-1)*QUESTIONS_PER_PAGE);
+        Question[] questions = Question.load(data.getCore(), data.getConnector(), QUESTIONS_PER_PAGE+1, (page-1)*QUESTIONS_PER_PAGE);
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions");
         data.setTemplateData("pals_content", "questions/admin_questions");
         // -- Fields
-        data.setTemplateData("questions", questions);
+        data.setTemplateData("questions", questions.length > QUESTIONS_PER_PAGE ? Arrays.copyOf(questions, QUESTIONS_PER_PAGE) : questions);
         data.setTemplateData("questions_page", page);
         if(page > 1)
             data.setTemplateData("questions_prev", page-1);
@@ -211,7 +212,7 @@ public class Questions extends Plugin
         Question q;
         try
         {
-            q = Question.load(data.getConnector(), Integer.parseInt(rawQid));
+            q = Question.load(data.getCore(), data.getConnector(), Integer.parseInt(rawQid));
             if(q == null)
                 return false;
         }
@@ -261,8 +262,30 @@ public class Questions extends Plugin
         if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
             return false;
         // Load question model
+        Question q;
+        try
+        {
+            q = Question.load(data.getCore(), data.getConnector(), Integer.parseInt(rawQid));
+            if(q == null)
+                return false;
+        }
+        catch(NumberFormatException ex)
+        {
+            return false;
+        }
         // Find the question-type plugin responsible for rendering the page
-        // Invoke handler to handle request
+        Plugin p = data.getCore().getPlugins().getPlugin(q.getQtype().getUuidPlugin());
+        if(p != null && p.eventHandler_handleHook("question_type.web_edit", new Object[]{data, q}))
+        {
+            // Handled successfully...nothing else needs to be done from here.
+            return true;
+        }
+        // Failed - display information
+        data.setTemplateData("pals_title", "Admin - Questions - Edit");
+        data.setTemplateData("pals_content", "questions/admin_question_editfail");
+        // -- Fields
+        data.setTemplateData("question", q);
+        data.setTemplateData("plugin", p);
         return true;
     }
 }
