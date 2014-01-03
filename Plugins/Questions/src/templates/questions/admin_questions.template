@@ -16,7 +16,7 @@
         <#list questions as question>
             <tr>
                 <td>
-                    <a href="/admin/question/${question.getQID()}">
+                    <a href="/admin/questions/${question.getQID()}">
                         ${question.getTitle()?html}
                     </a>
                 </td>

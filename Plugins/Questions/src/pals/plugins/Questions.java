@@ -8,6 +8,8 @@ import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Question;
+import pals.base.assessment.QuestionCriteria;
+import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
@@ -81,6 +83,7 @@ public class Questions extends Plugin
                 switch(mup.getPart(1))
                 {
                     case "questions":
+                    {
                         temp = mup.getPart(2);
                         if(temp == null)
                             // View all the questions
@@ -93,27 +96,11 @@ public class Questions extends Plugin
                                     // Create a question
                                     return pageAdminQuestions_create(data);
                                 default:
-                                    if((temp2 = mup.getPart(3)) == null)
-                                        // View a question
-                                        return pageAdminQuestions_view(data, temp);
-                                    else
-                                    {
-                                        switch(temp2)
-                                        {
-                                            // Delete a question
-                                            case "delete":
-                                                return pageAdminQuestions_delete(data, temp);
-                                            // Modify question-type properties
-                                            case "edit":
-                                                return pageAdminQuestions_edit(data, temp);
-                                            // Add a criteria to the question
-                                            case "add_criteria":
-                                                ;
-                                        }
-                                    }
+                                    // Assume it's a question - delegate to question handler
+                                    return pageAdminQuestion(data, temp, mup);
                             }
                         }
-                    break;
+                    }
                 }
                 break;
         }
@@ -126,7 +113,7 @@ public class Questions extends Plugin
         return "PALS [WEB]: Questions";
     }
     // Methods - Pages *********************************************************
-    public boolean pageAdminQuestions_viewAll(WebRequestData data)
+    private boolean pageAdminQuestions_viewAll(WebRequestData data)
     {
         final int QUESTIONS_PER_PAGE = 10;
         // Check permissions
@@ -156,7 +143,7 @@ public class Questions extends Plugin
             data.setTemplateData("questions_next", page+1);
         return true;
     }
-    public boolean pageAdminQuestions_create(WebRequestData data)
+    private boolean pageAdminQuestions_create(WebRequestData data)
     {
         // Check permissions
         if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
@@ -203,12 +190,12 @@ public class Questions extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    public boolean pageAdminQuestions_delete(WebRequestData data, String rawQid)
+    private boolean pageAdminQuestion(WebRequestData data, String rawQid, MultipartUrlParser mup)
     {
         // Check permissions
         if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
             return false;
-        // Load the model being deleted
+        // Load question model
         Question q;
         try
         {
@@ -220,6 +207,41 @@ public class Questions extends Plugin
         {
             return false;
         }
+        // Delegate to the correct page
+        String page = mup.getPart(3);
+        if(page == null)
+            return pageAdminQuestion_view(data, q);
+        else
+        {
+            switch(page)
+            {
+                case "edit":
+                    return pageAdminQuestion_edit(data, q);
+                case "delete":
+                    return pageAdminQuestion_delete(data, q);
+                case "criteria":
+                    page = mup.getPart(4);
+                    switch(page)
+                    {
+                        case "add":
+                            return pageAdminQuestion_criteriaAdd(data, q);
+                        default:
+                            // Assume part 4 is a qcid
+                            switch(mup.getPart(5))
+                            {
+                                case "edit":
+                                    return pageAdminQuestion_criteriaEdit(data, q, page);
+                                case "delete":
+                                    return pageAdminQuestion_criteriaDelete(data, q, page);
+                            }
+                    }
+                    break;
+            }
+        }
+        return false;
+    }
+    private boolean pageAdminQuestion_delete(WebRequestData data, Question q)
+    {
         // Check postback
         RemoteRequest req = data.getRequestData();
         String questionDelete = req.getField("question_delete");
@@ -248,31 +270,25 @@ public class Questions extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    public boolean pageAdminQuestions_view(WebRequestData data, String rawQid)
+    private boolean pageAdminQuestion_view(WebRequestData data, Question q)
     {
-        // Check permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
-            return false;
         // Fetch criterias
+        QuestionCriteria[] qc = QuestionCriteria.loadAll(data.getCore(), data.getConnector(), q);
+        // Add the cumulative weight
+        int total = 0;
+        for(QuestionCriteria c : qc)
+            total += c.getWeight();
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - View");
+        data.setTemplateData("pals_content", "questions/admin_question_view");
+        // -- Fields
+        data.setTemplateData("question", q);
+        data.setTemplateData("criterias", qc);
+        data.setTemplateData("total_weight", total);
         return true;
     }
-    public boolean pageAdminQuestions_edit(WebRequestData data, String rawQid)
+    private boolean pageAdminQuestion_edit(WebRequestData data, Question q)
     {
-        // Check permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
-            return false;
-        // Load question model
-        Question q;
-        try
-        {
-            q = Question.load(data.getCore(), data.getConnector(), Integer.parseInt(rawQid));
-            if(q == null)
-                return false;
-        }
-        catch(NumberFormatException ex)
-        {
-            return false;
-        }
         // Find the question-type plugin responsible for rendering the page
         Plugin p = data.getCore().getPlugins().getPlugin(q.getQtype().getUuidPlugin());
         if(p != null && p.eventHandler_handleHook("question_type.web_edit", new Object[]{data, q}))
@@ -286,6 +302,151 @@ public class Questions extends Plugin
         // -- Fields
         data.setTemplateData("question", q);
         data.setTemplateData("plugin", p);
+        return true;
+    }
+    private boolean pageAdminQuestion_criteriaAdd(WebRequestData data, Question q)
+    {
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String ctype = req.getField("ctype");
+        String critWeight = req.getField("crit_weight");
+        String critTitle = req.getField("crit_title");
+        if(ctype != null && critWeight != null && critTitle != null)
+        {
+            try
+            {
+                int weight;
+                if((weight = Integer.parseInt(critWeight)) <= 0)
+                    data.setTemplateData("error", "The weight must be greater than zero.");
+                else if(!CSRF.isSecure(data))
+                    data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+                else
+                {
+                    // Load the criteria-type
+                    TypeCriteria ct = TypeCriteria.load(data.getConnector(), UUID.parse(ctype));
+                    if(ct == null)
+                        data.setTemplateData("error", "Invalid criteria type, could not be loaded.");
+                    // Check the criteria-type is allowed for the qtype
+                    else if(!TypeCriteria.isCapable(data.getConnector(), q.getQtype(), ct))
+                        data.setTemplateData("error", "The specified type of criteria is unable to serve this type of question!");
+                    else
+                    {
+                        // Attempt to create a new question criteria
+                        QuestionCriteria qc = new QuestionCriteria(q, ct, critTitle, null, weight);
+                        QuestionCriteria.PersistStatus psqc = qc.persist(data.getConnector());
+                        switch(psqc)
+                        {
+                            case Failed:
+                            case Failed_Serialize:
+                                data.setTemplateData("error", "Failed to add the criteria ('"+psqc.name()+"')...");
+                                break;
+                            case Invalid_Criteria:
+                                data.setTemplateData("error", "Invalid criteria for this type of question.");
+                                break;
+                            case Invalid_Question:
+                                data.setTemplateData("error", "Invalid question.");
+                                break;
+                            case Invalid_Weight:
+                                data.setTemplateData("error", "Invalid weight; must be a numeric value greater than zero!");
+                                break;
+                            case Invalid_Title:
+                                data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
+                                break;
+                            case Success:
+                                data.getResponseData().setRedirectUrl("/admin/questions/"+q.getQID()+"/criteria/"+qc.getQCID()+"/edit");
+                                break;
+                        }
+                    }
+                }
+            }
+            catch(NumberFormatException ex)
+            {
+                data.setTemplateData("error", "Invalid weight; must be a numeric value.");
+            }
+        }
+        // Fetch available criteria for this question-type
+        TypeCriteria[] criterias = TypeCriteria.loadAll(data.getConnector(), q.getQtype());
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - Criteria - Add");
+        data.setTemplateData("pals_content", "questions/admin_question_criteria_add");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("criterias", criterias);
+        data.setTemplateData("question", q);
+        data.setTemplateData("crit_title", critTitle);
+        data.setTemplateData("crit_weight", critWeight);
+        data.setTemplateData("ctype", ctype);
+        return true;
+    }
+    private boolean pageAdminQuestion_criteriaEdit(WebRequestData data, Question q, String rawQcid)
+    {
+        // Load the criteria model
+        int qcid;
+        try
+        {
+            qcid = Integer.parseInt(rawQcid);
+        }
+        catch(NumberFormatException ex)
+        {
+            return false;
+        }
+        QuestionCriteria qc = QuestionCriteria.load(data.getCore(), data.getConnector(), null, qcid);
+        if(qc == null || qc.getQuestion().getQID() != q.getQID()) // Check the criteria belongs to the current question too!
+            return false;
+        // Find the plugin responsible for handling the critera-type
+        Plugin p = data.getCore().getPlugins().getPlugin(q.getQtype().getUuidPlugin());
+        if(p != null && p.eventHandler_handleHook("criteria_type.web_edit", new Object[]{data, qc}))
+        {
+            // Handled successfully...nothing else needs to be done from here.
+            return true;
+        }
+        // Failed - display information
+        data.setTemplateData("pals_title", "Admin - Questions - Criteria - Edit");
+        data.setTemplateData("pals_content", "questions/admin_question_criteria_editfail");
+        // -- Fields
+        data.setTemplateData("criteria", qc);
+        data.setTemplateData("question", q);
+        data.setTemplateData("plugin", p);
+        return true;
+    }
+    private boolean pageAdminQuestion_criteriaDelete(WebRequestData data, Question q, String rawQcid)
+    {
+        // Load the criteria model
+        int qcid;
+        try
+        {
+            qcid = Integer.parseInt(rawQcid);
+        }
+        catch(NumberFormatException ex)
+        {
+            return false;
+        }
+        QuestionCriteria qc = QuestionCriteria.load(data.getCore(), data.getConnector(), null, qcid);
+        if(qc == null || qc.getQuestion().getQID() != q.getQID()) // Check the criteria belongs to the current question too!
+            return false;
+        // Check confirmation of deletion
+        RemoteRequest req = data.getRequestData();
+        String delete = req.getField("delete");
+        if(delete != null && delete.equals("1"))
+        {
+            // Validate security
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Invalid captcha verification code!");
+            // Delete the model
+            else if(!qc.remove(data.getConnector()))
+                data.setTemplateData("error", "Could not remove model, an unknown error occurred; if this continues, contact an administrator!");
+            else
+                data.getResponseData().setRedirectUrl("/admin/questions/"+q.getQID());
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - Criteria - Delete");
+        data.setTemplateData("pals_content", "questions/admin_question_criteria_delete");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("question", q);
+        data.setTemplateData("criteria", qc);
         return true;
     }
 }

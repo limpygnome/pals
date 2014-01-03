@@ -1,0 +1,36 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()}/criteria/delete/${criteria.getQCID()?string}">Edit Criteria</a></h2>
+
+<p class="error">
+    Could not load criteria-type handler to render page.
+</p>
+
+<p>
+    This means the plugin responsible for handling the criteria-type is either not loaded in the runtime or
+    did not manage the global hook.
+</p>
+
+<p>
+    Question-Type UUID: ${question.getQtype().getUuidQType().getHexHyphens()?html}
+</p>
+
+<p>
+    Question-Type Plugin UUID: ${question.getQtype().getUuidPlugin().getHexHyphens()?html}
+</p>
+
+<p>
+    Criteria-Type UUID: ${criteria.getCriteria().getUuidCType().getHexHyphens()?html}
+</p>
+
+<p>
+    Criteria-Type Plugin UUID: ${criteria.getCriteria().getUuidPlugin().getHexHyphens()?html}
+</p>
+
+<#if plugin??>
+    <p>
+        Plugin title: ${plugin.getTitle()?html}
+    </p>
+<#else>
+    <p class="error">
+        The plugin is not loaded in the runtime!
+    </p>
+</#if>

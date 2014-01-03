@@ -1,0 +1,72 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()}">${question.getTitle()?html}</a></h2>
+
+<p class="tac">
+    <a class="button" href="/admin/questions/${question.getQID()}/delete">
+        Delete Question
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/questions/${question.getQID()}/edit">
+        Edit Question
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/questions/${question.getQID()}/criteria/add">
+        Add New Criteria
+    </a>
+</p>
+
+<h2>Criteria</h2>
+
+<table class="table3 qcriteria">
+    <tr>
+        <th>Title</th>
+        <th>Type</th>
+        <th>Weight</th>
+        <th>%</th>
+        <th>Options</th>
+    </tr>
+    <#if criterias?has_content>
+        <#list criterias as criteria>
+            <tr>
+                <td>
+                    <a href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()}/edit">
+                        ${criteria.getTitle()?html}
+                    </a>
+                </td>
+                <td>
+                    ${criteria.getCriteria().getTitle()?html}
+                </td>
+                <td>
+                    ${criteria.getWeight()?string}
+                </td>
+                <td>
+                    ${((criteria.getWeight()/total_weight)*100)?string}%
+                </td>
+                <td>
+                    <a href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()}/edit">
+                        Edit
+                    </a>
+                    &nbsp;
+                    <a href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()}/delete">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        </#list>
+        <tr>
+            <td>&nbsp;</td>
+            <th>
+                Total:
+            </th>
+            <td>
+                ${total_weight}
+            </td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+    <#else>
+        <tr>
+            <td colspan="4">
+                This question has no marking criteria.
+            </td>
+        </tr>
+    </#if>
+</table>

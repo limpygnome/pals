@@ -41,8 +41,8 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="submit" value="Delete" />
                 <a class="button" href="/admin/questions/${question.getQID()?string}">Back</a>
+                <input type="submit" value="Delete" />
             </td>
         </tr>
     </table>

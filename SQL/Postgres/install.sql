@@ -158,10 +158,12 @@ CREATE TABLE pals_question_criteria
 	qcid				SERIAL				PRIMARY KEY,
 	qid					INT					REFERENCES pals_question(qid) 				ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
 	uuid_ctype			BYTEA				REFERENCES pals_criteria_types(uuid_ctype) 	ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
+	title				VARCHAR(64)			DEFAULT 'Untitled Criteria'					NOT NULL,
 	data				BYTEA,
 	weight				INT					NOT NULL
 );
-CREATE UNIQUE INDEX index_pals_question_criteria_qid ON pals_question_criteria (qid);
+-- -- Index on QID since we'll often load criterias by the identifier of a question.
+CREATE INDEX index_pals_question_criteria_qid ON pals_question_criteria (qid);
 
 
 -- An assignment, many to a single module.

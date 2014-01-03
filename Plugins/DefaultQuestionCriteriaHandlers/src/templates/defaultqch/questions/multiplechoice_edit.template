@@ -28,8 +28,8 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="submit" value="Update" />
                 <a class="button" href="/admin/questions/${question.getQID()}">Back</a>
+                <input type="submit" value="Update" />
             </td>
         </tr>
     </table>

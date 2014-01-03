@@ -377,11 +377,13 @@ body
 	text-align: left;
 }
 /* Questions */
-.layout_body .table3.questions tr th:nth-child(1)
+.layout_body .table3.questions tr th:nth-child(1),
+.layout_body .table3.qcriteria tr th:nth-child(1)
 {
 	width: 30em;
 }
-.layout_body .table3.questions tr td:nth-child(1)
+.layout_body .table3.questions tr td:nth-child(1),
+.layout_body .table3.qcriteria tr td:nth-child(1)
 {
 	text-align: left;
 }

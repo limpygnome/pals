@@ -44,16 +44,17 @@ public class TypeCriteria
 
     // Methods - Persistence ***************************************************
     /**
-     * Loads all the persisted question-types.
+     * Loads all the persisted criteria-types for a question-type.
      * 
      * @param conn Database connector.
+     * @param qt Type of question.
      * @return Array of types of questions available.
      */
-    public static TypeCriteria[] loadAll(Connector conn)
+    public static TypeCriteria[] loadAll(Connector conn, TypeQuestion qt)
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_criteria_types;");
+            Result res = conn.read("SELECT * FROM pals_criteria_types WHERE uuid_ctype IN (SELECT uuid_ctype FROM pals_qtype_ctype WHERE uuid_qtype=?);", qt.getUuidQType().getBytes());
             TypeCriteria c;
             ArrayList<TypeCriteria> buffer = new ArrayList<>();
             while(res.next())
@@ -72,16 +73,16 @@ public class TypeCriteria
      * Loads a persisted model from the database.
      * 
      * @param conn Database connector.
-     * @param uuidQType The UUID of the model.
+     * @param uuidCType The UUID of the model.
      * @return An instance of the model or null.
      */
-    public static TypeCriteria load(Connector conn, UUID uuidQType)
+    public static TypeCriteria load(Connector conn, UUID uuidCType)
     {
-        if(uuidQType == null)
+        if(uuidCType == null)
             return null;
         try
         {
-            Result res = conn.read("SELECT * FROM pals_criteria_types WHERE uuid_ctype=?;", uuidQType.getBytes());
+            Result res = conn.read("SELECT * FROM pals_criteria_types WHERE uuid_ctype=?;", uuidCType.getBytes());
             return res.next() ? load(res) : null;
         }
         catch(DatabaseException ex)
@@ -244,5 +245,25 @@ public class TypeCriteria
     public int getTitleMax()
     {
         return 64;
+    }
+    // Methods - Accessors - Static ********************************************
+    /**
+     * Indicates if a type of criteria is able to serve a type of question.
+     * 
+     * @param conn Database connector.
+     * @param qt Type of question.
+     * @param ct Type of criteria.
+     * @return True = capable, false = not capable.
+     */
+    public static boolean isCapable(Connector conn, TypeQuestion qt, TypeCriteria ct)
+    {
+        try
+        {
+            return ((long)conn.executeScalar("SELECT COUNT('') FROM pals_qtype_ctype WHERE uuid_qtype=? AND uuid_ctype=?;", qt.getUuidQType().getBytes(), ct.getUuidCType().getBytes())) > 0;
+        }
+        catch(DatabaseException ex)
+        {
+            return false;
+        }
     }
 }

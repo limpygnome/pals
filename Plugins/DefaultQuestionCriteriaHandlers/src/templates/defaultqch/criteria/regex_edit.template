@@ -1,0 +1,88 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?string}/criteria/${criteria.getQCID()?string}/edit">Edit Criteria</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()?string}/criteria/${criteria.getQCID()?string}/edit">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight}" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Regex
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Pattern:
+            </td>
+            <td>
+                <input type="text" name="crit_regex" value="${crit_regex?html}" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Modes
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Multi-line:
+            </td>
+            <td>
+                <input type="checkbox" name="crit_multiline"  value="1" <#if crit_multiline??>checked</#if> />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Case Insensitive:
+            </td>
+            <td>
+                <input type="checkbox" name="crit_case"  value="1" <#if crit_case??>checked</#if> />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Dot-all:
+            </td>
+            <td>
+                <input type="checkbox" name="crit_dotall" value="1" <#if crit_dotall??>checked</#if> />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <a class="button" href="/admin/questions/${question.getQID()?string}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>

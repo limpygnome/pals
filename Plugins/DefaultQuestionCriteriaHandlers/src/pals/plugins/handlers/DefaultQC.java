@@ -1,5 +1,7 @@
 package pals.plugins.handlers;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
@@ -7,6 +9,7 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.assessment.Question;
+import pals.base.assessment.QuestionCriteria;
 import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
@@ -14,7 +17,9 @@ import pals.base.utils.JarIO;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
-import pals.plugins.handlers.defaultqch.Data_MultipleChoice_Question;
+import pals.plugins.handlers.defaultqch.Data_Criteria_Regex;
+import pals.plugins.handlers.defaultqch.Data_Criteria_TextMatch;
+import pals.plugins.handlers.defaultqch.Data_Question_MultipleChoice;
 
 /**
  * A plugin for the default questions and criteria types.
@@ -83,9 +88,12 @@ public class DefaultQC extends Plugin
         // -- Multiple Choice
         tqMultipleChoice.criteriaAdd(tcManualMarking);
         tqMultipleChoice.criteriaAdd(tcRegexMatch);
+        tqMultipleChoice.criteriaAdd(tcTextMatch);
         if(!persistQuestionCriteria(core, tqMultipleChoice, conn))
             return false;
         // -- Written Response
+        tqWrittenResponse.criteriaAdd(tcManualMarking);
+        tqWrittenResponse.criteriaAdd(tcRegexMatch);
         tqWrittenResponse.criteriaAdd(tcTextMatch);
         if(!persistQuestionCriteria(core, tqWrittenResponse, conn))
             return false;
@@ -161,31 +169,10 @@ public class DefaultQC extends Plugin
     {
         switch(event)
         {
-            case "handle_question_setup":
-                break;
-            case "handle_criteria":
-                break;
             case "question_type.web_edit":
-                if(args.length != 2 || !(args[0] instanceof WebRequestData) && !(args[1] instanceof Question))
-                    return false;
-                WebRequestData data = (WebRequestData)args[0];
-                Question q = (Question)args[1];
-                // Delegate to question-type handler
-                UUID qtype = q.getQtype().getUuidQType();
-                if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
-                {
-                    return pageAdminQuestionEdit_multipleChoice(data, q);
-                }
-                else if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
-                {
-                }
-                else if(qtype.equals(UUID_QUESTIONTYPE_CODEFRAGMENT))
-                {
-                }
-                else if(qtype.equals(UUID_QUESTIONTYPE_CODEUPLOAD))
-                {
-                }
-                break;
+                return pageQuestionEdit(args);
+            case "criteria_type.web_edit":
+                return pageCriteriaEdit(args);
         }
         return false;
     }
@@ -194,14 +181,38 @@ public class DefaultQC extends Plugin
     {
         return "PALS: Default Question-Criteria Handler";
     }
-    // Methods - Pages *********************************************************
-    public boolean pageAdminQuestionEdit_multipleChoice(WebRequestData data, Question q)
+    // Methods - Pages - Question Types ****************************************
+    private boolean pageQuestionEdit(Object[] hookData)
     {
-        Data_MultipleChoice_Question qdata;
+        if(hookData.length != 2 || !(hookData[0] instanceof WebRequestData) && !(hookData[1] instanceof Question))
+            return false;
+        WebRequestData data = (WebRequestData)hookData[0];
+        Question q = (Question)hookData[1];
+        // Delegate to question-type handler
+        UUID qtype = q.getQtype().getUuidQType();
+        if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
+        {
+            return pageQuestionEdit_multipleChoice(data, q);
+        }
+        else if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
+        {
+        }
+        else if(qtype.equals(UUID_QUESTIONTYPE_CODEFRAGMENT))
+        {
+        }
+        else if(qtype.equals(UUID_QUESTIONTYPE_CODEUPLOAD))
+        {
+        }
+        return false;
+    }
+    private boolean pageQuestionEdit_multipleChoice(WebRequestData data, Question q)
+    {
+        // Load question data
+        Data_Question_MultipleChoice qdata;
         if(q.getData() != null)
             qdata = q.getData();
         else
-            qdata = new Data_MultipleChoice_Question();
+            qdata = new Data_Question_MultipleChoice();
         // Check for postback
         RemoteRequest req = data.getRequestData();
         String mcText = req.getField("mc_text");
@@ -232,13 +243,259 @@ public class DefaultQC extends Plugin
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit");
-        data.setTemplateData("pals_content", "defaultqch/multiplechoice_edit");
+        data.setTemplateData("pals_content", "defaultqch/questions/multiplechoice_edit");
         // -- Fields
         data.setTemplateData("question", q);
         data.setTemplateData("mc_text", mcText != null ? mcText : qdata.text);
         data.setTemplateData("mc_single_answer", (mcSingleAnswer != null && mcSingleAnswer.equals("1")) || qdata.singleAnswer);
         data.setTemplateData("mc_answers", mcAnswers != null ? mcAnswers : qdata.getAnswersWebFormat());
         data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    // Methods - Pages - Criteria Types ****************************************
+    private boolean pageCriteriaEdit(Object[] hookData)
+    {
+        if(hookData.length != 2 || !(hookData[0] instanceof WebRequestData) && !(hookData[1] instanceof QuestionCriteria))
+            return false;
+        WebRequestData data = (WebRequestData)hookData[0];
+        QuestionCriteria qc = (QuestionCriteria)hookData[1];
+        // Delegate to question-type handler
+        UUID ctype = qc.getCriteria().getUuidCType();
+        if(ctype.equals(UUID_CRITERIATYPE_MANUALMARKING))
+            return pageCriteriaEdit_manual(data, qc);
+        else if(ctype.equals(UUID_CRITERIATYPE_TEXTMATCH))
+            return pageCriteriaEdit_textMatch(data, qc);
+        else if(ctype.equals(UUID_CRITERIATYPE_REGEXMATCH))
+            return pageCriteriaEdit_regexMatch(data, qc);
+        else if(ctype.equals(UUID_CRITERIATYPE_JAVALOC))
+        {
+        }
+        else if(ctype.equals(UUID_CRITERIATYPE_JAVACONTAINSCLASS))
+        {
+        }
+        else if(ctype.equals(UUID_CRITERIATYPE_JAVACONTAINSMETHOD))
+        {
+        }
+        return false;
+    }
+    private boolean pageCriteriaEdit_manual(WebRequestData data, QuestionCriteria qc)
+    {
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String critTitle = req.getField("crit_title");
+        String critWeight = req.getField("crit_weight");
+        if(critTitle != null && critWeight != null)
+        {
+            // Validate security
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                try
+                {
+                    int weight = Integer.parseInt(critWeight);
+                    // Update qc model
+                    qc.setTitle(critTitle);
+                    qc.setWeight(weight);
+                    // Persist qc model
+                    QuestionCriteria.PersistStatus qcps = qc.persist(data.getConnector());
+                    switch(qcps)
+                    {
+                        case Failed:
+                        case Failed_Serialize:
+                        case Invalid_Criteria:
+                        case Invalid_Question:
+                            data.setTemplateData("error", "Failed to update model due to an unknown error ('"+qcps.name()+"'); try again or contact an administrator!");
+                            break;
+                        case Invalid_Title:
+                            data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                            break;
+                        case Success:
+                            data.setTemplateData("success", "Updated criteria settings successfully.");
+                            break;
+                    }
+                }
+                catch(NumberFormatException ex)
+                {
+                    data.setTemplateData("error", "Weight must be numeric!");
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - Edit Criteria");
+        data.setTemplateData("pals_content", "defaultqch/criteria/manual_edit");
+        // -- Fields
+        data.setTemplateData("criteria", qc);
+        data.setTemplateData("question", qc.getQuestion());
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        
+        return true;
+    }
+    private boolean pageCriteriaEdit_textMatch(WebRequestData data, QuestionCriteria qc)
+    {
+        // Load criteria data
+        Data_Criteria_TextMatch cdata;
+        if(qc.getData() != null)
+            cdata = (Data_Criteria_TextMatch)qc.getData();
+        else
+            cdata = new Data_Criteria_TextMatch();
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String critTitle = req.getField("crit_title");
+        String critWeight = req.getField("crit_weight");
+        String critMatch = req.getField("crit_match");
+        // -- Optional
+        String critSensitive = req.getField("crit_sensitive");
+        if(critTitle != null && critWeight != null && critMatch != null)
+        {
+            // Validate security
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                try
+                {
+                    int weight = Integer.parseInt(critWeight);
+                    // Update the data model
+                    cdata.setText(critMatch);
+                    cdata.setCaseSensitive(critSensitive != null && critSensitive.equals("1"));
+                    // Update qc model
+                    qc.setData(cdata);
+                    qc.setTitle(critTitle);
+                    qc.setWeight(weight);
+                    // Persist qc model
+                    QuestionCriteria.PersistStatus qcps = qc.persist(data.getConnector());
+                    switch(qcps)
+                    {
+                        case Failed:
+                        case Failed_Serialize:
+                        case Invalid_Criteria:
+                        case Invalid_Question:
+                            data.setTemplateData("error", "Failed to update model due to an unknown error ('"+qcps.name()+"'); try again or contact an administrator!");
+                            break;
+                        case Invalid_Title:
+                            data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                            break;
+                        case Success:
+                            data.setTemplateData("success", "Updated criteria settings successfully.");
+                            break;
+                    }
+                }
+                catch(NumberFormatException ex)
+                {
+                    data.setTemplateData("error", "Weight must be numeric!");
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - Edit Criteria");
+        data.setTemplateData("pals_content", "defaultqch/criteria/textmatch_edit");
+        // -- Fields
+        data.setTemplateData("criteria", qc);
+        data.setTemplateData("question", qc.getQuestion());
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("crit_match", critMatch != null ? critMatch : cdata.getText());
+        data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        if((critMatch == null && cdata.isCaseSensitive()) || (critSensitive != null && critSensitive.equals("1")))
+            data.setTemplateData("crit_sensitive", cdata.isCaseSensitive());
+        
+        return true;
+    }
+    private boolean pageCriteriaEdit_regexMatch(WebRequestData data, QuestionCriteria qc)
+    {
+        // Load criteria data
+        Data_Criteria_Regex cdata;
+        if(qc.getData() != null)
+            cdata = (Data_Criteria_Regex)qc.getData();
+        else
+            cdata = new Data_Criteria_Regex();
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String critTitle = req.getField("crit_title");
+        String critWeight = req.getField("crit_weight");
+        String critRegex = req.getField("crit_regex");
+        // -- Optional
+        String critMultiline = req.getField("crit_multiline");
+        String critCase = req.getField("crit_case");
+        String critDotall = req.getField("crit_dotall");
+        if(critRegex != null && critTitle != null && critWeight != null)
+        {
+            try
+            {
+                int weight = Integer.parseInt(critWeight);
+                // Validate security
+                if(!CSRF.isSecure(data))
+                    data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+                else
+                {
+                    // Test compiling the regex pattern
+                    // -- Exception is caught by try-catch
+                    Pattern.compile(critRegex);
+                    // Update data model
+                    cdata.mode = (critMultiline != null && critMultiline.equals("1") ? Pattern.MULTILINE : 0) | (critCase != null && critCase.equals("1") ? Pattern.CASE_INSENSITIVE : 0) | (critDotall != null && critDotall.equals("1") ? Pattern.DOTALL : 0);
+                    cdata.regexPattern = critRegex;
+                    // Update question criteria model
+                    qc.setData(cdata);
+                    qc.setWeight(weight);
+                    qc.setTitle(critTitle);
+                    QuestionCriteria.PersistStatus qcps = qc.persist(data.getConnector());
+                    switch(qcps)
+                    {
+                        case Failed:
+                        case Failed_Serialize:
+                        case Invalid_Criteria:
+                        case Invalid_Question:
+                            data.setTemplateData("error", "Failed to update model due to an unknown error ('"+qcps.name()+"'); try again or contact an administrator!");
+                            break;
+                        case Invalid_Title:
+                            data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                            break;
+                        case Success:
+                            data.setTemplateData("success", "Updated criteria settings successfully.");
+                            break;
+                    }
+                }
+            }
+            catch(NumberFormatException ex)
+            {
+                data.setTemplateData("error", "Weight must be numeric!");
+            }
+            catch(PatternSyntaxException ex)
+            {
+                data.setTemplateData("error", "Regex pattern cannot compile: '"+ex.getMessage()+"'!");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - Edit Criteria");
+        data.setTemplateData("pals_content", "defaultqch/criteria/regex_edit");
+        // -- Fields
+        data.setTemplateData("criteria", qc);
+        data.setTemplateData("question", qc.getQuestion());
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("crit_regex", critRegex != null ? critRegex : cdata.regexPattern);
+        data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        
+        // -- Note: critRegex is used to test for postback; if a box was previously selected, unselecting and posting-back may cause it to change state
+        if( (critRegex == null && ((cdata.mode & Pattern.MULTILINE) == Pattern.MULTILINE)) || (critMultiline != null && critMultiline.equals("1")))
+            data.setTemplateData("crit_multiline", data);
+        if( (critRegex == null && ((cdata.mode & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE)) || (critCase != null && critCase.contains("1")))
+            data.setTemplateData("crit_case", data);
+        if( (critRegex == null && ((cdata.mode & Pattern.DOTALL) == Pattern.DOTALL)) || (critDotall != null && critDotall.equals("1")))
+            data.setTemplateData("crit_dotall", data);
+        
         return true;
     }
 }

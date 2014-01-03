@@ -39,7 +39,6 @@ public class PluginObjectInputStream extends ObjectInputStream
             }
             catch(JarIOException ex)
             {
-                System.out.println("load class: "+ex.getMessage());
             }
         }
         throw new ClassNotFoundException(osc.getName());
