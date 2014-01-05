@@ -1,5 +1,17 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a></h2>
 
+<form method="get" action="/admin/questions">
+    <table class="table2">
+        <tr>
+            <td>
+                <input type="text" name="filter" value="<#if filter??>${filter?html}</#if>" />
+                &nbsp;
+                <input type="submit" value="Filter" />
+            </td>
+        </tr>
+    </table>
+</form>
+
 <table class="table3 questions">
     <tr>
         <th>
@@ -24,17 +36,23 @@
                     ${question.getQtype().getTitle()?html}
                 </td>
                 <td>
-                    <a href="/admin/questions/${question.getQID()?string}">
-                        View
-                    </a>
-                    &nbsp;
-                    <a href="/admin/questions/${question.getQID()?string}/edit">
-                        Edit
-                    </a>
-                    &nbsp;
-                    <a href="/admin/questions/${question.getQID()?string}/delete">
-                        Delete
-                    </a>
+                    <#if assignment??>
+                        <a href="/admin/modules/${assignment.getModule().getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/add?qid=${question.getQID()?string}">
+                            Add to Assignment
+                        </a>
+                    <#else>
+                        <a href="/admin/questions/${question.getQID()?string}">
+                            View
+                        </a>
+                        &nbsp;
+                        <a href="/admin/questions/${question.getQID()?string}/edit">
+                            Edit
+                        </a>
+                        &nbsp;
+                        <a href="/admin/questions/${question.getQID()?string}/delete">
+                            Delete
+                        </a>
+                    </#if>
                 </td>
             </tr>
         </#list>
@@ -47,13 +65,13 @@
 
 <div class="p tac">
     <#if questions_prev??>
-        <a class="button fl" href="/admin/questions?page=${questions_prev?string}">
+        <a class="button fl" href="/admin/questions?page=${questions_prev?string}<#if filter??>&amp;filter=${filter?url}</#if><#if assignment??>&amp;assid=${assignment.getAssID()?string}</#if>">
             Previous
         </a>
     </#if>
     Page ${questions_page}
     <#if questions_next??>
-        <a class="button fr" href="/admin/questions?page=${questions_next?string}">
+        <a class="button fr" href="/admin/questions?page=${questions_next?string}<#if filter??>&amp;filter=${filter?url}</#if><#if assignment??>&amp;assid=${assignment.getAssID()?string}</#if>">
             Next
         </a>
     </#if>

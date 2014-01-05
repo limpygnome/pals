@@ -1,0 +1,22 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">${assignment.getTitle()?html}</a></h2>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">
+        Back
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">
+        Edit Assignment
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/delete">
+        Delete Assignment
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">
+        Questions
+    </a>
+</p>
+
+<h3>Attempts</h3>
+to-do.

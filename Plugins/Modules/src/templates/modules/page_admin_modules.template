@@ -26,6 +26,10 @@
                     View
                 </a>
                 &nbsp;
+                <a href="/admin/modules/${module.getModuleID()?string}/edit">
+                    Edit
+                </a>
+                &nbsp;
                 <a href="/admin/modules/${module.getModuleID()?string}/delete">
                     Delete
                 </a>

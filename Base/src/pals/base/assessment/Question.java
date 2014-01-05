@@ -57,16 +57,21 @@ public class Question
      * 
      * @param core Current instance of the core.
      * @param conn Database connector.
+     * @param filter The title filter; can be null (to be ignored).
      * @param amount The number of models to retrieve at a time.
      * @param offset The number of models skipped.
      * @return Array of models; can be empty.
      */
-    public static Question[] load(NodeCore core, Connector conn, int amount, int offset)
+    public static Question[] load(NodeCore core, Connector conn, String filter, int amount, int offset)
     {
         try
         {
             ArrayList<Question> buffer = new ArrayList<>();
-            Result res = conn.read("SELECT * FROM pals_question ORDER BY title ASC LIMIT ? OFFSET ?;", amount, offset);
+            Result res;
+            if(filter == null || filter.length() == 0)
+                res = conn.read("SELECT * FROM pals_question ORDER BY title ASC LIMIT ? OFFSET ?;", amount, offset);
+            else
+                res = conn.read("SELECT * FROM pals_question WHERE title LIKE ? ORDER BY title ASC LIMIT ? OFFSET ?;", "%"+(filter.replace("%", ""))+"%", amount, offset);
             Question q;
             while(res.next())
             {

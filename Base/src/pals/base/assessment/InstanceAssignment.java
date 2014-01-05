@@ -67,7 +67,11 @@ public class InstanceAssignment
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_assignment_instance WHERE aiid=?;", aiid);
+            Result res;
+            if(assignment == null)
+                res = conn.read("SELECT * FROM pals_assignment_instance WHERE aiid=?;", aiid);
+            else
+                res = conn.read("SELECT * FROM pals_assignment_instance WHERE aiid=? AND assid=?;", aiid, assignment.getAssID());
             return res.next() ? load(conn, assignment, user, res) : null;
         }
         catch(DatabaseException ex)

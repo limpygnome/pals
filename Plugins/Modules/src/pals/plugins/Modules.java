@@ -7,7 +7,9 @@ import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Assignment;
+import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.Module;
+import pals.base.assessment.Question;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
@@ -94,7 +96,7 @@ public class Modules extends Plugin
                             // Create a new module
                             return pageAdminModule_create(data);
                         else
-                            // Overview of a specific module
+                            // Specific module...
                             return pageAdminModule(data, mup);
                 }
                 break;
@@ -130,6 +132,7 @@ public class Modules extends Plugin
     }
     private boolean pageAdminModules(WebRequestData data)
     {
+        // Check permissions
         User user = data.getUser();
         if(user == null || !user.getGroup().isAdminModules())
             return false;
@@ -141,6 +144,7 @@ public class Modules extends Plugin
     }
     private boolean pageAdminModule_create(WebRequestData data)
     {
+        // Check permissions
         User user = data.getUser();
         if(user == null || !user.getGroup().isAdminModules())
             return false;
@@ -180,13 +184,15 @@ public class Modules extends Plugin
     }
     private boolean pageAdminModule(WebRequestData data, MultipartUrlParser mup)
     {
+        // Check permissions
         User user = data.getUser();
         if(user == null || !user.getGroup().isAdminModules())
             return false;
-        // Load the module's information
+        // Parse the module
         int moduleid = mup.parseInt(2, -1);
         if(moduleid == -1)
             return false;
+        // Load the model for the module
         Module module = Module.load(data.getConnector(), moduleid);
         if(module == null)
             return false;
@@ -201,14 +207,14 @@ public class Modules extends Plugin
                 case "assignments":
                     page = mup.getPart(4);
                     if(page == null)
-                        return pageAdminModule_assignments_view(data, module);
+                        return pageAdminModule_assignmentsView(data, module);
                     else
                         switch(page)
                         {
                             case "create":
-                                return pageAdminModule_assignment_create(data, module);
+                                return pageAdminModule_assignmentCreate(data, module);
                             default:
-                                return pageAdminModule_assignment_view(data, module, page);
+                                return pageAdminModule_assignment(data, module, page, mup);
                         }
                 case "enrollment":
                     return pageAdminModule_enrollment(data, module);
@@ -348,7 +354,7 @@ public class Modules extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    private boolean pageAdminModule_assignments_view(WebRequestData data, Module module)
+    private boolean pageAdminModule_assignmentsView(WebRequestData data, Module module)
     {
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments");
@@ -358,7 +364,7 @@ public class Modules extends Plugin
         data.setTemplateData("assignments", Assignment.load(data.getConnector(), module));
         return true;
     }
-    private boolean pageAdminModule_assignment_create(WebRequestData data, Module module)
+    private boolean pageAdminModule_assignmentCreate(WebRequestData data, Module module)
     {
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -410,10 +416,413 @@ public class Modules extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    private boolean pageAdminModule_assignment_view(WebRequestData data, Module module, String assId)
+    private boolean pageAdminModule_assignment(WebRequestData data, Module module, String assId, MultipartUrlParser mup)
     {
         // Parse assignment identifier
-        
+        int assid = mup.parseInt(4, -1);
+        if(assid == -1)
+            return false;
+        // Load the assignment model
+        Assignment ass = Assignment.load(data.getConnector(), module, assid);
+        if(ass == null)
+            return false;
+        // Delegate the request
+        String page = mup.getPart(5);
+        if(page == null)
+            return pageAdminModule_assignmentView(data, module, ass);
+        else
+        {
+            switch(page)
+            {
+                case "edit":
+                    return pageAdminModule_assignmentEdit(data, module, ass);
+                case "delete":
+                    return pageAdminModule_assignmentDelete(data, module, ass);
+                case "questions":
+                {
+                    page = mup.getPart(6);
+                    if(page == null)
+                        return pageAdminModule_assignment_questions(data, module, ass);
+                    else
+                    {
+                        switch(page)
+                        {
+                        case "add":
+                            return pageAdminModule_assignment_questionAdd(data, module, ass);
+                        default:
+                            {
+                                // Assume it's an assignment-question model
+                                AssignmentQuestion aq = AssignmentQuestion.load(data.getCore(), data.getConnector(), ass, mup.parseInt(6, -1));
+                                if(aq == null)
+                                    return false;
+                                switch(mup.getPart(7))
+                                {
+                                    case "edit":
+                                        return pageAdminModule_assignment_questionEdit(data, module, ass, aq);
+                                    case "remove":
+                                        return pageAdminModule_assignment_questionRemove(data, module, ass, aq);
+                                    default:
+                                        return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    private boolean pageAdminModule_assignmentView(WebRequestData data, Module module, Assignment ass)
+    {
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()));
+        data.setTemplateData("pals_content", "modules/page_admin_module_assignment");
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        return true;
+    }
+    private boolean pageAdminModule_assignmentDelete(WebRequestData data, Module module, Assignment ass)
+    {
+        // Check postback
+        RemoteRequest req = data.getRequestData();
+        String delete = req.getField("delete");
+        if(delete != null && delete.equals("1"))
+        {
+            // Validate request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Incorrect captcha verification code!");
+            else
+            {
+                // Attempt to unpersist the model
+                if(!ass.delete(data.getConnector()))
+                    data.setTemplateData("error", "Failed to delete assignment for an unknown reason; please try again or contact an administrator!");
+                else
+                    data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Delete");
+        data.setTemplateData("pals_content", "modules/page_admin_module_assignment_delete");
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAdminModule_assignmentEdit(WebRequestData data, Module module, Assignment ass)
+    {
+        // Check postback
+        RemoteRequest req = data.getRequestData();
+        String assTitle = req.getField("ass_title");
+        String assWeight = req.getField("ass_weight");
+        if(assTitle != null && assWeight != null)
+        {
+            // Validate request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                try
+                {
+                    // Update the model
+                    ass.setWeight(Integer.parseInt(assWeight));
+                    ass.setTitle(assTitle);
+                    // Attempt to persist
+                    Assignment.PersistStatus aps = ass.persist(data.getConnector());
+                    switch(aps)
+                    {
+                        case Invalid_Module:
+                        case Failed:
+                            data.setTemplateData("error", "Failed to update assignment for unknown reason ('"+aps.name()+"'); please try again or contact an administrator!");
+                            break;
+                        case Invalid_Title:
+                            data.setTemplateData("error", "Invalid title, must be "+ass.getTitleMin()+" to "+ass.getTitleMax()+" characters in length!");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Invalid weight, must be numeric and greater than zero!");
+                            break;
+                        case Success:
+                            data.setTemplateData("success", "Updated assignment successfully.");
+                            break;
+                    }
+                }
+                catch(NumberFormatException ex)
+                {
+                    data.setTemplateData("error", "Weight must be numeric and greater than zero!");
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Edit");
+        data.setTemplateData("pals_content", "modules/page_admin_module_assignment_edit");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("ass_title", assTitle != null ? assTitle : ass.getTitle());
+        data.setTemplateData("ass_weight", assWeight != null ? assWeight : ass.getWeight());
+        return true;
+    }
+    private boolean pageAdminModule_assignment_questions(WebRequestData data, Module module, Assignment ass)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Check if we've received postback to bump an item
+        String aqid = req.getField("aqid");
+        String action = req.getField("action");
+        if(aqid != null && action != null)
+        {
+            try
+            {
+                // Load the assignment-question
+                AssignmentQuestion aq = AssignmentQuestion.load(data.getCore(), data.getConnector(), ass, Integer.parseInt(aqid));
+                if(aq != null)
+                {
+                    // Apply action
+                    switch(action)
+                    {
+                        case "page_up":
+                            aq.setPage(aq.getPage()-1);
+                            break;
+                        case "page_down":
+                            aq.setPage(aq.getPage()+1);
+                            break;
+                        case "order_up":
+                            aq.setPageOrder(aq.getPageOrder()-1);
+                            break;
+                        case "order_down":
+                            aq.setPageOrder(aq.getPageOrder()+1);
+                            break;
+                        default:
+                            return false;
+                    }
+                    // Persist data
+                    AssignmentQuestion.PersistStatus aqps = aq.persist(data.getConnector());
+                    switch(aqps)
+                    {
+                        case Failed:
+                        case Invalid_Assignment:
+                        case Invalid_Question:
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Failed to apply action, error '"+(aqps.name())+"'; please try again or contact an administrator!");
+                            break;
+                        case Invalid_Page:
+                        case Invalid_PageOrder:
+                        case Success:
+                            data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
+                            break;
+                    }
+                }
+                else
+                    return false;
+            }
+            catch(NumberFormatException ex)
+            {
+                return false;
+            }
+        }
+        // Fetch the assignment-questions
+        AssignmentQuestion[] questions = AssignmentQuestion.loadAll(data.getCore(), data.getConnector(), ass);
+        // Sum the total weight
+        int totalWeight = 0;
+        for(AssignmentQuestion q : questions)
+            totalWeight += q.getWeight();
+        // Set the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - Questions");
+        data.setTemplateData("pals_content", "modules/page_admin_assignment_questions");
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("questions", questions);
+        data.setTemplateData("total_weight", totalWeight);
+        return true;
+    }
+    private boolean pageAdminModule_assignment_questionAdd(WebRequestData data, Module module, Assignment ass)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Redirect if no question, to be added, has been specified or the model
+        // cannot be loaded
+        Question q = null;
+        try
+        {
+            String qid = req.getField("qid");
+            if(qid != null)
+                q = Question.load(data.getCore(), data.getConnector(), Integer.parseInt(qid));
+        }
+        catch(NumberFormatException ex)
+        {
+        }
+        if(q == null)
+        {
+            data.getResponseData().setRedirectUrl("/admin/questions?assid="+ass.getAssID());
+            return true;
+        }
+        // Check for postback
+        String qWeight = req.getField("q_weight");
+        if(qWeight != null)
+        {
+            // Validate the request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                try
+                {
+                    // Create a new assignment-question model
+                    AssignmentQuestion aq = new AssignmentQuestion(ass, q, Integer.parseInt(qWeight), 1, 1);
+                    // Attempt to persist
+                    AssignmentQuestion.PersistStatus aqps = aq.persist(data.getConnector());
+                    switch(aqps)
+                    {
+                        case Failed:
+                        case Invalid_Assignment:
+                            data.setTemplateData("error", "An unknown error occurred ('"+aqps.name()+"'); please try again or contact an administrator!");
+                            break;
+                        case Invalid_Question:
+                            data.setTemplateData("error", "Invalid question; please try again or select another question!");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                            break;
+                        case Success:
+                            data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
+                            break;
+                    }
+                }
+                catch(NumberFormatException ex)
+                {
+                    data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - Questions - Add");
+        data.setTemplateData("pals_content", "modules/page_admin_assignment_questions_add");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("weight", qWeight);
+        data.setTemplateData("question", q);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("module", module);
+        data.setTemplateData("q_weight", qWeight);
+        return true;
+    }
+    private boolean pageAdminModule_assignment_questionEdit(WebRequestData data, Module module, Assignment ass, AssignmentQuestion aq)
+    {
+        // Check for postbaack
+        RemoteRequest req = data.getRequestData();
+        String questionWeight = req.getField("question_weight");
+        String questionPage = req.getField("question_page");
+        String questionPageOrder = req.getField("question_page_order");
+        if(questionWeight != null && questionPage != null && questionPageOrder != null)
+        {
+            // Validate request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                boolean error = false;
+                int weight = -1, page = -1, pageOrder = -1;
+                try
+                {
+                    weight = Integer.parseInt(questionWeight);
+                }
+                catch(NumberFormatException ex)
+                {
+                    error = true;
+                    data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                }
+                try
+                {
+                    page = Integer.parseInt(questionPage);
+                }
+                catch(NumberFormatException ex)
+                {
+                    error = true;
+                    data.setTemplateData("error", "Invalid page; must be a numeric value!");
+                }
+                try
+                {
+                    pageOrder = Integer.parseInt(questionPageOrder);
+                }
+                catch(NumberFormatException ex)
+                {
+                    error = true;
+                    data.setTemplateData("error", "Invalid page-order; must be a numeric value!");
+                }
+                if(!error)
+                {
+                    // Update the model
+                    aq.setWeight(weight);
+                    aq.setPage(page);
+                    aq.setPageOrder(pageOrder);
+                    // Attempt to persist
+                    AssignmentQuestion.PersistStatus aqps = aq.persist(data.getConnector());
+                    switch(aqps)
+                    {
+                        case Failed:
+                        case Invalid_Assignment:
+                        case Invalid_Question:
+                            data.setTemplateData("error", "An unknown error occurred ('"+aqps.name()+"'); please try again or contact an administrator!");
+                            break;
+                        case Invalid_Page:
+                            data.setTemplateData("error", "Page must be between 1 to "+AssignmentQuestion.PAGE_LIMIT+".");
+                            break;
+                        case Invalid_PageOrder:
+                            data.setTemplateData("error", "Page order must be between 1 to "+AssignmentQuestion.PAGE_ORDER_LIMIT+".");
+                            break;
+                        case Invalid_Weight:
+                            data.setTemplateData("error", "Weight must be greater than zero.");
+                            break;
+                        case Success:
+                            data.setTemplateData("success", "Successfully updated settings.");
+                            break;
+                    }
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - Questions - Edit");
+        data.setTemplateData("pals_content", "modules/page_admin_assignment_questions_edit");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("question", aq);
+        data.setTemplateData("question_weight", questionWeight != null ? questionWeight : aq.getWeight());
+        data.setTemplateData("question_page", questionPage != null ? questionPage : aq.getPage());
+        data.setTemplateData("question_page_order", questionPageOrder != null ? questionPageOrder : aq.getPageOrder());
+        return true;
+    }
+    private boolean pageAdminModule_assignment_questionRemove(WebRequestData data, Module module, Assignment ass, AssignmentQuestion aq)
+    {
+        // Check for postbaack
+        RemoteRequest req = data.getRequestData();
+        String delete = req.getField("delete");
+        if(delete != null && delete.equals("1"))
+        {
+            // Validate the request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                // Unpersist the model
+                if(aq.delete(data.getConnector()))
+                    data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
+                else
+                    data.setTemplateData("error", "Failed to unpersist model for an unknown reason!");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - Questions - Remove");
+        data.setTemplateData("pals_content", "modules/page_admin_assignment_questions_remove");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("question", aq);
         return true;
     }
 }

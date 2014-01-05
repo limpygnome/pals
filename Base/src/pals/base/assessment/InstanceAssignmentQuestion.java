@@ -55,7 +55,7 @@ public class InstanceAssignmentQuestion
      * @param core Current instance of the core.
      * @param conn Database connector.
      * @param ia The instance of the assignment (if known); can be null to be
-     * loaded automatically.
+     * loaded automatically (possibly expensive).
      * @param aiqid The identifier of the model to load.
      * @return An instance of the model or null.
      */
@@ -63,7 +63,11 @@ public class InstanceAssignmentQuestion
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_assignment_instance_question WHERE aiqid=?;", aiqid);
+            Result res;
+            if(ia == null)
+                res = conn.read("SELECT * FROM pals_assignment_instance_question WHERE aiqid=?;", aiqid);
+            else
+                res = conn.read("SELECT * FROM pals_assignment_instance_question WHERE aiqid=? AND aiid=?;", aiqid, ia.getAIID());
             return res.next() ? load(core, conn, ia, res) : null;
         }
         catch(DatabaseException ex)
@@ -147,7 +151,7 @@ public class InstanceAssignmentQuestion
                 if(aiqid == -1)
                 {
                     aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, data) VALUES(?,?,?) RETURNING aiqid;",
-                            aq.getAqID(),
+                            aq.getAQID(),
                             ia.getAIID(),
                             bdata
                             );
@@ -155,7 +159,7 @@ public class InstanceAssignmentQuestion
                 else
                 {
                     conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, data=? WHERE aiqid=?;",
-                            aq.getAqID(),
+                            aq.getAQID(),
                             ia.getAIID(),
                             bdata,
                             aiqid

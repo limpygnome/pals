@@ -1,5 +1,6 @@
 package pals.base.assessment;
 
+import java.util.ArrayList;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -17,8 +18,19 @@ public class AssignmentQuestion
         Failed,
         Invalid_Assignment,
         Invalid_Question,
-        Invalid_Weight
+        Invalid_Weight,
+        Invalid_Page,
+        Invalid_PageOrder
     }
+    // Fields - Constants ******************************************************
+    /**
+     * Maximum value for page,
+     */
+    public static final int PAGE_LIMIT          = 1000;
+    /**
+     * Maximum value for page-order.
+     */
+    public static final int PAGE_ORDER_LIMIT    = 1000;
     // Fields ******************************************************************
     private int         aqid;
     private Assignment  assignment;
@@ -55,6 +67,33 @@ public class AssignmentQuestion
 
     // Methods - Persistence ***************************************************
     /**
+     * Loads all of the models associated with an assignment.
+     * 
+     * @param core Current instance of the core.
+     * @param conn Database connector.
+     * @param ass The assignment to which the models belong.
+     * @return Array of models; can be empty.
+     */
+    public static AssignmentQuestion[] loadAll(NodeCore core, Connector conn, Assignment ass)
+    {
+        try
+        {
+            ArrayList<AssignmentQuestion> buffer = new ArrayList<>();
+            Result res = conn.read("SELECT * FROM pals_assignment_questions WHERE assid=? ORDER BY page ASC, page_order ASC;", ass.getAssID());
+            AssignmentQuestion aq;
+            while(res.next())
+            {
+                if((aq = load(core, conn, ass, res)) != null)
+                    buffer.add(aq);
+            }
+            return buffer.toArray(new AssignmentQuestion[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new AssignmentQuestion[0];
+        }
+    }
+    /**
      * Loads a persisted assignment question.
      * 
      * @param core Current instance of the core.
@@ -68,7 +107,11 @@ public class AssignmentQuestion
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_assignment_questions WHERE aqid=?;", aqid);
+            Result res;
+            if(ass == null)
+                res = conn.read("SELECT * FROM pals_assignment_questions WHERE aqid=?;", aqid);
+            else
+                res = conn.read("SELECT * FROM pals_assignment_questions WHERE aqid=? AND assid=?;", aqid, ass.getAssID()); 
             return res.next() ? load(core, conn, ass, res) : null;
         }
         catch(DatabaseException ex)
@@ -123,6 +166,10 @@ public class AssignmentQuestion
             return PersistStatus.Invalid_Question;
         else if(weight <= 0)
             return PersistStatus.Invalid_Weight;
+        else if(page < 1 || page > PAGE_LIMIT)
+            return PersistStatus.Invalid_Page;
+        else if(pageOrder < 1 || pageOrder > PAGE_ORDER_LIMIT)
+            return PersistStatus.Invalid_PageOrder;
         else
         {
             // Persist data
@@ -169,7 +216,7 @@ public class AssignmentQuestion
             return false;
         try
         {
-            conn.execute("DELETE FROM pals_assignment_questions WHERE sqid=?;", aqid);
+            conn.execute("DELETE FROM pals_assignment_questions WHERE aqid=?;", aqid);
             return true;
         }
         catch(DatabaseException ex)
@@ -200,7 +247,8 @@ public class AssignmentQuestion
         this.weight = weight;
     }
     /**
-     * @param page The page of the question; must be greater than zero.
+     * @param page The page of the question; must be greater than zero. Refer
+     * to PAGE_LIMIT for the limit.
      */
     public void setPage(int page)
     {
@@ -208,7 +256,7 @@ public class AssignmentQuestion
     }
     /**
      * @param pageOrder The order of which the question is displayed on the
-     * page.
+     * page.Refer to PAGE_ORDER_LIMIT for the limit.
      */
     public void setPageOrder(int pageOrder)
     {
@@ -226,7 +274,7 @@ public class AssignmentQuestion
      * @return The identifier of the assignment question; allows for multiple
      * instances of questions for a single assignment.
      */
-    public int getAqID()
+    public int getAQID()
     {
         return aqid;
     }

@@ -26,7 +26,8 @@
         </#list>
         <tr>
             <td colspan="2">
-                <input type="submit" value="Create" /> <a class="button" href="/admin/questions">Back</a>
+                <a class="button" href="/admin/questions">Back</a>
+                <input type="submit" value="Create" />
             </td>
         </tr>
     </table>

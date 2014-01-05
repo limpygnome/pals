@@ -7,6 +7,7 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.WebManager;
+import pals.base.assessment.Assignment;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.assessment.TypeCriteria;
@@ -119,24 +120,46 @@ public class Questions extends Plugin
         // Check permissions
         if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
             return false;
+        // Check if we're in browse-mode for modules - if so, load the assignment
+        RemoteRequest req = data.getRequestData();
+        String assid = req.getField("assid");
+        Assignment ass = null;
+        if(assid != null)
+        {
+            // Load the model
+            try
+            {
+                ass = Assignment.load(data.getConnector(), null, Integer.parseInt(assid));
+            }
+            catch(NumberFormatException ex)
+            {
+            }
+            // Check it loaded, else invalid request...
+            if(ass == null)
+                return false;
+        }
         // Fetch the page of questions being viewed
         int page = 1;
         try
         {
-            if((page = Integer.parseInt(data.getRequestData().getField("page"))) < 0)
+            if((page = Integer.parseInt(req.getField("page"))) < 0)
                 page = 1;
         }
         catch(NumberFormatException ex)
         {
         }
         // Fetch questions
-        Question[] questions = Question.load(data.getCore(), data.getConnector(), QUESTIONS_PER_PAGE+1, (page-1)*QUESTIONS_PER_PAGE);
+        String filter = req.getField("filter");
+        Question[] questions = Question.load(data.getCore(), data.getConnector(), filter, QUESTIONS_PER_PAGE+1, (page-1)*QUESTIONS_PER_PAGE);
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions");
         data.setTemplateData("pals_content", "questions/admin_questions");
         // -- Fields
         data.setTemplateData("questions", questions.length > QUESTIONS_PER_PAGE ? Arrays.copyOf(questions, QUESTIONS_PER_PAGE) : questions);
         data.setTemplateData("questions_page", page);
+        data.setTemplateData("filter", filter);
+        if(ass != null)
+            data.setTemplateData("assignment", ass);
         if(page > 1)
             data.setTemplateData("questions_prev", page-1);
         if(page < Integer.MAX_VALUE && questions.length == QUESTIONS_PER_PAGE+1)

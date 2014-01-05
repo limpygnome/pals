@@ -1,0 +1,118 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">Questions</a></h2>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+        Back
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/add">
+        Add Question
+    </a>
+</p>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<table class="table3 assignment_questions">
+    <tr>
+        <th>
+            Page
+        </th>
+        <th>
+            Page Order
+        </th>
+        <th>
+            Type
+        </th>
+        <th>
+            Title
+        </th>
+        <th>
+            Weight
+        </th>
+        <th>
+            %
+        </th>
+        <th>
+            Page
+        </th>
+        <th>
+            Order
+        </th>
+        <th>
+            Options
+        </th>
+    </tr>
+    <#if questions?has_content>
+        <#list questions as question>
+            <tr>
+                <td>
+                    ${question.getPage()?string}
+                </td>
+                <td>
+                    ${question.getPageOrder()?string}
+                </td>
+                <td>
+                    ${question.getQuestion().getQtype().getTitle()?html}
+                </td>
+                <td>
+                    <a href="/admin/questions/${question.getQuestion().getQID()?string}">
+                        ${question.getQuestion().getTitle()?html}
+                    </a>
+                </td>
+                <td>
+                    ${question.getWeight()?string}
+                </td>
+                <td>
+                    ${((question.getWeight()/total_weight)*100)?string}%
+                </td>
+                <td>
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions?aqid=${question.getAQID()?string}&amp;action=page_up">
+                        Up
+                    </a>
+                    &nbsp;
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions?aqid=${question.getAQID()?string}&amp;action=page_down">
+                        Down
+                    </a>
+                </td>
+                <td>
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions?aqid=${question.getAQID()?string}&amp;action=order_up">
+                        Up
+                    </a>
+                    &nbsp;
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions?aqid=${question.getAQID()?string}&amp;action=order_down">
+                        Down
+                    </a>
+                </td>
+                <td>
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/${question.getAQID()?string}/edit">
+                        Edit
+                    </a>
+                    &nbsp;
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/${question.getAQID()?string}/remove">
+                        Remove
+                    </a>
+                </td>
+            </tr>
+        </#list>
+        <tr>
+            <td colspan=3"></td>
+            <th>
+                Total:
+            </th>
+            <td>
+                ${total_weight}
+            </td>
+            <td colspan="4"></td>
+        </tr>
+    <#else>
+        <tr>
+            <td colspan="7">
+                This assignment has no questions.
+            </td>
+        </tr>
+    </#if>
+</table>

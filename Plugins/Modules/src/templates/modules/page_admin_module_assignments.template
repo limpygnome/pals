@@ -1,5 +1,15 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a></h2>
 
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}">
+        Back
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/create">
+        Create Assignment
+    </a>
+</p>
+
 <table class="table3 module_assignments">
     <tr>
         <th class="module_col1">Title</th>
@@ -10,17 +20,23 @@
         <#list assignments as assignment>
             <tr>
                 <td>
-                    ${assignment.getTitle()}
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+                        ${assignment.getTitle()?html}
+                    </a>
                 </td>
                 <td>
-                    ${assignment.getWeight()}
+                    ${assignment.getWeight()?string}
                 </td>
                 <td>
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()}">
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+                        View
+                    </a>
+                    &nbsp;
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">
                         Edit
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()}/delete">
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/delete">
                         Delete
                     </a>
                 </td>
@@ -35,8 +51,3 @@
     </#if>
 </table>
 
-<p class="tac">
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/create">
-        Create Assignment
-    </a>
-</p>

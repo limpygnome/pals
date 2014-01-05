@@ -98,7 +98,11 @@ public class Assignment
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_assignment WHERE assid=?;", assid);
+            Result res;
+            if(module == null)
+                res = conn.read("SELECT * FROM pals_assignment WHERE assid=?;", assid);
+            else
+                res = conn.read("SELECT * FROM pals_assignment WHERE assid=? AND moduleid=?;", assid, module.getModuleID());
             return res.next() ? load(conn, module, res) : null;
         }
         catch(DatabaseException ex)
