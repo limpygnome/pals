@@ -20,6 +20,7 @@ import pals.base.web.security.CSRF;
 import pals.plugins.handlers.defaultqch.Data_Criteria_Regex;
 import pals.plugins.handlers.defaultqch.Data_Criteria_TextMatch;
 import pals.plugins.handlers.defaultqch.Data_Question_MultipleChoice;
+import pals.plugins.handlers.defaultqch.Data_Question_Written;
 
 /**
  * A plugin for the default questions and criteria types.
@@ -191,12 +192,9 @@ public class DefaultQC extends Plugin
         // Delegate to question-type handler
         UUID qtype = q.getQtype().getUuidQType();
         if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
-        {
             return pageQuestionEdit_multipleChoice(data, q);
-        }
         else if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
-        {
-        }
+            return pageQuestionEdit_writtenResponse(data, q);
         else if(qtype.equals(UUID_QUESTIONTYPE_CODEFRAGMENT))
         {
         }
@@ -249,6 +247,47 @@ public class DefaultQC extends Plugin
         data.setTemplateData("mc_text", mcText != null ? mcText : qdata.text);
         data.setTemplateData("mc_single_answer", (mcSingleAnswer != null && mcSingleAnswer.equals("1")) || qdata.singleAnswer);
         data.setTemplateData("mc_answers", mcAnswers != null ? mcAnswers : qdata.getAnswersWebFormat());
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageQuestionEdit_writtenResponse(WebRequestData data, Question q)
+    {
+        // Load question data
+        Data_Question_Written qdata;
+        if(q.getData() != null)
+            qdata = q.getData();
+        else
+            qdata = new Data_Question_Written();
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String questionText = req.getField("question_text");
+        if(questionText != null)
+        {
+            // Validate request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                // Update data model
+                qdata.setText(questionText);
+                // Persist the model
+                q.setData(qdata);
+                Question.PersistStatus psq = q.persist(data.getConnector());
+                switch(psq)
+                {
+                    default:
+                        data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
+                    case Success:
+                        data.setTemplateData("success", "Successfully updated question.");
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Questions - Edit");
+        data.setTemplateData("pals_content", "defaultqch/questions/written_response_edit");
+        // -- Fields
+        data.setTemplateData("question", q);
+        data.setTemplateData("question_text", questionText != null ? questionText : qdata.getText());
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }

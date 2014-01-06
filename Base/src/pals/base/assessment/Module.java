@@ -378,6 +378,37 @@ public class Module
             return 0;
         }
     }
+    /**
+     * @param conn Database connector.
+     * @return Total number of assignments for this module.
+     */
+    public int getTotalAssignments(Connector conn)
+    {
+        try
+        {
+            return (int)(long)conn.executeScalar("SELECT COUNT('') FROM pals_assignment WHERE moduleid=?;", moduleid);
+        }
+        catch(DatabaseException ex)
+        {
+            return 0;
+        }
+    }
+    /**
+     * @param conn Database connector.
+     * @param user User to check.
+     * @return Indicates if the user is enrolled on the module.
+     */
+    public boolean isEnrolled(Connector conn, User user)
+    {
+        try
+        {
+            return (long)conn.executeScalar("SELECT COUNT('') FROM pals_modules_enrollment WHERE moduleid=? AND userid=?;", moduleid, user.getUserID()) == 1;
+        }
+        catch(DatabaseException ex)
+        {
+            return false;
+        }
+    }
     // Methods - Accessors - Limits ********************************************
     /**
      * @return The minimum length of a module title.

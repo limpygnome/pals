@@ -21,8 +21,8 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="submit" value="Create" />
                 <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">Back</a>
+                <input type="submit" value="Create" />
             </td>
         </tr>
     </table>

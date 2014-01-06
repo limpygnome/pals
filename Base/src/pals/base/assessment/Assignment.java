@@ -31,6 +31,7 @@ public class Assignment
     private Module                                          module;
     private String                                          title;
     private int                                             weight;
+    private boolean                                         active;
     private HashMap<Integer,ArrayList<AssignmentQuestion>>  questions;  // page,list<question>
     // Methods - Constructors **************************************************
     /**
@@ -38,7 +39,7 @@ public class Assignment
      */
     public Assignment()
     {
-        this(null, null, 0);
+        this(null, null, 0, false);
     }
     /**
      * Creates a new unpersisted assignment.
@@ -46,16 +47,49 @@ public class Assignment
      * @param module The module to which the assignment belongs.
      * @param title The title of the assignment.
      * @param weight The weight of the assignment.
+     * @param active Indicates if the assignment is active.
      */
-    public Assignment(Module module, String title, int weight)
+    public Assignment(Module module, String title, int weight, boolean active)
     {
         this.assid = -1;
         this.module = module;
         this.title = title;
         this.weight = weight;
+        this.active = active;
         this.questions = new HashMap<>();
     }
     // Methods - Persistence ***************************************************
+    /**
+     * Loads the persisted assignments for a module, which are active/inactive.
+     * 
+     * @param conn Database connector.
+     * @param module The module.
+     * @param active If true, the active assignments are returned, else the
+     * inactive assignments are returned.
+     * @return Array of assignments for the specified module; possibly empty.
+     */
+    public static Assignment[] loadActive(Connector conn, Module module, boolean active)
+    {
+        if(module == null)
+            return new Assignment[0];
+        try
+        {
+            ArrayList<Assignment> buffer = new ArrayList<>();
+            Assignment ass;
+            Result res = conn.read("SELECT * FROM pals_assignment WHERE moduleid=? AND active=?;", module.getModuleID(), active ? "1" : "0");
+            while(res.next())
+            {
+                ass = load(conn, module, res);
+                if(ass != null)
+                    buffer.add(ass);
+            }
+            return buffer.toArray(new Assignment[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new Assignment[0];
+        }
+    }
     /**
      * Loads the persisted assignments for a module.
      * 
@@ -131,7 +165,7 @@ public class Assignment
                     return null;
             }
             // Create and return an instance
-            Assignment ass = new Assignment(module, (String)result.get("title"), (int)result.get("weight"));
+            Assignment ass = new Assignment(module, (String)result.get("title"), (int)result.get("weight"), ((String)result.get("active")).equals("1"));
             ass.assid = result.get("assid");
             return ass;
         }
@@ -163,18 +197,20 @@ public class Assignment
                 // Attempt to persist
                 if(assid == -1)
                 {
-                    assid = (int)conn.executeScalar("INSERT INTO pals_assignment (moduleid, title, weight) VALUES(?,?,?) RETURNING assid;",
+                    assid = (int)conn.executeScalar("INSERT INTO pals_assignment (moduleid, title, weight, active) VALUES(?,?,?,?) RETURNING assid;",
                             module.getModuleID(),
                             title,
-                            weight
+                            weight,
+                            active ? "1" : "0"
                             );
                 }
                 else
                 {
-                    conn.execute("UPDATE pals_assignment SET moduleid=?, title=?, weight=? WHERE assid=?;",
+                    conn.execute("UPDATE pals_assignment SET moduleid=?, title=?, weight=?, active=? WHERE assid=?;",
                             module.getModuleID(),
                             title,
                             weight,
+                            active ? "1" : "0",
                             assid
                             );
                 }
@@ -228,6 +264,13 @@ public class Assignment
     {
         this.weight = weight;
     }
+    /**
+     * @param active Sets if the assignment can be taken by students.
+     */
+    public void setActive(boolean active)
+    {
+        this.active = active;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Indicates if the model has been persisted.
@@ -235,6 +278,13 @@ public class Assignment
     public boolean isPersisted()
     {
         return assid != -1;
+    }
+    /**
+     * @return Indicates if the assignment can be taken by students.
+     */
+    public boolean isActive()
+    {
+        return active;
     }
     /**
      * @return The identifier of the assignment.

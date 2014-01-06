@@ -13,7 +13,8 @@
         <tr>
             <td>&nbsp;</td>
             <td>
-                <input type="submit" value="Create" /> <a class="button" href="/admin/modules">Back</a>
+                <a class="button" href="/admin/modules">Back</a>
+                <input type="submit" value="Create" />
             </td>
         </tr>
     </table>

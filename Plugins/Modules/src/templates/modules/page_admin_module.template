@@ -18,10 +18,37 @@
     </a>
 </p>
 
-<h3>Assignments</h3>
-<p>
-    to-do.
-</p>
+<h3>Active Assignments</h3>
+<table class="table3 module_ass_active">
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+            Weight
+        </th>
+    </tr>
+    <#if assignments?has_content>
+        <#list assignments as assignment>
+            <tr>
+                <td>
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+                        ${assignment.getTitle()?html}
+                    </a>
+                </td>
+                <td>
+                    ${assignment.getWeight()?string}
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="2">
+                No assignments are active.
+            </td>
+        </tr>
+    </#if>
+</table>
 
 <h3>Enrolled Users</h3>
 <table class="table3">

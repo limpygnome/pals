@@ -16,6 +16,12 @@
     </p>
 </#if>
 
+<#if assignment.isActive()>
+    <p class="warning tac">
+        You should not modify this assignment whilst it is active! This may break or cause issues with instances already/being taken!
+    </p>
+</#if>
+
 <table class="table3 assignment_questions">
     <tr>
         <th>

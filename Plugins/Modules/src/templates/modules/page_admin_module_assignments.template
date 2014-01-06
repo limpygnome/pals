@@ -13,7 +13,9 @@
 <table class="table3 module_assignments">
     <tr>
         <th class="module_col1">Title</th>
-        <th>Weight</td>
+        <th>Weight</th>
+        <th>%</th>
+        <th>Active</th>
         <th>Options</th>
     </tr>
     <#if assignments?has_content>
@@ -26,6 +28,16 @@
                 </td>
                 <td>
                     ${assignment.getWeight()?string}
+                </td>
+                <td>
+                    ${((assignment.getWeight()/total_weight)*100)?string}%
+                </td>
+                <td <#if assignment.isActive()>class="active"</#if>>
+                    <#if assignment.isActive()>
+                        Yes
+                    <#else>
+                        No
+                    </#if>
                 </td>
                 <td>
                     <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
@@ -42,6 +54,16 @@
                 </td>
             </tr>
         </#list>
+        <tr>
+            <th>
+                Total:
+            </th>
+            <td>
+                ${total_weight?string}
+            </td>
+            <td colspan="3">
+            </td>
+        </tr>
     <#else>
         <tr>
             <td colspan="4">

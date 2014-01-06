@@ -16,10 +16,10 @@
                 </a>
             </td>
             <td>
-                ${module.getUsersEnrolled(data.getConnector())}
+                ${module.getUsersEnrolled(data.getConnector())?string}
             </td>
             <td>
-                to-do.
+                ${module.getTotalAssignments(data.getConnector())?string}
             </td>
             <td>
                 <a href="/admin/modules/${module.getModuleID()?string}">

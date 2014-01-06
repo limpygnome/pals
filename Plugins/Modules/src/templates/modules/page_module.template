@@ -1,0 +1,71 @@
+<h2><a href="/modules">Modules</a> - <a href="/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a></h2>
+
+<h3>Assignments</h3>
+
+<table class="table3 assignments">
+    <tr>
+        <td colspan="2"></td>
+        <th colspan="3">
+            %
+        </th>
+        <td></td>
+    </tr>
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+            Weight
+        </th>
+        <th title="Total percent of module.">
+            Total
+        </th>
+        <th title="Highest grade for this assignment.">
+            Highest
+        </th>
+        <th title="Last grade for this assignment.">
+            Last
+        </th>
+        <th>
+            Options
+        </th>
+    </tr>
+    <#if assignments?has_content>
+        <#list assignments as assignment>
+            <tr>
+                <td>
+                    ${assignment.getTitle()?html}
+                </td>
+                <td>
+                    ${assignment.getWeight()?string}
+                </td>
+                <td>
+                    ${((assignment.getWeight()/total_weight)*100)?string}%
+                </td>
+                <td>
+                    to-do
+                </td>
+                <td>
+                    to-do
+                </td>
+                <td>
+                    <a class="button" href="">
+                        History
+                    </a>
+                    &nbsp;
+                    <#if assignment.isActive()>
+                        <a class="button" href="">
+                            Take
+                        </a>
+                    </#if>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="6">
+                This module does not have any assignments.
+            </td>
+        </tr>
+    </#if>
+</table>

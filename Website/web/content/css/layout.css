@@ -412,7 +412,7 @@ body
 	text-align: left;
 }
 /* Admin ~ Questions: Forms */
-.layout_body .questions_form tr td
+.layout_body .questions_form tr:nth-child(1) td
 {
 	text-align: left !important;
 }
@@ -422,9 +422,22 @@ body
 }
 /* Admin ~ Assignments */
 .layout_body .table3.module_assignments tr th:nth-child(1),
-.layout_body .table3.module_assignments tr td:nth-child(1)
+.layout_body .table3.module_assignments tr td:nth-child(1),
+.layout_body .table3.module_ass_active tr th:nth-child(1),
+.layout_body .table3.module_ass_active tr td:nth-child(1)
 {
 	text-align: left !important;
+	width: 18em;
+}
+.layout_body .table3.module_assignments tr td.active
+{
+	background: #0C0;
+	color: #FFF;
+}
+.layout_body .table3.module_ass_active tr th:nth-child(2),
+.layout_body .table3.module_ass_active tr td:nth-child(2)
+{
+	width: 4em;
 }
 /* Admin ~ Assignment questions */
 .assignment_questions tr th:nth-child(1),
@@ -458,4 +471,18 @@ body
 {
 	width: 4em;
 }
+/* Assignments */
+.layout_body .table3.assignments tr th:nth-child(1),
+.layout_body .table3.assignments tr td:nth-child(1)
+{
+	width: 16em;
+	text-align: left !important;
+}
+.layout_body .table3.assignments tr th:nth-child(6),
+.layout_body .table3.assignments tr td:nth-child(6)
+{
+	text-align: left !important;
+}
+
+
 

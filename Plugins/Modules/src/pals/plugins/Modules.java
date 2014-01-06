@@ -108,7 +108,7 @@ public class Modules extends Plugin
     {
         return "PALS [WEB]: Modules";
     }
-    // Methods - Pages *********************************************************
+    // Methods - Pages - Main **************************************************
     private boolean pageModules(WebRequestData data)
     {
         if(data.getUser() == null)
@@ -123,13 +123,29 @@ public class Modules extends Plugin
         User user = data.getUser();
         if(user == null)
             return false;
-        // Fetch the module
+        // Load the module model
+        Module module = Module.load(data.getConnector(), mup.parseInt(1, -1));
+        if(module == null)
+            return false;
         // Check the user is enrolled
+        if(!module.isEnrolled(data.getConnector(), user))
+            return false;
+        // Fetch the module's assignments
+        Assignment[] assignments = Assignment.load(data.getConnector(), module);
+        // Sum the weight of the assignments
+        int total = 0;
+        for(Assignment ass : assignments)
+            total += ass.getWeight();
         // Setup the page
-        data.setTemplateData("pals_title", "Module - ");
+        data.setTemplateData("pals_title", "Module - "+Escaping.htmlEncode(module.getTitle()));
         data.setTemplateData("pals_content", "modules/page_module");
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignments", assignments);
+        data.setTemplateData("total_weight", total);
         return true;
     }
+    // Methods - Pages - Admin *************************************************
     private boolean pageAdminModules(WebRequestData data)
     {
         // Check permissions
@@ -218,6 +234,8 @@ public class Modules extends Plugin
                         }
                 case "enrollment":
                     return pageAdminModule_enrollment(data, module);
+                case "edit":
+                    return pageAdminModule_edit(data, module);
                 case "delete":
                     return pageAdminModule_delete(data, module);
                 default:
@@ -231,10 +249,50 @@ public class Modules extends Plugin
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle()));
         data.setTemplateData("pals_content", "modules/page_admin_module");
         data.setTemplateData("module", module);
-        // -- Assignments
-        
+        // -- Fetch active assignments
+        Assignment[] assignments = Assignment.loadActive(data.getConnector(), module, true);
         // -- Module Users
         data.setTemplateData("module_users", module.usersEnrolled(data.getConnector()));
+        data.setTemplateData("assignments", assignments);
+        return true;
+    }
+    private boolean pageAdminModule_edit(WebRequestData data, Module module)
+    {
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String moduleTitle = req.getField("module_title");
+        if(moduleTitle != null)
+        {
+            // Validate request
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                // Update the model
+                module.setTitle(moduleTitle);
+                // Attempt to persist
+                Module.ModulePersistStatus mps = module.persist(data.getConnector());
+                switch(mps)
+                {
+                    case Failed:
+                        data.setTemplateData("error", "Failed to update model for an unknown reason!");
+                        break;
+                    case Failed_title_length:
+                        data.setTemplateData("error", "Title must be "+module.getTitleMin()+" to "+module.getTitleMax()+" characters in length!");
+                        break;
+                    case Success:
+                        data.setTemplateData("success", "Successfully updated.");
+                        break;
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle()) + " - Edit");
+        data.setTemplateData("pals_content", "modules/page_admin_module_edit");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("module", module);
+        data.setTemplateData("module_title", moduleTitle != null ? moduleTitle : module.getTitle());
         return true;
     }
     private boolean pageAdminModule_delete(WebRequestData data, Module module)
@@ -359,9 +417,16 @@ public class Modules extends Plugin
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments");
         data.setTemplateData("pals_content", "modules/page_admin_module_assignments");
+        // Fetch the assignments
+        Assignment[] assignments = Assignment.load(data.getConnector(), module);
+        // Compute the total weight
+        int total = 0;
+        for(Assignment ass : assignments)
+            total += ass.getWeight();
         // -- Fields
         data.setTemplateData("module", module);
-        data.setTemplateData("assignments", Assignment.load(data.getConnector(), module));
+        data.setTemplateData("assignments", assignments);
+        data.setTemplateData("total_weight", total);
         return true;
     }
     private boolean pageAdminModule_assignmentCreate(WebRequestData data, Module module)
@@ -381,7 +446,7 @@ public class Modules extends Plugin
                 try
                 {
                     // Attempt to persist a new assignment
-                    Assignment ass = new Assignment(module, assTitle, Integer.parseInt(assWeight));
+                    Assignment ass = new Assignment(module, assTitle, Integer.parseInt(assWeight), false);
                     Assignment.PersistStatus ps = ass.persist(data.getConnector());
                     switch(ps)
                     {
@@ -396,7 +461,7 @@ public class Modules extends Plugin
                             data.setTemplateData("error", "Invalid weight; must be greater than zero!");
                             break;
                         case Success:
-                            data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID());
+                            data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
                             break;
                     }
                 }
@@ -518,6 +583,7 @@ public class Modules extends Plugin
         RemoteRequest req = data.getRequestData();
         String assTitle = req.getField("ass_title");
         String assWeight = req.getField("ass_weight");
+        String assActive = req.getField("ass_active");
         if(assTitle != null && assWeight != null)
         {
             // Validate request
@@ -530,6 +596,7 @@ public class Modules extends Plugin
                     // Update the model
                     ass.setWeight(Integer.parseInt(assWeight));
                     ass.setTitle(assTitle);
+                    ass.setActive(assActive != null);
                     // Attempt to persist
                     Assignment.PersistStatus aps = ass.persist(data.getConnector());
                     switch(aps)
@@ -564,6 +631,8 @@ public class Modules extends Plugin
         data.setTemplateData("assignment", ass);
         data.setTemplateData("ass_title", assTitle != null ? assTitle : ass.getTitle());
         data.setTemplateData("ass_weight", assWeight != null ? assWeight : ass.getWeight());
+        if((assTitle == null && ass.isActive()) || assActive != null)
+            data.setTemplateData("ass_active", true);
         return true;
     }
     private boolean pageAdminModule_assignment_questions(WebRequestData data, Module module, Assignment ass)

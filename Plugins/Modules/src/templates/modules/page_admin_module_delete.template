@@ -1,4 +1,4 @@
-<h2><a href="/admin/">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/delete">Delete Module</a></h2>
+<h2><a href="/admin/">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/delete">Delete</a></h2>
 
 <p>
     WARNING: this action cannot be reversed; make sure you have backups in-case this is a mistake! This will delete ALL informaiton
@@ -18,6 +18,14 @@
             </td>
             <td>
                 ${module.getModuleID()?string}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                ${module.getTitle()?html}
             </td>
         </tr>
         <#include "../captcha_form">

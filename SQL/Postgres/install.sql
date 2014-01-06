@@ -173,7 +173,9 @@ CREATE TABLE pals_assignment
 	moduleid			INT					REFERENCES pals_modules(moduleid) ON UPDATE CASCADE ON DELETE CASCADE,
 	title				VARCHAR(64)			DEFAULT 'Untitled Assignment' NOT NULL,
 	-- The weight of the assignment; similiar to weight in pals_assignment_questions.
-	weight				INT					NOT NULL
+	weight				INT					NOT NULL,
+	-- Indicates if the assignment is active (1) or inactive/disabled (0).
+	active				VARCHAR(1)			DEFAULT 0
 );
 -- The questions which belong to an assignment; note: the same question may be used multiple times.
 CREATE TABLE pals_assignment_questions

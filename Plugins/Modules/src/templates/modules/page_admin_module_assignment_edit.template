@@ -19,6 +19,14 @@
             </td>
         </tr>
         <tr>
+            <td>
+                Active:
+            </td>
+            <td>
+                <input type="checkbox" name="ass_active" <#if ass_active??>checked</#if> />
+            </td>
+        </tr>
+        <tr>
             <td colspan="2">
                 <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">Back</a>
                 <input type="submit" value="Update" />
