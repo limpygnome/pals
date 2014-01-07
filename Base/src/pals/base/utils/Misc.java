@@ -15,6 +15,47 @@ import pals.base.NodeCore;
 public class Misc
 {
     /**
+     * Scrambles an array, using the Fisher-Yates shuffle algorithm.
+     * 
+     * @param <T> The data-type of the array.
+     * @param rng An instance of a random number generator.
+     * @param array The array.
+     */
+    public static <T> void arrayScramble(Random rng, T[] array)
+    {
+        for(int i = array.length - 1; i >= 1; i--)
+            arraySwap(array, i, rng.nextInt(array.length));
+    }
+    /**
+     * Swaps two elements in an array; no index protection.
+     * 
+     * @param <T> The data-type of the array.
+     * @param array The array.
+     * @param index1 The index of element one.
+     * @param index2 The index of element two.
+     */
+    public static <T> void arraySwap(T[] array, int index1, int index2)
+    {
+        T t = array[index1];
+        array[index1] = array[index2];
+        array[index2] = t;
+    }
+    /**
+     * @param <T> The data-type of the array and item (must be the same).
+     * @param array The array to be tested.
+     * @param item The item to be found.
+     * @return Indicates if the specified item exists in the array.
+     */
+    public static <T> boolean arrayContains(T[] array, T item)
+    {
+        for(T t : array)
+        {
+            if(t.equals(item))
+                return true;
+        }
+        return false;
+    }
+    /**
      * Generates a random alpha-numeric string.
      * 
      * @param core Used to retrieve an RNG.

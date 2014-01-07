@@ -1,0 +1,24 @@
+<table class="table4">
+    <tr>
+        <td>
+            ${text}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <textarea name="written_response_${aqid}" rows="4"><#if answer??>${answer}</#if></textarea>
+        </td>
+    </tr>
+</table>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>

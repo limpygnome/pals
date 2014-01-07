@@ -204,12 +204,12 @@ CREATE TABLE pals_assignment_instance
 	userid				INT					REFERENCES pals_users(userid) ON UPDATE CASCADE ON DELETE CASCADE					NOT NULL,
 	-- The assignment to which the instance belongs.
 	assid				INT					REFERENCES pals_assignment(assid) ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
-	-- Indicates if the assignment has been marked.
-	marked				VARCHAR(1)			DEFAULT 0,
+	-- The status of the assignment, as controlled by 'pals.base.assessment.InstanceAssignment.Status'.
+	status				INT					DEFAULT 0,
 	-- The mark achieved for the assignment; calculated when an assignment has been completely marked.
 	-- -- Acts as a cache to avoid expensive aggregate functions.
 	-- -- 0 to 100.
-	mark				DECIMAL					DEFAULT 0
+	mark				DOUBLE PRECISION	DEFAULT 0																			NOT NULL
 );
 -- Data for answered questions of an instance of an assignment; this table may not be used by plugins handling instance data on their own.
 CREATE TABLE pals_assignment_instance_question
@@ -224,7 +224,12 @@ CREATE TABLE pals_assignment_instance_question
 	-- Ensure aqid and aiid are unique; also creates indexes for fast reverse querying.
 	UNIQUE(aqid, aiid)
 );
+-- -- Create indexes on the columns used for reverse lookups of questions.
+CREATE INDEX index_pals_assignment_instance_question_aqid ON pals_assignment_instance_question(aqid);
+CREATE INDEX index_pals_assignment_instance_question_aiid ON pals_assignment_instance_question(aiid);
+
 -- Used to allocate marks to specific criterias for an instance of an assignment's question.
+-- -- Created during marking.
 CREATE TABLE pals_assignment_instance_question_criteria
 (
 	-- The instance of the question.

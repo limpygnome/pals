@@ -252,7 +252,7 @@ public class User
      */
     public boolean isPersisted()
     {
-        return userid == -1;
+        return userid != -1;
     }
     /**
      * @return The user's identifier; -1 if the model has not been persisted.

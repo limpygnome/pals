@@ -238,6 +238,7 @@ body
 .layout_body .content table textarea
 {
 	width: 100%;
+	box-sizing: border-box;
 }
 .layout_body .content table input[type=text]:focus, .layout_body .content table input[type=text]:hover,
 .layout_body .content table input[type=password]:focus, .layout_body .content table input[type=password]:hover,
@@ -275,7 +276,8 @@ body
 {
 	background: #EEE;
 }
-.layout_body .content .table th, .layout_body .content .table td
+.layout_body .content .table th,
+.layout_body .content .table td
 {
 	border: solid 0.2em #999;
 	padding: 0.25em 0.5em;
@@ -291,16 +293,23 @@ body
 	margin: 0.5em auto;
 	border-collapse: collapse;
 }
-.layout_body .content .table2 th, .layout_body .content .table2 td
+.layout_body .content .table2 th,
+.layout_body .content .table2 td,
+.layout_body .content .table4 th,
+.layout_body .content .table4 td
 {
 	padding: 0.5em;
 	vertical-align: top;
 }
-.layout_body .content .table2 th
+.layout_body .content .table2 th,
+.layout_body .content .table4 th
 {
 	background: #CCC;
 }
-.layout_body .content .table2 .cells2 th, .layout_body .content .table2 .cells2 td
+.layout_body .content .table2 .cells2 th,
+.layout_body .content .table2 .cells2 td,
+.layout_body .content .table4 .cells2 th,
+.layout_body .content .table4 .cells2 td
 {
 	width: 50%;
 }
@@ -310,7 +319,8 @@ body
 	margin: 0.5em auto;
 	border-collapse: collapse;
 }
-.layout_body .table3 tr th, .layout_body .table3 tr td
+.layout_body .table3 tr th,
+.layout_body .table3 tr td
 {
 	padding: 0.5em;
 	color: #333;
@@ -333,6 +343,17 @@ body
 .layout_body .table3 tr td:last-child
 {
 	border-right: none;
+}
+/* Table 4 - Assignment Instance Layout */
+.layout_body .content .table4
+{
+	border-collapse: collapse;
+	width: 100%;
+	box-sizing: border-box;
+}
+.layout_body .content .table4 tr td
+{
+	text-align: left;
 }
 /* Container */
 .layout_body .container
@@ -483,6 +504,25 @@ body
 {
 	text-align: left !important;
 }
-
+/* Assignment ~ Instance */
+.layout_body .assignment_pages
+{
+	padding: 0.5em;
+	border-bottom: solid 0.4em #0C0;
+}
+.layout_body .assignment_pages .left,
+.layout_body .assignment_pages .right
+{
+	width: 50%;
+}
+.layout_body .assignment_pages .left
+{
+	float: left;
+}
+.layout_body .assignment_pages .right
+{
+	float: right;
+	text-align: right;
+}
 
 

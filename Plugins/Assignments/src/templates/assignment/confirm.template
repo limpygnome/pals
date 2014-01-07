@@ -1,0 +1,45 @@
+<h2><a href="/modules">Modules</a> - <a href="/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/assignments/take/${assignment.getAssID()?string}">Confirm Assignment</a></h2>
+
+<form method="post" action="/assignments/take/${assignment.getAssID()?string}">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                ${assignment.getTitle()?html}
+            </th>
+        </tr>
+        <tr>
+            <td>
+                ID:
+            </td>
+            <td>
+                ${assignment.getAssID()?string}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                ${assignment.getWeight()?string}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                You are about to begin this assignment, confirm to continue...
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" value="Confirm" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+    <input type="hidden" name="confirm" value="1" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>

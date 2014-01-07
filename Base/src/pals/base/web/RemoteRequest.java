@@ -20,7 +20,7 @@ public class RemoteRequest implements Serializable
     private String                              ipaddr;         // The user's IP address.
     private String                              sessionID;      // The user's session identifier.
     private String                              relativeUrl;    // The relative URL of the request.
-    private final HashMap<String,String>        fields;         // Any field data provided by the user.
+    private final HashMap<String,String[]>      fields;         // Any field data provided by the user.
     private final HashMap<String,UploadedFile>  files;          // Any files uploaded by the request.
     // Methods - Constructors **************************************************
     public RemoteRequest(String sessionID, String relativeUrl, String ipaddr) throws IllegalArgumentException
@@ -71,7 +71,15 @@ public class RemoteRequest implements Serializable
      */
     public synchronized void setField(String key, String value)
     {
-        this.fields.put(key, value);
+        this.fields.put(key, new String[]{value});
+    }
+    /**
+     * @param key The key of the field to set.
+     * @param values The values to set for a field; can be null.
+     */
+    public synchronized void setFields(String key, String[] values)
+    {
+        this.fields.put(key, values);
     }
     /**
      * @param key The key/name associated with the file.
@@ -125,6 +133,15 @@ public class RemoteRequest implements Serializable
      */
     public synchronized String getField(String key)
     {
+        String[] t = fields.get(key);
+        return t != null && t.length > 0 ? t[0] : null;
+    }
+    /**
+     * @param key The key/name of the fields to retrieve.
+     * @return All of the field values associated with a key; can be null.
+     */
+    public synchronized String[] getFields(String key)
+    {
         return fields.get(key);
     }
     /**
@@ -177,7 +194,7 @@ public class RemoteRequest implements Serializable
     /**
      * @return The map which stores the fields.
      */
-    public synchronized Map<String,String> getFieldsMap()
+    public synchronized Map<String,String[]> getFieldsMap()
     {
         return fields;
     }

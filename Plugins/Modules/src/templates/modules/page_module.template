@@ -54,7 +54,7 @@
                     </a>
                     &nbsp;
                     <#if assignment.isActive()>
-                        <a class="button" href="">
+                        <a class="button" href="/assignments/take/${assignment.getAssID()?string}">
                             Take
                         </a>
                     </#if>

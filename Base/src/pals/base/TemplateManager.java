@@ -258,7 +258,7 @@ public class TemplateManager
         return true;
     }
     /**
-     * Renders content using template functions.
+     * Renders content using template functions and FreeMarker template engine.
      * 
      * @param data The data from a web-request.
      * @param path The path of the template to be rendered.
@@ -266,6 +266,19 @@ public class TemplateManager
      * cannot be found.
      */
     public synchronized String render(WebRequestData data, String path)
+    {
+        return render(data, data.getTemplateMap(), path);
+    }
+    /**
+     * Renders content using template functions and FreeMarker template engine.
+     * 
+     * @param data The data from a web-request.
+     * @param kvs The set of key-values to use for template items.
+     * @param path The path of the template to be rendered.
+     * @return The rendered data. Returns null if the specified template
+     * cannot be found.
+     */
+    public synchronized String render(WebRequestData data, HashMap<String,Object> kvs, String path)
     {
         if(path == null)
             return null;
@@ -277,7 +290,7 @@ public class TemplateManager
                 return null;
             // Process template for the current context
             StringWriter sw = new StringWriter();
-            t.process(data.getTemplateMap(), sw);
+            t.process(kvs, sw);
             // Process function calls
             StringBuilder buffer = new StringBuilder(sw.toString());
             Matcher m = pattFunctions.matcher(buffer);

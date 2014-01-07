@@ -420,11 +420,9 @@ public class Assignment
     }
     private void questionsAdd(AssignmentQuestion question)
     {
+        if(!questions.containsKey(question.getPage()))
+            questions.put(question.getPage(), new ArrayList<AssignmentQuestion>());
         ArrayList<AssignmentQuestion> qs = questions.get(question.getPage());
-        if(qs == null)
-        {
-            qs = (questions.put(question.getPage(), new ArrayList<AssignmentQuestion>()));
-        }
         qs.add(question);
     }
     // Methods - Accessors - Limits ********************************************

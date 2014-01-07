@@ -1,0 +1,13 @@
+<p class="error">
+    Failed to render the question.
+</p>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+<#else>
+    <p class="error">
+        No error specified.
+    </p>
+</#if>

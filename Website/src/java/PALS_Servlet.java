@@ -77,7 +77,7 @@ public class PALS_Servlet extends HttpServlet
             // -- Add request fields
             for(Map.Entry<String,String[]> param : request.getParameterMap().entrySet())
             {
-                dataRequest.setField(param.getKey(), param.getValue()[0]);
+                dataRequest.setFields(param.getKey(), param.getValue());
             }
             // -- Add request files (and possibly fields)
             if(ServletFileUpload.isMultipartContent(request))

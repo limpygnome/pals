@@ -12,7 +12,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <a class="button" href="/admin/modules/${module.getModuleID()?string}/edit">Back</a>
+                <a class="button" href="/admin/modules/${module.getModuleID()?string}">Back</a>
                 <input type="submit" value="Update" />
             </td>
         </tr>

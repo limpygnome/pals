@@ -49,6 +49,27 @@ public class InstanceAssignmentQuestion
         this.data = data;
     }
     // Methods - Persistence ***************************************************
+    /***
+     * Loads an instance-question for a question for an instance of an assignment.
+     * 
+     * @param core Current instance of the core.
+     * @param conn Database connector.
+     * @param ia Instance of the assignment; cannot be null.
+     * @param aq Assignment-question; cannot be null.
+     * @return 
+     */
+    public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, AssignmentQuestion aq)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_assignment_instance_question WHERE aqid=? AND aiid=?", aq.getAQID(), ia.getAIID());
+            return res.next() ? load(core, conn, ia, res) : null;
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
+    }
     /**
      * Loads a persisted model.
      * 

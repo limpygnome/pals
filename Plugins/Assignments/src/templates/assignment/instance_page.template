@@ -1,0 +1,21 @@
+<h2>Assignment - ${assignment.getTitle()?html}</h2>
+
+<div class="assignment_pages">
+    <div class="left">
+        Pages:
+        &nbsp;
+        <#list pages as page>
+            <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?string}/${page}">
+                ${page}
+            </a>
+        </#list>
+    </div>
+    <div class="right">
+        <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?string}/submit">
+            Submit
+        </a>
+    </div>
+    <div class="clear"></div>
+</div>
+
+<#include "../"+instance_page>

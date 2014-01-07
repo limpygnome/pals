@@ -19,11 +19,48 @@ public class InstanceAssignment
         Invalid_User,
         Invalid_Mark
     }
+    public enum Status
+    {
+        Active(0),
+        Submitted(1),
+        Marked(2);
+        
+        private final int status;
+        private Status(int status)
+        {
+            this.status = status;
+        }
+        /**
+         * @return The status of the assignment.
+         */
+        public int getStatus()
+        {
+            return status;
+        }
+        /**
+         * @param value The value to parse.
+         * @return Parses an integer value, returning the Status enum-type;
+         * if a type is not matched, 'BeingTaken' is returned.
+         */
+        public static Status parse(int value)
+        {
+            switch(value)
+            {
+                default:
+                case 0:
+                    return Active;
+                case 1:
+                    return Submitted;
+                case 2:
+                    return Marked;
+            }
+        }
+    }
     // Fields ******************************************************************
     private int         aiid;       // The identifier of the assignment instance.
     private User        user;       // The user who is answering this instance of the assignment.
     private Assignment  ass;        // The assignment instantiated.
-    private boolean     marked;     // Indicates if the assignment has been marked.
+    private Status      status;     // The status of this instance.
     private double      mark;       // The mark of the instance.
     // Methods - Constructors **************************************************
     /**
@@ -31,22 +68,22 @@ public class InstanceAssignment
      */
     public InstanceAssignment()
     {
-        this(null, null, false, 0);
+        this(null, null, Status.Active, 0);
     }
     /**
      * Creates a new instance of an unpersisted instance of an assignment.
      * 
      * @param user The user who is answering this instance of the assignment.
      * @param ass The assignment instantiated.
-     * @param marked Indicates if the assignment has been marked.
+     * @param status The status of the instance.
      * @param mark The mark of the instance.
      */
-    public InstanceAssignment(User user, Assignment ass, boolean marked,  int mark)
+    public InstanceAssignment(User user, Assignment ass, Status status,  double mark)
     {
         this.aiid = -1;
         this.user = user;
         this.ass = ass;
-        this.marked = marked;
+        this.status = status;
         this.mark = mark;
     }
     // Methods - Persistence ***************************************************
@@ -67,11 +104,7 @@ public class InstanceAssignment
     {
         try
         {
-            Result res;
-            if(assignment == null)
-                res = conn.read("SELECT * FROM pals_assignment_instance WHERE aiid=?;", aiid);
-            else
-                res = conn.read("SELECT * FROM pals_assignment_instance WHERE aiid=? AND assid=?;", aiid, assignment.getAssID());
+            Result res = conn.read("SELECT * FROM pals_assignment_instance WHERE aiid=?;", aiid);
             return res.next() ? load(conn, assignment, user, res) : null;
         }
         catch(DatabaseException ex)
@@ -102,6 +135,8 @@ public class InstanceAssignment
                 if(ass == null)
                     return null;
             }
+            else if(ass.getAssID() != (int)res.get("assid"))
+                return null;
             // Load user, if null
             if(user == null)
             {
@@ -109,8 +144,10 @@ public class InstanceAssignment
                 if(user == null)
                     return null;
             }
+            else if(user.getUserID() != (int)res.get("userid"))
+                return null;
             // Setup instance and return
-            InstanceAssignment ia = new InstanceAssignment(user, ass, ((String)res.get("marked")).equals("1"), (int)res.get("mark"));
+            InstanceAssignment ia = new InstanceAssignment(user, ass, Status.parse((int)res.get("status")), (double)res.get("mark"));
             ia.aiid = (int)res.get("aiid");
             return ia;
         }
@@ -140,19 +177,19 @@ public class InstanceAssignment
         {
             if(aiid == -1)
             {
-                aiid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance (userid, assid, marked, mark) VALUES(?,?,?,?) RETURNING aiid;",
+                aiid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance (userid, assid, status, mark) VALUES(?,?,?,?) RETURNING aiid;",
                         user.getUserID(),
                         ass.getAssID(),
-                        marked ? "1" : "0",
+                        status.getStatus(),
                         mark
                         );
             }
             else
             {
-                conn.execute("UPDATE pals_assignment_instance SET userid=?, assid=?, marked=?, mark=? WHERE aiid=?;",
+                conn.execute("UPDATE pals_assignment_instance SET userid=?, assid=?, status=?, mark=? WHERE aiid=?;",
                         user.getUserID(),
                         ass.getAssID(),
-                        marked ? "1" : "0",
+                        status.getStatus(),
                         mark,
                         aiid
                         );
@@ -201,11 +238,11 @@ public class InstanceAssignment
         this.ass = ass;
     }
     /**
-     * @param marked Sets if this assignment has been marked.
+     * @param status Sets the status of this instance.
      */
-    public void setMarked(boolean marked)
+    public void setStatus(Status status)
     {
-        this.marked = marked;
+        this.status = status;
     }
     /**
      * @param mark Sets the mark of this assignment.
@@ -244,11 +281,11 @@ public class InstanceAssignment
         return ass;
     }
     /**
-     * @return Indicates if the assignment has been marked.
+     * @return The status of this instance.
      */
-    public boolean isMarked()
+    public Status getStatus()
     {
-        return marked;
+        return status;
     }
     /**
      * @return The mark of the instance.
@@ -256,5 +293,25 @@ public class InstanceAssignment
     public double getMark()
     {
         return mark;
+    }
+    // Methods - Accessors - Static ********************************************
+    /**
+     * @param conn Database connector.
+     * @param assignment The assignment being taken.
+     * @param user The user taking the assignment.
+     * @return The identifier of the assignment or -1 if no previous incomplete
+     * assignment exists.
+     */
+    public static int getLastAssignment(Connector conn, Assignment assignment, User user)
+    {
+        try
+        {
+            Integer i = (Integer)conn.executeScalar("SELECT aiid FROM pals_assignment_instance WHERE userid=? AND assid=? ORDER BY aiid DESC LIMIT 1;", user.getUserID(), assignment.getAssID());
+            return i == null ? -1 : (int)i;
+        }
+        catch(DatabaseException ex)
+        {
+            return -1;
+        }
     }
 }

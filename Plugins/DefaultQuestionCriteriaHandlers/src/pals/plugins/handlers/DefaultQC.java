@@ -1,5 +1,7 @@
 package pals.plugins.handlers;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import pals.base.Logging;
@@ -8,12 +10,16 @@ import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
+import pals.base.assessment.AssignmentQuestion;
+import pals.base.assessment.InstanceAssignment;
+import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
+import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
@@ -21,6 +27,7 @@ import pals.plugins.handlers.defaultqch.Data_Criteria_Regex;
 import pals.plugins.handlers.defaultqch.Data_Criteria_TextMatch;
 import pals.plugins.handlers.defaultqch.Data_Question_MultipleChoice;
 import pals.plugins.handlers.defaultqch.Data_Question_Written;
+import pals.plugins.handlers.defaultqch.MultipleChoiceRenderHolder;
 
 /**
  * A plugin for the default questions and criteria types.
@@ -174,6 +181,8 @@ public class DefaultQC extends Plugin
                 return pageQuestionEdit(args);
             case "criteria_type.web_edit":
                 return pageCriteriaEdit(args);
+            case "question_type.question_capture":
+                return pageQuestionCapture(args);
         }
         return false;
     }
@@ -182,7 +191,7 @@ public class DefaultQC extends Plugin
     {
         return "PALS: Default Question-Criteria Handler";
     }
-    // Methods - Pages - Question Types ****************************************
+    // Methods - Pages - Edit - Question Types *********************************
     private boolean pageQuestionEdit(Object[] hookData)
     {
         if(hookData.length != 2 || !(hookData[0] instanceof WebRequestData) && !(hookData[1] instanceof Question))
@@ -291,7 +300,7 @@ public class DefaultQC extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    // Methods - Pages - Criteria Types ****************************************
+    // Methods - Pages - Edit - Criteria Types *********************************
     private boolean pageCriteriaEdit(Object[] hookData)
     {
         if(hookData.length != 2 || !(hookData[0] instanceof WebRequestData) && !(hookData[1] instanceof QuestionCriteria))
@@ -535,6 +544,122 @@ public class DefaultQC extends Plugin
         if( (critRegex == null && ((cdata.mode & Pattern.DOTALL) == Pattern.DOTALL)) || (critDotall != null && critDotall.equals("1")))
             data.setTemplateData("crit_dotall", data);
         
+        return true;
+    }
+    // Methods - Pages - Capture - Question Types ******************************
+    private boolean pageQuestionCapture(Object[] hookData)
+    {
+        // Validate hook-data
+        if(hookData.length != 5 || !(hookData[0] instanceof WebRequestData) || !(hookData[1] instanceof InstanceAssignment) || !(hookData[2] instanceof AssignmentQuestion) || !(hookData[3] instanceof StringBuilder) || !(hookData[4] instanceof Boolean))
+            return false;
+        // Parse hook-data
+        WebRequestData data = (WebRequestData)hookData[0];
+        InstanceAssignment ia = (InstanceAssignment)hookData[1];
+        AssignmentQuestion question = (AssignmentQuestion)hookData[2];
+        StringBuilder html = (StringBuilder)hookData[3];
+        boolean secure = (Boolean)hookData[4];
+        // Load the model used for the question
+        InstanceAssignmentQuestion iaq = InstanceAssignmentQuestion.load(data.getCore(), data.getConnector(), ia, question);
+        if(iaq == null)
+            iaq = new InstanceAssignmentQuestion(question, ia, null);
+        // Delegate to be rendered and question-data captured
+        UUID qtype = question.getQuestion().getQtype().getUuidQType();
+        if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
+            return pageQuestionCapture_multipleChoice(data, ia, iaq, html, secure);
+        else if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
+            return pageQuestionCapture_writtenResponse(data, ia, iaq, html, secure);
+        else if(qtype.equals(UUID_QUESTIONTYPE_CODEUPLOAD))
+            ;
+        else if(qtype.equals(UUID_QUESTIONTYPE_CODEFRAGMENT))
+            ;
+        return false;
+    }
+    private boolean pageQuestionCapture_writtenResponse(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
+    {
+        // Load question data
+        Data_Question_Written qdata = (Data_Question_Written)iaq.getAssignmentQuestion().getQuestion().getData();
+        // Load answer data
+        String adata = (String)iaq.getData();
+        // Check postback
+        int aqid = iaq.getAssignmentQuestion().getAQID();
+        String answer = data.getRequestData().getField("written_response_"+aqid);
+        HashMap<String,Object> kvs = new HashMap<>();
+        if(secure && answer != null)
+        {
+            // Update the iaq model and persist
+            iaq.setData(answer);
+            InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
+            switch(iaqps)
+            {
+                case Failed:
+                case Failed_Serialize:
+                case Invalid_AssignmentQuestion:
+                case Invalid_InstanceAssignment:
+                    kvs.put("error", "Failed to update question ('"+iaqps.name()+"')!");
+                    break;
+                case Success:
+                    kvs.put("success", "Saved answer.");
+                    break;
+            }
+        }
+        // Render the template
+        kvs.put("text", qdata.getText());
+        kvs.put("answer", answer != null ? answer : adata);
+        kvs.put("aqid", aqid);
+        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/written_response_capture"));
+        return true;
+    }
+    private boolean pageQuestionCapture_multipleChoice(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
+    {
+        // Load question data
+        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
+        // Load answer data - indexes of choices
+        Integer[] aindexes = (Integer[])iaq.getData();
+        // Check postback
+        int aqid = iaq.getAssignmentQuestion().getAQID();
+        String pb = data.getRequestData().getField("multiple_choice_pb_"+aqid);
+        String[] answers = data.getRequestData().getFields("multiple_choice_"+aqid);
+        HashMap<String,Object> kvs = new HashMap<>();
+        if(secure && pb != null && pb.equals("1"))
+        {
+            // Convert answers to indexes
+            ArrayList<Integer> temp = new ArrayList<>();
+            int i;
+            // -- n^2, however this seems the best solution due to scrambling...
+            for(String ans : answers)
+            {
+                for(i = 0; i < qdata.answers.length; i++)
+                    if(ans.equals(qdata.answers[i]))
+                        temp.add(i);
+            }
+            aindexes = temp.toArray(new Integer[temp.size()]);
+            // Update the iaq model and persist
+            iaq.setData(aindexes);
+            InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
+            switch(iaqps)
+            {
+                case Failed:
+                case Failed_Serialize:
+                case Invalid_AssignmentQuestion:
+                case Invalid_InstanceAssignment:
+                    kvs.put("error", "Failed to update question ('"+iaqps.name()+"')!");
+                    break;
+                case Success:
+                    kvs.put("success", "Saved answer.");
+                    break;
+            }
+        }
+        // Build scrambled array of choices
+        MultipleChoiceRenderHolder[] choices = new MultipleChoiceRenderHolder[qdata.answers.length];
+        for(int i = 0; i < qdata.answers.length; i++)
+            choices[i] = new MultipleChoiceRenderHolder(qdata.answers[i], aindexes != null ? Misc.arrayContains(aindexes, i) : false);
+        Misc.arrayScramble(data.getCore().getRNG(), choices);
+        // Render the template
+        kvs.put("text", qdata.text);
+        kvs.put("choices", choices);
+        kvs.put("single_choice", qdata.singleAnswer);
+        kvs.put("aqid", aqid);
+        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_capture"));
         return true;
     }
 }
