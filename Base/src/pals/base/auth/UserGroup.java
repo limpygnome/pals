@@ -1,7 +1,5 @@
 package pals.base.auth;
 
-import pals.base.Logging;
-import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -31,9 +29,9 @@ public class UserGroup
                     adminUsers,         // Indicates the user is allowed to manage users.
                     adminSystem;        // Indicates the user is allowed to manage the system.
     // Methods - Constructors **************************************************
-    private UserGroup(int groupid, String title, boolean userLogin, boolean markerGeneral, boolean adminModules, boolean adminAssignments, boolean adminUsers, boolean adminSystem)
+    public UserGroup(String title, boolean userLogin, boolean markerGeneral, boolean adminModules, boolean adminAssignments, boolean adminUsers, boolean adminSystem)
     {
-        this.groupid = groupid;
+        this.groupid = -1;
         this.title = title;
         this.userLogin = userLogin;
         this.markerGeneral = markerGeneral;
@@ -43,13 +41,6 @@ public class UserGroup
         this.adminSystem = adminSystem;
     }
     // Methods - Persistence ***************************************************
-    /**
-     * @return A new, unpersisted, user-group.
-     */
-    public static UserGroup create()
-    {
-        return new UserGroup(-1, "Untitled Group", false, false, false, false, false, false);
-    }
     /**
      * Loads a user-group by its identifier.
      * 
@@ -79,8 +70,7 @@ public class UserGroup
     {
         try
         {
-            return new UserGroup(
-                    (int)result.get("groupid"),
+            UserGroup ug = new UserGroup(
                     (String)result.get("title"),
                     ((String)result.get("user_login")).equals("1"),
                     ((String)result.get("marker_general")).equals("1"),
@@ -89,6 +79,8 @@ public class UserGroup
                     ((String)result.get("admin_users")).equals("1"),
                     ((String)result.get("admin_system")).equals("1")
             );
+            ug.groupid = (int)result.get("groupid");
+            return ug;
         }
         catch(DatabaseException ex)
         {
@@ -195,6 +187,13 @@ public class UserGroup
         this.adminSystem = adminSystem;
     }
     // Methods - Accessors *****************************************************
+    /**
+     * @return Indicates if the model has been persisted.
+     */
+    public boolean isPersisted()
+    {
+        return groupid != -1;
+    }
     /**
      * @return The identifier of this group.
      */
