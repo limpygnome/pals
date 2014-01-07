@@ -1,0 +1,27 @@
+<h3>Confirm Submission</h3>
+
+<#list instance_questions as question>
+    <#if !question.isAnswered()>
+        <p class="warning">
+            Question on page '${question.getAssignmentQuestion().getPage()?string}' has not been answered.
+        </p>
+    </#if>
+</#list>
+
+<p>
+    Click below to confirm the submission of this assignment:
+</p>
+
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?string}/submit">
+    <p class="tac">
+        <input type="submit" class="button" value="Submit Assignment" />
+    </p>
+    <input type="hidden" name="csrf" value="${csrf}" />
+    <input type="hidden" name="confirm" value="1" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>

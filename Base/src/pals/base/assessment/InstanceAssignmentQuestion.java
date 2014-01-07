@@ -1,6 +1,8 @@
 package pals.base.assessment;
 
+import com.mysql.jdbc.Buffer;
 import java.io.IOException;
+import java.util.ArrayList;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -26,13 +28,14 @@ public class InstanceAssignmentQuestion
     private AssignmentQuestion  aq;                 // The assignment question.
     private InstanceAssignment  ia;                 // The current instance of the assignment.
     private Object              data;               // Data for the current instance of the question.
+    private boolean             answered;           // Indicates of the question has been answered.
     // Methods - Constructors **************************************************
     /**
      * Constructs a new instance of an assignment-instance question.
      */
     public InstanceAssignmentQuestion()
     {
-        this(null, null, null);
+        this(null, null, null, false);
     }
     /**
      * Constructs a new instance of an assignment-instance question.
@@ -40,15 +43,44 @@ public class InstanceAssignmentQuestion
      * @param aq The assignment question to instantiate.
      * @param ia The instance of the assignment.
      * @param data The data for the question, provided by a question-type.
+     * @param answered Indicates if the question has been answered.
      */
-    public InstanceAssignmentQuestion(AssignmentQuestion aq, InstanceAssignment ia, Object data)
+    public InstanceAssignmentQuestion(AssignmentQuestion aq, InstanceAssignment ia, Object data, boolean answered)
     {
         this.aiqid = -1;
         this.aq = aq;
         this.ia = ia;
         this.data = data;
+        this.answered = answered;
     }
     // Methods - Persistence ***************************************************
+    /**
+     * Loads all instance of questions for an instance of an assignment.
+     * 
+     * @param core Current instance of the core.
+     * @param conn Database connector.
+     * @param ia Instance of the assignment; cannot be null.
+     * @return Array of models; can be empty.
+     */
+    public static InstanceAssignmentQuestion[] loadAll(NodeCore core, Connector conn, InstanceAssignment ia)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_assignment_instance_question WHERE aiid=?;", ia.getAIID());
+            ArrayList<InstanceAssignmentQuestion> buffer = new ArrayList<>();
+            InstanceAssignmentQuestion iaq;
+            while(res.next())
+            {
+                if((iaq = load(core, conn, ia, res)) != null)
+                    buffer.add(iaq);
+            }
+            return buffer.toArray(new InstanceAssignmentQuestion[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new InstanceAssignmentQuestion[0];
+        }
+    }
     /***
      * Loads an instance-question for a question for an instance of an assignment.
      * 
@@ -56,7 +88,7 @@ public class InstanceAssignmentQuestion
      * @param conn Database connector.
      * @param ia Instance of the assignment; cannot be null.
      * @param aq Assignment-question; cannot be null.
-     * @return 
+     * @return An instance of the model or null.
      */
     public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, AssignmentQuestion aq)
     {
@@ -132,7 +164,7 @@ public class InstanceAssignmentQuestion
             AssignmentQuestion aq = AssignmentQuestion.load(core, conn, ia.getAss(), (int)res.get("aqid"));
             if(aq == null)
                 return null;
-            InstanceAssignmentQuestion iaq = new InstanceAssignmentQuestion(aq, ia, data);
+            InstanceAssignmentQuestion iaq = new InstanceAssignmentQuestion(aq, ia, data, ((String)res.get("answered")).equals("1"));
             iaq.aiqid = (int)res.get("aiqid");
             return iaq;
         }
@@ -171,18 +203,20 @@ public class InstanceAssignmentQuestion
             {
                 if(aiqid == -1)
                 {
-                    aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, data) VALUES(?,?,?) RETURNING aiqid;",
+                    aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, data, answered) VALUES(?,?,?,?) RETURNING aiqid;",
                             aq.getAQID(),
                             ia.getAIID(),
-                            bdata
+                            bdata,
+                            answered ? "1" : "0"
                             );
                 }
                 else
                 {
-                    conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, data=? WHERE aiqid=?;",
+                    conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, data=?, answered=? WHERE aiqid=?;",
                             aq.getAQID(),
                             ia.getAIID(),
                             bdata,
+                            answered ? "1" : "0",
                             aiqid
                             );
                 }
@@ -234,6 +268,13 @@ public class InstanceAssignmentQuestion
     {
         this.data = data;
     }
+    /**
+     * @param answered Sets if this question has been answered.
+     */
+    public void setAnswered(boolean answered)
+    {
+        this.answered = answered;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Indicates if the current model is persisted.
@@ -269,5 +310,12 @@ public class InstanceAssignmentQuestion
     public Object getData()
     {
         return data;
+    }
+    /**
+     * @return Indicates if the question has been answered.
+     */
+    public boolean isAnswered()
+    {
+        return answered;
     }
 }

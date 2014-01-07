@@ -1,6 +1,5 @@
 package pals.plugins.handlers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -19,7 +18,6 @@ import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
-import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
@@ -28,7 +26,6 @@ import pals.plugins.handlers.defaultqch.Data_Criteria_Regex;
 import pals.plugins.handlers.defaultqch.Data_Criteria_TextMatch;
 import pals.plugins.handlers.defaultqch.Data_Question_MultipleChoice;
 import pals.plugins.handlers.defaultqch.Data_Question_Written;
-import pals.plugins.handlers.defaultqch.MultipleChoiceRenderHolder;
 
 /**
  * A plugin for the default questions and criteria types.
@@ -562,7 +559,7 @@ public class DefaultQC extends Plugin
         // Load the model used for the question
         InstanceAssignmentQuestion iaq = InstanceAssignmentQuestion.load(data.getCore(), data.getConnector(), ia, question);
         if(iaq == null)
-            iaq = new InstanceAssignmentQuestion(question, ia, null);
+            iaq = new InstanceAssignmentQuestion(question, ia, null, false);
         // Delegate to be rendered and question-data captured
         UUID qtype = question.getQuestion().getQtype().getUuidQType();
         if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
@@ -589,6 +586,7 @@ public class DefaultQC extends Plugin
         {
             // Update the iaq model and persist
             iaq.setData(answer);
+            iaq.setAnswered(true);
             InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
             switch(iaqps)
             {
@@ -633,6 +631,7 @@ public class DefaultQC extends Plugin
             adata.processAnswers(aqid, data.getRequestData(), qdata);
             // Update the iaq model and persist
             iaq.setData(adata);
+            iaq.setAnswered(true);
             InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
             switch(iaqps)
             {

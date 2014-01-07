@@ -5,7 +5,7 @@
         Pages:
         &nbsp;
         <#list pages as page>
-            <a class="button <#if current_page==page>selected</#if>" href="/assignments/instance/${assignment_instance.getAIID()?string}/${page}">
+            <a class="button <#if current_page?? && current_page==page>selected</#if>" href="/assignments/instance/${assignment_instance.getAIID()?string}/${page}">
                 ${page}
             </a>
         </#list>

@@ -221,6 +221,8 @@ CREATE TABLE pals_assignment_instance_question
 	aiid				INT					REFERENCES pals_assignment_instance(aiid) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
 	-- Data used to answer the question; defined by question-type handler, used by criteria-type handlers for marking.
 	data				BYTEA,
+	-- Indicates if the question has been answered.
+	answered			VARCHAR(1)			DEFAULT '0'																			NOT NULL,
 	-- Ensure aqid and aiid are unique; also creates indexes for fast reverse querying.
 	UNIQUE(aqid, aiid)
 );

@@ -11,6 +11,7 @@ import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
+import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
@@ -99,7 +100,7 @@ public class Assignments extends Plugin
         return "PALS [WEB]: Assignments";
     }
     // Methods - Pages *********************************************************
-    public boolean pageAssignments_take(WebRequestData data, MultipartUrlParser mup)
+    private boolean pageAssignments_take(WebRequestData data, MultipartUrlParser mup)
     {
         // Fetch the assignment
         Assignment ass = Assignment.load(data.getConnector(), null, mup.parseInt(2, -1));
@@ -153,17 +154,23 @@ public class Assignments extends Plugin
         }
         return true;
     }
-    public boolean pageAssignments_instance(WebRequestData data, MultipartUrlParser mup)
+    private boolean pageAssignments_instance(WebRequestData data, MultipartUrlParser mup)
     {
         // Load the instance assignment model
         InstanceAssignment ia =  InstanceAssignment.load(data.getConnector(), null, data.getUser(), mup.parseInt(2, -1));
         if(ia == null || ia.getStatus() != InstanceAssignment.Status.Active)
             return false;
+        Assignment ass = ia.getAss();
         // Load the question pages
-        Integer[] pages = ia.getAss().questionsPagesDb(data.getConnector());
+        Integer[] pages = ass.questionsPagesDb(data.getConnector());
         // Setup the page
-        data.setTemplateData("pals_title", "Assignment - "+Escaping.htmlEncode(ia.getAss().getTitle()));
+        data.setTemplateData("pals_title", "Assignment - "+Escaping.htmlEncode(ass.getTitle()));
         data.setTemplateData("pals_content", "assignment/instance_page");
+        // -- Fields
+        data.setTemplateData("pages", pages);
+        data.setTemplateData("module", ass.getModule());
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("assignment_instance", ia);
         // Delegate to page content handler
         String page = mup.getPart(3);
         if(page == null)
@@ -171,15 +178,13 @@ public class Assignments extends Plugin
         switch(page)
         {
             case "submit":
-                
-                break;
+                return pageAssignments_instanceSubmit(data, ia, pages);
             default:
                 // Assume it's a question page
                 return pageAssignments_instanceQuestions(data, ia, pages, mup.parseInt(3, 1));
         }
-        return false;
     }
-    public boolean pageAssignments_instanceQuestions(WebRequestData data, InstanceAssignment ia, Integer[] pages, int page)
+    private boolean pageAssignments_instanceQuestions(WebRequestData data, InstanceAssignment ia, Integer[] pages, int page)
     {
         Assignment ass = ia.getAss();
         RemoteRequest req = data.getRequestData();
@@ -229,13 +234,42 @@ public class Assignments extends Plugin
             data.setTemplateData("instance_page", "assignment/instance_page_render_questions");
             // -- Fields
             data.setTemplateData("csrf", CSRF.set(data));
-            data.setTemplateData("module", ass.getModule());
-            data.setTemplateData("assignment", ass);
-            data.setTemplateData("assignment_instance", ia);
             data.setTemplateData("questions", qdata);
-            data.setTemplateData("pages", pages);
             data.setTemplateData("current_page", page);
         }
+        return true;
+    }
+    private boolean pageAssignments_instanceSubmit(WebRequestData data, InstanceAssignment ia, Integer[] pages)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Check for postback
+        String confirm = req.getField("confirm");
+        if(confirm != null && confirm.equals("1"))
+        {
+            // Set the assignment as submitted
+            ia.setStatus(InstanceAssignment.Status.Submitted);
+            // Persist the model
+            InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
+            switch(iaps)
+            {
+                case Invalid_Assignment:
+                case Invalid_Mark:
+                case Invalid_User:
+                    data.setTemplateData("error", "Failed to submit assignment ('"+iaps.name()+"'); please try again or contact an administrator!");
+                    break;
+                case Success:
+                    // Redirect to review page...
+                    data.getResponseData().setRedirectUrl("/assignments/review/"+ia.getAIID());
+                    break;
+            }
+        }
+        // Fetch the instance of the questions
+        InstanceAssignmentQuestion[] questions = InstanceAssignmentQuestion.loadAll(data.getCore(), data.getConnector(), ia);
+        // Setup the page
+        data.setTemplateData("instance_page", "assignment/instance_page_submit");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("instance_questions", questions);
         return true;
     }
 }
