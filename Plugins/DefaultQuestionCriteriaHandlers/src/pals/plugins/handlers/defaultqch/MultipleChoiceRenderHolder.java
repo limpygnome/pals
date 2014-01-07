@@ -6,12 +6,18 @@ package pals.plugins.handlers.defaultqch;
  */
 public class MultipleChoiceRenderHolder
 {
-    private String   text;
-    private boolean  selected;
-    public MultipleChoiceRenderHolder(String text, boolean selected)
+    private int         number;
+    private String      text;
+    private boolean     selected;
+    public MultipleChoiceRenderHolder(int number, String text, boolean selected)
     {
+        this.number = number;
         this.text = text;
         this.selected = selected;
+    }
+    public int getNumber()
+    {
+        return number;
     }
     public boolean isSelected()
     {

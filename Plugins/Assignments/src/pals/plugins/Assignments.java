@@ -234,6 +234,7 @@ public class Assignments extends Plugin
             data.setTemplateData("assignment_instance", ia);
             data.setTemplateData("questions", qdata);
             data.setTemplateData("pages", pages);
+            data.setTemplateData("current_page", page);
         }
         return true;
     }

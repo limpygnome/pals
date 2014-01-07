@@ -23,6 +23,7 @@ import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.Data_Answer_MultipleChoice;
 import pals.plugins.handlers.defaultqch.Data_Criteria_Regex;
 import pals.plugins.handlers.defaultqch.Data_Criteria_TextMatch;
 import pals.plugins.handlers.defaultqch.Data_Question_MultipleChoice;
@@ -613,28 +614,25 @@ public class DefaultQC extends Plugin
     {
         // Load question data
         Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
-        // Load answer data - indexes of choices
-        Integer[] aindexes = (Integer[])iaq.getData();
+        // Load answer data
+        Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iaq.getData();
+        // -- New attempt; create random indexes and persist...
+        if(adata == null)
+        {
+            adata = new Data_Answer_MultipleChoice(data.getCore().getRNG(), qdata);
+            iaq.setData(adata);
+            iaq.persist(data.getConnector());
+        }
         // Check postback
         int aqid = iaq.getAssignmentQuestion().getAQID();
         String pb = data.getRequestData().getField("multiple_choice_pb_"+aqid);
-        String[] answers = data.getRequestData().getFields("multiple_choice_"+aqid);
         HashMap<String,Object> kvs = new HashMap<>();
-        if(secure && pb != null && pb.equals("1"))
+        if(secure && pb != null)
         {
-            // Convert answers to indexes
-            ArrayList<Integer> temp = new ArrayList<>();
-            int i;
-            // -- n^2, however this seems the best solution due to scrambling...
-            for(String ans : answers)
-            {
-                for(i = 0; i < qdata.answers.length; i++)
-                    if(ans.equals(qdata.answers[i]))
-                        temp.add(i);
-            }
-            aindexes = temp.toArray(new Integer[temp.size()]);
+            // Process answers
+            adata.processAnswers(aqid, data.getRequestData(), qdata);
             // Update the iaq model and persist
-            iaq.setData(aindexes);
+            iaq.setData(adata);
             InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
             switch(iaqps)
             {
@@ -649,14 +647,9 @@ public class DefaultQC extends Plugin
                     break;
             }
         }
-        // Build scrambled array of choices
-        MultipleChoiceRenderHolder[] choices = new MultipleChoiceRenderHolder[qdata.answers.length];
-        for(int i = 0; i < qdata.answers.length; i++)
-            choices[i] = new MultipleChoiceRenderHolder(qdata.answers[i], aindexes != null ? Misc.arrayContains(aindexes, i) : false);
-        Misc.arrayScramble(data.getCore().getRNG(), choices);
         // Render the template
         kvs.put("text", qdata.text);
-        kvs.put("choices", choices);
+        kvs.put("choices", adata.getViewModels(aqid, data.getRequestData(), qdata, pb != null));
         kvs.put("single_choice", qdata.singleAnswer);
         kvs.put("aqid", aqid);
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_capture"));

@@ -115,7 +115,7 @@ public class InstanceAssignmentQuestion
             Object data;
             try
             {
-                data = Misc.bytesDeserialize((byte[])res.get("data"));
+                data = Misc.bytesDeserialize(core, (byte[])res.get("data"));
             }
             catch(ClassNotFoundException | IOException ex)
             {

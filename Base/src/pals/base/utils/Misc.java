@@ -21,7 +21,7 @@ public class Misc
      * @param rng An instance of a random number generator.
      * @param array The array.
      */
-    public static <T> void arrayScramble(Random rng, T[] array)
+    public static <T> void arrayShuffle(Random rng, T[] array)
     {
         for(int i = array.length - 1; i >= 1; i--)
             arraySwap(array, i, rng.nextInt(array.length));

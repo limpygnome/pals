@@ -7,7 +7,7 @@
     <#list choices as choice>
     <tr>
         <td>
-            <input type="<#if single_choice>radio<#else>checkbox</#if>" name="multiple_choice_${aqid?string}" value="${choice.getText()}" <#if choice.isSelected()>checked</#if> /> ${choice.text}
+            <input type="<#if single_choice>radio<#else>checkbox</#if>" name="multiple_choice_${aqid?string}_${choice.getNumber()?string}" value="${choice.getText()}" <#if choice.isSelected()>checked</#if> /> ${choice.text}
         </td>
     </tr>
     </#list>

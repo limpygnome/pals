@@ -1,4 +1,4 @@
-<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?string}">
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?string}/${current_page}">
     <#list questions as question>
         <h3>Question ${question.getNumber()?string}</h3>
         ${question.getHTML()}

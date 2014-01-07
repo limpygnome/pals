@@ -519,6 +519,18 @@ body
 {
 	float: left;
 }
+.layout_body .assignment_pages .left .button
+{
+	margin-right: 0.5em;
+}
+.layout_body .assignment_pages .left .button
+{
+	background-color: #999;
+}
+.layout_body .assignment_pages .left .button.selected
+{
+	background-color: #0C0;
+}
 .layout_body .assignment_pages .right
 {
 	float: right;
