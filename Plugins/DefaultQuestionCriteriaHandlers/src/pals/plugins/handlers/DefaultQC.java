@@ -11,6 +11,7 @@ import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
+import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
@@ -181,6 +182,8 @@ public class DefaultQC extends Plugin
                 return pageCriteriaEdit(args);
             case "question_type.question_capture":
                 return pageQuestionCapture(args);
+            case "criteria_type.mark":
+                return criteriaMarking(args);
         }
         return false;
     }
@@ -231,9 +234,9 @@ public class DefaultQC extends Plugin
             else
             {
                 // Update question data
-                qdata.text = mcText;
-                qdata.singleAnswer = mcSingleAnswer != null && mcSingleAnswer.equals("1");
-                qdata.answers = mcAnswers.replace("\r", "").split("\n");
+                qdata.setText(mcText);
+                qdata.setSingleAnswer(mcSingleAnswer != null && mcSingleAnswer.equals("1"));
+                qdata.setAnswers(mcAnswers.replace("\r", "").split("\n"));
                 // Persist the model
                 q.setData(qdata);
                 Question.PersistStatus psq = q.persist(data.getConnector());
@@ -251,8 +254,9 @@ public class DefaultQC extends Plugin
         data.setTemplateData("pals_content", "defaultqch/questions/multiplechoice_edit");
         // -- Fields
         data.setTemplateData("question", q);
-        data.setTemplateData("mc_text", mcText != null ? mcText : qdata.text);
-        data.setTemplateData("mc_single_answer", (mcSingleAnswer != null && mcSingleAnswer.equals("1")) || qdata.singleAnswer);
+        data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
+        if((mcSingleAnswer != null && mcSingleAnswer.equals("1")) || (mcText == null && qdata.isSingleAnswer()))
+            data.setTemplateData("mc_single_answer", true);
         data.setTemplateData("mc_answers", mcAnswers != null ? mcAnswers : qdata.getAnswersWebFormat());
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
@@ -487,8 +491,10 @@ public class DefaultQC extends Plugin
                     // -- Exception is caught by try-catch
                     Pattern.compile(critRegex);
                     // Update data model
-                    cdata.mode = (critMultiline != null && critMultiline.equals("1") ? Pattern.MULTILINE : 0) | (critCase != null && critCase.equals("1") ? Pattern.CASE_INSENSITIVE : 0) | (critDotall != null && critDotall.equals("1") ? Pattern.DOTALL : 0);
-                    cdata.regexPattern = critRegex;
+                    cdata.setMode(
+                            (critMultiline != null && critMultiline.equals("1") ? Pattern.MULTILINE : 0) | (critCase != null && critCase.equals("1") ? Pattern.CASE_INSENSITIVE : 0) | (critDotall != null && critDotall.equals("1") ? Pattern.DOTALL : 0)
+                    );
+                    cdata.setRegexPattern(critRegex);
                     // Update question criteria model
                     qc.setData(cdata);
                     qc.setWeight(weight);
@@ -530,16 +536,16 @@ public class DefaultQC extends Plugin
         data.setTemplateData("criteria", qc);
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
-        data.setTemplateData("crit_regex", critRegex != null ? critRegex : cdata.regexPattern);
+        data.setTemplateData("crit_regex", critRegex != null ? critRegex : cdata.getRegexPattern());
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
         data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
         
         // -- Note: critRegex is used to test for postback; if a box was previously selected, unselecting and posting-back may cause it to change state
-        if( (critRegex == null && ((cdata.mode & Pattern.MULTILINE) == Pattern.MULTILINE)) || (critMultiline != null && critMultiline.equals("1")))
+        if( (critRegex == null && ((cdata.getMode() & Pattern.MULTILINE) == Pattern.MULTILINE)) || (critMultiline != null && critMultiline.equals("1")))
             data.setTemplateData("crit_multiline", data);
-        if( (critRegex == null && ((cdata.mode & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE)) || (critCase != null && critCase.contains("1")))
+        if( (critRegex == null && ((cdata.getMode() & Pattern.CASE_INSENSITIVE) == Pattern.CASE_INSENSITIVE)) || (critCase != null && critCase.contains("1")))
             data.setTemplateData("crit_case", data);
-        if( (critRegex == null && ((cdata.mode & Pattern.DOTALL) == Pattern.DOTALL)) || (critDotall != null && critDotall.equals("1")))
+        if( (critRegex == null && ((cdata.getMode() & Pattern.DOTALL) == Pattern.DOTALL)) || (critDotall != null && critDotall.equals("1")))
             data.setTemplateData("crit_dotall", data);
         
         return true;
@@ -647,11 +653,138 @@ public class DefaultQC extends Plugin
             }
         }
         // Render the template
-        kvs.put("text", qdata.text);
+        kvs.put("text", qdata.getText());
         kvs.put("choices", adata.getViewModels(aqid, data.getRequestData(), qdata, pb != null));
-        kvs.put("single_choice", qdata.singleAnswer);
+        if(qdata.isSingleAnswer())
+            kvs.put("single_choice", true);
         kvs.put("aqid", aqid);
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_capture"));
         return true;
+    }
+    // Methods - Criteria Types - Marking **************************************
+    private boolean criteriaMarking(Object[] hookData)
+    {
+        // Parse hook data
+        if(hookData.length != 2 || !(hookData[0] instanceof Connector) || !(hookData[1] instanceof InstanceAssignmentCriteria))
+            return false;
+        Connector conn = (Connector)hookData[0];
+        InstanceAssignmentCriteria iac = (InstanceAssignmentCriteria)hookData[1];
+        // Delegate to the correct method for marking
+        UUID ctype = iac.getQC().getCriteria().getUuidCType();
+        if(ctype.equals(UUID_CRITERIATYPE_MANUALMARKING))
+            return criteriaMarking_manualMarking(conn, iac);
+        else if(ctype.equals(UUID_CRITERIATYPE_TEXTMATCH))
+            return criteriaMarking_textMatch(conn, iac);
+        else if(ctype.equals(UUID_CRITERIATYPE_REGEXMATCH))
+            return criteriaMarking_regexMatch(conn, iac);
+        else if(ctype.equals(UUID_CRITERIATYPE_JAVALOC))
+            ;
+        else if(ctype.equals(UUID_CRITERIATYPE_JAVACONTAINSCLASS))
+            ;
+        else if(ctype.equals(UUID_CRITERIATYPE_JAVACONTAINSMETHOD))
+            ;
+        return false;
+    }
+    private boolean criteriaMarking_manualMarking(Connector conn, InstanceAssignmentCriteria iac)
+    {
+        // This method should never be actually reached
+        // -- Fail-safe: reset status to manualmarking
+        iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+    }
+    private boolean criteriaMarking_textMatch(Connector conn, InstanceAssignmentCriteria iac)
+    {
+        if(!iac.getIAQ().isAnswered())
+        {
+            iac.setMark(0);
+            return true;
+        }
+        else
+        {
+            UUID qtype = iac.getIAQ().getAssignmentQuestion().getQuestion().getQtype().getUuidQType();
+            Data_Criteria_TextMatch cdata = (Data_Criteria_TextMatch)iac.getQC().getData();
+            String match = cdata.isCaseSensitive() ? cdata.getText() : cdata.getText().toLowerCase();
+            boolean matched = false;
+            if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
+            {
+                
+                String text = (String)iac.getIAQ().getData();
+                if(!cdata.isCaseSensitive())
+                    text = text.toLowerCase();
+                matched = text.equals(match);
+            }
+            else if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
+            {
+                Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iac.getQC().getQuestion().getData();
+                Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iac.getIAQ().getData();
+                String[] text = adata.getAnswers(qdata);
+                for(String t : text)
+                {
+                    if((cdata.isCaseSensitive() ? t : t.toLowerCase()).equals(match))
+                    {
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+            else
+                return false;
+            // Update and persist the mark
+            iac.setMark(matched ? 100 : 0);
+            iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
+            return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+        }
+    }
+    private boolean criteriaMarking_regexMatch(Connector conn, InstanceAssignmentCriteria iac)
+    {
+        if(!iac.getIAQ().isAnswered())
+        {
+            iac.setMark(0);
+            return true;
+        }
+        else
+        {
+            Data_Criteria_Regex cdata = (Data_Criteria_Regex)iac.getQC().getData();
+            // Compile regex pattern
+            Pattern p;
+            try
+            {
+                p = Pattern.compile(cdata.getRegexPattern(), cdata.getMode());
+            }
+            catch(PatternSyntaxException ex)
+            {
+                getCore().getLogging().logEx("Default QC", "Could not compile regex pattern for question-criteria '"+iac.getQC().getQCID()+"' (QCID).", ex, Logging.EntryType.Warning);
+                iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+            }
+            // Perform matching
+            UUID qtype = iac.getIAQ().getAssignmentQuestion().getQuestion().getQtype().getUuidQType();
+            boolean matched = false;
+            if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
+            {
+                Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iac.getQC().getQuestion().getData();
+                Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iac.getIAQ().getData();
+                String[] text = adata.getAnswers(qdata);
+                for(String t : text)
+                {
+                    if(p.matcher(t).matches())
+                    {
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+            else if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
+            {
+                String text = (String)iac.getIAQ().getData();
+                matched = p.matcher(text).matches();
+            }
+            else
+                return false;
+            // Update and persist the mark
+            iac.setMark(matched ? 100 : 0);
+            iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
+            return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+        }
     }
 }

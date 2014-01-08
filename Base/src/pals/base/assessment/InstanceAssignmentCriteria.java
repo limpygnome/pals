@@ -87,6 +87,84 @@ public class InstanceAssignmentCriteria
     }
     // Methods - Persistence ***************************************************
     /**
+     * Creates models for the answered questions of an instance of an
+     * assignment. This is executed as a transaction. Old criterias are not
+     * modified where the status is AwaitingManualMarking or Marked.
+     * 
+     * @param conn Database connector.
+     * @param ia Instance assignment.
+     * @param status The status to give each model.
+     * @return True = successful, false = failed (status of operation).
+     */
+    public static boolean createForInstanceAssignment(Connector conn, InstanceAssignment ia, Status status)
+    {
+        try
+        {
+            conn.execute("BEGIN;");
+            conn.execute("DELETE FROM pals_assignment_instance_question_criteria WHERE NOT (status=? OR status=?) AND aiqid IN (SELECT aiqid FROM pals_assignment_instance_question WHERE aiid=?);",
+                    Status.AwaitingManualMarking.dbValue,
+                    Status.Marked.dbValue,
+                    ia.getAIID()
+            );
+            // Fetch the required information
+            Result res = conn.read("SELECT aiq.aiqid, qc.qcid FROM pals_question_criteria AS qc "
+                    + "LEFT OUTER JOIN pals_assignment_questions AS aq ON qc.qid=aq.qid "
+                    + "LEFT OUTER JOIN pals_assignment_instance AS ai ON aq.assid=ai.assid "
+                    + "LEFT OUTER JOIN pals_assignment_instance_question AS aiq ON (aiq.aiid=ai.aiid AND aiq.aqid=aq.aqid) "
+                    + "LEFT OUTER JOIN pals_assignment_instance_question_criteria AS aiqc ON (aiqc.qcid=qc.qcid AND aiqc.aiqid=aiq.aiqid) "
+                    + "WHERE ai.aiid=? AND aiq.answered='1' AND (aiqc.status IS NULL OR NOT(aiqc.status=? OR aiqc.status=?));",
+                    ia.getAIID(),
+                    Status.AwaitingManualMarking.dbValue,
+                    Status.Marked.dbValue
+            );
+            // Create a model for each criteria
+            while(res.next())
+            {
+                conn.execute("INSERT INTO pals_assignment_instance_question_criteria (aiqid,qcid,status,mark) VALUES(?,?,?,?);", (int)res.get("aiqid"), (int)res.get("qcid"), status.dbValue, 0);
+            }
+            conn.execute("COMMIT;");
+            return true;
+        }
+        catch(DatabaseException ex)
+        {
+            try
+            {
+                conn.execute("ROLLBACK;");
+            }
+            catch(DatabaseException ex2)
+            {
+            }
+            return false;
+        }
+    }
+    /**
+     * Fetches the model of the next criteria for processing/marking;
+     * this will update the last_processed column.
+     * 
+     * @param core Current instance of the core.
+     * @param conn Database connector.
+     * @param timeoutMs The timeout period for the last_processed column.
+     * @return An instance of the model or null.
+     */
+    public static InstanceAssignmentCriteria loadNextWork(NodeCore core, Connector conn, int timeoutMs)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_assignment_instance_question_criteria WHERE status=? AND (last_processed IS NULL OR last_processed < (current_timestamp - CAST(? AS INTERVAL))) LIMIT 1;", Status.AwaitingMarking.dbValue, timeoutMs+" millisecond");
+            if(res.next())
+            {
+                conn.execute("UPDATE pals_assignment_instance_question_criteria SET last_processed=current_timestamp WHERE aiqid=? AND qcid=?;", (int)res.get("aiqid"), (int)res.get("qcid"));
+                return load(core, conn, null, null, res);
+            }
+            else
+                return null;
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
+    }
+    /**
      * Loads a model from the database.
      * 
      * @param conn Database connector.
@@ -151,7 +229,9 @@ public class InstanceAssignmentCriteria
     {
         try
         {
-            return new InstanceAssignmentCriteria(iaq, qc, Status.getStatus((int)res.get("status")), (int)res.get("mark"));
+            InstanceAssignmentCriteria iac = new InstanceAssignmentCriteria(iaq, qc, Status.getStatus((int)res.get("status")), (int)res.get("mark"));
+            iac.persisted = true;
+            return iac;
         }
         catch(DatabaseException ex)
         {
@@ -192,7 +272,7 @@ public class InstanceAssignmentCriteria
                     conn.execute("INSERT INTO pals_assignment_instance_question_criteria (aiqid, qcid, status, mark) VALUES(?,?,?,?);",
                             iaq.getAIQID(),
                             qc.getQCID(),
-                            status,
+                            status.dbValue,
                             mark
                             );
                 }

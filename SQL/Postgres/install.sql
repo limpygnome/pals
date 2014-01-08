@@ -239,8 +239,13 @@ CREATE TABLE pals_assignment_instance_question_criteria
 	-- The question criteria.
 	qcid				INT					REFERENCES pals_question_criteria(qcid) ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
 	-- The status of marking the criteria; refer to pals.base.assessment.InstanceAssignmentCriteria.Status for values.
-	status				INT					DEFAULT 0,
+	status				INT					DEFAULT 0																				NOT NULL,
 	-- The mark allocated to the criteria; 0 to 100.
-	mark				INT					DEFAULT 0,
+	mark				INT					DEFAULT 0																				NOT NULL,
+	-- The time at which the criteria was last processed; if this period exceeds a certain limit, as controlled by the nodes,
+	-- the work is available for re-processing.
+	last_processed		TIMESTAMP,
 	PRIMARY KEY(aiqid, qcid)
 );
+
+

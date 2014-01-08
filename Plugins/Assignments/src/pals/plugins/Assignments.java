@@ -11,7 +11,9 @@ import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
+import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
@@ -209,12 +211,14 @@ public class Assignments extends Plugin
             StringBuilder html;
             String error;
             HashMap<String,Object> kvs;
+            UUID plugin;
             for(int i = 0; i < questions.length; i++)
             {
                 error = null;
                 html = new StringBuilder();
                 // Fetch the plugin responsible
-                p = pm.getPlugin(questions[i].getQuestion().getQtype().getUuidPlugin());
+                plugin = questions[i].getQuestion().getQtype().getUuidPlugin();
+                p = plugin != null ? pm.getPlugin(plugin) : null;
                 // Delegate to plugin to render and handle data for the current request
                 if(p == null)
                     error = "Plugin '"+questions[i].getQuestion().getQtype().getUuidPlugin().getHexHyphens()+"' is not loaded in the runtime!";
@@ -246,9 +250,12 @@ public class Assignments extends Plugin
         String confirm = req.getField("confirm");
         if(confirm != null && confirm.equals("1"))
         {
+            // Create instance-criterias to be marked
+            if(!InstanceAssignmentCriteria.createForInstanceAssignment(data.getConnector(), ia, InstanceAssignmentCriteria.Status.AwaitingMarking))
+                data.setTemplateData("error", "Failed to prepare assignment for marking!");
             // Set the assignment as submitted
-            ia.setStatus(InstanceAssignment.Status.Submitted);
-            // Persist the model
+           // ia.setStatus(InstanceAssignment.Status.Submitted);
+            // Persist the model - this should work, else something has gone critically wrong...
             InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
             switch(iaps)
             {

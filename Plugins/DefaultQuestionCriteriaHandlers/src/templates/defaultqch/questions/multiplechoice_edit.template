@@ -23,7 +23,7 @@
                 Single Answer Only:
             </td>
             <td>
-                <input type="checkbox" name="mc_single_answer" <#if mc_single_answer??>checked</#if> />
+                <input type="checkbox" name="mc_single_answer" value="1" <#if mc_single_answer??>checked</#if> />
             </td>
         </tr>
         <tr>

@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public class Data_Criteria_TextMatch implements Serializable
 {
+    static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String text;
     private boolean caseSensitive;

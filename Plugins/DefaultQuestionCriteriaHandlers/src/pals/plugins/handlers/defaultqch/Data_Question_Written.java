@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class Data_Question_Written implements Serializable
 {
+    static final long serialVersionUID = 1L;
+    // Fields ******************************************************************
     private String text;
     // Methods - Constructors **************************************************
     public Data_Question_Written()

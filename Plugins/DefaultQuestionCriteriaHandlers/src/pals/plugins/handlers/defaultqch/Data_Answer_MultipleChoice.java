@@ -12,6 +12,7 @@ import pals.base.web.RemoteRequest;
  */
 public class Data_Answer_MultipleChoice implements Serializable
 {
+    static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private Integer[]                   answers;                // Original indexes stored as items
     private HashMap<Integer,Integer>    randomIndexMappings;    // Random index,original index
@@ -21,7 +22,7 @@ public class Data_Answer_MultipleChoice implements Serializable
         this.randomIndexMappings = new HashMap<>();
         this.answers = new Integer[0];
         // Create randomly shuffled indexes
-        Integer[] items = new Integer[qdata.answers.length];
+        Integer[] items = new Integer[qdata.getAnswers().length];
         for(int i = 0; i < items.length; i++)
             items[i] = i;
         Misc.arrayShuffle(rng, items);
@@ -39,13 +40,29 @@ public class Data_Answer_MultipleChoice implements Serializable
      */
     public void processAnswers(int aqid, RemoteRequest req, Data_Question_MultipleChoice qdata)
     {
-        ArrayList<Integer> answers = new ArrayList<>();
-        for(int i = 0; i < qdata.answers.length; i++)
+        ArrayList<Integer> buffer = new ArrayList<>();
+        String[] answers = req.getFields("multiple_choice_"+aqid);
+        int value;
+        for(String answer : answers)
         {
-            if(req.getField("multiple_choice_"+aqid+"_"+i) != null)
-                answers.add(randomIndexMappings.get(i));
+            try
+            {
+                value = Integer.parseInt(answer);
+                if(value < 0 || value >= randomIndexMappings.size())
+                    return;
+                buffer.add(randomIndexMappings.get(value));
+            }
+            catch(NumberFormatException ex)
+            {
+                // Invalid request...
+                return;
+            }
         }
-        this.answers = answers.toArray(new Integer[answers.size()]);
+        // Check we do not capture more than one answer for single-answer mode
+        // -- Else we will ignore the request.
+        // -- -- Most likely the user attempting to trick the system.
+        if(!(qdata.isSingleAnswer() && buffer.size() > 1))
+            this.answers = buffer.toArray(new Integer[buffer.size()]);
     }
     // Methods - Mutators ******************************************************
     /**
@@ -66,6 +83,18 @@ public class Data_Answer_MultipleChoice implements Serializable
         return answers;
     }
     /**
+     * @param qdata The question data.
+     * @return String-array of answers.
+     */
+    public String[] getAnswers(Data_Question_MultipleChoice qdata)
+    {
+        String[] buffer = new String[answers.length];
+        String[] txtAnswers = qdata.getAnswers();
+        for(int i = 0; i < answers.length; i++)
+            buffer[i] = txtAnswers[answers[i]];
+        return buffer;
+    }
+    /**
      * @param aqid Identifier of the assignment-question.
      * @param req Remote request data.
      * @param qdata The question data.
@@ -75,12 +104,13 @@ public class Data_Answer_MultipleChoice implements Serializable
      */
     public MultipleChoiceRenderHolder[] getViewModels(int aqid, RemoteRequest req, Data_Question_MultipleChoice qdata, boolean postback)
     {
-        MultipleChoiceRenderHolder[] choices = new MultipleChoiceRenderHolder[qdata.answers.length];
+        String[] txtAnswers = qdata.getAnswers();
+        MultipleChoiceRenderHolder[] choices = new MultipleChoiceRenderHolder[txtAnswers.length];
         int originalIndex;
-        for(int i = 0; i < qdata.answers.length; i++)
+        for(int i = 0; i < txtAnswers.length; i++)
         {
             originalIndex = randomIndexMappings.get(i);
-            choices[i] = new MultipleChoiceRenderHolder(i, qdata.answers[originalIndex], (postback && req.getField("multiple_choice_"+aqid+"_"+i)!=null)||Misc.arrayContains(answers, originalIndex));
+            choices[i] = new MultipleChoiceRenderHolder(i, txtAnswers[originalIndex], (postback && req.getField("multiple_choice_"+aqid+"_"+i)!=null)||Misc.arrayContains(answers, originalIndex));
         }
         return choices;
     }

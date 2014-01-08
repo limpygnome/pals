@@ -341,6 +341,8 @@ public class NodeCore
         logging.log(LOGGING_ALIAS_START, "Core started.", Logging.EntryType.Info);
         // Notify any threads
         notifyAll();
+        // Update the state to started
+        state = State.Started;
         return true;
     }
     /**
