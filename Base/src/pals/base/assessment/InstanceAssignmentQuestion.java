@@ -29,13 +29,14 @@ public class InstanceAssignmentQuestion
     private InstanceAssignment  ia;                 // The current instance of the assignment.
     private Object              data;               // Data for the current instance of the question.
     private boolean             answered;           // Indicates of the question has been answered.
+    private double              mark;
     // Methods - Constructors **************************************************
     /**
      * Constructs a new instance of an assignment-instance question.
      */
     public InstanceAssignmentQuestion()
     {
-        this(null, null, null, false);
+        this(null, null, null, false, 0);
     }
     /**
      * Constructs a new instance of an assignment-instance question.
@@ -44,14 +45,16 @@ public class InstanceAssignmentQuestion
      * @param ia The instance of the assignment.
      * @param data The data for the question, provided by a question-type.
      * @param answered Indicates if the question has been answered.
+     * @param mark The mark of the question, between 0 to 100.
      */
-    public InstanceAssignmentQuestion(AssignmentQuestion aq, InstanceAssignment ia, Object data, boolean answered)
+    public InstanceAssignmentQuestion(AssignmentQuestion aq, InstanceAssignment ia, Object data, boolean answered, double mark)
     {
         this.aiqid = -1;
         this.aq = aq;
         this.ia = ia;
         this.data = data;
         this.answered = answered;
+        this.mark = mark;
     }
     // Methods - Persistence ***************************************************
     /**
@@ -164,7 +167,7 @@ public class InstanceAssignmentQuestion
             AssignmentQuestion aq = AssignmentQuestion.load(core, conn, ia.getAss(), (int)res.get("aqid"));
             if(aq == null)
                 return null;
-            InstanceAssignmentQuestion iaq = new InstanceAssignmentQuestion(aq, ia, data, ((String)res.get("answered")).equals("1"));
+            InstanceAssignmentQuestion iaq = new InstanceAssignmentQuestion(aq, ia, data, ((String)res.get("answered")).equals("1"), (double)res.get("mark"));
             iaq.aiqid = (int)res.get("aiqid");
             return iaq;
         }
@@ -203,20 +206,22 @@ public class InstanceAssignmentQuestion
             {
                 if(aiqid == -1)
                 {
-                    aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, data, answered) VALUES(?,?,?,?) RETURNING aiqid;",
-                            aq.getAQID(),
-                            ia.getAIID(),
-                            bdata,
-                            answered ? "1" : "0"
-                            );
-                }
-                else
-                {
-                    conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, data=?, answered=? WHERE aiqid=?;",
+                    aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, data, answered, mark) VALUES(?,?,?,?,?) RETURNING aiqid;",
                             aq.getAQID(),
                             ia.getAIID(),
                             bdata,
                             answered ? "1" : "0",
+                            mark
+                            );
+                }
+                else
+                {
+                    conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, data=?, answered=?, mark=? WHERE aiqid=?;",
+                            aq.getAQID(),
+                            ia.getAIID(),
+                            bdata,
+                            answered ? "1" : "0",
+                            mark,
                             aiqid
                             );
                 }
@@ -275,6 +280,14 @@ public class InstanceAssignmentQuestion
     {
         this.answered = answered;
     }
+    /**
+     * @param mark The mark of the question, between (inclusively) 0 to 100.
+     */
+    public void setMark(double mark)
+    {
+        if(mark >= 0.0 && mark <= 100.0)
+            this.mark = mark;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Indicates if the current model is persisted.
@@ -317,5 +330,12 @@ public class InstanceAssignmentQuestion
     public boolean isAnswered()
     {
         return answered;
+    }
+    /**
+     * @return The mark for this question.
+     */
+    public double getMark()
+    {
+        return mark;
     }
 }

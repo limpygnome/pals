@@ -565,7 +565,7 @@ public class DefaultQC extends Plugin
         // Load the model used for the question
         InstanceAssignmentQuestion iaq = InstanceAssignmentQuestion.load(data.getCore(), data.getConnector(), ia, question);
         if(iaq == null)
-            iaq = new InstanceAssignmentQuestion(question, ia, null, false);
+            iaq = new InstanceAssignmentQuestion(question, ia, null, false, 0);
         // Delegate to be rendered and question-data captured
         UUID qtype = question.getQuestion().getQtype().getUuidQType();
         if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))

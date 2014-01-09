@@ -21,7 +21,7 @@ public class InstanceAssignmentCriteria
         AwaitingMarking(2),
         Marked(4);
         
-        private final int dbValue;
+        public final int dbValue;
         private Status(int dbValue)
         {
             this.dbValue = dbValue;

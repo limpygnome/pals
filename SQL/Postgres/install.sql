@@ -223,6 +223,8 @@ CREATE TABLE pals_assignment_instance_question
 	data				BYTEA,
 	-- Indicates if the question has been answered.
 	answered			VARCHAR(1)			DEFAULT '0'																			NOT NULL,
+	-- The grade of the question, from 0 to 100.
+	mark				DOUBLE PRECISION	DEFAULT 0																			NOT NULL,
 	-- Ensure aqid and aiid are unique; also creates indexes for fast reverse querying.
 	UNIQUE(aqid, aiid)
 );

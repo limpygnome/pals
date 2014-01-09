@@ -8,6 +8,7 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
+import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.Module;
 import pals.base.assessment.Question;
 import pals.base.auth.User;
@@ -132,16 +133,22 @@ public class Modules extends Plugin
             return false;
         // Fetch the module's assignments
         Assignment[] assignments = Assignment.load(data.getConnector(), module);
-        // Sum the weight of the assignments
+        // Create view models
+        ModuleViewModel[] models = new ModuleViewModel[assignments.length];
+        // Sum the weight of the assignments and create view models
         int total = 0;
+        int offset = 0;
         for(Assignment ass : assignments)
+        {
             total += ass.getWeight();
+            models[offset++] = new ModuleViewModel(data.getConnector(), ass, user);
+        }
         // Setup the page
         data.setTemplateData("pals_title", "Module - "+Escaping.htmlEncode(module.getTitle()));
         data.setTemplateData("pals_content", "modules/page_module");
         // -- Fields
         data.setTemplateData("module", module);
-        data.setTemplateData("assignments", assignments);
+        data.setTemplateData("assignments", models);
         data.setTemplateData("total_weight", total);
         return true;
     }

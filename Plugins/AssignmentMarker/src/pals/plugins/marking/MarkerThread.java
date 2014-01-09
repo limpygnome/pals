@@ -4,6 +4,7 @@ import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.UUID;
+import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -92,7 +93,6 @@ public class MarkerThread extends ExtendedThread
         }
         catch(DatabaseException ex)
         {
-            System.err.println("EXCEPTION ~ " + ex.getMessage());
             try
             {
                 conn.tableUnlock(false);
@@ -121,7 +121,42 @@ public class MarkerThread extends ExtendedThread
             {
                 marker.getCore().getLogging().log("Ass. Marker", "Marked criteria '"+iac.getIAQ().getAIQID()+"','"+iac.getQC().getQCID()+"'.", Logging.EntryType.Info);
                 // Check if the assignment needs the overall mark computed
-                
+                try
+                {
+                    boolean needsMarkComputed = false;
+                    InstanceAssignment ia = iac.getIAQ().getInstanceAssignment();
+                    conn.tableLock("pals_assignment_instance_question_criteria", false);
+                    if(ia.isMarkComputationNeeded(conn))
+                    {
+                        // Set the assignment to 'Marking'
+                        ia.setStatus(InstanceAssignment.Status.Marking);
+                        if(ia.persist(conn) != InstanceAssignment.PersistStatus.Success)
+                        {
+                            marker.getCore().getLogging().log("Ass. Marker", "Failed to set instance-assignment to marked.", Logging.EntryType.Error);
+                            return true;
+                        }
+                        else
+                            needsMarkComputed = true;
+                    }
+                    conn.tableUnlock(false);
+                    // Compute the assignment's overall mark...
+                    if(needsMarkComputed)
+                    {
+                        // Compute the grade for the assignment
+                        if(!ia.computeMark(conn))
+                            marker.getCore().getLogging().log("Ass. Marker", "Failed to compute marks for assignment instance '"+ia.getAIID()+"'.", Logging.EntryType.Warning);
+                        else
+                        {
+                            // Update the status
+                            ia.setStatus(InstanceAssignment.Status.Marked);
+                            ia.persist(conn);
+                            marker.getCore().getLogging().log("Ass. Marker", "Computed marks for assignment instance '"+ia.getAIID()+"' ~ "+ia.getMark()+"%.", Logging.EntryType.Info);
+                        }
+                    }
+                }
+                catch(DatabaseException ex)
+                {
+                }
             }
             return true;
         }

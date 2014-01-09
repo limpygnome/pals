@@ -23,7 +23,8 @@ public class InstanceAssignment
     {
         Active(0),
         Submitted(1),
-        Marked(2);
+        Marking(2),
+        Marked(3);
         
         private final int status;
         private Status(int status)
@@ -52,6 +53,8 @@ public class InstanceAssignment
                 case 1:
                     return Submitted;
                 case 2:
+                    return Marking;
+                case 3:
                     return Marked;
             }
         }
@@ -221,6 +224,49 @@ public class InstanceAssignment
             return false;
         }
     }
+    /**
+     * Computes the overall mark of the assignment, as well as the instances
+     * of the questions.
+     * 
+     * @param conn Database connector.
+     * @return True = successfully marked, false = failed.
+     */
+    public boolean computeMark(Connector conn)
+    {
+        try
+        {
+            // Compute marks of each question answered
+            Result res = conn.read(
+                "SELECT aiq.aiqid, CAST(("
+                + "("
+                + "(SELECT SUM((aiqc.mark/100.0)*qc.weight) FROM pals_assignment_instance_question_criteria AS aiqc LEFT OUTER JOIN pals_question_criteria AS qc ON qc.qcid=aiqc.qcid WHERE aiqc.aiqid=aiq.aiqid)"
+                + "/"
+                + "(SELECT SUM(qc.weight) FROM pals_question_criteria AS qc WHERE qc.qid=aq.qid)"
+                + ") * 100.0) AS double precision) AS mark "
+                + "FROM pals_assignment_instance_question AS aiq LEFT OUTER JOIN pals_assignment_questions AS aq ON aq.aqid=aiq.aqid WHERE aiq.aiid=?;",
+                    aiid
+            );
+            while(res.next())
+                conn.execute("UPDATE pals_assignment_instance_question SET mark=? WHERE aiqid=?;", (double)res.get("mark"), (int)res.get("aiqid"));
+            // Compute mark of assignment
+            mark = (double)conn.executeScalar(
+                "UPDATE pals_assignment_instance AS ai SET mark = "
+                + "(SELECT ("
+                + "(SELECT SUM((aiq.mark/100.0)*aq.weight) FROM pals_assignment_instance_question AS aiq LEFT OUTER JOIN pals_assignment_questions AS aq ON aq.aqid=aiq.aqid WHERE aiq.aiid=ai.aiid)"
+                + "/"
+                + "(SELECT SUM(aq.weight) FROM pals_assignment_questions AS aq WHERE aq.assid=ai.assid))"
+                + "*100.0)"
+                + "WHERE ai.aiid=? RETURNING CAST(mark AS double precision);",
+                    aiid
+            );
+            // Update this model
+            return true;
+        }
+        catch(DatabaseException ex)
+        {
+            return false;
+        }
+    }
     // Methods - Mutators ******************************************************
     /**
      * @param user Sets the user who is answering this instance of the
@@ -294,24 +340,43 @@ public class InstanceAssignment
     {
         return mark;
     }
-    // Methods - Accessors - Static ********************************************
     /**
      * @param conn Database connector.
-     * @param assignment The assignment being taken.
-     * @param user The user taking the assignment.
-     * @return The identifier of the assignment or -1 if no previous incomplete
-     * assignment exists.
+     * @return Indicates if the assignment requires marking; this also checks
+     * the status of the assignment, since this model may be outdated.
      */
-    public static int getLastAssignment(Connector conn, Assignment assignment, User user)
+    public boolean isMarkComputationNeeded(Connector conn)
     {
         try
         {
-            Integer i = (Integer)conn.executeScalar("SELECT aiid FROM pals_assignment_instance WHERE userid=? AND assid=? ORDER BY aiid DESC LIMIT 1;", user.getUserID(), assignment.getAssID());
-            return i == null ? -1 : (int)i;
+            Result res = conn.read(
+                    "SELECT (SELECT COUNT('') FROM pals_assignment_instance_question_criteria AS aiqc "
+                    + "LEFT OUTER JOIN pals_assignment_instance_question AS aiq ON aiq.aiqid=aiqc.aiqid "
+                    +"WHERE aiq.aiid=? AND NOT aiqc.status=?) AS unmarked, (SELECT status FROM pals_assignment_instance WHERE aiid=?) AS status;", aiid, InstanceAssignmentCriteria.Status.Marked.dbValue, aiid);
+            return res.next() && (long)res.get("unmarked") == 0 && Status.parse((int)res.get("status")) == Status.Submitted;
         }
         catch(DatabaseException ex)
         {
-            return -1;
+            return false;
+        }
+    }
+    // Methods - Accessors - Static ********************************************
+    /**
+     * @param conn Database connector.
+     * @param assignment The assignment being taken; cannot be null.
+     * @param user The user taking the assignment; cannot be null.
+     * @return Instance of a model or null.
+     */
+    public static InstanceAssignment getLastAssignment(Connector conn, Assignment assignment, User user)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_assignment_instance WHERE userid=? AND assid=? ORDER BY aiid DESC LIMIT 1;", user.getUserID(), assignment.getAssID());
+            return res.next() ? load(conn, assignment, user, res) : null;
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
         }
     }
 }

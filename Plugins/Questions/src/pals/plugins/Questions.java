@@ -25,9 +25,6 @@ import pals.plugins.web.Captcha;
  */
 public class Questions extends Plugin
 {
-    
-    // Fields ******************************************************************
-    
     // Methods - Constructors **************************************************
     public Questions(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {

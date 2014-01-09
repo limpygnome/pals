@@ -8,7 +8,7 @@
         <th colspan="3">
             %
         </th>
-        <td></td>
+        <td colspan="2"></td>
     </tr>
     <tr>
         <th>
@@ -27,6 +27,9 @@
             Last
         </th>
         <th>
+            Attempts
+        </th>
+        <th>
             Options
         </th>
     </tr>
@@ -34,27 +37,38 @@
         <#list assignments as assignment>
             <tr>
                 <td>
-                    ${assignment.getTitle()?html}
+                    ${assignment.getAss().getTitle()?html}
                 </td>
                 <td>
-                    ${assignment.getWeight()?string}
+                    ${assignment.getAss().getWeight()?string}
                 </td>
                 <td>
-                    ${((assignment.getWeight()/total_weight)*100)?string}%
+                    ${((assignment.getAss().getWeight()/total_weight)*100)?string}%
                 </td>
                 <td>
-                    to-do
+                    <#if assignment.getMarkHighest() == -1>
+                        --
+                    <#else>
+                        ${assignment.getMarkHighest()?string}%
+                    </#if>
                 </td>
                 <td>
-                    to-do
+                    <#if assignment.getMarkLast() == -1>
+                        --
+                    <#else>
+                        ${assignment.getMarkLast()?string}%
+                    </#if>
+                </td>
+                <td>
+                    ${assignment.getAttempts()?string}
                 </td>
                 <td>
                     <a class="button" href="">
                         History
                     </a>
                     &nbsp;
-                    <#if assignment.isActive()>
-                        <a class="button" href="/assignments/take/${assignment.getAssID()?string}">
+                    <#if assignment.getAss().isActive()>
+                        <a class="button" href="/assignments/take/${assignment.getAss().getAssID()?string}">
                             Take
                         </a>
                     </#if>

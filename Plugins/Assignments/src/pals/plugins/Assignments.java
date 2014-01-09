@@ -112,9 +112,10 @@ public class Assignments extends Plugin
         if(!ass.isActive())
             return false;
         // Fetch the latest assignment by the user
-        int aiid = InstanceAssignment.getLastAssignment(data.getConnector(), ass, data.getUser());
-        if(aiid == -1)
+        InstanceAssignment ia = InstanceAssignment.getLastAssignment(data.getConnector(), ass, data.getUser());
+        if(ia == null || ia.getStatus() == InstanceAssignment.Status.Marked)
         {
+            ia = null;
             // Check postback to continue
             RemoteRequest req = data.getRequestData();
             String confirm = req.getField("confirm");
@@ -126,7 +127,7 @@ public class Assignments extends Plugin
                 else
                 {
                     // Create a new instance of the assignment, persist
-                    InstanceAssignment ia = new InstanceAssignment(data.getUser(), ass, InstanceAssignment.Status.Active, 0);
+                    ia = new InstanceAssignment(data.getUser(), ass, InstanceAssignment.Status.Active, 0);
                     InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
                     switch(iaps)
                     {
@@ -136,7 +137,7 @@ public class Assignments extends Plugin
                             data.setTemplateData("error", "Failed to create a new instance of the assignment; please try again or contact an administrator ('"+iaps.name()+"').");
                             break;
                         case Success:
-                            aiid = ia.getAIID();
+                            // Do nothing...
                             break;
                     }
                 }
@@ -149,10 +150,10 @@ public class Assignments extends Plugin
             data.setTemplateData("assignment", ass);
             data.setTemplateData("module", ass.getModule());
         }
-        if(aiid != -1)
+        if(ia != null)
         {
             // Redirect to the assignment
-            data.getResponseData().setRedirectUrl("/assignments/instance/"+aiid);
+            data.getResponseData().setRedirectUrl("/assignments/instance/"+ia.getAIID());
         }
         return true;
     }
@@ -254,7 +255,7 @@ public class Assignments extends Plugin
             if(!InstanceAssignmentCriteria.createForInstanceAssignment(data.getConnector(), ia, InstanceAssignmentCriteria.Status.AwaitingMarking))
                 data.setTemplateData("error", "Failed to prepare assignment for marking!");
             // Set the assignment as submitted
-           // ia.setStatus(InstanceAssignment.Status.Submitted);
+            ia.setStatus(InstanceAssignment.Status.Submitted);
             // Persist the model - this should work, else something has gone critically wrong...
             InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
             switch(iaps)

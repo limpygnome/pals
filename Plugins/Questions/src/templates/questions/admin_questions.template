@@ -42,7 +42,7 @@
                         </a>
                     <#else>
                         <a href="/admin/questions/${question.getQID()?string}">
-                            View
+                            Criteria
                         </a>
                         &nbsp;
                         <a href="/admin/questions/${question.getQID()?string}/edit">

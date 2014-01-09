@@ -44,6 +44,10 @@
                         View
                     </a>
                     &nbsp;
+                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">
+                        Questions
+                    </a>
+                    &nbsp;
                     <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">
                         Edit
                     </a>
