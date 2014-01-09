@@ -64,7 +64,18 @@ public class MarkerThread extends ExtendedThread
             // Fail-safe against waking from sleep
             // -- If not the database would be attacked with the equivalent of a denial of service attack
             if(flagWorked || System.currentTimeMillis()-lastRan >=interval)
-                flagWorked = processWork(conn, timeout);
+            {
+                try
+                {
+                    flagWorked = processWork(conn, timeout);
+                }
+                catch(Exception ex)
+                {
+                    marker.getCore().getLogging().logEx("Ass. Marker", ex, Logging.EntryType.Error);
+                    // Cool-down...
+                    flagWorked = false;
+                }
+            }
             // Sleep...
             try
             {

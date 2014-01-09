@@ -13,7 +13,6 @@ import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
-import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;

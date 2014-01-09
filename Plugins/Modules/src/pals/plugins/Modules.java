@@ -8,7 +8,6 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
-import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.Module;
 import pals.base.assessment.Question;
 import pals.base.auth.User;
