@@ -379,4 +379,21 @@ public class InstanceAssignment
             return null;
         }
     }
+    /**
+     * @param conn Database connector.
+     * @param ass The assignment.
+     * @param user The user.
+     * @return The number of times a user has attempted an assignment.
+     */
+    public static int getAttempts(Connector conn, Assignment ass, User user)
+    {
+        try
+        {
+            return (int)(long)conn.executeScalar("SELECT COUNT('') FROM pals_assignment_instance WHERE userid=? AND assid=?;", user.getUserID(), ass.getAssID());
+        }
+        catch(DatabaseException ex)
+        {
+            return -1;
+        }
+    }
 }

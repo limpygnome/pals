@@ -72,16 +72,31 @@ public class Misc
         return new String(buffer);
     }
     /**
-     * @param input The input string to test.
+     * @param input The input string to test; can be null.
      * @return True if input consists of alpha-numric chars, false otherwise.
      */
     public static boolean isAlphaNumeric(String input)
     {
+        if(input == null)
+            return false;
         for(char c : input.toCharArray())
         {
             if(!(c >= 48 && c <= 57) && !(c >= 65 && c <= 90) && !(c >= 97 && c <= 122))
                 return false;
         }
+        return true;
+    }
+    /**
+     * @param input The input to be tested; can be null.
+     * @return Indicates if the input is numeric.
+     */
+    public static boolean isNumeric(String input)
+    {
+        if(input == null)
+            return false;
+        for(char c : input.toCharArray())
+            if(c < 48 || c > 57)
+                return false;
         return true;
     }
     /**

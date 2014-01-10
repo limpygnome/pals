@@ -1,5 +1,11 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">Edit</a></h2>
 
+<#if !assignment.isActive()>
+    <p class="warning tac">
+        This assignment is inactive, therefore students will not be able to attempt it.
+    </p>
+</#if>
+
 <form method="post">
     <table class="table2">
         <tr>
@@ -27,6 +33,55 @@
             </td>
         </tr>
         <tr>
+            <td>
+                Max Attempts:
+            </td>
+            <td>
+                <input type="text" name="ass_max_attempts" value="<#if ass_max_attempts??>${ass_max_attempts}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Due:
+            </td>
+            <td>
+                <input type="checkbox" name="ass_due" value="1" <#if ass_due??>checked</#if> /> Enabled<br />
+                <br />
+                <select name="ass_due_day">
+                    <option>DD</option>
+                    <#list 1..31 as i>
+                        <option value="${i}" <#if ass_due_day?? && ass_due_day==i>selected</#if>>${i}</option>
+                    </#list>
+                </select>
+                <select name="ass_due_month">
+                    <option>MM</option>
+                    <#list 1..12 as i>
+                        <option value="${i?c}" <#if ass_due_month?? && ass_due_month==i>selected</#if>>${i?c}</option>
+                    </#list>
+                </select>
+                <select name="ass_due_year">
+                    <option>YYYY</option>
+                    <#list ass_year..(ass_year+20) as i>
+                        <option value="${i?c}" <#if ass_due_year?? && ass_due_year==i>selected</#if>>${i?c}</option>
+                    </#list>
+                </select>
+                <br />
+                <select name="ass_due_hour">
+                    <option>HH</option>
+                    <#list 1..23 as i>
+                        <option value="${i?c}" <#if ass_due_hour?? && ass_due_hour==i>selected</#if>>${i?c}</option>
+                    </#list>
+                </select>
+                :
+                <select name="ass_due_minute">
+                    <option>MM</option>
+                    <#list 1..59 as i>
+                        <option value="${i?c}" <#if ass_due_minute?? && ass_due_minute?number==i>selected</#if>>${i?c}</option>
+                    </#list>
+                </select>
+            </td>
+        </tr>
+        <tr>
             <td colspan="2">
                 <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">Back</a>
                 <input type="submit" value="Update" />
@@ -47,3 +102,7 @@
         ${success}
     </p>
 </#if>
+
+<p>
+    Note: the max attempts can be -1 for unlimited attempts.
+</p>

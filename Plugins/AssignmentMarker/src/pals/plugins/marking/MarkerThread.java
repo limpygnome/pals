@@ -8,6 +8,7 @@ import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 import pals.base.utils.ExtendedThread;
 
 /**
@@ -71,7 +72,7 @@ public class MarkerThread extends ExtendedThread
                 }
                 catch(Exception ex)
                 {
-                    marker.getCore().getLogging().logEx("Ass. Marker", ex, Logging.EntryType.Error);
+                    marker.getCore().getLogging().logEx("Ass. Marker", "Failed to process work ~ thread "+number+".", ex, Logging.EntryType.Error);
                     // Cool-down...
                     flagWorked = false;
                 }
@@ -91,6 +92,36 @@ public class MarkerThread extends ExtendedThread
     }
     private synchronized boolean processWork(Connector conn, int timeout)
     {
+        // Process assignments where the due-date has been surpassed and unhandled
+        try
+        {
+            conn.execute("BEGIN;");
+            conn.tableLock("pals_assignment_instance_question_criteria", true);
+            // Fetch any unhandled surpassed assignments
+            Result res = conn.read("SELECT assid FROM pals_assignment WHERE due_handled='0' AND due IS NOT NULL AND due < current_timestamp;");
+            int assid;
+            while(res.next())
+            {
+                assid = (int)res.get("assid");
+                marker.getCore().getLogging().log("Ass. Marker", "Assignment '"+assid+"' has surpassed due-date; handling.", Logging.EntryType.Info);
+                // Update the assignment to handled
+                conn.execute("UPDATE pals_assignment SET due_handled='1' WHERE assid=?;", assid);
+                // Update active assignments to submitted
+                conn.execute("UPDATE pals_assignment_instance SET status=? WHERE status=? AND assid=?;", InstanceAssignment.Status.Submitted.getStatus(), InstanceAssignment.Status.Active.getStatus(), assid);
+            }
+            conn.execute("COMMIT;");
+        }
+        catch(DatabaseException ex)
+        {
+            try
+            {
+                conn.execute("ROLLBACK;");
+            }
+            catch(DatabaseException ex2)
+            {
+            }
+            marker.getCore().getLogging().logEx("Ass. Marker", "Failed to handle due assignments.", ex, Logging.EntryType.Error);
+        }
         // Fetch work to do
         InstanceAssignmentCriteria iac = null;
         try
@@ -112,6 +143,7 @@ public class MarkerThread extends ExtendedThread
             {
             }
         }
+        // Process (instance) assignment criterias which need marking
         if(iac != null)
         {
             // Delegate to the plugin responsible for marking

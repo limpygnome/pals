@@ -171,11 +171,17 @@ CREATE TABLE pals_assignment
 (
 	assid				SERIAL				PRIMARY KEY,
 	moduleid			INT					REFERENCES pals_modules(moduleid) ON UPDATE CASCADE ON DELETE CASCADE,
-	title				VARCHAR(64)			DEFAULT 'Untitled Assignment' NOT NULL,
+	title				VARCHAR(64)			DEFAULT 'Untitled Assignment'	NOT NULL,
 	-- The weight of the assignment; similiar to weight in pals_assignment_questions.
-	weight				INT					NOT NULL,
+	weight				INT													NOT NULL,
 	-- Indicates if the assignment is active (1) or inactive/disabled (0).
-	active				VARCHAR(1)			DEFAULT 0
+	active				VARCHAR(1)			DEFAULT '0',
+	-- The maximum attempts of the assignment allowed.
+	max_attempts		INT					DEFAULT -1						NOT NULL,
+	-- The due-date for the assignment; any assignments unfinished are changed to submitted after this date/time.
+	due					TIMESTAMP,
+	-- Indicates if the due date, once surpassed, has been handled - with incomplete assignments set to submitted.
+	due_handled			VARCHAR(1)			DEFAULT '0'						NOT NULL
 );
 -- The questions which belong to an assignment; note: the same question may be used multiple times.
 CREATE TABLE pals_assignment_questions

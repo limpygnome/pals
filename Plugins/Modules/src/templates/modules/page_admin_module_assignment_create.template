@@ -20,6 +20,15 @@
             </td>
         </tr>
         <tr>
+            <td>
+                Max Attempts:
+            </td>
+            <td>
+                <input type="text" name="ass_max_attempts" value="<#if ass_max_attempts??>${ass_max_attempts}</#if>" /><br />
+                The maximum times an assignment can be attempted; this can be -1 for unlimited attempts.
+            </td>
+        </tr>
+        <tr>
             <td colspan="2">
                 <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">Back</a>
                 <input type="submit" value="Create" />

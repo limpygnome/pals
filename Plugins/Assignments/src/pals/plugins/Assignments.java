@@ -80,16 +80,24 @@ public class Assignments extends Plugin
             return false;
         // Delegate the request
         MultipartUrlParser mup = new MultipartUrlParser(data);
-        switch(mup.getPart(0))
+        String page = mup.getPart(0);
+        if(page != null)
         {
-            case "assignments":
+            switch(page)
             {
-                switch(mup.getPart(1))
+                case "assignments":
                 {
-                    case "take":
-                        return pageAssignments_take(data, mup);
-                    case "instance":
-                        return pageAssignments_instance(data, mup);
+                    page = mup.getPart(1);
+                    if(page != null)
+                    {
+                        switch(page)
+                        {
+                            case "take":
+                                return pageAssignments_take(data, mup);
+                            case "instance":
+                                return pageAssignments_instance(data, mup);
+                        }
+                    }
                 }
             }
         }
@@ -108,13 +116,16 @@ public class Assignments extends Plugin
         if(ass == null || !ass.getModule().isEnrolled(data.getConnector(), data.getUser()))
             return false;
         // Check the assignment is active
-        if(!ass.isActive())
+        if(!ass.isActive() || ass.isDueSurpassed())
             return false;
         // Fetch the latest assignment by the user
         InstanceAssignment ia = InstanceAssignment.getLastAssignment(data.getConnector(), ass, data.getUser());
         if(ia == null || ia.getStatus() == InstanceAssignment.Status.Marked)
         {
             ia = null;
+            // Check the user has not reached the maximum number of submissions for a new assignment
+            if(ass.getMaxAttempts() != -1 && InstanceAssignment.getAttempts(data.getConnector(), ass, data.getUser()) >= ass.getMaxAttempts())
+                return false;
             // Check postback to continue
             RemoteRequest req = data.getRequestData();
             String confirm = req.getField("confirm");
@@ -163,6 +174,12 @@ public class Assignments extends Plugin
         if(ia == null || ia.getStatus() != InstanceAssignment.Status.Active)
             return false;
         Assignment ass = ia.getAss();
+        // Check if the assignment has surpassed the due-date
+        if(ass.isDueSurpassed())
+        {
+            data.getResponseData().setRedirectUrl("/assignments/review/"+ia.getAIID());
+            return true;
+        }
         // Load the question pages
         Integer[] pages = ass.questionsPagesDb(data.getConnector());
         // Setup the page

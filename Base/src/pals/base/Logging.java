@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.EnumSet;
-import pals.base.utils.DateTime;
+import org.joda.time.DateTime;
 
 /**
  * Used to log the runtime of PALS.
@@ -103,7 +103,7 @@ public class Logging
         this.core = core;
         this.alias = alias;
         this.pw = null;
-        this.logDt = DateTime.getInstance();
+        this.logDt = DateTime.now();
         this.stackTraces = stackTraces;
         this.typesLogged = typesLogged;
     }
@@ -167,8 +167,8 @@ public class Logging
         else if(message == null)
             return;
         // Check if the day has changed
-        DateTime dt = DateTime.getInstance();
-        if(pw == null || !dt.isSameDay(logDt))
+        DateTime dt = DateTime.now();
+        if(pw == null || (dt.getYear() != logDt.getYear() || dt.getMonthOfYear() != logDt.getMonthOfYear() || dt.getDayOfMonth()!= logDt.getDayOfMonth()))
         {
             this.logDt = dt;
             switchLogFile();
@@ -188,7 +188,7 @@ public class Logging
                     sb.append("WARNING\t"); break;
             }
             // Write the date
-            sb.append(String.format("%04d-%02d-%02d %02d:%02d:%02d", dt.getYear(), dt.getMonth(), dt.getDay(), dt.getHour(), dt.getMinute(), dt.getSecond()));
+            sb.append(String.format("%04d-%02d-%02d %02d:%02d:%02d", dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(), dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute()));
             sb.append("\t");
             // Write the alias
             sb.append(padRestrictAlias(alias)).append("\t");
@@ -234,7 +234,7 @@ public class Logging
                 dir.mkdir();
             // Build the log path
             // Note: %0x = x padding of digit
-            String path = String.format("%s/%s_%04d_%02d_%02d.log", folder, alias, logDt.getYear(), logDt.getMonth(), logDt.getDay());
+            String path = String.format("%s/%s_%04d_%02d_%02d.log", folder, alias, logDt.getYear(), logDt.getMonthOfYear(), logDt.getDayOfMonth());
             // Open new log-file - set to append data too!
             pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(path), true)));
             return true;

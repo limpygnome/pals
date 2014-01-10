@@ -1,7 +1,10 @@
 package pals.base.assessment;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import org.joda.time.DateTime;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -20,6 +23,8 @@ public class Assignment
         Invalid_Module,
         Invalid_Title,
         Invalid_Weight,
+        Invalid_MaxAttempts,
+        Invalid_Due
     }
     public enum QuestionsPersistStatus
     {
@@ -32,6 +37,9 @@ public class Assignment
     private String                                          title;
     private int                                             weight;
     private boolean                                         active;
+    private int                                             maxAttempts;
+    private DateTime                                        due;
+    private boolean                                         dueHandled;
     private HashMap<Integer,ArrayList<AssignmentQuestion>>  questions;  // page,list<question>
     // Methods - Constructors **************************************************
     /**
@@ -39,7 +47,7 @@ public class Assignment
      */
     public Assignment()
     {
-        this(null, null, 0, false);
+        this(null, null, 0, false, -1, null, false);
     }
     /**
      * Creates a new unpersisted assignment.
@@ -48,14 +56,20 @@ public class Assignment
      * @param title The title of the assignment.
      * @param weight The weight of the assignment.
      * @param active Indicates if the assignment is active.
+     * @param maxAttempts The maximum attempts; can be -1 for unlimited.
+     * @param due  The date at which the assignment is due.
+     * @param dueHandled Indicates if the due-date, once surpassed, has been handled.
      */
-    public Assignment(Module module, String title, int weight, boolean active)
+    public Assignment(Module module, String title, int weight, boolean active, int maxAttempts, DateTime due, boolean dueHandled)
     {
         this.assid = -1;
         this.module = module;
         this.title = title;
         this.weight = weight;
         this.active = active;
+        this.maxAttempts = maxAttempts;
+        this.due = due;
+        this.dueHandled = dueHandled;
         this.questions = new HashMap<>();
     }
     // Methods - Persistence ***************************************************
@@ -165,7 +179,8 @@ public class Assignment
                     return null;
             }
             // Create and return an instance
-            Assignment ass = new Assignment(module, (String)result.get("title"), (int)result.get("weight"), ((String)result.get("active")).equals("1"));
+            Object due = result.get("due");
+            Assignment ass = new Assignment(module, (String)result.get("title"), (int)result.get("weight"), ((String)result.get("active")).equals("1"), (int)result.get("max_attempts"), due != null ? new DateTime(((Date)result.get("due")).getTime()) : null, ((String)result.get("due_handled")).equals("1"));
             ass.assid = result.get("assid");
             return ass;
         }
@@ -190,6 +205,10 @@ public class Assignment
             return PersistStatus.Invalid_Title;
         else if(weight <= 0)
             return PersistStatus.Invalid_Weight;
+        else if(maxAttempts < -1 || maxAttempts == 0)
+            return PersistStatus.Invalid_MaxAttempts;
+        else if(isDueSurpassed())
+            return PersistStatus.Invalid_Due;
         else
         {
             try
@@ -197,20 +216,26 @@ public class Assignment
                 // Attempt to persist
                 if(assid == -1)
                 {
-                    assid = (int)conn.executeScalar("INSERT INTO pals_assignment (moduleid, title, weight, active) VALUES(?,?,?,?) RETURNING assid;",
-                            module.getModuleID(),
-                            title,
-                            weight,
-                            active ? "1" : "0"
-                            );
-                }
-                else
-                {
-                    conn.execute("UPDATE pals_assignment SET moduleid=?, title=?, weight=?, active=? WHERE assid=?;",
+                    assid = (int)conn.executeScalar("INSERT INTO pals_assignment (moduleid, title, weight, active, max_attempts, due, due_handled) VALUES(?,?,?,?,?,?,?) RETURNING assid;",
                             module.getModuleID(),
                             title,
                             weight,
                             active ? "1" : "0",
+                            maxAttempts,
+                            (due != null ? new Timestamp(due.toDate().getTime()) : null),
+                            dueHandled ? "1" : "0"
+                            );
+                }
+                else
+                {
+                    conn.execute("UPDATE pals_assignment SET moduleid=?, title=?, weight=?, active=?, max_attempts=?, due=?, due_handled=? WHERE assid=?;",
+                            module.getModuleID(),
+                            title,
+                            weight,
+                            active ? "1" : "0",
+                            maxAttempts,
+                            (due != null ? new Timestamp(due.toDate().getTime()) : null),
+                            dueHandled ? "1" : "0",
                             assid
                             );
                 }
@@ -218,6 +243,7 @@ public class Assignment
             }
             catch(DatabaseException ex)
             {
+                System.err.println(ex.getMessage());
                 return PersistStatus.Failed;
             }
         }
@@ -271,6 +297,28 @@ public class Assignment
     {
         this.active = active;
     }
+    /**
+     * @param maxAttempts Sets the maximum attempts for the assignment; can be
+     * -1 for unlimited or greater than zero.
+     */
+    public void setMaxAttempts(int maxAttempts)
+    {
+        this.maxAttempts = maxAttempts;
+    }
+    /**
+     * @param due The date-time of when the assignment is due; can be null.
+     */
+    public void setDue(DateTime due)
+    {
+        this.due = due;
+    }
+    /**
+     * @param dueHandled Sets if the due-date has been handled.
+     */
+    public void setDueHandled(boolean dueHandled)
+    {
+        this.dueHandled = dueHandled;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Indicates if the model has been persisted.
@@ -278,13 +326,6 @@ public class Assignment
     public boolean isPersisted()
     {
         return assid != -1;
-    }
-    /**
-     * @return Indicates if the assignment can be taken by students.
-     */
-    public boolean isActive()
-    {
-        return active;
     }
     /**
      * @return The identifier of the assignment.
@@ -313,6 +354,42 @@ public class Assignment
     public int getWeight()
     {
         return weight;
+    }
+    /**
+     * @return Indicates if the assignment can be taken by students.
+     */
+    public boolean isActive()
+    {
+        return active;
+    }
+    /**
+     * @return The maximum number of attempts; -1 for unlimited.
+     */
+    public int getMaxAttempts()
+    {
+        return maxAttempts;
+    }
+    /**
+     * @return The date-time of when the assignment is due; can be null.
+     */
+    public DateTime getDue()
+    {
+        return due;
+    }
+    /**
+     * @return Indicates if the due-date, once surpassed, has been handled.
+     */
+    public boolean isDueHandled()
+    {
+        return dueHandled;
+    }
+    /**
+     * @return Indicates if the due-date for the assignment has been surpassed
+     * by the present time and it is now in the past.
+     */
+    public boolean isDueSurpassed()
+    {
+        return due != null &&(DateTime.now().getMillis()-due.getMillis()) > 0;
     }
     // Methods - Accessors/Mutators - Questions ********************************
     /**

@@ -1,5 +1,6 @@
 package pals.plugins;
 
+import org.joda.time.DateTime;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
@@ -13,6 +14,7 @@ import pals.base.assessment.Question;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
+import pals.base.utils.Misc;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
@@ -441,39 +443,58 @@ public class Modules extends Plugin
         RemoteRequest req = data.getRequestData();
         String assTitle = req.getField("ass_title");
         String assWeight = req.getField("ass_weight");
+        String assMaxAttempts = req.getField("ass_max_attempts");
         String csrf = req.getField("csrf");
-        if(assTitle != null)
+        if(assTitle != null && assWeight != null && assMaxAttempts != null)
         {
             // Validate request
             if(!CSRF.isSecure(data, csrf))
                 data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
             else
             {
+                // Parse field data
+                // -- Max-attempts
+                int maxAttempts;
                 try
                 {
-                    // Attempt to persist a new assignment
-                    Assignment ass = new Assignment(module, assTitle, Integer.parseInt(assWeight), false);
-                    Assignment.PersistStatus ps = ass.persist(data.getConnector());
-                    switch(ps)
-                    {
-                        case Failed:
-                        case Invalid_Module:
-                            data.setTemplateData("error", "An unknown error occurred ('"+ps.name()+"'); please try again or contact an administrator!");
-                            break;
-                        case Invalid_Title:
-                            data.setTemplateData("error", "Invalid title; must be "+ass.getTitleMin()+" to "+ass.getTitleMax()+" characters in length!");
-                            break;
-                        case Invalid_Weight:
-                            data.setTemplateData("error", "Invalid weight; must be greater than zero!");
-                            break;
-                        case Success:
-                            data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
-                            break;
-                    }
+                    maxAttempts = Integer.parseInt(assMaxAttempts);
                 }
                 catch(NumberFormatException ex)
                 {
-                    data.setTemplateData("error", "Invalid weight; must be a numeric value!");
+                    maxAttempts = 0;
+                }
+                // -- Weight
+                int weight;
+                try
+                {
+                    weight = Integer.parseInt(assWeight);
+                }
+                catch(NumberFormatException ex)
+                {
+                    weight = 0;
+                }
+                // Attempt to persist a new assignment
+                Assignment ass = new Assignment(module, assTitle, weight, false, maxAttempts, null, false);
+                Assignment.PersistStatus ps = ass.persist(data.getConnector());
+                switch(ps)
+                {
+                    case Failed:
+                    case Invalid_Module:
+                    case Invalid_Due:
+                        data.setTemplateData("error", "An unknown error occurred ('"+ps.name()+"'); please try again or contact an administrator!");
+                        break;
+                    case Invalid_Title:
+                        data.setTemplateData("error", "Invalid title, must be "+ass.getTitleMin()+" to "+ass.getTitleMax()+" characters in length!");
+                        break;
+                    case Invalid_Weight:
+                        data.setTemplateData("error", "Invalid weight, must be a numeric value and greater than zero!");
+                        break;
+                    case Invalid_MaxAttempts:
+                        data.setTemplateData("error", "Invalid max-attempts, must be -1 or greater than zero.");
+                        break;
+                    case Success:
+                        data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
+                        break;
                 }
             }
         }
@@ -484,6 +505,7 @@ public class Modules extends Plugin
         // -- Fields
         data.setTemplateData("ass_title", assTitle);
         data.setTemplateData("ass_weight", assWeight);
+        data.setTemplateData("ass_max_attempts", assMaxAttempts);
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
@@ -590,41 +612,104 @@ public class Modules extends Plugin
         String assTitle = req.getField("ass_title");
         String assWeight = req.getField("ass_weight");
         String assActive = req.getField("ass_active");
-        if(assTitle != null && assWeight != null)
+        String assMaxAttempts = req.getField("ass_max_attempts");
+        // --- Due-date
+        String assDue = req.getField("ass_due"); // Checkbox
+        String assDueDay = req.getField("ass_due_day");
+        String assDueMonth = req.getField("ass_due_month");
+        String assDueYear = req.getField("ass_due_year");
+        String assDueHour = req.getField("ass_due_hour");
+        String assDueMinute = req.getField("ass_due_minute");
+        int year = -1, month = -1, day = -1, hour = -1, minute = -1;
+        boolean invalidDueDate = false;
+        if(assTitle != null && assWeight != null && assMaxAttempts != null)
         {
-            // Validate request
-            if(!CSRF.isSecure(data))
-                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
-            else
+            // Parse field data
+            // -- Due-date
+            DateTime due = null;
+            if(assDue != null && assDue.equals("1"))
             {
                 try
                 {
-                    // Update the model
-                    ass.setWeight(Integer.parseInt(assWeight));
-                    ass.setTitle(assTitle);
-                    ass.setActive(assActive != null);
-                    // Attempt to persist
-                    Assignment.PersistStatus aps = ass.persist(data.getConnector());
-                    switch(aps)
-                    {
-                        case Invalid_Module:
-                        case Failed:
-                            data.setTemplateData("error", "Failed to update assignment for unknown reason ('"+aps.name()+"'); please try again or contact an administrator!");
-                            break;
-                        case Invalid_Title:
-                            data.setTemplateData("error", "Invalid title, must be "+ass.getTitleMin()+" to "+ass.getTitleMax()+" characters in length!");
-                            break;
-                        case Invalid_Weight:
-                            data.setTemplateData("error", "Invalid weight, must be numeric and greater than zero!");
-                            break;
-                        case Success:
-                            data.setTemplateData("success", "Updated assignment successfully.");
-                            break;
-                    }
+                    year = Integer.parseInt(assDueYear);
+                    month = Integer.parseInt(assDueMonth);
+                    day = Integer.parseInt(assDueDay);
+                    hour = Integer.parseInt(assDueHour);
+                    minute = Integer.parseInt(assDueMinute);
+                    due = new DateTime(year, month, day, hour, minute);
+                    // Reset the assignment's handle in-case the time/date has changed
+                    ass.setDueHandled(false);
+                }
+                catch(NullPointerException | IllegalArgumentException ex)
+                {
+                    data.setTemplateData("error", "Invalid due-date!");
+                    invalidDueDate = true;
+                }
+            }
+            if(!invalidDueDate)
+            {
+                // -- Max-attempts
+                int maxAttempts;
+                try
+                {
+                    maxAttempts = Integer.parseInt(assMaxAttempts);
                 }
                 catch(NumberFormatException ex)
                 {
-                    data.setTemplateData("error", "Weight must be numeric and greater than zero!");
+                    maxAttempts = 0;
+                }
+                // -- Weight
+                int weight;
+                try
+                {
+                    weight = Integer.parseInt(assWeight);
+                }
+                catch(NumberFormatException ex)
+                {
+                    weight = 0;
+                }
+                // Validate request
+                if(!CSRF.isSecure(data))
+                    data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+                else
+                {
+                    try
+                    {
+                        // Update the model
+                        ass.setWeight(Integer.parseInt(assWeight));
+                        ass.setTitle(assTitle);
+                        ass.setActive(assActive != null);
+                        ass.setMaxAttempts(maxAttempts);
+                        ass.setDue(due);
+                        // Attempt to persist
+                        Assignment.PersistStatus aps = ass.persist(data.getConnector());
+                        switch(aps)
+                        {
+                            case Invalid_Module:
+                            case Failed:
+                                data.setTemplateData("error", "Failed to update assignment for unknown reason ('"+aps.name()+"'); please try again or contact an administrator!");
+                                break;
+                            case Invalid_Title:
+                                data.setTemplateData("error", "Invalid title, must be "+ass.getTitleMin()+" to "+ass.getTitleMax()+" characters in length!");
+                                break;
+                            case Invalid_Weight:
+                                data.setTemplateData("error", "Invalid weight, must be numeric and greater than zero!");
+                                break;
+                            case Invalid_Due:
+                                data.setTemplateData("error", "Invalid due-date, also make sure the time is in the future!");
+                                break;
+                            case Invalid_MaxAttempts:
+                                data.setTemplateData("error", "Invalid max-attempts, must be -1 or greater than zero.");
+                                break;
+                            case Success:
+                                data.setTemplateData("success", "Updated assignment successfully.");
+                                break;
+                        }
+                    }
+                    catch(NumberFormatException ex)
+                    {
+                        data.setTemplateData("error", "Weight must be numeric and greater than zero!");
+                    }
                 }
             }
         }
@@ -639,6 +724,16 @@ public class Modules extends Plugin
         data.setTemplateData("ass_weight", assWeight != null ? assWeight : ass.getWeight());
         if((assTitle == null && ass.isActive()) || assActive != null)
             data.setTemplateData("ass_active", true);
+        data.setTemplateData("ass_max_attempts", assMaxAttempts != null ? assMaxAttempts : ass.getMaxAttempts());
+        // -- -- Due
+        if((assTitle != null && assDue != null && assDue.equals("1")) || (assTitle == null && ass.getDue() != null))
+            data.setTemplateData("ass_due", true);
+        data.setTemplateData("ass_year", DateTime.now().getYear());
+        data.setTemplateData("ass_due_year", year != -1 ? year : ass.getDue() != null ? ass.getDue().getYear() : null);
+        data.setTemplateData("ass_due_month", month != -1 && Misc.isNumeric(assDueMonth) ? month : ass.getDue() != null ? ass.getDue().getMonthOfYear() : null);
+        data.setTemplateData("ass_due_day", day != -1 ? day : ass.getDue() != null ? ass.getDue().getDayOfMonth() : null);
+        data.setTemplateData("ass_due_hour", hour != -1 ? hour : ass.getDue() != null ? ass.getDue().getHourOfDay() : null);
+        data.setTemplateData("ass_due_minute", minute != -1 ? minute : ass.getDue() != null ? ass.getDue().getMinuteOfHour() : null);
         return true;
     }
     private boolean pageAdminModule_assignment_questions(WebRequestData data, Module module, Assignment ass)
