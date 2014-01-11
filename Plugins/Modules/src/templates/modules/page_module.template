@@ -1,4 +1,4 @@
-<h2><a href="/modules">Modules</a> - <a href="/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a></h2>
+<h2><a href="/modules">Modules</a> - <a href="/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a></h2>
 
 <h3>Assignments</h3>
 
@@ -89,7 +89,7 @@
                         </a>
                         &nbsp;
                         <#if assignment.canTake()>
-                            <a class="button" href="/assignments/take/${assignment.getAss().getAssID()?string}">
+                            <a class="button" href="/assignments/take/${assignment.getAss().getAssID()?c}">
                                 Take
                             </a>
                         </#if>

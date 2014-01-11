@@ -5,13 +5,13 @@
         Pages:
         &nbsp;
         <#list pages as page>
-            <a class="button <#if current_page?? && current_page==page>selected</#if>" href="/assignments/instance/${assignment_instance.getAIID()?string}/${page}">
+            <a class="button <#if current_page?? && current_page==page>selected</#if>" href="/assignments/instance/${assignment_instance.getAIID()?c}/${page}">
                 ${page}
             </a>
         </#list>
     </div>
     <div class="right">
-        <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?string}/submit">
+        <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?c}/submit">
             Submit
         </a>
     </div>

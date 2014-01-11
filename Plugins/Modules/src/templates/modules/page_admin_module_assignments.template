@@ -1,11 +1,11 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a></h2>
 
 <p class="tac">
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}">
         Back
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/create">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/create">
         Create Assignment
     </a>
 </p>
@@ -22,12 +22,12 @@
         <#list assignments as assignment>
             <tr>
                 <td>
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
                         ${assignment.getTitle()?html}
                     </a>
                 </td>
                 <td>
-                    ${assignment.getWeight()?string}
+                    ${assignment.getWeight()?c}
                 </td>
                 <td>
                     ${((assignment.getWeight()/total_weight)*100)?string}%
@@ -40,19 +40,19 @@
                     </#if>
                 </td>
                 <td>
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
                         View
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">
+                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">
                         Questions
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">
+                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">
                         Edit
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/delete">
+                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/delete">
                         Delete
                     </a>
                 </td>

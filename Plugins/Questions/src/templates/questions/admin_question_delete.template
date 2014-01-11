@@ -1,11 +1,11 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?string}/delete">Delete</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/delete">Delete</a></h2>
 
 <p>
     Deleting a question could break assignments and result in a loss of data for a question! Ensure any grades, involving a question, have been logged
     away from this system; this action is permanent.
 </p>
 
-<form method="post" action="/admin/questions/${question.getQID()?string}/delete">
+<form method="post" action="/admin/questions/${question.getQID()?c}/delete">
     <table class="table2">
         <tr>
             <th colspan="2">
@@ -17,7 +17,7 @@
                 QID:
             </td>
             <td>
-                ${question.getQID()?string}
+                ${question.getQID()?c}
             </td>
         </tr>
         <tr>
@@ -41,7 +41,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <a class="button" href="/admin/questions/${question.getQID()?string}">Back</a>
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                 <input type="submit" value="Delete" />
             </td>
         </tr>

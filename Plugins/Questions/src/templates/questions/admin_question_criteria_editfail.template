@@ -1,4 +1,4 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()}/criteria/delete/${criteria.getQCID()?string}">Edit Criteria</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/delete/${criteria.getQCID()?c}">Edit Criteria</a></h2>
 
 <p class="error">
     Could not load criteria-type handler to render page.

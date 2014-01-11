@@ -1,4 +1,4 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">Edit</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">Edit</a></h2>
 
 <#if !assignment.isActive()>
     <p class="warning tac">
@@ -83,7 +83,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">Back</a>
+                <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">Back</a>
                 <input type="submit" value="Update" />
             </td>
         </tr>

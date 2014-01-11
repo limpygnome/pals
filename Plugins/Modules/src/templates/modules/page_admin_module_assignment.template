@@ -1,19 +1,19 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">${assignment.getTitle()?html}</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a></h2>
 
 <p class="tac">
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments">
         Back
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/edit">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">
         Edit Assignment
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/delete">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/delete">
         Delete Assignment
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">
         Questions
     </a>
 </p>

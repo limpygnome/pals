@@ -1,10 +1,10 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">Questions</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/${question.getAQID()?string}/remove">Remove</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">Questions</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions/${question.getAQID()?c}/remove">Remove</a></h2>
 
 <p>
     This action may permanently delete data from any instances of the assignment taken by students! This action is irreversible...
 </p>
 
-<form method="post" action="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/${question.getAQID()?string}/remove">
+<form method="post" action="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions/${question.getAQID()?c}/remove">
     <table class="table2">
         <tr>
             <th colspan="2">
@@ -16,7 +16,7 @@
                 AQID:
             </td>
             <td>
-                ${question.getAQID()?string}
+                ${question.getAQID()?c}
             </td>
         </tr>
         <tr>
@@ -45,7 +45,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions">Back</a>
+                <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">Back</a>
                 <input type="submit" value="Delete" />
             </td>
         </tr>

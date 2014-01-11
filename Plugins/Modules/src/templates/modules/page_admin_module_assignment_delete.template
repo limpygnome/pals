@@ -1,10 +1,10 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/delete">Delete</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/delete">Delete</a></h2>
 
 <p class="warning">
     This action is irreversible and any data associated with the assignment, including any attempts and marks, will be lost! Ensure any data is backed-up!
 </p>
 
-<form method="post" action="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}/delete">
+<form method="post" action="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/delete">
     <table class="table2">
         <tr>
             <th colspan="2">Confirm Deletion</th>
@@ -14,7 +14,7 @@
                 AID:
             </td>
             <td>
-                ${assignment.getAssID()?string}
+                ${assignment.getAssID()?c}
             </td>
         </tr>
         <tr>
@@ -22,7 +22,7 @@
                 Title:
             </td>
             <td>
-                ${assignment.getTitle()?string}
+                ${assignment.getTitle()?html}
             </td>
         </tr>
         <tr>
@@ -36,7 +36,7 @@
         <#include "../captcha_form">
         <tr>
             <td colspan="2">
-                <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">Back</a>
+                <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments">Back</a>
                 <input type="submit" value="Delete" />
             </td>
         </tr>

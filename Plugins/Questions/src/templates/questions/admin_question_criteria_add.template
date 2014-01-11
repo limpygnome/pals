@@ -1,6 +1,6 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()}/criteria/add">Add Criteria</a></h2>
 
-<form method="post" action="/admin/questions/${question.getQID()}/criteria/add">
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/add">
     <table class="table2">
         <tr>
             <th colspan="2">General</th>
@@ -38,7 +38,7 @@
             </#list>
             <tr>
                 <td colspan="2">
-                    <a class="button" href="/admin/questions/${question.getQID()?string}">Back</a>
+                    <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                     <input type="submit" value="Create" />
                 </td>
             </tr>

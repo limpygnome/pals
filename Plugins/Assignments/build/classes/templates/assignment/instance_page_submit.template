@@ -12,7 +12,7 @@
     Click below to confirm the submission of this assignment:
 </p>
 
-<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?string}/submit">
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/submit">
     <p class="tac">
         <input type="submit" class="button" value="Submit Assignment" />
     </p>

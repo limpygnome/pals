@@ -1,11 +1,11 @@
-<h2><a href="/admin/">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?string}/delete">Delete</a></h2>
+<h2><a href="/admin/">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/delete">Delete</a></h2>
 
 <p>
     WARNING: this action cannot be reversed; make sure you have backups in-case this is a mistake! This will delete ALL informaiton
     associated with a module (assignments, results, enrollment, etc).
 </p>
 
-<form method="post" action="/admin/modules/${module.getModuleID()?string}/delete">
+<form method="post" action="/admin/modules/${module.getModuleID()?c}/delete">
     <table class="table2">
         <tr>
             <th colspan="2">
@@ -17,7 +17,7 @@
                 Module ID:
             </td>
             <td>
-                ${module.getModuleID()?string}
+                ${module.getModuleID()?c}
             </td>
         </tr>
         <tr>

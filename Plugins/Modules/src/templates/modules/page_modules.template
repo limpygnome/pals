@@ -18,7 +18,7 @@
         <#list user.getModules(data.getConnector()) as module>
             <tr>
                 <td>
-                    <a href="/modules/${module.getModuleID()?string}">
+                    <a href="/modules/${module.getModuleID()?c}">
                         ${module.getTitle()?html}
                     </a>
                 </td>
@@ -35,12 +35,12 @@
                     to-do.
                 </td>
                 <td>
-                    <a href="/modules/${module.getModuleID()?string}">
+                    <a href="/modules/${module.getModuleID()?c}">
                         View
                     </a>
                     <#if user.getGroup().isAdminModules()>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?string}">
+                    <a href="/admin/modules/${module.getModuleID()?c}">
                         Manage
                     </a>
                     </#if>

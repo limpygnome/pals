@@ -1,6 +1,6 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?string}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?string}/edit">Edit</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/edit">Edit</a></h2>
 
-<form method="post" action="/admin/questions/${question.getQID()}/edit">
+<form method="post" action="/admin/questions/${question.getQID()?c}/edit">
     <table class="table2 questions_form">
         <tr>
             <td>
@@ -12,7 +12,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <a class="button" href="/admin/questions/${question.getQID()}">Back</a>
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                 <input type="submit" value="Update" />
             </td>
         </tr>

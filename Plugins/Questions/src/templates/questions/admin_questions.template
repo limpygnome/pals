@@ -37,19 +37,19 @@
                 </td>
                 <td>
                     <#if assignment??>
-                        <a href="/admin/modules/${assignment.getModule().getModuleID()?string}/assignments/${assignment.getAssID()?string}/questions/add?qid=${question.getQID()?string}">
+                        <a href="/admin/modules/${assignment.getModule().getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions/add?qid=${question.getQID()?c}">
                             Add to Assignment
                         </a>
                     <#else>
-                        <a href="/admin/questions/${question.getQID()?string}">
+                        <a href="/admin/questions/${question.getQID()?c}">
                             Criteria
                         </a>
                         &nbsp;
-                        <a href="/admin/questions/${question.getQID()?string}/edit">
+                        <a href="/admin/questions/${question.getQID()?c}/edit">
                             Edit
                         </a>
                         &nbsp;
-                        <a href="/admin/questions/${question.getQID()?string}/delete">
+                        <a href="/admin/questions/${question.getQID()?c}/delete">
                             Delete
                         </a>
                     </#if>
@@ -65,13 +65,13 @@
 
 <div class="p tac">
     <#if questions_prev??>
-        <a class="button fl" href="/admin/questions?page=${questions_prev?string}<#if filter??>&amp;filter=${filter?url}</#if><#if assignment??>&amp;assid=${assignment.getAssID()?string}</#if>">
+        <a class="button fl" href="/admin/questions?page=${questions_prev?c}<#if filter??>&amp;filter=${filter?url}</#if><#if assignment??>&amp;assid=${assignment.getAssID()?c}</#if>">
             Previous
         </a>
     </#if>
     Page ${questions_page}
     <#if questions_next??>
-        <a class="button fr" href="/admin/questions?page=${questions_next?string}<#if filter??>&amp;filter=${filter?url}</#if><#if assignment??>&amp;assid=${assignment.getAssID()?string}</#if>">
+        <a class="button fr" href="/admin/questions?page=${questions_next?c}<#if filter??>&amp;filter=${filter?url}</#if><#if assignment??>&amp;assid=${assignment.getAssID()?c}</#if>">
             Next
         </a>
     </#if>

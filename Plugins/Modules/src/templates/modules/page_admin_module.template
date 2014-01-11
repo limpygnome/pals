@@ -1,19 +1,19 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?string}">${module.getTitle()?html}</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a></h2>
 
 <p class="tac">
     <a class="button" href="/admin/modules">
         Back
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/delete">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/delete">
         Delete Module
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/assignments">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments">
         Assignments
     </a>
     &nbsp;
-    <a class="button" href="/admin/modules/${module.getModuleID()?string}/enrollment">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/enrollment">
         Enrollment
     </a>
 </p>
@@ -32,12 +32,12 @@
         <#list assignments as assignment>
             <tr>
                 <td>
-                    <a href="/admin/modules/${module.getModuleID()?string}/assignments/${assignment.getAssID()?string}">
+                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
                         ${assignment.getTitle()?html}
                     </a>
                 </td>
                 <td>
-                    ${assignment.getWeight()?string}
+                    ${assignment.getWeight()?c}
                 </td>
             </tr>
         </#list>
@@ -62,7 +62,7 @@
         <#list module_users as user>
         <tr>
             <td>
-                ${user.getUserID()?string}
+                ${user.getUserID()?c}
             </td>
             <td>
                 ${user.getUsername()?html}

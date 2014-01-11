@@ -11,7 +11,7 @@
         <#list modules as module>
         <tr>
             <td>
-                <a href="/admin/modules/${module.getModuleID()?string}">
+                <a href="/admin/modules/${module.getModuleID()?c}">
                     ${module.getTitle()?html}
                 </a>
             </td>
@@ -22,23 +22,23 @@
                 ${module.getTotalAssignments(data.getConnector())?string}
             </td>
             <td>
-                <a href="/admin/modules/${module.getModuleID()?string}">
+                <a href="/admin/modules/${module.getModuleID()?c}">
                     View
                 </a>
                 &nbsp;
-                <a href="/admin/modules/${module.getModuleID()?string}/edit">
+                <a href="/admin/modules/${module.getModuleID()?c}/edit">
                     Edit
                 </a>
                 &nbsp;
-                <a href="/admin/modules/${module.getModuleID()?string}/delete">
+                <a href="/admin/modules/${module.getModuleID()?c}/delete">
                     Delete
                 </a>
                 &nbsp;
-                <a href="/admin/modules/${module.getModuleID()?string}/assignments">
+                <a href="/admin/modules/${module.getModuleID()?c}/assignments">
                     Assignments
                 </a>
                 &nbsp;
-                <a href="/admin/modules/${module.getModuleID()?string}/enrollment">
+                <a href="/admin/modules/${module.getModuleID()?c}/enrollment">
                     Enrollment
                 </a>
             </td>
