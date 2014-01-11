@@ -9,6 +9,7 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
+import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.Module;
 import pals.base.assessment.Question;
 import pals.base.auth.User;
@@ -77,6 +78,7 @@ public class Modules extends Plugin
     public boolean eventHandler_webRequest(WebRequestData data)
     {
         MultipartUrlParser mup = new MultipartUrlParser(data);
+        String page;
         switch(mup.getPart(0))
         {
             case "modules":
@@ -84,10 +86,13 @@ public class Modules extends Plugin
                     // Overview of all modules belonging to a user
                     return pageModules(data);
                 else
-                    // Overview of a specific module
+                    // Delegate to module controller
                     return pageModule(data, mup);
             case "admin":
-                switch(mup.getPart(1))
+                page = mup.getPart(1);
+                if(page == null)
+                    return false;
+                switch(page)
                 {
                     case "modules":
                         String p2 = mup.getPart(2);
@@ -132,6 +137,22 @@ public class Modules extends Plugin
         // Check the user is enrolled
         if(!module.isEnrolled(data.getConnector(), user))
             return false;
+        // Delegate request
+        String page = mup.getPart(2);
+        if(page == null)
+            return pageModuleView(data, mup, module, user);
+        else
+        {
+            switch(page)
+            {
+                case "history":
+                    return pageModuleAssignmentHistory(data, mup, module, user);
+            }
+        }
+        return false;
+    }
+    private boolean pageModuleView(WebRequestData data, MultipartUrlParser mup, Module module, User user)
+    {
         // Fetch the module's assignments
         Assignment[] assignments = Assignment.load(data.getConnector(), module);
         // Create view models
@@ -151,6 +172,31 @@ public class Modules extends Plugin
         data.setTemplateData("module", module);
         data.setTemplateData("assignments", models);
         data.setTemplateData("total_weight", total);
+        return true;
+    }
+    private boolean pageModuleAssignmentHistory(WebRequestData data, MultipartUrlParser mup, Module module, User user)
+    {
+        final int ASSIGNMENTS_PER_PAGE = 10;
+        // Load assignment model
+        Assignment ass = Assignment.load(data.getConnector(), module, mup.parseInt(3, -1));
+        if(ass == null)
+            return false;
+        // Parse the page being displayed
+        int page = mup.parseInt(4, 1);
+        // Fetch instance models
+        InstanceAssignment[] ias = InstanceAssignment.load(data.getConnector(), ass, user, ASSIGNMENTS_PER_PAGE+1, (ASSIGNMENTS_PER_PAGE*page)-ASSIGNMENTS_PER_PAGE);
+        // Setup the page
+        data.setTemplateData("pals_title", "Module - "+Escaping.htmlEncode(module.getTitle()));
+        data.setTemplateData("pals_content", "modules/page_module_assignment_history");
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("assignments", ias);
+        data.setTemplateData("page", page);
+        if(page > 1)
+            data.setTemplateData("page_prev", page-1);
+        if(page < Integer.MAX_VALUE && ias.length > ASSIGNMENTS_PER_PAGE)
+            data.setTemplateData("page_next", page+1);
         return true;
     }
     // Methods - Pages - Admin *************************************************

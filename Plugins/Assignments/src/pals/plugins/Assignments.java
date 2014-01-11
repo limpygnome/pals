@@ -1,6 +1,7 @@
 package pals.plugins;
 
 import java.util.HashMap;
+import org.joda.time.DateTime;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.PluginManager;
@@ -137,13 +138,12 @@ public class Assignments extends Plugin
                 else
                 {
                     // Create a new instance of the assignment, persist
-                    ia = new InstanceAssignment(data.getUser(), ass, InstanceAssignment.Status.Active, 0);
+                    ia = new InstanceAssignment(data.getUser(), ass, InstanceAssignment.Status.Active, DateTime.now(), null, 0);
                     InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
                     switch(iaps)
                     {
-                        case Invalid_Assignment:
-                        case Invalid_Mark:
-                        case Invalid_User:
+                        default:
+                            ia = null;
                             data.setTemplateData("error", "Failed to create a new instance of the assignment; please try again or contact an administrator ('"+iaps.name()+"').");
                             break;
                         case Success:
@@ -272,6 +272,7 @@ public class Assignments extends Plugin
                 data.setTemplateData("error", "Failed to prepare assignment for marking!");
             // Set the assignment as submitted
             ia.setStatus(InstanceAssignment.Status.Submitted);
+            ia.setTimeEnd(DateTime.now());
             // Persist the model - this should work, else something has gone critically wrong...
             InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
             switch(iaps)

@@ -1,5 +1,10 @@
 package pals.base.assessment;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -21,15 +26,17 @@ public class InstanceAssignment
     }
     public enum Status
     {
-        Active(0),
-        Submitted(1),
-        Marking(2),
-        Marked(3);
+        Active(0, "Active"),
+        Submitted(1, "Pending Marking"),
+        Marking(2, "Computing Grade"),
+        Marked(3, "Marked");
         
         private final int status;
-        private Status(int status)
+        private final String text;
+        private Status(int status, String text)
         {
             this.status = status;
+            this.text = text;
         }
         /**
          * @return The status of the assignment.
@@ -37,6 +44,13 @@ public class InstanceAssignment
         public int getStatus()
         {
             return status;
+        }
+        /**
+         * @return The text representation of the status.
+         */
+        public String getText()
+        {
+            return text;
         }
         /**
          * @param value The value to parse.
@@ -64,6 +78,8 @@ public class InstanceAssignment
     private User        user;       // The user who is answering this instance of the assignment.
     private Assignment  ass;        // The assignment instantiated.
     private Status      status;     // The status of this instance.
+    private DateTime    timeStart;  // The time at which the assignment started.
+    private DateTime    timeEnd;    // The time at which the assignment was submitted.
     private double      mark;       // The mark of the instance.
     // Methods - Constructors **************************************************
     /**
@@ -71,7 +87,7 @@ public class InstanceAssignment
      */
     public InstanceAssignment()
     {
-        this(null, null, Status.Active, 0);
+        this(null, null, Status.Active, DateTime.now(), null, 0);
     }
     /**
      * Creates a new instance of an unpersisted instance of an assignment.
@@ -79,17 +95,58 @@ public class InstanceAssignment
      * @param user The user who is answering this instance of the assignment.
      * @param ass The assignment instantiated.
      * @param status The status of the instance.
+     * @param timeStart The time at which the assignment started.
+     * @param timeEnd The time at which the assignment ended.
      * @param mark The mark of the instance.
      */
-    public InstanceAssignment(User user, Assignment ass, Status status,  double mark)
+    public InstanceAssignment(User user, Assignment ass, Status status, DateTime timeStart, DateTime timeEnd, double mark)
     {
         this.aiid = -1;
         this.user = user;
         this.ass = ass;
         this.status = status;
+        this.timeStart = timeStart;
+        this.timeEnd = timeEnd;
         this.mark = mark;
     }
     // Methods - Persistence ***************************************************
+    /**
+     * Loads multiple persisted models; ordered by identifier descending.
+     * 
+     * @param conn Database connector.
+     * @param ass  The assignment; can be null for unfiltered.
+     * @param user  The user; can be null for unfiltered.
+     * @param amount Number of models to retrieve.
+     * @param offset Offset of rows.
+     * @return Array of models; can be empty.
+     */
+    public static InstanceAssignment[] load(Connector conn, Assignment ass, User user, int amount, int offset)
+    {
+        try
+        {
+            Result res;
+            if(ass != null && user != null)
+                res = conn.read("SELECT * FROM pals_assignment_instance WHERE assid=? AND userid=? ORDER BY aiid DESC LIMIT ? OFFSET ?;", ass.getAssID(), user.getUserID(), amount, offset);
+            else if(ass != null && user == null)
+                res = conn.read("SELECT * FROM pals_assignment_instance WHERE assid=? ORDER BY aiid DESC LIMIT ? OFFSET ?;", ass.getAssID(), amount, offset);
+            else if(ass == null && user != null)
+                res = conn.read("SELECT * FROM pals_assignment_instance WHERE userid=? ORDER BY aiid DESC LIMIT ? OFFSET ?;", user.getUserID(), amount, offset);
+            else
+                res = conn.read("SELECT * FROM pals_assignment_instance ORDER BY aiid DESC LIMIT ? OFFSET ?;", amount, offset);
+            ArrayList<InstanceAssignment> buffer = new ArrayList<>();
+            InstanceAssignment ia;
+            while(res.next())
+            {
+                if((ia = load(conn, ass, null, res)) != null)
+                    buffer.add(ia);
+            }
+            return buffer.toArray(new InstanceAssignment[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new InstanceAssignment[0];
+        }
+    }
     /**
      * Loads a persisted model.
      * 
@@ -150,7 +207,9 @@ public class InstanceAssignment
             else if(user.getUserID() != (int)res.get("userid"))
                 return null;
             // Setup instance and return
-            InstanceAssignment ia = new InstanceAssignment(user, ass, Status.parse((int)res.get("status")), (double)res.get("mark"));
+            Object  ts = res.get("time_start"),
+                    te = res.get("time_end");
+            InstanceAssignment ia = new InstanceAssignment(user, ass, Status.parse((int)res.get("status")), ts == null ? null : new DateTime(ts), te == null ? null : new DateTime(te), (double)res.get("mark"));
             ia.aiid = (int)res.get("aiid");
             return ia;
         }
@@ -180,19 +239,23 @@ public class InstanceAssignment
         {
             if(aiid == -1)
             {
-                aiid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance (userid, assid, status, mark) VALUES(?,?,?,?) RETURNING aiid;",
+                aiid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance (userid, assid, status, time_start, time_end, mark) VALUES(?,?,?,?,?,?) RETURNING aiid;",
                         user.getUserID(),
                         ass.getAssID(),
                         status.getStatus(),
+                        timeStart != null ? new Timestamp(timeStart.toDate().getTime()) : null,
+                        timeEnd != null ? new Timestamp(timeEnd.toDate().getTime()) : null,
                         mark
                         );
             }
             else
             {
-                conn.execute("UPDATE pals_assignment_instance SET userid=?, assid=?, status=?, mark=? WHERE aiid=?;",
+                conn.execute("UPDATE pals_assignment_instance SET userid=?, assid=?, status=?, time_start=?, time_end=?, mark=? WHERE aiid=?;",
                         user.getUserID(),
                         ass.getAssID(),
                         status.getStatus(),
+                        timeStart != null ? new Timestamp(timeStart.toDate().getTime()) : null,
+                        timeEnd != null ? new Timestamp(timeEnd.toDate().getTime()) : null,
                         mark,
                         aiid
                         );
@@ -201,6 +264,7 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            System.err.println(ex.getMessage());
             return PersistStatus.Failed;
         }
     }
@@ -297,6 +361,20 @@ public class InstanceAssignment
     {
         this.mark = mark;
     }
+    /**
+     * @param timeStart The time this instance started.
+     */
+    public void setTimeStart(DateTime timeStart)
+    {
+        this.timeStart = timeStart;
+    }
+    /**
+     * @param timeEnd The time this instance was submitted.
+     */
+    public void setTimeEnd(DateTime timeEnd)
+    {
+        this.timeEnd = timeEnd;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Indicates if the model has been persisted.
@@ -339,6 +417,37 @@ public class InstanceAssignment
     public double getMark()
     {
         return mark;
+    }
+    /**
+     * @return The time at which the assignment started; can be null.
+     */
+    public DateTime getTimeStart()
+    {
+        return timeStart;
+    }
+    /**
+     * @return The time at which the assignment was submitted; can be null.
+     */
+    public DateTime getTimeEnd()
+    {
+        return timeEnd;
+    }
+    /**
+     * @return The duration between the two times; can be null if either of the
+     * times is null.
+     */
+    public Duration getTimeDuration()
+    {
+        return timeStart != null && timeEnd != null ? new Duration(timeStart, timeEnd) : null;
+    }
+    /**
+     * @return The method getTimeDuration, represented as a string; can be null
+     * if the conditions of getTimeDuration meet null.
+     */
+    public String getTimeDurationStr()
+    {
+        Duration dur = getTimeDuration();
+        return dur == null ? null : dur.getStandardDays()+"d "+dur.getStandardHours()+"h "+dur.getStandardMinutes()+"m "+dur.getStandardSeconds()+"s";
     }
     /**
      * @param conn Database connector.

@@ -212,6 +212,10 @@ CREATE TABLE pals_assignment_instance
 	assid				INT					REFERENCES pals_assignment(assid) ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
 	-- The status of the assignment, as controlled by 'pals.base.assessment.InstanceAssignment.Status'.
 	status				INT					DEFAULT 0,
+	-- The time at which the instance started.
+	time_start			TIMESTAMP,
+	-- The time at which the instance was submited.
+	time_end			TIMESTAMP,
 	-- The mark achieved for the assignment; calculated when an assignment has been completely marked.
 	-- -- Acts as a cache to avoid expensive aggregate functions.
 	-- -- 0 to 100.

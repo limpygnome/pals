@@ -84,7 +84,7 @@
                     </td>
                     <td></td>
                     <td>
-                        <a class="button" href="">
+                        <a class="button" href="/modules/${module.getModuleID()?c}/history/${assignment.getAss().getAssID()?c}">
                             History
                         </a>
                         &nbsp;
@@ -99,7 +99,7 @@
         </#list>
     <#else>
         <tr>
-            <td colspan="6">
+            <td colspan="11">
                 This module does not have any assignments.
             </td>
         </tr>

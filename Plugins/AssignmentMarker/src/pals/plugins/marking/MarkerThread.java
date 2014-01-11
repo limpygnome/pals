@@ -107,7 +107,7 @@ public class MarkerThread extends ExtendedThread
                 // Update the assignment to handled
                 conn.execute("UPDATE pals_assignment SET due_handled='1' WHERE assid=?;", assid);
                 // Update active assignments to submitted
-                conn.execute("UPDATE pals_assignment_instance SET status=? WHERE status=? AND assid=?;", InstanceAssignment.Status.Submitted.getStatus(), InstanceAssignment.Status.Active.getStatus(), assid);
+                conn.execute("UPDATE pals_assignment_instance SET status=?, time_end=current_timestamp WHERE status=? AND assid=?;", InstanceAssignment.Status.Submitted.getStatus(), InstanceAssignment.Status.Active.getStatus(), assid);
             }
             conn.execute("COMMIT;");
         }
