@@ -610,7 +610,7 @@ public class DefaultQC extends Plugin
             }
         }
         // Render the template
-        kvs.put("text", qdata.getText());
+        kvs.put("text", qdata != null ? qdata.getText() : "No question defined...");
         kvs.put("answer", answer != null ? answer : adata);
         kvs.put("aqid", aqid);
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/written_response_capture"));
@@ -655,7 +655,7 @@ public class DefaultQC extends Plugin
             }
         }
         // Render the template
-        kvs.put("text", qdata.getText());
+        kvs.put("text", qdata != null ? qdata.getText() : "No question defined...");
         kvs.put("choices", adata.getViewModels(aqid, data.getRequestData(), qdata, pb != null));
         if(qdata.isSingleAnswer())
             kvs.put("single_choice", true);

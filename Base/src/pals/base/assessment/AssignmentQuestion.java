@@ -18,6 +18,7 @@ public class AssignmentQuestion
         Failed,
         Invalid_Assignment,
         Invalid_Question,
+        Invalid_Question_Not_Configured,
         Invalid_Weight,
         Invalid_Page,
         Invalid_PageOrder
@@ -175,7 +176,10 @@ public class AssignmentQuestion
             // Persist data
             try
             {
-                if(aqid == -1)
+                // Check the question has been configured
+                if((long)conn.executeScalar("SELECT COUNT('') FROM pals_question_criteria WHERE qid=?;", question.getQID()) == 0 || (int)conn.executeScalar("SELECT CAST((data IS NOT NULL) AS int) FROM pals_question WHERE qid=?;", question.getQID()) == 0)
+                    return PersistStatus.Invalid_Question_Not_Configured;
+                else if(aqid == -1)
                 {
                     aqid = (int)conn.executeScalar("INSERT INTO pals_assignment_questions (assid, qid, weight, page, page_order) VALUES(?,?,?,?,?) RETURNING aqid;",
                             assignment.getAssID(),

@@ -16,7 +16,6 @@ import pals.base.assessment.Question;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
-import pals.base.utils.Misc;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
@@ -913,6 +912,9 @@ public class Modules extends Plugin
                             break;
                         case Invalid_Weight:
                             data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
+                            break;
+                        case Invalid_Question_Not_Configured:
+                            data.setTemplateData("error", "The selected question has not been configured properly; check it has been configured and has criteria!");
                             break;
                         case Success:
                             data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");

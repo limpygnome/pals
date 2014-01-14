@@ -22,7 +22,7 @@ public class Data_Answer_MultipleChoice implements Serializable
         this.randomIndexMappings = new HashMap<>();
         this.answers = new Integer[0];
         // Create randomly shuffled indexes
-        Integer[] items = new Integer[qdata.getAnswers().length];
+        Integer[] items = new Integer[qdata != null ? qdata.getAnswers().length : 0];
         for(int i = 0; i < items.length; i++)
             items[i] = i;
         Misc.arrayShuffle(rng, items);
