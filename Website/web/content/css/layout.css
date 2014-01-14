@@ -299,6 +299,11 @@ body
 .layout_body .content .table4 td
 {
 	padding: 0.5em;
+	vertical-align: middle;
+}
+.layout_body .content table th .vat,
+.layout_body .content table th .vat
+{
 	vertical-align: top;
 }
 .layout_body .content .table2 th,
@@ -535,5 +540,32 @@ body
 	float: right;
 	text-align: right;
 }
-
-
+.layout_body .assignment_mark
+{
+	font-size: large;
+}
+.layout_body .assignment_question_mark
+{
+	float: right;
+	font-size: large;
+	color: #0C0;
+	margin: 0.25em;
+}
+.layout_body .assignment_mark .red
+{
+	color: #C00;
+}
+.layout_body .assignment_criterias
+{
+	width: 90%;
+}
+.layout_body .assignment_criterias tr th:nth-child(1),
+.layout_body .assignment_criterias tr td:nth-child(1)
+{
+	text-align: left;
+}
+.layout_body .assignment_criterias tr th:nth-child(2),
+.layout_body .assignment_criterias tr td:nth-child(2)
+{
+	width: 5em;
+}

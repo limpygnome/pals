@@ -1,11 +1,26 @@
-<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/${current_page}">
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/${current_page?c}<#if edit_mode>?edit=1</#if>">
     <#list questions as question>
+        <#if question.hasInstanceQuestion()>
+            <div class="assignment_question_mark" style="color: rgb(${((255*(100-question.getInstanceQuestion().getMark()))/100)?int}, ${((204*question.getInstanceQuestion().getMark())/100)?int},0);">
+                ${question.getInstanceQuestion().getMark()?string}%
+            </div>
+        <#else>
+            <div class="assignment_question_mark" style="color: rgb(255,0,0)">
+                0
+            </div>
+        </#if>
         <h3>Question ${question.getNumber()?string}</h3>
+        <#if !capture_mode>
+            <div class="clear"></div>
+        </#if>
         ${question.getHTML()}
+        <#if !capture_mode>
+            <#include "instance_question_criteria">
+        </#if>
     </#list>
     <#if warning??>
         <p class="warning">
-            ${warning}
+            ${warning}<br />
         </p>
     </#if>
     <#if error??>
@@ -18,8 +33,10 @@
             ${success}
         </p>
     </#if>
-    <p class="tac">
-        <input type="submit" class="button" value="Save" />
-    </p>
+    <#if capture_mode || edit_mode>
+        <p class="tac">
+            <input type="submit" class="button" value="Save" />
+        </p>
+    </#if>
     <input type="hidden" name="csrf" value="${csrf}" />
 </form>

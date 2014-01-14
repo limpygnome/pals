@@ -5,17 +5,35 @@
         Pages:
         &nbsp;
         <#list pages as page>
-            <a class="button <#if current_page?? && current_page==page>selected</#if>" href="/assignments/instance/${assignment_instance.getAIID()?c}/${page}">
+            <a class="button <#if current_page?? && current_page==page>selected</#if>" href="/assignments/instance/${assignment_instance.getAIID()?c}/${page}<#if edit_mode>?edit=1</#if>">
                 ${page}
             </a>
         </#list>
     </div>
     <div class="right">
-        <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?c}/submit">
-            Submit
-        </a>
+        <#if capture_mode>
+            <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?c}/submit">
+                Submit
+            </a>
+        </#if>
+        <#if !capture_mode>
+            Grade:
+            <br />
+            <div class="assignment_mark" style="color: rgb(${((255*(100-assignment_instance.getMark()))/100)?int}, ${((204*assignment_instance.getMark())/100)?int},0);">
+                ${assignment_instance.getMark()?string}%
+            </div>
+        </#if>
     </div>
     <div class="clear"></div>
 </div>
+
+<#if !capture_mode && !marked_mode>
+    <p class="warning">
+        This assignment is currently being marked; the marks below are not yet final.
+        <br />
+        <br />
+        Current Status: ${assignment_instance.getStatus().getText()?html}
+    </p>
+</#if>
 
 <#include "../"+instance_page>

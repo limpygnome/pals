@@ -171,15 +171,11 @@ public class Assignments extends Plugin
     {
         // Load the instance assignment model
         InstanceAssignment ia =  InstanceAssignment.load(data.getConnector(), null, data.getUser(), mup.parseInt(2, -1));
-        if(ia == null || ia.getStatus() != InstanceAssignment.Status.Active)
+        if(ia == null)
             return false;
         Assignment ass = ia.getAss();
-        // Check if the assignment has surpassed the due-date
-        if(ass.isDueSurpassed())
-        {
-            data.getResponseData().setRedirectUrl("/assignments/review/"+ia.getAIID());
-            return true;
-        }
+        boolean captureMode = ia.getStatus() == InstanceAssignment.Status.Active && !ass.isDueSurpassed();
+        boolean editMode = data.getRequestData().getField("edit") != null && (data.getUser().getGroup().isMarkerGeneral() || data.getUser().getGroup().isAdminModules());
         // Load the question pages
         Integer[] pages = ass.questionsPagesDb(data.getConnector());
         // Setup the page
@@ -190,6 +186,10 @@ public class Assignments extends Plugin
         data.setTemplateData("module", ass.getModule());
         data.setTemplateData("assignment", ass);
         data.setTemplateData("assignment_instance", ia);
+        // -- Flags
+        data.setTemplateData("edit_mode", editMode);
+        data.setTemplateData("capture_mode", captureMode);
+        data.setTemplateData("marked_mode", ia.getStatus() == InstanceAssignment.Status.Marked);
         // Delegate to page content handler
         String page = mup.getPart(3);
         if(page == null)
@@ -197,13 +197,13 @@ public class Assignments extends Plugin
         switch(page)
         {
             case "submit":
-                return pageAssignments_instanceSubmit(data, ia, pages);
+                return pageAssignments_instanceSubmit(data, ia, pages, editMode, captureMode);
             default:
                 // Assume it's a question page
-                return pageAssignments_instanceQuestions(data, ia, pages, mup.parseInt(3, 1));
+                return pageAssignments_instanceQuestions(data, ia, pages, mup.parseInt(3, 1), editMode, captureMode);
         }
     }
-    private boolean pageAssignments_instanceQuestions(WebRequestData data, InstanceAssignment ia, Integer[] pages, int page)
+    private boolean pageAssignments_instanceQuestions(WebRequestData data, InstanceAssignment ia, Integer[] pages, int page, boolean editMode, boolean captureMode)
     {
         Assignment ass = ia.getAss();
         RemoteRequest req = data.getRequestData();
@@ -229,17 +229,21 @@ public class Assignments extends Plugin
             String error;
             HashMap<String,Object> kvs;
             UUID plugin;
+            InstanceAssignmentQuestion iaq;
             for(int i = 0; i < questions.length; i++)
             {
                 error = null;
                 html = new StringBuilder();
+                // Load instance data
+                iaq = InstanceAssignmentQuestion.load(data.getCore(), data.getConnector(), ia, questions[i]);
                 // Fetch the plugin responsible
                 plugin = questions[i].getQuestion().getQtype().getUuidPlugin();
                 p = plugin != null ? pm.getPlugin(plugin) : null;
                 // Delegate to plugin to render and handle data for the current request
                 if(p == null)
                     error = "Plugin '"+questions[i].getQuestion().getQtype().getUuidPlugin().getHexHyphens()+"' is not loaded in the runtime!";
-                else if(!p.eventHandler_handleHook("question_type.question_capture", new Object[]{data, ia, questions[i], html, secure}))
+                // Different handler based on the capture, or non-capture mode (display), mode
+                else if(!p.eventHandler_handleHook(captureMode ? "question_type.question_capture" : "question_type.question_display", captureMode ? new Object[]{data, ia, questions[i], iaq, html, secure} : new Object[]{data, ia, questions[i], iaq, html, secure, editMode}))
                     error = "Plugin '"+questions[i].getQuestion().getQtype().getUuidPlugin().getHexHyphens()+"' did not handle question-type '"+questions[i].getQuestion().getQtype().getUuidQType().getHexHyphens()+"'!";
                 // Check if to render a failed template
                 if(error != null)
@@ -248,8 +252,12 @@ public class Assignments extends Plugin
                     kvs.put("error", error);
                     html.append(data.getCore().getTemplates().render(data, kvs, "assignment/question_failed"));
                 }
+                // Process criterias
+                if(editMode)
+                {
+                }
                 // Update model
-                qdata[i] = new QuestionData(i+1, questions[i], html.toString());
+                qdata[i] = new QuestionData(i+1, questions[i], iaq, html.toString());
             }
             // Set the page
             data.setTemplateData("instance_page", "assignment/instance_page_render_questions");
@@ -260,10 +268,13 @@ public class Assignments extends Plugin
         }
         return true;
     }
-    private boolean pageAssignments_instanceSubmit(WebRequestData data, InstanceAssignment ia, Integer[] pages)
+    private boolean pageAssignments_instanceSubmit(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)
     {
-        RemoteRequest req = data.getRequestData();
+        // Check the assignment is active
+        if(ia.getStatus() != InstanceAssignment.Status.Active)
+            return false;
         // Check for postback
+        RemoteRequest req = data.getRequestData();
         String confirm = req.getField("confirm");
         if(confirm != null && confirm.equals("1"))
         {
@@ -284,7 +295,7 @@ public class Assignments extends Plugin
                     break;
                 case Success:
                     // Redirect to review page...
-                    data.getResponseData().setRedirectUrl("/assignments/review/"+ia.getAIID());
+                    data.getResponseData().setRedirectUrl("/assignments/instance/"+ia.getAIID());
                     break;
             }
         }

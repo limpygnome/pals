@@ -1,5 +1,6 @@
 package pals.plugins;
 
+import java.util.Arrays;
 import org.joda.time.DateTime;
 import pals.base.NodeCore;
 import pals.base.Plugin;
@@ -191,7 +192,7 @@ public class Modules extends Plugin
         // -- Fields
         data.setTemplateData("module", module);
         data.setTemplateData("assignment", ass);
-        data.setTemplateData("assignments", ias);
+        data.setTemplateData("assignments", ias.length > ASSIGNMENTS_PER_PAGE ? Arrays.copyOf(ias, ASSIGNMENTS_PER_PAGE) : ias);
         data.setTemplateData("page", page);
         if(page > 1)
             data.setTemplateData("page_prev", page-1);
@@ -568,7 +569,7 @@ public class Modules extends Plugin
         // Delegate the request
         String page = mup.getPart(5);
         if(page == null)
-            return pageAdminModule_assignmentView(data, module, ass);
+            return pageAdminModule_assignmentView(data, module, ass, mup);
         else
         {
             switch(page)
@@ -611,14 +612,25 @@ public class Modules extends Plugin
         }
         return false;
     }
-    private boolean pageAdminModule_assignmentView(WebRequestData data, Module module, Assignment ass)
+    private boolean pageAdminModule_assignmentView(WebRequestData data, Module module, Assignment ass, MultipartUrlParser mup)
     {
+        final int ASSIGNMENTS_PER_PAGE = 10;
+        // Parse the current page
+        int page = mup.parseInt(5, 1);
+        // Fetch the assignments
+        InstanceAssignment[] ia = InstanceAssignment.load(data.getConnector(), ass, null, ASSIGNMENTS_PER_PAGE+1, (ASSIGNMENTS_PER_PAGE*page)-ASSIGNMENTS_PER_PAGE);
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()));
         data.setTemplateData("pals_content", "modules/page_admin_module_assignment");
         // -- Fields
         data.setTemplateData("module", module);
         data.setTemplateData("assignment", ass);
+        data.setTemplateData("assignments", ia.length > ASSIGNMENTS_PER_PAGE ? Arrays.copyOf(ia, ASSIGNMENTS_PER_PAGE) : ia);
+        data.setTemplateData("page", page);
+        if(page < Integer.MAX_VALUE && ia.length > ASSIGNMENTS_PER_PAGE)
+            data.setTemplateData("page_next", page+1);
+        if(page > 1)
+            data.setTemplateData("page_prev", page-1);
         return true;
     }
     private boolean pageAdminModule_assignmentDelete(WebRequestData data, Module module, Assignment ass)
@@ -776,7 +788,7 @@ public class Modules extends Plugin
             data.setTemplateData("ass_due", true);
         data.setTemplateData("ass_year", DateTime.now().getYear());
         data.setTemplateData("ass_due_year", year != -1 ? year : ass.getDue() != null ? ass.getDue().getYear() : null);
-        data.setTemplateData("ass_due_month", month != -1 && Misc.isNumeric(assDueMonth) ? month : ass.getDue() != null ? ass.getDue().getMonthOfYear() : null);
+        data.setTemplateData("ass_due_month", month != -1 ? month : ass.getDue() != null ? ass.getDue().getMonthOfYear() : null);
         data.setTemplateData("ass_due_day", day != -1 ? day : ass.getDue() != null ? ass.getDue().getDayOfMonth() : null);
         data.setTemplateData("ass_due_hour", hour != -1 ? hour : ass.getDue() != null ? ass.getDue().getHourOfDay() : null);
         data.setTemplateData("ass_due_minute", minute != -1 ? minute : ass.getDue() != null ? ass.getDue().getMinuteOfHour() : null);

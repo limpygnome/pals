@@ -1,0 +1,15 @@
+<p>
+    ${text?html}
+</p>
+<#if answer?has_content && answer.length() > 0>
+    <p class="tac">
+        <b>Answer:</b>
+    </p>
+    <p>
+        ${answer?html}
+    </p>
+<#else>
+    <p class="tac">
+        <b>No answer provided.</b>
+    </p>
+</#if>

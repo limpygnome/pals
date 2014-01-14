@@ -1,0 +1,19 @@
+<p>
+    ${text?html}
+</p>
+<p class="tac">
+    <b>Answer(s):</b>
+</p>
+<p>
+    <#if answers?has_content>
+        <ul>
+            <#list answers as answer>
+                <li>
+                    ${answer?html}
+                </li>
+            </#list>
+        </ul>
+    <#else>
+        No answer(s) provided.
+    </#if>
+<p/>

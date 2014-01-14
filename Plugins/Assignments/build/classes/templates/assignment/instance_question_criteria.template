@@ -1,0 +1,23 @@
+<#if question.hasInstanceQuestion()>
+    <table class="table3 assignment_criterias">
+        <tr>
+            <th colspan="2">
+                Marking Criteria Results
+            </th>
+        </tr>
+        <#list question.getInstanceQuestion().getInstanceCriteria(data.getCore(), data.getConnector()) as criteria>
+            <tr>
+                <td>
+                    ${criteria.getQC().getTitle()?html}:
+                </td>
+                <td>
+                    <#if edit_mode>
+                        <input type="text" name="criteria_${question.getInstanceQuestion().getAIQID()?c}_${criteria.getQC().getQCID()?c}_${criteria.getQC().getQCID()?c}" value="${criteria.getMark()?c}" />%
+                    <#else>
+                        ${criteria.getMark()?string}%
+                    </#if>
+                </td>
+            </tr>
+        </#list>
+    </table>
+</#if>

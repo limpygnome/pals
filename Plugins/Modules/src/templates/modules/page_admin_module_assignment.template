@@ -19,4 +19,102 @@
 </p>
 
 <h3>Attempts</h3>
-to-do.
+
+<table class="table3">
+    <tr>
+        <th>
+            ID
+        </th>
+        <th>
+            UserID
+        </th>
+        <th>
+            Username
+        </th>
+        <th>
+            Time Start
+        </th>
+        <th>
+            Time End
+        </th>
+        <th>
+            Length
+        </th>
+        <th>
+            Status
+        </th>
+        <th>
+            Mark
+        </th>
+        <th>
+            Options
+        </th>
+    </tr>
+    <#if assignments?has_content>
+        <#list assignments as ass>
+            <tr>
+                <td>
+                    ${ass.getAIID()?c}
+                </td>
+                <td>
+                    ${ass.getUser().getUserID()?c}
+                </td>
+                <td>
+                    ${ass.getUser().getUsername()?html}
+                </td>
+                <td>
+                    <#if ass.getTimeStart()??>
+                        ${ass.getTimeStart().toString("YYYY-mm-dd HH:mm:ss")}
+                    <#else>
+                        --
+                    </#if>
+                </td>
+                <td>
+                    <#if ass.getTimeEnd()??>
+                        ${ass.getTimeEnd().toString("YYYY-mm-dd HH:mm:ss")}
+                    <#else>
+                        --
+                    </#if>
+                </td>
+                <td>
+                    <#if ass.getTimeDurationStr()??>
+                        ${ass.getTimeDurationStr()}
+                    <#else>
+                        --
+                    </#if>
+                </td>
+                <td>
+                    ${ass.getStatus().getText()?html}
+                </td>
+                <td>
+                    ${ass.getMark()?string}%
+                </td>
+                <td>
+                    <a class="button" href="/assignment/review/${ass.getAIID()?c}">
+                        Review
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="7">
+                No history available for this assignment.
+            </td>
+        </tr>
+    </#if>
+</table>
+
+<div class="p tac">
+    <#if page_prev??>
+        <a class="button fl" href="/modules/${module.getModuleID()?c}/history/${assignment.getAssID()?c}/${page_prev?c}">
+            Previous
+        </a>
+    </#if>
+    Page ${page}
+    <#if page_next??>
+        <a class="button fr" href="/modules/${module.getModuleID()?c}/history/${assignment.getAssID()?c}/${page_next?c}">
+            Next
+        </a>
+    </#if>
+</div>

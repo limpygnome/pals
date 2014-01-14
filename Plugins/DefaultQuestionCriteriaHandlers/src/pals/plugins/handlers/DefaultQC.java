@@ -184,6 +184,8 @@ public class DefaultQC extends Plugin
                 return pageQuestionCapture(args);
             case "criteria_type.mark":
                 return criteriaMarking(args);
+            case "question_type.question_display":
+                return pageQuestionDisplay(args);
         }
         return false;
     }
@@ -550,20 +552,20 @@ public class DefaultQC extends Plugin
         
         return true;
     }
-    // Methods - Pages - Capture - Question Types ******************************
+    // Methods - Pages - Question Types - Capture ******************************
     private boolean pageQuestionCapture(Object[] hookData)
     {
         // Validate hook-data
-        if(hookData.length != 5 || !(hookData[0] instanceof WebRequestData) || !(hookData[1] instanceof InstanceAssignment) || !(hookData[2] instanceof AssignmentQuestion) || !(hookData[3] instanceof StringBuilder) || !(hookData[4] instanceof Boolean))
+        if(hookData.length != 6 || !(hookData[0] instanceof WebRequestData) || !(hookData[1] instanceof InstanceAssignment) || !(hookData[2] instanceof AssignmentQuestion) || (!(hookData[3] instanceof InstanceAssignmentQuestion) && hookData[3] != null) || !(hookData[4] instanceof StringBuilder) || !(hookData[5] instanceof Boolean))
             return false;
         // Parse hook-data
         WebRequestData data = (WebRequestData)hookData[0];
         InstanceAssignment ia = (InstanceAssignment)hookData[1];
         AssignmentQuestion question = (AssignmentQuestion)hookData[2];
-        StringBuilder html = (StringBuilder)hookData[3];
-        boolean secure = (Boolean)hookData[4];
-        // Load the model used for the question
-        InstanceAssignmentQuestion iaq = InstanceAssignmentQuestion.load(data.getCore(), data.getConnector(), ia, question);
+        InstanceAssignmentQuestion iaq = (InstanceAssignmentQuestion)hookData[3];
+        StringBuilder html = (StringBuilder)hookData[4];
+        boolean secure = (Boolean)hookData[5];
+        // Create unpersisted instance-data model if unset/null
         if(iaq == null)
             iaq = new InstanceAssignmentQuestion(question, ia, null, false, 0);
         // Delegate to be rendered and question-data captured
@@ -659,6 +661,61 @@ public class DefaultQC extends Plugin
             kvs.put("single_choice", true);
         kvs.put("aqid", aqid);
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_capture"));
+        return true;
+    }
+    // Methods - Pages - Question Types - Display ******************************
+    private boolean pageQuestionDisplay(Object[] hookData)
+    {
+        // Validate hook-data
+        if(hookData.length != 7 || !(hookData[0] instanceof WebRequestData) || !(hookData[1] instanceof InstanceAssignment) || !(hookData[2] instanceof AssignmentQuestion) || (!(hookData[3] instanceof InstanceAssignmentQuestion) && hookData[3] != null) || !(hookData[4] instanceof StringBuilder) || !(hookData[5] instanceof Boolean) && !(hookData[6] instanceof Boolean))
+            return false;
+        // Parse hook-data
+        WebRequestData data = (WebRequestData)hookData[0];
+        InstanceAssignment ia = (InstanceAssignment)hookData[1];
+        AssignmentQuestion question = (AssignmentQuestion)hookData[2];
+        InstanceAssignmentQuestion iaq = (InstanceAssignmentQuestion)hookData[3];
+        StringBuilder html = (StringBuilder)hookData[4];
+        boolean secure = (Boolean)hookData[5];
+        boolean editMode = (Boolean)hookData[6];
+        // Create unpersisted instance-data model if unset/null
+        if(iaq == null)
+            iaq = new InstanceAssignmentQuestion(question, ia, null, false, 0);
+         // Delegate to be rendered
+        UUID qtype = question.getQuestion().getQtype().getUuidQType();
+        if(qtype.equals(UUID_QUESTIONTYPE_MULTIPLECHOICE))
+            return pagepageQuestionDisplay_multipleChoice(data, ia, iaq, html, secure, editMode);
+        else if(qtype.equals(UUID_QUESTIONTYPE_WRITTENRESPONSE))
+            return pagepageQuestionDisplay_writtenResponse(data, ia, iaq, html, secure, editMode);
+        else if(qtype.equals(UUID_QUESTIONTYPE_CODEUPLOAD))
+            ;
+        else if(qtype.equals(UUID_QUESTIONTYPE_CODEFRAGMENT))
+            ;
+        return false;
+    }
+    private boolean pagepageQuestionDisplay_writtenResponse(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
+    {
+        // Load question data
+        Data_Question_Written qdata = (Data_Question_Written)iaq.getAssignmentQuestion().getQuestion().getData();
+        // Load answer data
+        String adata = (String)iaq.getData();
+        // Render the template
+        HashMap<String,Object> kvs = new HashMap<>();
+        kvs.put("text", qdata.getText());
+        kvs.put("answer", adata != null ? adata : "");
+        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/written_response_display"));
+        return true;
+    }
+    private boolean pagepageQuestionDisplay_multipleChoice(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
+    {
+        // Load question data
+        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
+        // Load answer data
+        Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iaq.getData();
+        // Render the template
+        HashMap<String,Object> kvs = new HashMap<>();
+        kvs.put("text", qdata.getText());
+        kvs.put("answers", adata != null ? adata.getAnswers(qdata) : new String[0]);
+        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_display"));
         return true;
     }
     // Methods - Criteria Types - Marking **************************************

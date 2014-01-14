@@ -1,5 +1,6 @@
 package pals.base.assessment;
 
+import java.util.ArrayList;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -236,6 +237,34 @@ public class InstanceAssignmentCriteria
         catch(DatabaseException ex)
         {
             return null;
+        }
+    }
+    /**
+     * Loads all of the models for an instance of a question.
+     * 
+     * @param core Current instance of core.
+     * @param conn Database connector.
+     * @param iaq An instance of an assignment question.
+     * @return Array of criterias; can be empty.
+     */
+    public static InstanceAssignmentCriteria[] loadAll(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq)
+    {
+        try
+        {
+            ArrayList<InstanceAssignmentCriteria> buffer = new ArrayList<>();
+            Result data = conn.read("SELECT * FROM pals_assignment_instance_question_criteria AS aiqc, pals_question_criteria AS qc WHERE aiqc.aiqid=? AND qc.qcid=aiqc.qcid;", iaq.getAIQID());
+            InstanceAssignmentCriteria iac;
+            QuestionCriteria qc;
+            while(data.next())
+            {
+                if((qc = QuestionCriteria.load(core, conn, iaq.getAssignmentQuestion().getQuestion(), data)) != null && (iac = load(conn, iaq, qc)) != null)
+                    buffer.add(iac);
+            }
+            return buffer.toArray(new InstanceAssignmentCriteria[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return new InstanceAssignmentCriteria[0];
         }
     }
     /**

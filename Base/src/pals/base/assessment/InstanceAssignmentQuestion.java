@@ -24,12 +24,14 @@ public class InstanceAssignmentQuestion
         Invalid_InstanceAssignment
     }
     // Fields ******************************************************************
-    private int                 aiqid;              // The assignment-instance question identifier.
-    private AssignmentQuestion  aq;                 // The assignment question.
-    private InstanceAssignment  ia;                 // The current instance of the assignment.
-    private Object              data;               // Data for the current instance of the question.
-    private boolean             answered;           // Indicates of the question has been answered.
-    private double              mark;
+    private int                 aiqid;                  // The assignment-instance question identifier.
+    private AssignmentQuestion  aq;                     // The assignment question.
+    private InstanceAssignment  ia;                     // The current instance of the assignment.
+    private Object              data;                   // Data for the current instance of the question.
+    private boolean             answered;               // Indicates of the question has been answered.
+    private double              mark;                   // The mark assigned to the question.
+    // Fields - Cache **********************************************************
+    private InstanceAssignmentCriteria[] cacheCriteria; // Cached models of the instances of criteria for this question.
     // Methods - Constructors **************************************************
     /**
      * Constructs a new instance of an assignment-instance question.
@@ -337,5 +339,17 @@ public class InstanceAssignmentQuestion
     public double getMark()
     {
         return mark;
+    }
+    /**
+     * @param core Current instance of core.
+     * @param conn Database connector.
+     * @return Array of instances of criteria moddels; can be empty. This is
+     * cached, since it's an expensive operation.
+     */
+    public InstanceAssignmentCriteria[] getInstanceCriteria(NodeCore core, Connector conn)
+    {
+        if(cacheCriteria == null)
+            cacheCriteria = InstanceAssignmentCriteria.loadAll(core, conn, this);
+        return cacheCriteria;
     }
 }
