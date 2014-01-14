@@ -1,13 +1,15 @@
 <form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/${current_page?c}<#if edit_mode>?edit=1</#if>">
     <#list questions as question>
-        <#if question.hasInstanceQuestion()>
-            <div class="assignment_question_mark" style="color: rgb(${((255*(100-question.getInstanceQuestion().getMark()))/100)?int}, ${((204*question.getInstanceQuestion().getMark())/100)?int},0);">
-                ${question.getInstanceQuestion().getMark()?string}%
-            </div>
-        <#else>
-            <div class="assignment_question_mark" style="color: rgb(255,0,0)">
-                0
-            </div>
+        <#if !capture_mode>
+            <#if question.hasInstanceQuestion()>
+                <div class="assignment_question_mark" style="color: rgb(${((255*(100-question.getInstanceQuestion().getMark()))/100)?int}, ${((204*question.getInstanceQuestion().getMark())/100)?int},0);">
+                    ${question.getInstanceQuestion().getMark()?string}%
+                </div>
+            <#else>
+                <div class="assignment_question_mark" style="color: rgb(255,0,0)">
+                    0
+                </div>
+            </#if>
         </#if>
         <h3>Question ${question.getNumber()?string}</h3>
         <#if !capture_mode>

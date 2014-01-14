@@ -72,7 +72,7 @@
         </#list>
     <#else>
         <tr>
-            <td colspan="5">
+            <td colspan="7">
                 No history available for this assignment.
             </td>
         </tr>

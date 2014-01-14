@@ -786,11 +786,11 @@ public class Modules extends Plugin
         if((assTitle != null && assDue != null && assDue.equals("1")) || (assTitle == null && ass.getDue() != null))
             data.setTemplateData("ass_due", true);
         data.setTemplateData("ass_year", DateTime.now().getYear());
-        data.setTemplateData("ass_due_year", year != -1 ? year : ass.getDue() != null ? ass.getDue().getYear() : null);
-        data.setTemplateData("ass_due_month", month != -1 ? month : ass.getDue() != null ? ass.getDue().getMonthOfYear() : null);
-        data.setTemplateData("ass_due_day", day != -1 ? day : ass.getDue() != null ? ass.getDue().getDayOfMonth() : null);
-        data.setTemplateData("ass_due_hour", hour != -1 ? hour : ass.getDue() != null ? ass.getDue().getHourOfDay() : null);
-        data.setTemplateData("ass_due_minute", minute != -1 ? minute : ass.getDue() != null ? ass.getDue().getMinuteOfHour() : null);
+        data.setTemplateData("ass_due_year", year != -1 ? year : ass.getDue() != null ? ass.getDue().getYear() : -1);
+        data.setTemplateData("ass_due_month", month != -1 ? month : ass.getDue() != null ? ass.getDue().getMonthOfYear() : -1);
+        data.setTemplateData("ass_due_day", day != -1 ? day : ass.getDue() != null ? ass.getDue().getDayOfMonth() : -1);
+        data.setTemplateData("ass_due_hour", hour != -1 ? hour : ass.getDue() != null ? ass.getDue().getHourOfDay() : -1);
+        data.setTemplateData("ass_due_minute", minute != -1 ? minute : ass.getDue() != null ? ass.getDue().getMinuteOfHour() : -1);
         return true;
     }
     private boolean pageAdminModule_assignment_questions(WebRequestData data, Module module, Assignment ass)

@@ -70,7 +70,7 @@
         </tr>
     <#else>
         <tr>
-            <td colspan="4">
+            <td colspan="5">
                 This module has no assignments.
             </td>
         </tr>

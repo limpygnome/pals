@@ -116,7 +116,7 @@
         </tr>
     <#else>
         <tr>
-            <td colspan="7">
+            <td colspan="9">
                 This assignment has no questions.
             </td>
         </tr>

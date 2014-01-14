@@ -64,7 +64,7 @@
         </tr>
     <#else>
         <tr>
-            <td colspan="4">
+            <td colspan="5">
                 This question has no marking criteria.
             </td>
         </tr>
