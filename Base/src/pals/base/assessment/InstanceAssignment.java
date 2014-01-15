@@ -2,7 +2,6 @@ package pals.base.assessment;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import pals.base.auth.User;

@@ -557,15 +557,21 @@ body
 }
 .layout_body .assignment_criterias
 {
-	width: 90%;
+	margin: 0.5em;
+	border-bottom: solid 0.2em #CCC;
 }
-.layout_body .assignment_criterias tr th:nth-child(1),
-.layout_body .assignment_criterias tr td:nth-child(1)
+.layout_body .assignment_criterias .left,
+.layout_body .assignment_criterias .right
 {
-	text-align: left;
+	width: 50%;
 }
-.layout_body .assignment_criterias tr th:nth-child(2),
-.layout_body .assignment_criterias tr td:nth-child(2)
+.layout_body .assignment_criterias .left
 {
-	width: 5em;
+	float: left;
 }
+.layout_body .assignment_criterias .right
+{
+	float: right;
+	text-align: right;
+}
+

@@ -158,19 +158,24 @@ public class Modules extends Plugin
         // Create view models
         ModuleViewModel[] models = new ModuleViewModel[assignments.length];
         // Sum the weight of the assignments and create view models
+        boolean assignmentsAvailable = false;
         int total = 0;
         int offset = 0;
         for(Assignment ass : assignments)
         {
-            total += ass.getWeight();
-            models[offset++] = new ModuleViewModel(data.getConnector(), ass, user);
+            if(ass.isActive())
+            {
+                total += ass.getWeight();
+                models[offset++] = new ModuleViewModel(data.getConnector(), ass, user);
+                assignmentsAvailable = true;
+            }
         }
         // Setup the page
         data.setTemplateData("pals_title", "Module - "+Escaping.htmlEncode(module.getTitle()));
         data.setTemplateData("pals_content", "modules/page_module");
         // -- Fields
         data.setTemplateData("module", module);
-        data.setTemplateData("assignments", models);
+        data.setTemplateData("assignments", assignmentsAvailable ? models : new Assignment[0]);
         data.setTemplateData("total_weight", total);
         return true;
     }

@@ -230,7 +230,7 @@ CREATE TABLE pals_assignment_instance_question
 	-- The instance of the assignment.
 	aiid				INT					REFERENCES pals_assignment_instance(aiid) ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
 	-- Data used to answer the question; defined by question-type handler, used by criteria-type handlers for marking.
-	data				BYTEA,
+	qdata				BYTEA,
 	-- Indicates if the question has been answered.
 	answered			VARCHAR(1)			DEFAULT '0'																			NOT NULL,
 	-- The grade of the question, from 0 to 100.
@@ -257,6 +257,8 @@ CREATE TABLE pals_assignment_instance_question_criteria
 	-- The time at which the criteria was last processed; if this period exceeds a certain limit, as controlled by the nodes,
 	-- the work is available for re-processing.
 	last_processed		TIMESTAMP,
+	-- Data from the marking process; this could be e.g. feedback information.
+	cdata				BYTEA,
 	PRIMARY KEY(aiqid, qcid)
 );
 

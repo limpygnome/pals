@@ -1,23 +1,30 @@
 <#if question.hasInstanceQuestion()>
-    <table class="table3 assignment_criterias">
-        <tr>
-            <th colspan="2">
-                Marking Criteria Results
-            </th>
-        </tr>
-        <#list question.getInstanceQuestion().getInstanceCriteria(data.getCore(), data.getConnector()) as criteria>
-            <tr>
-                <td>
-                    ${criteria.getQC().getTitle()?html}:
-                </td>
-                <td>
+    <h3 class="tac">
+        Marking Criteria Results
+    </h3>
+    <#assign criterias = question.getInstanceQuestion().getInstanceCriteria(data.getCore(), data.getConnector())>
+    <#if criterias?has_content>
+        <#list criterias as criteria>
+            <div class="assignment_criterias">
+                <div class="left">
+                    ${criteria.getQC().getTitle()?html}
+                </div>
+                <div class="right">
                     <#if edit_mode>
                         <input type="text" name="criteria_${question.getInstanceQuestion().getAIQID()?c}_${criteria.getQC().getQCID()?c}_${criteria.getQC().getQCID()?c}" value="${criteria.getMark()?c}" />%
                     <#else>
-                        ${criteria.getMark()?string}%
+                        <span style="color: rgb(${((255*(100-criteria.getMark()))/100)?int}, ${((204*criteria.getMark())/100)?int},0);">
+                            ${criteria.getMark()?string}%
+                        </span>
                     </#if>
-                </td>
-            </tr>
+                </div>
+                <div class="clear"></div>
+                ${plugin.pageAssignments_instanceRenderCriteria(data, assignment_instance, question.getInstanceQuestion(), criteria)}
+            </div>
         </#list>
-    </table>
+    <#else>
+        <p class="tac">
+            No criteria marked.
+        </p>
+    </#if>
 </#if>

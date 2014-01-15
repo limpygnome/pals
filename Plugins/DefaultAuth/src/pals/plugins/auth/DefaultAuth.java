@@ -197,11 +197,10 @@ public class DefaultAuth extends Plugin
         String email = request.getField("email");
         String newPassword = request.getField("newpassword");
         String newPasswordConfirm = request.getField("newpassword_confirm");
-        String csrf = request.getField("csrf");
         if(email != null || newPassword != null || newPasswordConfirm != null)
         {
             // Validate request
-            if(!CSRF.isSecure(data, csrf))
+            if(!CSRF.isSecure(data))
                 data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
             // Validate correct current-password
             else if(currentPassword == null || !hash(currentPassword, user.getPasswordSalt()).equals(user.getPassword()))
@@ -267,12 +266,11 @@ public class DefaultAuth extends Plugin
         String passwordConfirm = request.getField("password_confirm");
         String email = request.getField("email");
         String emailConfirm = request.getField("email_confirm");
-        String csrf = request.getField("csrf");
         
         if(username != null && password != null && passwordConfirm != null && email != null && emailConfirm != null)
         {
             // Check security
-            if(!CSRF.isSecure(data, csrf))
+            if(!CSRF.isSecure(data))
                 data.setTemplateData("error", "Invalid request, please try again or contact an administrator!");
             else if(!Captcha.isCaptchaCorrect(data))
                 data.setTemplateData("error", "Incorrect captcha verification code!");
@@ -358,12 +356,16 @@ public class DefaultAuth extends Plugin
         RemoteRequest request = data.getRequestData();
         String username = request.getField("username");
         String password = request.getField("password");
-        String csrf = request.getField("csrf");
-        if(username != null && password != null && csrf != null)
+        if(username != null && password != null)
         {
-            // Fetch the user's information
             User user;
-            if(username.length() == 0 || password.length() == 0)
+            // Validate security
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Incorrect captcha verification code!");
+            // Check the postback
+            else if(username.length() == 0 || password.length() == 0)
                 data.setTemplateData("error", "Invalid username/password!");
             else if((user = User.load(data.getConnector(), username)) == null)
                 data.setTemplateData("error", "Invalid username/password!");

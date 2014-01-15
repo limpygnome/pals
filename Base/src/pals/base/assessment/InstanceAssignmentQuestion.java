@@ -150,14 +150,19 @@ public class InstanceAssignmentQuestion
         {
             // Deserialize data
             Object data;
-            try
+            if(res.get("qdata") != null)
             {
-                data = Misc.bytesDeserialize(core, (byte[])res.get("data"));
+                try
+                {
+                    data = Misc.bytesDeserialize(core, (byte[])res.get("qdata"));
+                }
+                catch(ClassNotFoundException | IOException ex)
+                {
+                    return null;
+                }
             }
-            catch(ClassNotFoundException | IOException ex)
-            {
-                return null;
-            }
+            else
+                data = null;
             // Load instance of assignment, if null
             if(ia == null)
             {
@@ -208,7 +213,7 @@ public class InstanceAssignmentQuestion
             {
                 if(aiqid == -1)
                 {
-                    aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, data, answered, mark) VALUES(?,?,?,?,?) RETURNING aiqid;",
+                    aiqid = (int)conn.executeScalar("INSERT INTO pals_assignment_instance_question (aqid, aiid, qdata, answered, mark) VALUES(?,?,?,?,?) RETURNING aiqid;",
                             aq.getAQID(),
                             ia.getAIID(),
                             bdata,
@@ -218,7 +223,7 @@ public class InstanceAssignmentQuestion
                 }
                 else
                 {
-                    conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, data=?, answered=?, mark=? WHERE aiqid=?;",
+                    conn.execute("UPDATE pals_assignment_instance_question SET aqid=?, aiid=?, qdata=?, answered=?, mark=? WHERE aiqid=?;",
                             aq.getAQID(),
                             ia.getAIID(),
                             bdata,

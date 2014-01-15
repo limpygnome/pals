@@ -17,7 +17,10 @@
             </a>
         </#if>
         <#if !capture_mode>
-            Grade:
+            <a href="<#if edit_mode>/manual_marking/${assignment.getAssID()?c}<#else>/modules/${module.getModuleID()?c}/history/${assignment.getAssID()?c}</#if>" class="button">
+                Back
+            </a>
+            <br />
             <br />
             <div class="assignment_mark" style="color: rgb(${((255*(100-assignment_instance.getMark()))/100)?int}, ${((204*assignment_instance.getMark())/100)?int},0);">
                 ${assignment_instance.getMark()?string}%

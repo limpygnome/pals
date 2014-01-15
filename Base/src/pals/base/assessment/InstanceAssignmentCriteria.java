@@ -1,10 +1,12 @@
 package pals.base.assessment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
+import pals.base.utils.Misc;
 
 /**
  * An instance of an assignment question's criteria.
@@ -17,9 +19,22 @@ public class InstanceAssignmentCriteria
      */
     public enum Status
     {
+        /**
+         * The criteria is awaiting manual-marking from a human.
+         */
         AwaitingManualMarking(0),
+        /**
+         * The criteria is being answered by a user; this means the criteria
+         * is active and should not be marked.
+         */
         BeingAnswered(1),
+        /**
+         * The criteria is queued for marking.
+         */
         AwaitingMarking(2),
+        /**
+         * The criteria has been marked.
+         */
         Marked(4);
         
         public final int dbValue;
@@ -53,9 +68,30 @@ public class InstanceAssignmentCriteria
     {
         Success,
         Failed,
+        Failed_Serialize,
         Invalid_InstanceAssignmentQuestion,
         Invalid_QuestionCriteria,
         Invalid_Mark
+    }
+    /**
+     * Indicates the status of creating criteria for an instance of an
+     * assignment.
+     */
+    public enum CreateInstanceStatus
+    {
+        /**
+         * Operation failed due to an error.
+         */
+        Failed,
+        /**
+         * No instance question data exists, therefore no criteria were
+         * created.
+         */
+        Failed_NoInstanceQuestions,
+        /**
+         * Successfully created.
+         */
+        Success
     }
     // Fields ******************************************************************
     private boolean                     persisted;
@@ -63,13 +99,14 @@ public class InstanceAssignmentCriteria
     private QuestionCriteria            qc;
     private Status                      status;
     private int                         mark;
+    private Object                      data;
     // Methods - Constructors **************************************************
     /**
      * Constructs a new model.
      */
     public InstanceAssignmentCriteria()
     {
-        this(null, null, Status.AwaitingMarking, 0);
+        this(null, null, Status.AwaitingMarking, 0, null);
     }
     /**
      * Constructs a new model.
@@ -78,13 +115,15 @@ public class InstanceAssignmentCriteria
      * @param qc The question criteria; cannot be null.
      * @param status The status of the criteria.
      * @param mark The mark assigned to the criteria (0 to 100).
+     * @param data Serialized data; can be null.
      */
-    public InstanceAssignmentCriteria(InstanceAssignmentQuestion iaq, QuestionCriteria qc, Status status, int mark)
+    public InstanceAssignmentCriteria(InstanceAssignmentQuestion iaq, QuestionCriteria qc, Status status, int mark, Object data)
     {
         this.iaq = iaq;
         this.qc = qc;
         this.status = status;
         this.mark = mark;
+        this.data = data;
     }
     // Methods - Persistence ***************************************************
     /**
@@ -95,9 +134,10 @@ public class InstanceAssignmentCriteria
      * @param conn Database connector.
      * @param ia Instance assignment.
      * @param status The status to give each model.
-     * @return True = successful, false = failed (status of operation).
+     * @return The status from creating instances of criteria for the instances
+     * of questions for the instance of an assignment.
      */
-    public static boolean createForInstanceAssignment(Connector conn, InstanceAssignment ia, Status status)
+    public static CreateInstanceStatus createForInstanceAssignment(Connector conn, InstanceAssignment ia, Status status)
     {
         try
         {
@@ -119,12 +159,17 @@ public class InstanceAssignmentCriteria
                     Status.Marked.dbValue
             );
             // Create a model for each criteria
-            while(res.next())
+            boolean hasRows = res.next();
+            if(hasRows)
             {
-                conn.execute("INSERT INTO pals_assignment_instance_question_criteria (aiqid,qcid,status,mark) VALUES(?,?,?,?);", (int)res.get("aiqid"), (int)res.get("qcid"), status.dbValue, 0);
+                do
+                {
+                    conn.execute("INSERT INTO pals_assignment_instance_question_criteria (aiqid,qcid,status,mark) VALUES(?,?,?,?);", (int)res.get("aiqid"), (int)res.get("qcid"), status.dbValue, 0);
+                }
+                while(res.next());
             }
             conn.execute("COMMIT;");
-            return true;
+            return hasRows ? CreateInstanceStatus.Success : CreateInstanceStatus.Failed_NoInstanceQuestions;
         }
         catch(DatabaseException ex)
         {
@@ -135,7 +180,7 @@ public class InstanceAssignmentCriteria
             catch(DatabaseException ex2)
             {
             }
-            return false;
+            return CreateInstanceStatus.Failed;
         }
     }
     /**
@@ -155,7 +200,7 @@ public class InstanceAssignmentCriteria
             if(res.next())
             {
                 conn.execute("UPDATE pals_assignment_instance_question_criteria SET last_processed=current_timestamp WHERE aiqid=? AND qcid=?;", (int)res.get("aiqid"), (int)res.get("qcid"));
-                return load(core, conn, null, null, res);
+                return loadAuto(core, conn, null, null, res);
             }
             else
                 return null;
@@ -168,17 +213,18 @@ public class InstanceAssignmentCriteria
     /**
      * Loads a model from the database.
      * 
+     * @param core Current instance of the core.
      * @param conn Database connector.
      * @param iaq Instance of the assignment question; cannot be null.
      * @param qc Question criteria; cannot be null.
      * @return An instance of the model or null.
      */
-    public static InstanceAssignmentCriteria load(Connector conn, InstanceAssignmentQuestion iaq, QuestionCriteria qc)
+    public static InstanceAssignmentCriteria load(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq, QuestionCriteria qc)
     {
         try
         {
             Result res = conn.read("SELECT * FROM pals_assignment_instance_question_criteria WHERE aiqid=? AND qcid=?;", iaq.getAIQID(), qc.getQCID());
-            return res.next() ? load(conn, iaq, qc, res) : null;
+            return res.next() ? load(core, conn, iaq, qc, res) : null;
         }
         catch(DatabaseException ex)
         {
@@ -197,7 +243,7 @@ public class InstanceAssignmentCriteria
      * @param res The result from a query, with next() pre-invoked.
      * @return An instance of the model or null.
      */
-    public static InstanceAssignmentCriteria load(NodeCore core, Connector conn, InstanceAssignment ia, Question q, Result res)
+    public static InstanceAssignmentCriteria loadAuto(NodeCore core, Connector conn, InstanceAssignment ia, Question q, Result res)
     {
         try
         {
@@ -210,7 +256,7 @@ public class InstanceAssignmentCriteria
             if(qc == null)
                 return null;
             // Load model
-            return load(conn, iaq, qc, res);
+            return load(core, conn, iaq, qc, res);
         }
         catch(DatabaseException ex)
         {
@@ -220,17 +266,32 @@ public class InstanceAssignmentCriteria
     /**
      * Loads a model from the database.
      * 
+     * @param core The current instance of the core.
      * @param conn Database connector.
      * @param iaq The instance of the assignment question; cannot be null.
      * @param qc The instance of the question criteria; cannot be null.
      * @param res The result from a query, with next() pre-invoked.
      * @return An instance of the model or null.
      */
-    public static InstanceAssignmentCriteria load(Connector conn, InstanceAssignmentQuestion iaq, QuestionCriteria qc, Result res)
+    public static InstanceAssignmentCriteria load(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq, QuestionCriteria qc, Result res)
     {
         try
         {
-            InstanceAssignmentCriteria iac = new InstanceAssignmentCriteria(iaq, qc, Status.getStatus((int)res.get("status")), (int)res.get("mark"));
+            Object data;
+            if(res.get("cdata") != null)
+            {
+                try
+                {
+                    data = Misc.bytesDeserialize(core, (byte[])res.get("cdata"));
+                }
+                catch(ClassNotFoundException | IOException ex)
+                {
+                    return null;
+                }
+            }
+            else
+                data = null;
+            InstanceAssignmentCriteria iac = new InstanceAssignmentCriteria(iaq, qc, Status.getStatus((int)res.get("status")), (int)res.get("mark"), data);
             iac.persisted = true;
             return iac;
         }
@@ -257,7 +318,7 @@ public class InstanceAssignmentCriteria
             QuestionCriteria qc;
             while(data.next())
             {
-                if((qc = QuestionCriteria.load(core, conn, iaq.getAssignmentQuestion().getQuestion(), data)) != null && (iac = load(conn, iaq, qc)) != null)
+                if((qc = QuestionCriteria.load(core, conn, iaq.getAssignmentQuestion().getQuestion(), data)) != null && (iac = load(core, conn, iaq, qc)) != null)
                     buffer.add(iac);
             }
             return buffer.toArray(new InstanceAssignmentCriteria[buffer.size()]);
@@ -286,26 +347,33 @@ public class InstanceAssignmentCriteria
         {
             try
             {
+                byte[] serializedData = Misc.bytesSerialize(data);
                 // Persist data
                 if(persisted)
                 {
-                    conn.execute("UPDATE pals_assignment_instance_question_criteria SET status=?, mark=? WHERE aiqid=? AND qcid=?;",
+                    conn.execute("UPDATE pals_assignment_instance_question_criteria SET status=?, mark=?, cdata=? WHERE aiqid=? AND qcid=?;",
                             status.dbValue,
                             mark,
+                            serializedData,
                             iaq.getAIQID(),
                             qc.getQCID()
                             );
                 }
                 else
                 {
-                    conn.execute("INSERT INTO pals_assignment_instance_question_criteria (aiqid, qcid, status, mark) VALUES(?,?,?,?);",
+                    conn.execute("INSERT INTO pals_assignment_instance_question_criteria (aiqid, qcid, status, mark, cdata) VALUES(?,?,?,?,?);",
                             iaq.getAIQID(),
                             qc.getQCID(),
                             status.dbValue,
-                            mark
+                            mark,
+                            serializedData
                             );
                 }
                 return PersistStatus.Success;
+            }
+            catch(IOException ex)
+            {
+                return PersistStatus.Failed_Serialize;
             }
             catch(DatabaseException ex)
             {

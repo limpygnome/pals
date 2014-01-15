@@ -182,6 +182,7 @@ public class Assignments extends Plugin
         data.setTemplateData("pals_title", "Assignment - "+Escaping.htmlEncode(ass.getTitle()));
         data.setTemplateData("pals_content", "assignment/instance_page");
         // -- Fields
+        data.setTemplateData("plugin", this);
         data.setTemplateData("pages", pages);
         data.setTemplateData("module", ass.getModule());
         data.setTemplateData("assignment", ass);
@@ -279,24 +280,41 @@ public class Assignments extends Plugin
         if(confirm != null && confirm.equals("1"))
         {
             // Create instance-criterias to be marked
-            if(!InstanceAssignmentCriteria.createForInstanceAssignment(data.getConnector(), ia, InstanceAssignmentCriteria.Status.AwaitingMarking))
-                data.setTemplateData("error", "Failed to prepare assignment for marking!");
-            // Set the assignment as submitted
-            ia.setStatus(InstanceAssignment.Status.Submitted);
-            ia.setTimeEnd(DateTime.now());
-            // Persist the model - this should work, else something has gone critically wrong...
-            InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
-            switch(iaps)
+            InstanceAssignmentCriteria.CreateInstanceStatus cis = InstanceAssignmentCriteria.createForInstanceAssignment(data.getConnector(), ia, InstanceAssignmentCriteria.Status.AwaitingMarking);
+            // Handle the, possible, creation of the instance criteria
+            switch(cis)
             {
-                case Invalid_Assignment:
-                case Invalid_Mark:
-                case Invalid_User:
-                    data.setTemplateData("error", "Failed to submit assignment ('"+iaps.name()+"'); please try again or contact an administrator!");
+                default:
+                case Failed:
+                    data.setTemplateData("error", "Failed to prepare assignment for marking!");
+                    break;
+                case Failed_NoInstanceQuestions:
+                    // Set the mark of the assignment to 0
+                    ia.setMark(0);
+                    // Update the status to marked
+                    ia.setStatus(InstanceAssignment.Status.Marked);
                     break;
                 case Success:
-                    // Redirect to review page...
-                    data.getResponseData().setRedirectUrl("/assignments/instance/"+ia.getAIID());
+                    // Update the assignment as submitted/pending marking
+                    ia.setStatus(InstanceAssignment.Status.Submitted);
                     break;
+            }
+            if(cis == InstanceAssignmentCriteria.CreateInstanceStatus.Failed_NoInstanceQuestions || cis == InstanceAssignmentCriteria.CreateInstanceStatus.Success)
+            {
+                // Set the date-time of submission
+                ia.setTimeEnd(DateTime.now());
+                // Persist the model - this should work, else something has gone critically wrong...
+                InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
+                switch(iaps)
+                {
+                    default:
+                        data.setTemplateData("error", "Failed to submit assignment ('"+iaps.name()+"'); please try again or contact an administrator!");
+                        break;
+                    case Success:
+                        // Redirect to review page...
+                        data.getResponseData().setRedirectUrl("/assignments/instance/"+ia.getAIID());
+                        break;
+                }
             }
         }
         // Fetch the instance of the questions
@@ -307,5 +325,15 @@ public class Assignments extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("instance_questions", questions);
         return true;
+    }
+    public String pageAssignments_instanceRenderCriteria(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria criteria)
+    {
+        // Fetch the plugin responsible
+        UUID p = criteria.getQC().getCriteria().getUuidCType();
+        Plugin plugin = p != null ? getCore().getPlugins().getPlugin(p) : null;
+        StringBuilder html = new StringBuilder();
+        if(plugin != null && plugin.eventHandler_handleHook("criteria_type.display_feedback", new Object[]{data, ia, iaq, criteria, html}))
+            return html.toString();
+        return "";
     }
 }
