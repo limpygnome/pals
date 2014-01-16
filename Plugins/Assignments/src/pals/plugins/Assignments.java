@@ -318,6 +318,7 @@ public class Assignments extends Plugin
             // Set the page
             data.setTemplateData("instance_page", "assignment/instance_page_render_questions");
             // -- Fields
+            data.setTemplateData("secure", secure);
             data.setTemplateData("csrf", CSRF.set(data));
             data.setTemplateData("questions", qdata);
             data.setTemplateData("current_page", page);

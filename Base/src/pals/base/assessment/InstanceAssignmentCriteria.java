@@ -63,6 +63,13 @@ public class InstanceAssignmentCriteria
                     return AwaitingManualMarking;
             }
         }
+        /**
+         * @return The db-value of this instance of a criteria.
+         */
+        public int getStatus()
+        {
+            return dbValue;
+        }
     }
     public enum PersistStatus
     {

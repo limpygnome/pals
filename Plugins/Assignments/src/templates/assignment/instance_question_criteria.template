@@ -5,7 +5,7 @@
     <#assign criterias = question.getInstanceQuestion().getInstanceCriteria(data.getCore(), data.getConnector())>
     <#if criterias?has_content>
         <#list criterias as criteria>
-            <div class="assignment_criterias">
+            <div class="assignment_criterias <#if criteria.getStatus().getStatus()==0>manual_marking</#if>">
                 <div class="left">
                     ${criteria.getQC().getTitle()?html}
                 </div>

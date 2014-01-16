@@ -279,7 +279,7 @@ public class DefaultQC extends Plugin
         else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
             return Handler_Criteria_RegexMatch.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
-            ;
+            return Handler_Criteria_ManualMarking.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
             return Handler_Criteria_MultipleChoice.criteriaDisplay(data, ia, iaq, iac, html);
         return false;

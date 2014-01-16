@@ -1,0 +1,35 @@
+<#if text??>
+    <p class="info">
+        ${text?html}
+    </p>
+<#else>
+    <p class="warning">
+        [No feedback left]
+    </p>
+</#if>
+
+<#if edit_mode?? && edit_mode>
+    <table class="table2">
+        <tr>
+            <td>
+                Feedback:
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea rows="5" cols="80" name="feedback_${aiqid}_${qcid}"><#if text??>${text?html}</#if></textarea>
+            </td>
+        </tr>
+    </table>
+    <#if success??>
+        <p class="success">
+            ${success?html}
+        </p>
+    </#if>
+
+    <#if error??>
+        <p class="error">
+            ${error?html}
+        </p>
+    </#if>
+</#if>

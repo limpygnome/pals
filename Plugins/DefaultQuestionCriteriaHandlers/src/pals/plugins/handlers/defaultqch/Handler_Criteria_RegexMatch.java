@@ -9,7 +9,6 @@ import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
-import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
@@ -173,7 +172,7 @@ public class Handler_Criteria_RegexMatch
             boolean matched = (Boolean)fdata;
             HashMap<String,Object> kvs = new HashMap<>();
             kvs.put(matched ? "success" : "error", matched ? "Correct answer." : "Your answer was not matched by the regular-expressions pattern '"+cdata.getRegexPattern()+"'.");
-            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_text"));
+            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_display"));
             return true;
         }
         return false;

@@ -54,7 +54,6 @@ public class AssignmentMarker extends Plugin
         threads.clear();
         getCore().getLogging().log("Ass. Marker", "Disposed thread-pool.", Logging.EntryType.Info);
     }
-
     @Override
     public String getTitle()
     {

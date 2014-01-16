@@ -376,7 +376,7 @@ body
 	color: #FFF;
 }
 /* Success/error containers */
-.layout_body .success, .layout_body .error, .layout_body .warning
+.layout_body .success, .layout_body .error, .layout_body .warning, .layout_body .info
 {
 	margin: 0.5em !important;
 	padding: 0.5em;
@@ -392,6 +392,12 @@ body
 	background: #FF9;
 	color: #C90;
 	border: solid 0.2em #C90;
+}
+.layout_body .info
+{
+	background: #9CF;
+	color: #06C;
+	border: solid 0.2em #06C;
 }
 .layout_body .error
 {
@@ -555,12 +561,17 @@ body
 }
 .layout_body .assignment_mark .red
 {
-	color: #C00;
+	color: #F00;
 }
 .layout_body .assignment_criterias
 {
 	margin: 0.5em;
 	border-bottom: solid 0.2em #CCC;
+}
+.layout_body .assignment_criterias.manual_marking
+{
+	background: #FCC;
+	border: dashed 0.2em #C00;
 }
 .layout_body .assignment_criterias .left,
 .layout_body .assignment_criterias .right

@@ -143,7 +143,7 @@ public class Handler_Criteria_TextMatch
             boolean matched = (Boolean)fdata;
             HashMap<String,Object> kvs = new HashMap<>();
             kvs.put(matched ? "success" : "error", matched ? "Correct answer." : "The correct answer was '"+cdata.getText()+"'.");
-            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_text"));
+            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_display"));
             return true;
         }
         return false;
