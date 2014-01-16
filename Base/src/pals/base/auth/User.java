@@ -1,6 +1,5 @@
 package pals.base.auth;
 
-import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.assessment.Module;
 import pals.base.database.Connector;

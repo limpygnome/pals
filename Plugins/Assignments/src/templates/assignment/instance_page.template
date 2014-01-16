@@ -17,6 +17,26 @@
             </a>
         </#if>
         <#if !capture_mode>
+            <#if edit_mode>
+                <a href="/assignments/instance/${assignment_instance.getAIID()?c}/reopen?edit=1" class="button">
+                    Reopen
+                </a>
+                &nbsp;
+                <a href="/assignments/instance/${assignment_instance.getAIID()?c}/recompute?edit=1" class="button">
+                    Recompute Grade
+                </a>
+                &nbsp;
+                <a href="/assignments/instance/${assignment_instance.getAIID()?c}/reprocess?edit=1" class="button">
+                    Reprocess Criteria
+                </a>
+                &nbsp;
+            </#if>
+            <#if !edit_mode && !capture_mode && can_mark>
+                <a href="/assignments/instance/${assignment_instance.getAIID()?c}?edit=1" class="button">
+                    Edit
+                </a>
+                &nbsp;
+            </#if>
             <a href="<#if edit_mode>/manual_marking/${assignment.getAssID()?c}<#else>/modules/${module.getModuleID()?c}/history/${assignment.getAssID()?c}</#if>" class="button">
                 Back
             </a>

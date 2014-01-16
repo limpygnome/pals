@@ -2,6 +2,7 @@ package pals.plugins.handlers.defaultqch;
 
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignmentCriteria;
+import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
@@ -16,7 +17,7 @@ public class Handler_Criteria_ManualMarking
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("03830aa9-39d7-4bfe-9ab5-a9c765e6e426");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit_manual(WebRequestData data, QuestionCriteria qc)
+    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -74,7 +75,7 @@ public class Handler_Criteria_ManualMarking
         
         return true;
     }
-    static boolean criteriaMarking_manualMarking(Connector conn, InstanceAssignmentCriteria iac)
+    static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
     {
         // Set the criteria to manual-marking status
         iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);

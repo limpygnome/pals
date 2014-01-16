@@ -399,6 +399,25 @@ public class InstanceAssignmentCriteria
             return false;
         }
     }
+    /**
+     * Deletes all of the instances of criteria belonging to an assignment.
+     * 
+     * @param conn Database connector.
+     * @param ia The instance of an assignment.
+     * @return True = success, false = failed.
+     */
+    public static boolean delete(Connector conn, InstanceAssignment ia)
+    {
+        try
+        {
+            conn.execute("DELETE FROM pals_assignment_instance_question_criteria AS aiqc WHERE aiqc.aiqid IN (SELECT aiqid FROM pals_assignment_instance_question WHERE aiid=?);", ia.getAIID());
+            return true;
+        }
+        catch(DatabaseException ex)
+        {
+            return false;
+        }
+    }
     // Methods - Mutators ******************************************************
     /**
      * @param iaq Sets the instance of the assignment question; this has no
@@ -431,6 +450,13 @@ public class InstanceAssignmentCriteria
     public void setMark(int mark)
     {
         this.mark = mark;
+    }
+    /**
+     * @param data The unique data to be set for this instance; can be null.
+     */
+    public void setData(Object data)
+    {
+        this.data = data;
     }
     // Methods - Accessors *****************************************************
     /**
@@ -467,5 +493,12 @@ public class InstanceAssignmentCriteria
     public int getMark()
     {
         return mark;
+    }
+    /**
+     * @return The unique data for this instance of the criteria.
+     */
+    public Object getData()
+    {
+        return data;
     }
 }

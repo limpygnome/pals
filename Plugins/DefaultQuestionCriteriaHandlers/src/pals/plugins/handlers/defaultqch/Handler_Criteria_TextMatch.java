@@ -1,7 +1,10 @@
 package pals.plugins.handlers.defaultqch;
 
+import java.util.HashMap;
 import pals.base.UUID;
+import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
+import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
@@ -16,7 +19,7 @@ public class Handler_Criteria_TextMatch
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("b9a1143c-98cb-446b-9b39-42addac71f4f");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit_textMatch(WebRequestData data, QuestionCriteria qc)
+    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
         Data_Criteria_TextMatch cdata;
@@ -90,13 +93,10 @@ public class Handler_Criteria_TextMatch
         
         return true;
     }
-    static boolean criteriaMarking_textMatch(Connector conn, InstanceAssignmentCriteria iac)
+    static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
-        {
             iac.setMark(0);
-            return true;
-        }
         else
         {
             UUID qtype = iac.getIAQ().getAssignmentQuestion().getQuestion().getQtype().getUuidQType();
@@ -130,7 +130,22 @@ public class Handler_Criteria_TextMatch
             // Update and persist the mark
             iac.setMark(matched ? 100 : 0);
             iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
-            return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+            iac.setData(matched);
         }
+        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+    }
+    static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
+    {
+        Object fdata = iac.getData();
+        Data_Criteria_TextMatch cdata = (Data_Criteria_TextMatch)iac.getQC().getData();
+        if(fdata != null && (fdata instanceof Boolean) && cdata != null)
+        {
+            boolean matched = (Boolean)fdata;
+            HashMap<String,Object> kvs = new HashMap<>();
+            kvs.put(matched ? "success" : "error", matched ? "Correct answer." : "The correct answer was '"+cdata.getText()+"'.");
+            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_text"));
+            return true;
+        }
+        return false;
     }
 }

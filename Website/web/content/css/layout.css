@@ -223,7 +223,8 @@ body
 	border-color: #666;
 	cursor: pointer;
 }
-.layout_body .content table input[type=text], .layout_body .content table input[type=password], .layout_body table textarea
+.layout_body .content table input[type=text], .layout_body .content table input[type=password], .layout_body table textarea,
+.layout_body .content .textbox
 {
 	border: solid 0.2em #CCC;
 	background: #EEE;
@@ -243,7 +244,8 @@ body
 .layout_body .content table input[type=text]:focus, .layout_body .content table input[type=text]:hover,
 .layout_body .content table input[type=password]:focus, .layout_body .content table input[type=password]:hover,
 .layout_body .content table input[type=file]:focus, .layout_body .content table input[type=file]:hover,
-.layout_body .content table textarea:focus, .layout_body .content table textarea:hover
+.layout_body .content table textarea:focus, .layout_body .content table textarea:hover,
+.layout_body .content .textbox:focus, .layout_body .content .textbox:hover
 {
 	box-shadow: #CCC 0em 0em 0.5em;
 }

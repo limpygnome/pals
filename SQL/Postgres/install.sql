@@ -56,15 +56,15 @@ CREATE TABLE pals_users_group
 	-- Admin permissions
 	-- -- Manage modules.
 	admin_modules		VARCHAR(1)			DEFAULT 0,
-	-- -- Manage assignments for modules.
-	admin_assignments	VARCHAR(1)			DEFAULT 0,
+	-- -- Manage questions, used for assignments.
+	admin_questions		VARCHAR(1)			DEFAULT 0,
 	-- -- Manage users.
 	admin_users			VARCHAR(1)			DEFAULT 0,
 	-- -- Manage the system (nodes/logs/plugins/etc).
 	admin_system		VARCHAR(1)			DEFAULT 0
 );
 -- -- Add default user-groups
-INSERT INTO pals_users_group (title,user_login,marker_general,admin_modules,admin_assignments,admin_users,admin_system) VALUES
+INSERT INTO pals_users_group (title,user_login,marker_general,admin_modules,admin_questions,admin_users,admin_system) VALUES
 ('Admins','1','1','1','1','1','1'),
 ('Users','0','0','0','0','0','0')
 ;

@@ -1,3 +1,19 @@
+<#if warning??>
+    <p class="warning">
+        ${warning}<br />
+    </p>
+</#if>
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>
+
 <form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/${current_page?c}<#if edit_mode>?edit=1</#if>">
     <#list questions as question>
         <#if !capture_mode>
@@ -20,21 +36,6 @@
             <#include "instance_question_criteria">
         </#if>
     </#list>
-    <#if warning??>
-        <p class="warning">
-            ${warning}<br />
-        </p>
-    </#if>
-    <#if error??>
-        <p class="error">
-            ${error}
-        </p>
-    </#if>
-    <#if success??>
-        <p class="success">
-            ${success}
-        </p>
-    </#if>
     <#if capture_mode || edit_mode>
         <p class="tac">
             <input type="submit" class="button" value="Save" />

@@ -1,0 +1,11 @@
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>

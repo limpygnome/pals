@@ -1,0 +1,42 @@
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/reopen?edit=1">
+    <table class="table2">
+        <tr>
+            <th>
+                Confirm Reopen
+            </th>
+        </tr>
+        <tr>
+            <td>
+                The assignment's status will be set to active and all instances<br />
+                of criteria will be deleted; this means any manual-marking will<br />
+                be lost and the student will be able to change the answers of<br />
+                the assignment.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                You will also lose access to this marking interface until the<br />
+                assignment is resubmitted.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="submit" value="Confirm" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="confirm" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>

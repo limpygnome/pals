@@ -199,6 +199,12 @@ public class Assignments extends Plugin
         {
             case "submit":
                 return pageAssignments_instanceSubmit(data, ia, pages, editMode, captureMode);
+            case "recompute":
+                return pageAssignments_instanceRecompute(data, ia, pages, editMode, captureMode);
+            case "reprocess":
+                return pageAssignments_instanceReprocess(data, ia, pages, editMode, captureMode);
+            case "reopen":
+                return pageAssignments_instanceReopen(data, ia, pages, editMode, captureMode);
             default:
                 // Assume it's a question page
                 return pageAssignments_instanceQuestions(data, ia, pages, mup.parseInt(3, 1), editMode, captureMode);
@@ -227,10 +233,14 @@ public class Assignments extends Plugin
             Plugin p;
             PluginManager pm = data.getCore().getPlugins();
             StringBuilder html;
-            String error;
+            String error, temp;
             HashMap<String,Object> kvs;
             UUID plugin;
             InstanceAssignmentQuestion iaq;
+            InstanceAssignmentCriteria[] iac;
+            int temp2;
+            InstanceAssignmentCriteria.PersistStatus iacps;
+            boolean gradeChanged = false;
             for(int i = 0; i < questions.length; i++)
             {
                 error = null;
@@ -256,9 +266,54 @@ public class Assignments extends Plugin
                 // Process criterias
                 if(editMode)
                 {
+                    // Iterate each instance-criteria, check for postback of mark change; if so, update the model
+                    iac = iaq.getInstanceCriteria(data.getCore(), data.getConnector());
+                    for(InstanceAssignmentCriteria c : iac)
+                    {
+                        // Check for input
+                        if((temp = req.getField("criteria_"+iaq.getAIQID()+"_"+c.getQC().getQCID())) != null)
+                        {
+                            // Parse the field
+                            try
+                            {
+                                temp2 = Integer.parseInt(temp);
+                            }
+                            catch(NumberFormatException ex)
+                            {
+                                temp2 = -1;
+                            }
+                            // Check the value has changed
+                            if(temp2 != c.getMark())
+                            {
+                                // Update model and persist
+                                c.setMark(temp2);
+                                iacps = c.persist(data.getConnector());
+                                switch(iacps)
+                                {
+                                    default:
+                                        data.setTemplateData("error", "Failed to update the mark for a criteria ('"+iacps+"' ~ question '" + iaq.getAssignmentQuestion().getQuestion().getTitle() + "' ~ criteria '"+c.getQC().getTitle()+"').");
+                                        break;
+                                    case Invalid_Mark:
+                                        data.setTemplateData("error", "Invalid mark value; must be numeric and between 0 to 100.");
+                                        break;
+                                    case Success:
+                                        gradeChanged = true;
+                                        break;
+                                }
+                            }
+                        }
+                    }
                 }
                 // Update model
                 qdata[i] = new QuestionData(i+1, questions[i], iaq, html.toString());
+            }
+            // Check if to recompute the grade of the assignment
+            if(editMode && gradeChanged)
+            {
+                if(!ia.computeMark(data.getConnector()))
+                    data.setTemplateData("error", "Failed to recompute the grade of this assignment.");
+                else
+                    data.setTemplateData("warning", "The grade for this assignment was recomputed; therefore the grades of questions displayed may be old.");
             }
             // Set the page
             data.setTemplateData("instance_page", "assignment/instance_page_render_questions");
@@ -266,6 +321,7 @@ public class Assignments extends Plugin
             data.setTemplateData("csrf", CSRF.set(data));
             data.setTemplateData("questions", qdata);
             data.setTemplateData("current_page", page);
+            data.setTemplateData("can_mark", data.getUser().getGroup().isMarkerGeneral() || data.getUser().getGroup().isAdminModules());
         }
         return true;
     }
@@ -326,14 +382,108 @@ public class Assignments extends Plugin
         data.setTemplateData("instance_questions", questions);
         return true;
     }
+    private boolean pageAssignments_instanceRecompute(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)
+    {
+        // Check the assignment is not active and we're in edit-mode
+        if(ia.getStatus() == InstanceAssignment.Status.Active || !editMode)
+            return false;
+        // Check for postback from confirmation
+        String confirm = data.getRequestData().getField("confirm");
+        if(confirm != null && confirm.equals("1"))
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else if(ia.computeMark(data.getConnector()))
+                data.setTemplateData("success", "Successfully recomputed question grade(s) and assignment grade.");
+            else
+                data.setTemplateData("error", "Failed to recompute grades; please try again or contact an administrator!");
+        }
+        // Setup the page
+        data.setTemplateData("instance_page", "assignment/instance_page_recompute");
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAssignments_instanceReprocess(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)
+    {
+        // Check the assignment is not active and we're in edit-mode
+        if(ia.getStatus() == InstanceAssignment.Status.Active || !editMode)
+            return false;
+        // Check for postback from confirmation
+        String confirm = data.getRequestData().getField("confirm");
+        if(confirm != null && confirm.equals("1"))
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            // Delete previous criteria
+            else if(!InstanceAssignmentCriteria.delete(data.getConnector(), ia))
+                data.setTemplateData("error", "Failed to delete instances of criteria; please try again or contact an administrator!");
+            else
+            {
+                // Set the assignment status to submitted
+                ia.setStatus(InstanceAssignment.Status.Submitted);
+                // Persist model
+                InstanceAssignment.PersistStatus iaps;
+                if((iaps = ia.persist(data.getConnector())) == InstanceAssignment.PersistStatus.Success)
+                {
+                    // Recreate criterias
+                    InstanceAssignmentCriteria.CreateInstanceStatus cis = InstanceAssignmentCriteria.createForInstanceAssignment(data.getConnector(), ia, InstanceAssignmentCriteria.Status.AwaitingMarking);
+                    switch(cis)
+                    {
+                        case Success:
+                            data.setTemplateData("success", "Successfully set for reprocessing.");
+                            break;
+                    }
+                }
+                else
+                    data.setTemplateData("error", "Failed to set assignment to submitted status ('"+iaps.name()+"'); please try again or contact an administrator!");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("instance_page", "assignment/instance_page_reprocess");
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAssignments_instanceReopen(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)
+    {
+        // Check the assignment is not active and we're in edit-mode
+        if(ia.getStatus() == InstanceAssignment.Status.Active || !editMode)
+            return false;
+        // Check for postback from confirmation
+        String confirm = data.getRequestData().getField("confirm");
+        if(confirm != null && confirm.equals("1"))
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else if(!InstanceAssignmentCriteria.delete(data.getConnector(), ia))
+                data.setTemplateData("error", "Failed to delete instances of criteria; please try again or contact an administrator!");
+            else
+            {
+                ia.setStatus(InstanceAssignment.Status.Active);
+                InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
+                switch(iaps)
+                {
+                    default:
+                        data.setTemplateData("error", "Failed to persist the status of the assignment to open ('"+iaps.name()+"'); please try again or contact an administrator!");
+                    case Success:
+                        data.setTemplateData("success", "Successfully reopened the assignment; this page will no longer be available until it is resubmitted.");
+                        break;
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("instance_page", "assignment/instance_page_reopen");
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
     public String pageAssignments_instanceRenderCriteria(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria criteria)
     {
         // Fetch the plugin responsible
-        UUID p = criteria.getQC().getCriteria().getUuidCType();
+        UUID p = criteria.getQC().getCriteria().getUuidPlugin();
         Plugin plugin = p != null ? getCore().getPlugins().getPlugin(p) : null;
         StringBuilder html = new StringBuilder();
         if(plugin != null && plugin.eventHandler_handleHook("criteria_type.display_feedback", new Object[]{data, ia, iaq, criteria, html}))
             return html.toString();
-        return "";
+        else
+            return "";
     }
 }

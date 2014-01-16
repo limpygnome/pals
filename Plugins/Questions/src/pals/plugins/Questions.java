@@ -82,6 +82,10 @@ public class Questions extends Plugin
                 {
                     case "questions":
                     {
+                        // Check the user is allowed access
+                        if(data.getUser() == null || !data.getUser().getGroup().isAdminQuestions())
+                            return false;
+                        // Continue processing their request...
                         temp = mup.getPart(2);
                         if(temp == null)
                             // View all the questions
@@ -104,7 +108,6 @@ public class Questions extends Plugin
         }
         return false;
     }
-
     @Override
     public String getTitle()
     {
@@ -114,9 +117,6 @@ public class Questions extends Plugin
     private boolean pageAdminQuestions_viewAll(WebRequestData data)
     {
         final int QUESTIONS_PER_PAGE = 10;
-        // Check permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
-            return false;
         // Check if we're in browse-mode for modules - if so, load the assignment
         RemoteRequest req = data.getRequestData();
         String assid = req.getField("assid");
@@ -165,19 +165,15 @@ public class Questions extends Plugin
     }
     private boolean pageAdminQuestions_create(WebRequestData data)
     {
-        // Check permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
-            return false;
         // Fetch the available question-types
         TypeQuestion[] types = TypeQuestion.loadAll(data.getConnector());
         // Check postback
         RemoteRequest req = data.getRequestData();
         String questionTitle = req.getField("question_title");
         String questionType = req.getField("question_type");
-        String csrf = req.getField("csrf");
         if(questionTitle != null && questionType != null)
         {
-            if(!CSRF.isSecure(data, csrf))
+            if(!CSRF.isSecure(data))
                 data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
             else
             {
@@ -212,9 +208,6 @@ public class Questions extends Plugin
     }
     private boolean pageAdminQuestion(WebRequestData data, String rawQid, MultipartUrlParser mup)
     {
-        // Check permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminModules())
-            return false;
         // Load question model
         Question q;
         try
@@ -265,11 +258,10 @@ public class Questions extends Plugin
         // Check postback
         RemoteRequest req = data.getRequestData();
         String questionDelete = req.getField("question_delete");
-        String csrf = req.getField("csrf");
         if(questionDelete != null && questionDelete.equals("1"))
         {
             // Verify security
-            if(!CSRF.isSecure(data, csrf))
+            if(!CSRF.isSecure(data))
                 data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
             else if(!Captcha.isCaptchaCorrect(data))
                 data.setTemplateData("error", "Invalid captcha verification code!");

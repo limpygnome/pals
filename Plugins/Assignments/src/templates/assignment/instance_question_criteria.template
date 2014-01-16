@@ -11,7 +11,7 @@
                 </div>
                 <div class="right">
                     <#if edit_mode>
-                        <input type="text" name="criteria_${question.getInstanceQuestion().getAIQID()?c}_${criteria.getQC().getQCID()?c}_${criteria.getQC().getQCID()?c}" value="${criteria.getMark()?c}" />%
+                        <input type="text" class="textbox" name="criteria_${question.getInstanceQuestion().getAIQID()?c}_${criteria.getQC().getQCID()?c}" value="${criteria.getMark()?c}" />%
                     <#else>
                         <span style="color: rgb(${((255*(100-criteria.getMark()))/100)?int}, ${((204*criteria.getMark())/100)?int},0);">
                             ${criteria.getMark()?string}%

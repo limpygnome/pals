@@ -1,11 +1,15 @@
 package pals.plugins.handlers.defaultqch;
 
+import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.UUID;
+import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
+import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
@@ -20,7 +24,7 @@ public class Handler_Criteria_RegexMatch
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("3e6518e8-bb13-4878-bb4c-c0d687ad2e6e");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit_regexMatch(WebRequestData data, QuestionCriteria qc)
+    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
         Data_Criteria_Regex cdata;
@@ -110,13 +114,10 @@ public class Handler_Criteria_RegexMatch
         
         return true;
     }
-    static boolean criteriaMarking_regexMatch(NodeCore core, Connector conn, InstanceAssignmentCriteria iac)
+    static boolean criteriaMarking(NodeCore core, Connector conn, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
-        {
             iac.setMark(0);
-            return true;
-        }
         else
         {
             Data_Criteria_Regex cdata = (Data_Criteria_Regex)iac.getQC().getData();
@@ -159,7 +160,22 @@ public class Handler_Criteria_RegexMatch
             // Update and persist the mark
             iac.setMark(matched ? 100 : 0);
             iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
-            return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+            iac.setData(matched);
         }
+        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+    }
+    static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
+    {
+        Object fdata = iac.getData();
+        Data_Criteria_Regex cdata = (Data_Criteria_Regex)iac.getQC().getData();
+        if(fdata != null && (fdata instanceof Boolean) && cdata != null)
+        {
+            boolean matched = (Boolean)fdata;
+            HashMap<String,Object> kvs = new HashMap<>();
+            kvs.put(matched ? "success" : "error", matched ? "Correct answer." : "Your answer was not matched by the regular-expressions pattern '"+cdata.getRegexPattern()+"'.");
+            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_text"));
+            return true;
+        }
+        return false;
     }
 }

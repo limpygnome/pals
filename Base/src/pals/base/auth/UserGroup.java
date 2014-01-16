@@ -25,18 +25,18 @@ public class UserGroup
     private boolean userLogin,          // Indicates if the user can login.
                     markerGeneral,      // Indictaes the user is allowed to mark work.
                     adminModules,       // Indicates the user is allowed to manage modules.
-                    adminAssignments,   // Indicates the user is allowed to manage assignments.
+                    adminQuestions,     // Indicates the user is allowed to manage questions.
                     adminUsers,         // Indicates the user is allowed to manage users.
                     adminSystem;        // Indicates the user is allowed to manage the system.
     // Methods - Constructors **************************************************
-    public UserGroup(String title, boolean userLogin, boolean markerGeneral, boolean adminModules, boolean adminAssignments, boolean adminUsers, boolean adminSystem)
+    public UserGroup(String title, boolean userLogin, boolean markerGeneral, boolean adminModules, boolean adminQuestions, boolean adminUsers, boolean adminSystem)
     {
         this.groupid = -1;
         this.title = title;
         this.userLogin = userLogin;
         this.markerGeneral = markerGeneral;
         this.adminModules = adminModules;
-        this.adminAssignments = adminAssignments;
+        this.adminQuestions = adminQuestions;
         this.adminUsers = adminUsers;
         this.adminSystem = adminSystem;
     }
@@ -75,7 +75,7 @@ public class UserGroup
                     ((String)result.get("user_login")).equals("1"),
                     ((String)result.get("marker_general")).equals("1"),
                     ((String)result.get("admin_modules")).equals("1"),
-                    ((String)result.get("admin_assignments")).equals("1"),
+                    ((String)result.get("admin_questions")).equals("1"),
                     ((String)result.get("admin_users")).equals("1"),
                     ((String)result.get("admin_system")).equals("1")
             );
@@ -104,26 +104,26 @@ public class UserGroup
         {
             if(groupid == -1)
             {
-                groupid = (int)conn.executeScalar("INSERT INTO pals_users_group (title, user_login, marker_general, admin_modules, admin_assignments, admin_users, admin_system) VALUES(?,?,?,?,?,?,?) "
+                groupid = (int)conn.executeScalar("INSERT INTO pals_users_group (title, user_login, marker_general, admin_modules, admin_questions, admin_users, admin_system) VALUES(?,?,?,?,?,?,?) "
                         + "RETURNING groupid;"
                         ,
                         title,
                         userLogin,
                         markerGeneral,
                         adminModules,
-                        adminAssignments,
+                        adminQuestions,
                         adminUsers,
                         adminSystem
                         );
             }
             else
             {
-                conn.execute("UPDATE pals_users_group SET title=?, user_login=?, marker_general=?, admin_modules=?, admin_assignments=?, admin_users=?, admin_system=? WHERE groupid=?;",
+                conn.execute("UPDATE pals_users_group SET title=?, user_login=?, marker_general=?, admin_modules=?, admin_questions=?, admin_users=?, admin_system=? WHERE groupid=?;",
                         title,
                         userLogin ? "1" : "0",
                         markerGeneral ? "1" : "0",
                         adminModules ? "1" : "0",
-                        adminAssignments ? "1" : "0",
+                        adminQuestions ? "1" : "0",
                         adminUsers ? "1" : "0",
                         adminSystem ? "1" : "0",
                         groupid
@@ -166,11 +166,11 @@ public class UserGroup
         this.adminModules = adminModules;
     }
     /**
-     * @param adminAssignments Sets if the group can manage assignments.
+     * @param adminAssignments Sets if the group can manage questions.
      */
-    public void setAdminAssignments(boolean adminAssignments)
+    public void setAdminQuestions(boolean adminAssignments)
     {
-        this.adminAssignments = adminAssignments;
+        this.adminQuestions = adminAssignments;
     }
     /**
      * @param adminUsers Sets if the group can manage users.
@@ -227,7 +227,7 @@ public class UserGroup
      */
     public boolean isAdmin()
     {
-        return adminModules || adminAssignments || adminSystem || adminUsers;
+        return adminModules || adminQuestions || adminSystem || adminUsers;
     }
     /**
      * @return Indicates if the group can manage modules.
@@ -237,11 +237,11 @@ public class UserGroup
         return adminModules;
     }
     /**
-     * @return Indicates if the group can manage assignments.
+     * @return Indicates if the group can manage questions.
      */
-    public boolean isAdminAssignments()
+    public boolean isAdminQuestions()
     {
-        return adminAssignments;
+        return adminQuestions;
     }
     /**
      * @return Indicates if the group can manage users.

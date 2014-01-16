@@ -1,0 +1,34 @@
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/reprocess?edit=1">
+    <table class="table2">
+        <tr>
+            <th>
+                Confirm Assignment Reprocess
+            </th>
+        </tr>
+        <tr>
+            <td>
+                You are about to reprocess this assignment, which will delete all<br />
+                the instances of criteria, including any manually marked criteria(s).
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="submit" value="Confirm" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="confirm" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>

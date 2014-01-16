@@ -1,8 +1,5 @@
 package pals.plugins.handlers.defaultqch;
 
-import java.util.HashMap;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
@@ -19,14 +16,7 @@ import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
-import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
-import pals.base.web.security.CSRF;
-import pals.plugins.handlers.defaultqch.Data_Answer_MultipleChoice;
-import pals.plugins.handlers.defaultqch.Data_Criteria_Regex;
-import pals.plugins.handlers.defaultqch.Data_Criteria_TextMatch;
-import pals.plugins.handlers.defaultqch.Data_Question_MultipleChoice;
-import pals.plugins.handlers.defaultqch.Data_Question_Written;
 import pals.plugins.handlers.defaultqch.Handler_Question_MCQ;
 
 /**
@@ -60,18 +50,23 @@ public class DefaultQC extends Plugin
         // Register criteria types
         TypeCriteria    tcManualMarking,
                         tcTextMatch,
-                        tcRegexMatch;
+                        tcRegexMatch,
+                        tcMultipleChoice;
         if((tcManualMarking = registerTypeCriteria(conn, core, Handler_Criteria_ManualMarking.UUID_CTYPE, "Manual Marking", "Used by a lecturer to manually-mark a criteria of a question.")) == null)
             return false;
         if((tcTextMatch = registerTypeCriteria(conn, core, Handler_Criteria_TextMatch.UUID_CTYPE, "Text Match", "Gives marks for an answer matching a piece of text.")) == null)
             return false;
         if((tcRegexMatch = registerTypeCriteria(conn, core, Handler_Criteria_RegexMatch.UUID_CTYPE, "Regex Match", "Gives marks based on a regex match.")) == null)
             return false;
+        if((tcMultipleChoice = registerTypeCriteria(conn, core, Handler_Criteria_MultipleChoice.UUID_CTYPE, "Multiple Choice", "Gives marks based on the same choices selected.")) == null)
+            return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
         tqMultipleChoice.criteriaAdd(tcManualMarking);
         tqMultipleChoice.criteriaAdd(tcRegexMatch);
         tqMultipleChoice.criteriaAdd(tcTextMatch);
+        tqMultipleChoice.criteriaAdd(tcRegexMatch);
+        tqMultipleChoice.criteriaAdd(tcMultipleChoice);
         if(!persistQuestionCriteria(core, tqMultipleChoice, conn))
             return false;
         // -- Written Response
@@ -191,11 +186,13 @@ public class DefaultQC extends Plugin
         // Delegate to question-type handler
         UUID ctype = qc.getCriteria().getUuidCType();
         if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
-            return Handler_Criteria_ManualMarking.pageCriteriaEdit_manual(data, qc);
+            return Handler_Criteria_ManualMarking.pageCriteriaEdit(data, qc);
         else if(ctype.equals(Handler_Criteria_TextMatch.UUID_CTYPE))
-            return Handler_Criteria_TextMatch.pageCriteriaEdit_textMatch(data, qc);
+            return Handler_Criteria_TextMatch.pageCriteriaEdit(data, qc);
         else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
-            return Handler_Criteria_RegexMatch.pageCriteriaEdit_regexMatch(data, qc);
+            return Handler_Criteria_RegexMatch.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
+            return Handler_Criteria_MultipleChoice.pageCriteriaEdit(data, qc);
         return false;
     }
     private boolean pageQuestionCapture(Object[] hookData)
@@ -256,11 +253,13 @@ public class DefaultQC extends Plugin
         // Delegate to the correct method for marking
         UUID ctype = iac.getQC().getCriteria().getUuidCType();
         if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
-            return Handler_Criteria_ManualMarking.criteriaMarking_manualMarking(conn, iac);
+            return Handler_Criteria_ManualMarking.criteriaMarking(conn, iac);
         else if(ctype.equals(Handler_Criteria_TextMatch.UUID_CTYPE))
-            return Handler_Criteria_TextMatch.criteriaMarking_textMatch(conn, iac);
+            return Handler_Criteria_TextMatch.criteriaMarking(conn, iac);
         else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
-            return Handler_Criteria_RegexMatch.criteriaMarking_regexMatch(getCore(), conn, iac);
+            return Handler_Criteria_RegexMatch.criteriaMarking(getCore(), conn, iac);
+        else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
+            return Handler_Criteria_MultipleChoice.criteriaMarking(conn, iac);
         return false;
     }
     private boolean criteriaFeedback(Object[] hookData)
@@ -276,11 +275,13 @@ public class DefaultQC extends Plugin
         // Delegate to the suitable method based on criteria UUID
         UUID ctype = iac.getQC().getCriteria().getUuidCType();
         if(ctype.equals(Handler_Criteria_TextMatch.UUID_CTYPE))
-            ;
+            return Handler_Criteria_TextMatch.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
-            ;
+            return Handler_Criteria_RegexMatch.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
             ;
+        else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
+            return Handler_Criteria_MultipleChoice.criteriaDisplay(data, ia, iaq, iac, html);
         return false;
     }
 }

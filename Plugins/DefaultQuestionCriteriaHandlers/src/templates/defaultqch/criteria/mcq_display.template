@@ -1,0 +1,19 @@
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<#if error_correct??>
+    <div class="error">
+        Incorrect answer; the correct answer(s):<br />
+        <br />
+        <ul>
+            <#list error_correct as answer>
+                <li>
+                    ${answer?html}
+                </li>
+            </#list>
+        </ul>
+    </div>
+</#if>
