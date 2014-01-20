@@ -1,12 +1,6 @@
 package pals.plugins.handlers.defaultqch.java;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -44,8 +38,9 @@ public class Debug
         code.append("import java.io.IOException;").append("\n");
         code.append("public class Main").append("\n");
         code.append("{").append("\n");
-        code.append("   public static void main() throws IOException").append("\n");
+        code.append("   public static void main(int value, double value2) throws IOException").append("\n");
         code.append("   {").append("\n");
+        code.append("       System.out.println(\"test values: \"+value+\",\"+value2);").append("\n");
         code.append("       System.out.println(\"test main!\");").append("\n");
         code.append("       Debug d = new Debug();").append("\n");
         code.append("       System.out.println(\"Invoke #1: \"+d.getTest());").append("\n");
@@ -55,8 +50,8 @@ public class Debug
         //code.append("       d.getProcess();").append("\n");
 //        code.append("       if(pals.base.NodeCore.getInstance() != null)").append("\n");
 //        code.append("           System.out.println(\"we can create a node...\");").append("\n");
-        code.append("       System.out.println(\"Killing JVM...\");").append("\n");
-        code.append("       System.exit(0);").append("\n");
+//        code.append("       System.out.println(\"Killing JVM...\");").append("\n");
+//        code.append("       System.exit(0);").append("\n");
         code.append("   }").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("test.Main", code.toString());
