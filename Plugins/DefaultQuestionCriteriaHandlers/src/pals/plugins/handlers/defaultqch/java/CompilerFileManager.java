@@ -1,7 +1,6 @@
 package pals.plugins.handlers.defaultqch.java;
 
 import java.io.IOException;
-import java.io.Serializable;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileObject;
@@ -12,46 +11,27 @@ import javax.tools.StandardJavaFileManager;
  * compiled in memory and loaded into the current runtime - dangerous since
  * a newer class with the same name as a core class could overwrite it.
  */
-public class CompilerFileManager extends ForwardingJavaFileManager  implements Serializable
+public class CompilerFileManager extends ForwardingJavaFileManager
 {
-    static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private final CompilerClassLoader   loader;
     private String                      tempPath;
-    private boolean                     classWhiteListing;
     private boolean                     compileInMemory;
     // Methods - Constructors **************************************************
     /**
      * @param sjf An instance of the standard file-manager.
      * @param tempPath A temporary directory for files; this must exist.
-     * @param classWhiteListing
-     * @param compileInMemory 
+     * @param compileInMemory Indicates if to compile classes in memory; if this
+     * is false, the compiled classes are outputted to the temporary path.
      */
-    public CompilerFileManager(StandardJavaFileManager sjf, String tempPath, boolean classWhiteListing, boolean compileInMemory)
+    public CompilerFileManager(StandardJavaFileManager sjf, String tempPath, boolean compileInMemory)
     {
         super(sjf);
         this.tempPath = tempPath;
         this.loader = new CompilerClassLoader(this);
-        this.classWhiteListing = classWhiteListing;
         this.compileInMemory = compileInMemory;
     }
-    // Methods - Mutators ******************************************************
-    /**
-     * @param classWhiteListing Enables (true)/disables(false) class
-     * white-listing protection for the class-loader.
-     */
-    public void setClassWhiteListing(boolean classWhiteListing)
-    {
-        this.classWhiteListing = classWhiteListing;
-    }
     // Methods - Accessors *****************************************************
-    /**
-     * @return Indicates if class white-listing is enabled.
-     */
-    public boolean isClassWhiteListing()
-    {
-        return classWhiteListing;
-    }
     /**
      * @param lctn The class-loader associated with the location; this is not
      * used, but required for overriding.

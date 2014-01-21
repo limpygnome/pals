@@ -38,14 +38,19 @@ public class SandboxSecurityManager extends SecurityManager
     {
         try
         {
-            if((path.startsWith("/") || path.startsWith("\\")) && path.length() > 1)
-                path = path.substring(1);
+            // Build path data
             String fPath = new File(path).getCanonicalPath().replace("\\", "/");
+            // Output debugging information
+            if(JavaSandbox.debugMode)
+                System.out.println("[DEBUG] Security-manager - checking path - p: '"+path+"', fp: "+fPath+"', bp: '"+basePath+"'.");
+            // Perform check
             if(!fPath.startsWith(basePath+"/") && !fPath.equals(basePath))
                 throw new SecurityException("Restricted path.");
         }
         catch(IOException ex)
         {
+            if(JavaSandbox.debugMode)
+                JavaSandbox.printDebugData(ex);
             throw new SecurityException("Could not process path; considered restricted.");
         }
     }
@@ -58,18 +63,30 @@ public class SandboxSecurityManager extends SecurityManager
     @Override
     public void checkPermission(Permission p)
     {
+        if(JavaSandbox.debugMode)
+            System.out.println("[DEBUG] Security-manager permission check data: '"+p.toString()+"' ~ name: '"+p.getName()+"', action(s) '"+p.getActions()+"', class '"+p.getClass().getName()+"'.");
         switch(p.getClass().getName())
         {
             case "java.io.FilePermission":
-                switch(p.getActions())
+            {
+                checkPathSafe(p.getName());
+                return;
+            }
+            case "java.util.PropertyPermission":
+            {
+                switch(p.getName())
                 {
-                    case "read":
-                        checkPathSafe(p.getName());
-                        break;
+                    case "line.separator":
+                        switch(p.getActions())
+                        {
+                            case "read":
+                                return;
+                        }
+                    break;
                 }
                 break;
-            default:            // Unhandled permission - deny!
-                throw new SecurityException();
+            }
         }
+        throw new SecurityException();
     }
 }

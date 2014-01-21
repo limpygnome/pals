@@ -2,11 +2,11 @@ package pals.javasandbox;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * A simple application used to load compiled classes and run them within a
@@ -17,34 +17,41 @@ import java.net.URLClassLoader;
  *          this directory (only).
  * -- 1:    The entry-point class.
  * -- 2:    The method to invoke; this must be static.
- * -- 3-n:  The arguments for the method; this is automatically parsed.
+ * -- 3:    List of white-listed classes, or 0 for no white-listing.
+ * -- 4:    Debug mode (1 for true or 0 for false).
+ * -- 5-n:  The arguments for the method; this is automatically parsed.
  *              Each argument should be with <type>=<value>
  *              Accepted types: int,long,float,double,string,char,boolean
  */
 public class JavaSandbox
 {
+    // Fields - Static *********************************************************
+    public static boolean debugMode = false;
+    // Methods - Entry-Point ***************************************************
     public static void main(String[] args) throws InvocationTargetException
     {
-        args = new String[]
-        {
-            "M:\\Dropbox\\UEA\\Modules\\Year 3\\CMPC3P2Y-13 - Project\\Codebase\\Plugins\\DefaultQuestionCriteriaHandlers\\temp",
-            "test.Main",
-            "main",
-            "int=123",
-            "double=3.614"
-        };
-        if(args.length < 3)
+        if(args.length < 4)
         {
             System.err.println("Invalid arguments.");
             return;
         }
-        URL[] urlz;
+        // Setup debug-mode
+        debugMode = args[4].equals("1");
+        if(debugMode)
+            System.out.println("[DEBUG] Debug-mode has been enabled.");
+        // Define the URLs used by the class-loader, which is just the directory
+        // of the class-files (at present).
+        URL[] urls;
         try
         {
-            urlz = new URL[]{new File(args[0]).toURI().toURL()};
+            if(debugMode)
+                System.out.println("[DEBUG] Loading classes at '"+new File(args[0]).getCanonicalPath()+"'.");
+            urls = new URL[]{new File(args[0]).toURI().toURL()};
         }
-        catch(MalformedURLException ex)
+        catch(IOException ex)
         {
+            System.err.println("Failed to setup URLs for class-loader.");
+            printDebugData(ex);
             return;
         }
         // Load any classes used by this program elsewhere
@@ -52,33 +59,57 @@ public class JavaSandbox
         try
         {
             Class.forName("pals.javasandbox.ParsedArgument");
+            Class.forName("pals.javasandbox.SandboxRestrictedLoader");
         }
         catch(ClassNotFoundException ex)
         {
+            System.err.println("Failed to load internal classes.");
+            printDebugData(ex);
+            return;
         }
         // Enforce security manager
         SandboxSecurityManager ssm;
         try
         {
-            System.setSecurityManager((ssm = new SandboxSecurityManager(args[0])));
+            System.setSecurityManager((ssm = new SandboxSecurityManager(new File(args[0]).getCanonicalPath())));
         }
         catch(IOException ex)
         {
+            System.err.println("Failed to setup security-manager.");
+            printDebugData(ex);
             return;
         }
         // Create class-loader for directory
         // -- This has to be after the security-manager, so it can allow it
         // -- to be created via checkCreateClassLoader.
-        URLClassLoader cl = new URLClassLoader(urlz);
+        SandboxRestrictedLoader srl = new SandboxRestrictedLoader(urls);
+        // Add white-list of allowed classes
+        {
+            String whiteList = args[3];
+            if(whiteList.length() > 0 && !whiteList.equals("0"))
+            {
+                srl.setWhiteListEnabled(true);
+                for(String className : whiteList.split(","))
+                    srl.whiteListAdd(className);
+                if(debugMode)
+                    System.out.println("[DEBUG] Class white-listing has been enabled.");
+            }
+            else
+                srl.setWhiteListEnabled(false);
+        }
         // Fetch class
         Class c;
         try
         {
-            c = cl.loadClass(args[1]);
+            c = srl.loadClass(args[1]);
         }
         catch(ClassNotFoundException ex)
         {
-            System.err.println("Could not find entry-point class.");
+            if(ex instanceof WhitelistException)
+                System.err.println("The class '"+((WhitelistException)ex).getClassName()+"' is prohibited!");
+            else
+                System.err.println("Could not find entry-point class '"+args[1]+"'.");
+            printDebugData(ex);
             return;
         }
         // Build arguments
@@ -86,19 +117,20 @@ public class JavaSandbox
         Class[] classes;
         try
         {
-            objs = new Object[args.length - 3];
-            classes = new Class[args.length - 3];
+            objs = new Object[args.length - 5];
+            classes = new Class[args.length - 5];
             ParsedArgument pa;
-            for(int i = 3; i < args.length; i++)
+            for(int i = 5; i < args.length; i++)
             {
                 pa = ParsedArgument.parse(args[i]);
-                objs[i-3] = pa.getArgValue();
-                classes[i-3] = pa.getArgClass();
+                objs[i-5] = pa.getArgValue();
+                classes[i-5] = pa.getArgClass();
             }
         }
         catch(IllegalArgumentException ex)
         {
             System.err.println("Could not parse entry-point arguments.");
+            printDebugData(ex);
             return;
         }
         // Fetch the required method
@@ -109,7 +141,8 @@ public class JavaSandbox
         }
         catch(NoSuchMethodException ex)
         {
-            System.err.println("Could not find entry-point method.");
+            System.err.println("Could not find entry-point method '"+args[2]+"'.");
+            printDebugData(ex);
             return;
         }
         // Invoke method
@@ -120,12 +153,31 @@ public class JavaSandbox
         catch(IllegalAccessException ex)
         {
             System.err.println("Could not access entry-point method.");
+            printDebugData(ex);
             return;
         }
         catch(IllegalArgumentException ex)
         {
             System.err.println("Incorrect parameters for entry-point method.");
+            printDebugData(ex);
             return;
+        }
+    }
+    public static void printDebugData(Exception ex)
+    {
+        if(debugMode)
+        {
+            System.err.println("DEBUG EXCEPTION INFORMATION");
+            System.err.println("*******************************************************************");
+            System.err.println("Exception occurred; type: '"+ex.getClass().getName()+"'");
+            System.err.println(ex.getMessage());
+            System.err.println("*******************************************************************");
+            System.err.println("Stack-trace:");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            System.err.println(sw.toString());
         }
     }
 }

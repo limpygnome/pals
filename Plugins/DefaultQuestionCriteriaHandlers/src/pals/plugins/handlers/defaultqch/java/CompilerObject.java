@@ -1,7 +1,6 @@
 package pals.plugins.handlers.defaultqch.java;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.URI;
 import javax.tools.SimpleJavaFileObject;
 
@@ -10,9 +9,8 @@ import javax.tools.SimpleJavaFileObject;
  * the source-code for the compiler and possibly the byte-code from the
  * compilation process.
  */
-public class CompilerObject extends SimpleJavaFileObject implements Serializable
+public class CompilerObject extends SimpleJavaFileObject
 {
-    static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String source;
     private String className;
@@ -52,7 +50,7 @@ public class CompilerObject extends SimpleJavaFileObject implements Serializable
     }
     /**
      * @return Fetches the byte-code of the compiled source for this object;
-     * can be null if not compiled.
+     * can be null if not compiled in-memory.
      */
     public byte[] getBytes()
     {

@@ -18,21 +18,19 @@ import javax.tools.ToolProvider;
 public class Debug
 {
     public static void main(String[] args) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException, ClassNotFoundException, MalformedURLException
-    {   
-        //System.setSecurityManager(new CompilerSecurityManager());
-        
+    {
+        // Fetch the compiler
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         if(jc == null)
         {
             System.err.println("[DEBUG TEST] Cannot access JVM.");
             return;
         }
-        CompilerFileManager cfm = new CompilerFileManager(jc.getStandardFileManager(null, null, null), "temp", true, false);
-        
-        
+        // Create file-system for handling I/O of source-code and byte-data
+        CompilerFileManager cfm = new CompilerFileManager(jc.getStandardFileManager(null, null, null), "debug_output", false);
+        // Add classes
         StringBuilder code;
-        
-        // Add file 0
+        // -- File 0
         code = new StringBuilder();
         code.append("package test;").append("\n");
         code.append("import java.io.IOException;").append("\n");
@@ -55,8 +53,7 @@ public class Debug
         code.append("   }").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("test.Main", code.toString());
-        
-        // Add file 1
+        // -- File 1
         code = new StringBuilder();
         code.append("package test;").append("\n");
         code.append("import java.lang.Process;").append("\n");
@@ -64,24 +61,22 @@ public class Debug
         code.append("import hello.Cat;").append("\n");
         code.append("public class Debug").append("\n");
         code.append("{").append("\n");
-        code.append("   public String getTest() { return \"hai\"; }").append("\n");
+        code.append("   public String getTest() { return \"Hello :)\"; }").append("\n");
         code.append("   public static String getTest2() { return Test.helloWorld(); }").append("\n");
         code.append("   public static String getTest3() { return Cat.food(); }").append("\n");
         code.append("   public static int getTest4() { return 123; }").append("\n");
         //code.append("   public static Process getProcess() throws IOException { System.out.println(\"uh oh.\"); return Runtime.getRuntime().exec(\"ipconfig\"); }").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("test.Debug", code.toString());
-        
-        // Add file 2
+        // -- File 2
         code = new StringBuilder();
         code.append("package test;").append("\n");
         code.append("public class Test").append("\n");
         code.append("{").append("\n");
-        code.append("   public static String helloWorld() { return \"hai\";}").append("\n");
+        code.append("   public static String helloWorld() { return \"Hello World!\";}").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("test.Test", code.toString());
-        
-        // Add file 3
+        // -- File 3
         code = new StringBuilder();
         code.append("package hello;").append("\n");
         code.append("public class Cat").append("\n");
@@ -89,25 +84,15 @@ public class Debug
         code.append("   public static String food() { return \"om nom nom, food.\";}").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("hello.Cat", code.toString());
-        
-        // Add white-listing
-        cfm.getClassLoader().whiteListAdd("java.lang.Object");
-        cfm.getClassLoader().whiteListAdd("java.lang.String");
-        cfm.getClassLoader().whiteListAdd("java.lang.System");
-        cfm.getClassLoader().whiteListAdd("java.io.PrintStream");
-        cfm.getClassLoader().whiteListAdd("java.lang.StringBuilder");
-        cfm.getClassLoader().whiteListAdd("java.io.IOException");
-        cfm.getClassLoader().whiteListAdd("pals.base.NodeCore");
-        
         // Compile the source code
         DiagnosticCollector<JavaFileObject> diag = new DiagnosticCollector<>();
         StringWriter sw = new StringWriter();
-        boolean compiled = jc.getTask(sw, cfm, diag, Arrays.asList(new String[]{"-d", "temp"}), null, cfm.getClassLoader().getCompilerObjects()).call();
+        boolean compiled = jc.getTask(sw, cfm, diag, Arrays.asList(new String[]{"-d", "debug_output"}), null, cfm.getClassLoader().getCompilerObjects()).call();
         if(!compiled)
         {
             for(Diagnostic d : diag.getDiagnostics())
             {
-                System.err.println("diag issue ~ line: " + d.getLineNumber() + " / col: " + d.getColumnNumber() + " / message:" + d.getMessage(Locale.getDefault()) + " / code: '" + d.getCode()+"'");
+                System.err.println("Compile issue ~ line: " + d.getLineNumber() + " / col: " + d.getColumnNumber() + " / message:" + d.getMessage(Locale.getDefault()) + " / code: '" + d.getCode()+"'");
             }
         }
         System.out.println("[DEBUG TEST] SW output:");
@@ -119,32 +104,17 @@ public class Debug
     public static void read() throws MalformedURLException
     {
         // Create class-loader
-        File dir = new File("temp");
+        File dir = new File("debug_output");
         URLClassLoader cl = new URLClassLoader(new URL[]{dir.toURI().toURL()});
         System.out.println("[DEBUG TEST] Invoking...");
         // Invoke code
         try
         {
-//            Object test = cfm.getClassLoader().loadClass("test.Debug").newInstance();
-//            System.out.println(test.getClass().getMethod("getTest").invoke(test));
-//            System.out.println(test.getClass().getMethod("getTest2").invoke(null));
-//            System.out.println(test.getClass().getMethod("getTest3").invoke(null));
-//            System.out.println(test.getClass().getMethod("getTest4").invoke(null));
-//            System.out.println("[DEBUG TEST] Finished invoking without error.");
-            cl.loadClass("test.Main").getMethod("main").invoke(null);
+            cl.loadClass("test.Main").getMethod("main", int.class, double.class).invoke(null, 123, 456.6789);
         }
         catch(ClassNotFoundException | NoClassDefFoundError | ClassFormatError | InvocationTargetException | IllegalAccessException | NoSuchMethodException ex)
         {
-            if(ex.getCause() != null)
-            {
-                if(ex.getCause() instanceof WhitelistException)
-                    System.err.println("[DEBUG TEST] RESTRICTED CLASS: '"+((WhitelistException)ex.getCause()).getClassName()+"'");
-                else
-                    System.err.println("[DEBUG TEST] Not instanceof.");
-                System.err.println("[DEBUG TEST] CAUSE: "+ex.getCause().getMessage());
-            }
-            else
-                System.err.println(ex.getMessage());
+            System.err.println(ex.getMessage());
         }
     }
 }
