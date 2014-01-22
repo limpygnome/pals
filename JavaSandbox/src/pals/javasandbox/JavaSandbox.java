@@ -19,18 +19,21 @@ import java.net.URL;
  * -- 2:    The method to invoke; this must be static.
  * -- 3:    List of white-listed classes, or 0 for no white-listing.
  * -- 4:    Debug mode (1 for true or 0 for false).
- * -- 5-n:  The arguments for the method; this is automatically parsed.
+ * -- 5:    Timeout before self-terminating.
+ * -- 6-n:  The arguments for the method; this is automatically parsed.
  *              Each argument should be with <type>=<value>
  *              Accepted types: int,long,float,double,string,char,boolean
  */
 public class JavaSandbox
 {
     // Fields - Static *********************************************************
-    public static boolean debugMode = false;
+    public static boolean   debugMode = false;
+    public static Thread    threadWatcher = null;
+    public static int       timeout = -1;
     // Methods - Entry-Point ***************************************************
     public static void main(String[] args) throws InvocationTargetException
     {
-        if(args.length < 4)
+        if(args.length < 5)
         {
             System.err.println("Invalid arguments.");
             return;
@@ -39,6 +42,36 @@ public class JavaSandbox
         debugMode = args[4].equals("1");
         if(debugMode)
             System.out.println("[DEBUG] Debug-mode has been enabled.");
+        // Parse time-out value
+        try
+        {
+            timeout = Integer.parseInt(args[5]);
+        }
+        catch(NumberFormatException ex)
+        {
+            printDebugData(ex);
+            timeout = -1;
+        }
+        if(timeout <= 0)
+        {
+            System.err.println("Invalid time-out value.");
+            return;
+        }
+        // Setup the thread to monitor the sandbox
+        threadWatcher = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(timeout);
+                }
+                catch(InterruptedException ex)
+                {
+                }
+                System.exit(1);
+            }
+        };
         // Define the URLs used by the class-loader, which is just the directory
         // of the class-files (at present).
         URL[] urls;
@@ -117,14 +150,15 @@ public class JavaSandbox
         Class[] classes;
         try
         {
-            objs = new Object[args.length - 5];
-            classes = new Class[args.length - 5];
+            final int argsStartIndex = 6;
+            objs = new Object[args.length - argsStartIndex];
+            classes = new Class[args.length - argsStartIndex];
             ParsedArgument pa;
-            for(int i = 5; i < args.length; i++)
+            for(int i = argsStartIndex; i < args.length; i++)
             {
                 pa = ParsedArgument.parse(args[i]);
-                objs[i-5] = pa.getArgValue();
-                classes[i-5] = pa.getArgClass();
+                objs[i-argsStartIndex] = pa.getArgValue();
+                classes[i-argsStartIndex] = pa.getArgClass();
             }
         }
         catch(IllegalArgumentException ex)
@@ -145,6 +179,8 @@ public class JavaSandbox
             printDebugData(ex);
             return;
         }
+        // Start the time-out thread
+        threadWatcher.start();
         // Invoke method
         try
         {

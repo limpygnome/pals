@@ -8,7 +8,8 @@ import java.security.Permission;
  * Responsible for further protection against potentially buggy and malicious
  * code.
  * 
- * At present, this only allows I/O within the same directory as the classes.
+ * At present, this only allows I/O within the same directory as the classes
+ * and for the JVM to exit.
  * 
  * Note:
  * - Any class-loaders must be made after the security-manager is enforced,
@@ -59,6 +60,14 @@ public class SandboxSecurityManager extends SecurityManager
     {
         // Allow class-loaders
         // -- Our own class-loader will be needed.
+    }
+
+    @Override
+    public void checkExit(int i)
+    {
+        // Allowed - the user may want to terminate their program or the
+        // thread-watcher may want to kill the JVM due to excessive
+        // computation.
     }
     @Override
     public void checkPermission(Permission p)

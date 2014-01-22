@@ -45,6 +45,7 @@ public class Debug
         code.append("       System.out.println(\"Invoke #2: \"+d.getTest2());").append("\n");
         code.append("       System.out.println(\"Invoke #3: \"+d.getTest3());").append("\n");
         code.append("       System.out.println(\"Invoke #4: \"+d.getTest4());").append("\n");
+        code.append("       d.getTest5();").append("\n");
         //code.append("       d.getProcess();").append("\n");
 //        code.append("       if(pals.base.NodeCore.getInstance() != null)").append("\n");
 //        code.append("           System.out.println(\"we can create a node...\");").append("\n");
@@ -65,6 +66,7 @@ public class Debug
         code.append("   public static String getTest2() { return Test.helloWorld(); }").append("\n");
         code.append("   public static String getTest3() { return Cat.food(); }").append("\n");
         code.append("   public static int getTest4() { return 123; }").append("\n");
+        code.append("   public static void getTest5() { while(true) System.out.println(\"infinite loop...\"); }").append("\n");
         //code.append("   public static Process getProcess() throws IOException { System.out.println(\"uh oh.\"); return Runtime.getRuntime().exec(\"ipconfig\"); }").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("test.Debug", code.toString());
