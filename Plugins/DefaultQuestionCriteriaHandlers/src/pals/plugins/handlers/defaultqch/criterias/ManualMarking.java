@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.criterias;
 
 import java.util.HashMap;
 import pals.base.UUID;
@@ -14,12 +14,12 @@ import pals.base.web.security.CSRF;
 /**
  * Handles the manual-marking criteria.
  */
-public class Handler_Criteria_ManualMarking
+public class ManualMarking
 {
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("03830aa9-39d7-4bfe-9ab5-a9c765e6e426");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
+    public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -77,13 +77,13 @@ public class Handler_Criteria_ManualMarking
         
         return true;
     }
-    static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
     {
         // Set the criteria to manual-marking status
         iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
-    static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
+    public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
         boolean editMode = data.containsTemplateData("edit_mode") && (boolean)data.getTemplateData("edit_mode");
         boolean secure = data.containsTemplateData("secure") && (boolean)data.getTemplateData("secure");

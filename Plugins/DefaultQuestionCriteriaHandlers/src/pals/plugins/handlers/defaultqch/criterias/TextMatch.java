@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.criterias;
 
 import java.util.HashMap;
 import pals.base.UUID;
@@ -10,23 +10,28 @@ import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
+import pals.plugins.handlers.defaultqch.data.TextMatch_Criteria;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
+import pals.plugins.handlers.defaultqch.questions.MCQ;
+import pals.plugins.handlers.defaultqch.questions.WrittenResponse;
 
 /**
  * Handles the text-matching criteria.
  */
-public class Handler_Criteria_TextMatch
+public class TextMatch
 {
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("b9a1143c-98cb-446b-9b39-42addac71f4f");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
+    public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
-        Data_Criteria_TextMatch cdata;
+        TextMatch_Criteria cdata;
         if(qc.getData() != null)
-            cdata = (Data_Criteria_TextMatch)qc.getData();
+            cdata = (TextMatch_Criteria)qc.getData();
         else
-            cdata = new Data_Criteria_TextMatch();
+            cdata = new TextMatch_Criteria();
         // Check for postback
         RemoteRequest req = data.getRequestData();
         String critTitle = req.getField("crit_title");
@@ -93,17 +98,17 @@ public class Handler_Criteria_TextMatch
         
         return true;
     }
-    static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
             iac.setMark(0);
         else
         {
             UUID qtype = iac.getIAQ().getAssignmentQuestion().getQuestion().getQtype().getUuidQType();
-            Data_Criteria_TextMatch cdata = (Data_Criteria_TextMatch)iac.getQC().getData();
+            TextMatch_Criteria cdata = (TextMatch_Criteria)iac.getQC().getData();
             String match = cdata.isCaseSensitive() ? cdata.getText() : cdata.getText().toLowerCase();
             boolean matched = false;
-            if(qtype.equals(Handler_Question_WrittenResponse.UUID_QTYPE))
+            if(qtype.equals(WrittenResponse.UUID_QTYPE))
             {
                 
                 String text = (String)iac.getIAQ().getData();
@@ -111,10 +116,10 @@ public class Handler_Criteria_TextMatch
                     text = text.toLowerCase();
                 matched = text.equals(match);
             }
-            else if(qtype.equals(Handler_Question_MCQ.UUID_QTYPE))
+            else if(qtype.equals(MCQ.UUID_QTYPE))
             {
-                Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iac.getQC().getQuestion().getData();
-                Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iac.getIAQ().getData();
+                MultipleChoice_Question qdata = (MultipleChoice_Question)iac.getQC().getQuestion().getData();
+                MultipleChoice_Instance adata = (MultipleChoice_Instance)iac.getIAQ().getData();
                 String[] text = adata.getAnswers(qdata);
                 for(String t : text)
                 {
@@ -134,10 +139,10 @@ public class Handler_Criteria_TextMatch
         }
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
-    static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
+    public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
         Object fdata = iac.getData();
-        Data_Criteria_TextMatch cdata = (Data_Criteria_TextMatch)iac.getQC().getData();
+        TextMatch_Criteria cdata = (TextMatch_Criteria)iac.getQC().getData();
         if(fdata != null && (fdata instanceof Boolean) && cdata != null)
         {
             boolean matched = (Boolean)fdata;

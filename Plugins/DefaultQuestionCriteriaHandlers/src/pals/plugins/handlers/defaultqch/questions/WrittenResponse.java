@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.questions;
 
 import java.util.HashMap;
 import pals.base.UUID;
@@ -8,23 +8,24 @@ import pals.base.assessment.Question;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.Written_Question;
 
 /**
  * Handles multiple-choice questions.
  */
-public class Handler_Question_WrittenResponse
+public class WrittenResponse
 {
     // Constants ***************************************************************
     public static final UUID UUID_QTYPE = UUID.parse("fcfec4ec-3347-4219-a988-f69b632b657e");
     // Methods *****************************************************************
-    static boolean pageQuestionEdit_writtenResponse(WebRequestData data, Question q)
+    public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
         // Load question data
-        Data_Question_Written qdata;
+        Written_Question qdata;
         if(q.getData() != null)
             qdata = q.getData();
         else
-            qdata = new Data_Question_Written();
+            qdata = new Written_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();
         String questionText = req.getField("question_text");
@@ -58,10 +59,10 @@ public class Handler_Question_WrittenResponse
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    static boolean pageQuestionCapture_writtenResponse(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
+    public static boolean pageQuestionCapture(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
     {
         // Load question data
-        Data_Question_Written qdata = (Data_Question_Written)iaq.getAssignmentQuestion().getQuestion().getData();
+        Written_Question qdata = (Written_Question)iaq.getAssignmentQuestion().getQuestion().getData();
         // Load answer data
         String adata = (String)iaq.getData();
         // Check postback
@@ -94,10 +95,10 @@ public class Handler_Question_WrittenResponse
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/written_response_capture"));
         return true;
     }
-    static boolean pagepageQuestionDisplay_writtenResponse(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
+    public static boolean pageQuestionDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
     {
         // Load question data
-        Data_Question_Written qdata = (Data_Question_Written)iaq.getAssignmentQuestion().getQuestion().getData();
+        Written_Question qdata = (Written_Question)iaq.getAssignmentQuestion().getQuestion().getData();
         // Load answer data
         String adata = (String)iaq.getData();
         // Render the template

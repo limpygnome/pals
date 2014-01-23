@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,17 +6,17 @@ import java.util.ArrayList;
 /**
  * Holds data for a multiple-choice criteria.
  */
-public class Data_Criteria_MultipleChoice implements Serializable
+public class MultipleChoice_InstanceCriteria implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private Integer[] indexesCorrect;
     // Methods - Constructors **************************************************
-    public Data_Criteria_MultipleChoice()
+    public MultipleChoice_InstanceCriteria()
     {
         this.indexesCorrect = new Integer[0];
     }
-    public Data_Criteria_MultipleChoice(Integer[] values)
+    public MultipleChoice_InstanceCriteria(Integer[] values)
     {
         this.indexesCorrect = values;
     }
@@ -41,7 +41,7 @@ public class Data_Criteria_MultipleChoice implements Serializable
      * @param qdata Question data.
      * @return Correct answers as text; can be empty.
      */
-    public String[] getCorrect(Data_Question_MultipleChoice qdata)
+    public String[] getCorrect(MultipleChoice_Question qdata)
     {
         ArrayList<String> buffer = new ArrayList<>();
         String[] text = qdata.getAnswers();

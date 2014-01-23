@@ -1,11 +1,12 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
+import pals.base.utils.Misc;
 
 /**
  * Stores the settings data for a multiple-choice question.
  */
-public class Data_Question_MultipleChoice implements Serializable
+public class MultipleChoice_Question implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
@@ -13,7 +14,7 @@ public class Data_Question_MultipleChoice implements Serializable
     private boolean     singleAnswer;
     private String[]    answers;
     // Methods - Constructors **************************************************
-    public Data_Question_MultipleChoice()
+    public MultipleChoice_Question()
     {
         this.text = "Undefined question text...";
         this.singleAnswer = false;
@@ -36,11 +37,11 @@ public class Data_Question_MultipleChoice implements Serializable
         this.singleAnswer = singleAnswer;
     }
     /**
-     * @param answers Sets the possible answers.
+     * @param answers Sets the possible answers; includes filtering.
      */
     public void setAnswers(String[] answers)
     {
-        this.answers = answers;
+        this.answers = Misc.arrayStringUnique(answers);
     }
     // Methods - Accessors *****************************************************
     /**

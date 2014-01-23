@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.criterias;
 
 import java.util.HashMap;
 import java.util.regex.Pattern;
@@ -14,23 +14,28 @@ import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
+import pals.plugins.handlers.defaultqch.data.Regex_Criteria;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
+import pals.plugins.handlers.defaultqch.questions.MCQ;
+import pals.plugins.handlers.defaultqch.questions.WrittenResponse;
 
 /**
  * Handles the regex-matching criteria.
  */
-public class Handler_Criteria_RegexMatch
+public class RegexMatch
 {
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("3e6518e8-bb13-4878-bb4c-c0d687ad2e6e");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
+    public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
-        Data_Criteria_Regex cdata;
+        Regex_Criteria cdata;
         if(qc.getData() != null)
-            cdata = (Data_Criteria_Regex)qc.getData();
+            cdata = (Regex_Criteria)qc.getData();
         else
-            cdata = new Data_Criteria_Regex();
+            cdata = new Regex_Criteria();
         // Check for postback
         RemoteRequest req = data.getRequestData();
         String critTitle = req.getField("crit_title");
@@ -113,13 +118,13 @@ public class Handler_Criteria_RegexMatch
         
         return true;
     }
-    static boolean criteriaMarking(NodeCore core, Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(NodeCore core, Connector conn, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
             iac.setMark(0);
         else
         {
-            Data_Criteria_Regex cdata = (Data_Criteria_Regex)iac.getQC().getData();
+            Regex_Criteria cdata = (Regex_Criteria)iac.getQC().getData();
             // Compile regex pattern
             Pattern p;
             try
@@ -135,10 +140,10 @@ public class Handler_Criteria_RegexMatch
             // Perform matching
             UUID qtype = iac.getIAQ().getAssignmentQuestion().getQuestion().getQtype().getUuidQType();
             boolean matched = false;
-            if(qtype.equals(Handler_Question_MCQ.UUID_QTYPE))
+            if(qtype.equals(MCQ.UUID_QTYPE))
             {
-                Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iac.getQC().getQuestion().getData();
-                Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iac.getIAQ().getData();
+                MultipleChoice_Question qdata = (MultipleChoice_Question)iac.getQC().getQuestion().getData();
+                MultipleChoice_Instance adata = (MultipleChoice_Instance)iac.getIAQ().getData();
                 String[] text = adata.getAnswers(qdata);
                 for(String t : text)
                 {
@@ -149,7 +154,7 @@ public class Handler_Criteria_RegexMatch
                     }
                 }
             }
-            else if(qtype.equals(Handler_Question_WrittenResponse.UUID_QTYPE))
+            else if(qtype.equals(WrittenResponse.UUID_QTYPE))
             {
                 String text = (String)iac.getIAQ().getData();
                 matched = p.matcher(text).matches();
@@ -163,10 +168,10 @@ public class Handler_Criteria_RegexMatch
         }
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
-    static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
+    public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
         Object fdata = iac.getData();
-        Data_Criteria_Regex cdata = (Data_Criteria_Regex)iac.getQC().getData();
+        Regex_Criteria cdata = (Regex_Criteria)iac.getQC().getData();
         if(fdata != null && (fdata instanceof Boolean) && cdata != null)
         {
             boolean matched = (Boolean)fdata;

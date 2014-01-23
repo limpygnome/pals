@@ -1,18 +1,18 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 
 /**
  * Stores the settings for a regex-match criteria.
  */
-public class Data_Criteria_Regex implements Serializable
+public class Regex_Criteria implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String   regexPattern;   // The pattern applied to an answer.
     private int      mode;           // The mode of the matcher; refer to: 'http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html'.
     // Methods - Constructors **************************************************
-    public Data_Criteria_Regex()
+    public Regex_Criteria()
     {
         this.regexPattern = "";
         this.mode = 0;

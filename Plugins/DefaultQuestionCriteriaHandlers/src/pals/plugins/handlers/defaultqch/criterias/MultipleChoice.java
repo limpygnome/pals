@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.criterias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,29 +12,33 @@ import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_InstanceCriteria;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
+import pals.plugins.handlers.defaultqch.questions.MCQ;
 
 /**
  * Handles a multiple-choice criteria.
  */
-public class Handler_Criteria_MultipleChoice
+public class MultipleChoice
 {
     // Constants ***************************************************************
     public static final UUID UUID_CTYPE = UUID.parse("a45bf985-5b0e-4643-bce7-d55b9e5f24f8");
     // Methods *****************************************************************
-    static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
+    public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load question data
-        Data_Question_MultipleChoice qdata;
+        MultipleChoice_Question qdata;
         if(qc.getQuestion().getData() != null)
-            qdata = (Data_Question_MultipleChoice)qc.getQuestion().getData();
+            qdata = (MultipleChoice_Question)qc.getQuestion().getData();
         else
             qdata = null;
         // Load criteria data
-        Data_Criteria_MultipleChoice cdata;
+        MultipleChoice_InstanceCriteria cdata;
         if(qc.getData() != null)
-            cdata = (Data_Criteria_MultipleChoice)qc.getData();
+            cdata = (MultipleChoice_InstanceCriteria)qc.getData();
         else
-            cdata = new Data_Criteria_MultipleChoice();
+            cdata = new MultipleChoice_InstanceCriteria();
         // Fetch the possible answers
         String[] answers;
         if(qdata != null)
@@ -128,19 +132,19 @@ public class Handler_Criteria_MultipleChoice
         data.setTemplateData("crit_items", qdata != null ? qdata.getAnswers() : new String[0]);
         return true;
     }
-    static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
             iac.setMark(0);
         else
         {
             UUID qtype = iac.getIAQ().getAssignmentQuestion().getQuestion().getQtype().getUuidQType();
-            if(qtype == null || !qtype.equals(Handler_Question_MCQ.UUID_QTYPE))
+            if(qtype == null || !qtype.equals(MCQ.UUID_QTYPE))
                 return false;
             // Load question, answer and criteria data
-            Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iac.getQC().getQuestion().getData();
-            Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iac.getIAQ().getData();
-            Data_Criteria_MultipleChoice cdata = (Data_Criteria_MultipleChoice)iac.getQC().getData();
+            MultipleChoice_Question qdata = (MultipleChoice_Question)iac.getQC().getQuestion().getData();
+            MultipleChoice_Instance adata = (MultipleChoice_Instance)iac.getIAQ().getData();
+            MultipleChoice_InstanceCriteria cdata = (MultipleChoice_InstanceCriteria)iac.getQC().getData();
             // Check the indexes selected match the correct indexes
             boolean correct = true;
             Integer[] answers = adata.getAnswers();
@@ -165,11 +169,11 @@ public class Handler_Criteria_MultipleChoice
         }
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
-    static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
+    public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
         Object fdata = iac.getData();
-        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iac.getQC().getQuestion().getData();
-        Data_Criteria_MultipleChoice cdata = (Data_Criteria_MultipleChoice)iac.getQC().getData();
+        MultipleChoice_Question qdata = (MultipleChoice_Question)iac.getQC().getQuestion().getData();
+        MultipleChoice_InstanceCriteria cdata = (MultipleChoice_InstanceCriteria)iac.getQC().getData();
         if(fdata != null && (fdata instanceof Boolean) && qdata != null && cdata != null)
         {
             boolean correct = (Boolean)fdata;

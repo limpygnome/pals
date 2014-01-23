@@ -5,7 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Random;
 import pals.base.NodeCore;
 
@@ -14,6 +14,20 @@ import pals.base.NodeCore;
  */
 public class Misc
 {
+    /**
+     * @param array Array of items.
+     * @return Array of unique items; excludes null and empty elements too.
+     */
+    public static String[] arrayStringUnique(String[] array)
+    {
+        HashSet<String> buffer = new HashSet<>();
+        for(String s : array)
+        {
+            if(s != null && s.length() > 0)
+                buffer.add(s);
+        }
+        return buffer.toArray(new String[buffer.size()]);
+    }
     /**
      * Scrambles an array, using the Fisher-Yates shuffle algorithm.
      * 

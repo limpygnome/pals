@@ -48,6 +48,15 @@ public class Storage
     }
     // Methods - Path Construction *********************************************
     /**
+     * @param pathShared The path of the shared directory/storage.
+     * @return The path of the temporary directory for storing compilation
+     * data.
+     */
+    public static String getPath_compilationTemp(String pathShared)
+    {
+        return pathShared + "/temp_comp";
+    }
+    /**
      * Temporary web directory; items in this directory should not be left for
      * longer than 15 minutes.
      * 

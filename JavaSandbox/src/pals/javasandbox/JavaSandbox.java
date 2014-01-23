@@ -184,7 +184,12 @@ public class JavaSandbox
         // Invoke method
         try
         {
-            meth.invoke(null, objs);
+            Object obj = meth.invoke(null, objs);
+            if(obj != null)
+            {
+                // Determine the type of value and print it
+                
+            }
         }
         catch(IllegalAccessException ex)
         {

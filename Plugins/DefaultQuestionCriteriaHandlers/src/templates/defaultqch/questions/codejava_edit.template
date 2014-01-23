@@ -12,18 +12,21 @@
         </tr>
         <tr>
             <td>
-                Possible Answers (one per line):
+                Type:
             </td>
             <td>
-                <textarea rows="8" name="mc_answers">${mc_answers}</textarea>
+                <select name="mc_type">
+                    <option value="0" <#if mc_type?? && mc_type==0>selected</#if>>Code Fragment</option>
+                    <option value="1" <#if mc_type?? && mc_type==1>selected</#if>>Code Upload</option>
+                </select>
             </td>
         </tr>
         <tr>
             <td>
-                Single Answer Only:
+                Whitelisted Classes:
             </td>
             <td>
-                <input type="checkbox" name="mc_single_answer" value="1" <#if mc_single_answer??>checked</#if> />
+                <textarea name="mc_whitelist" rows="12"><#if mc_whitelist??>${mc_whitelist?html}</#if></textarea>
             </td>
         </tr>
         <tr>
@@ -37,8 +40,15 @@
 </form>
 
 <p>
-    Note: to check the correct answers, create text matching criteria(s). You should not change the index of answers,
-    or this may break assignments marked afterwards.
+    Note: when code fragment mode is enabled, only single classes can be
+    provided. For multiple classes, use code-upload; this will allow students
+    to upload zip files with code.
+</p>
+
+<p>
+    Note 2: the white-list can be left to be disabled; this will not affect
+    security. The white-list is intended to restrict students to a set of
+    classes.
 </p>
 
 <#if error??>

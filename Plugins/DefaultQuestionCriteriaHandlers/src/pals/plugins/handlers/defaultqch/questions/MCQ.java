@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.questions;
 
 import java.util.HashMap;
 import pals.base.UUID;
@@ -8,23 +8,25 @@ import pals.base.assessment.Question;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
 
 /**
  * Handles multiple-choice questions.
  */
-public class Handler_Question_MCQ
+public class MCQ
 {
     // Constants ***************************************************************
     public static final UUID UUID_QTYPE = UUID.parse("f38c3f28-4f63-49b5-994c-fd618c654de0");
     // Methods *****************************************************************
-    static boolean pageQuestionEdit_multipleChoice(WebRequestData data, Question q)
+    public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
         // Load question data
-        Data_Question_MultipleChoice qdata;
+        MultipleChoice_Question qdata;
         if(q.getData() != null)
             qdata = q.getData();
         else
-            qdata = new Data_Question_MultipleChoice();
+            qdata = new MultipleChoice_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();
         String mcText = req.getField("mc_text");
@@ -58,25 +60,25 @@ public class Handler_Question_MCQ
         data.setTemplateData("pals_content", "defaultqch/questions/multiplechoice_edit");
         // -- Fields
         data.setTemplateData("question", q);
-        data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
+        data.setTemplateData("mc_text", qdata.getText());
         if((mcSingleAnswer != null && mcSingleAnswer.equals("1")) || (mcText == null && qdata.isSingleAnswer()))
             data.setTemplateData("mc_single_answer", true);
-        data.setTemplateData("mc_answers", mcAnswers != null ? mcAnswers : qdata.getAnswersWebFormat());
+        data.setTemplateData("mc_answers", qdata.getAnswersWebFormat());
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    static boolean pageQuestionCapture_multipleChoice(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
+    public static boolean pageQuestionCapture(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
     {
         // Load question data
-        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
+        MultipleChoice_Question qdata = (MultipleChoice_Question)iaq.getAssignmentQuestion().getQuestion().getData();
         if(qdata == null)
             return false;
         // Load answer data
-        Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iaq.getData();
+        MultipleChoice_Instance adata = (MultipleChoice_Instance)iaq.getData();
         // -- New attempt; create random indexes and persist...
         if(adata == null)
         {
-            adata = new Data_Answer_MultipleChoice(data.getCore().getRNG(), qdata);
+            adata = new MultipleChoice_Instance(data.getCore().getRNG(), qdata);
             iaq.setData(adata);
             iaq.persist(data.getConnector());
         }
@@ -114,12 +116,12 @@ public class Handler_Question_MCQ
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_capture"));
         return true;
     }
-    static boolean pagepageQuestionDisplay_multipleChoice(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
+    public static boolean pageQuestionDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
     {
         // Load question data
-        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
+        MultipleChoice_Question qdata = (MultipleChoice_Question)iaq.getAssignmentQuestion().getQuestion().getData();
         // Load answer data
-        Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iaq.getData();
+        MultipleChoice_Instance adata = (MultipleChoice_Instance)iaq.getData();
         // Render the template
         HashMap<String,Object> kvs = new HashMap<>();
         kvs.put("text", qdata.getText());

@@ -303,10 +303,10 @@ body
 	padding: 0.5em;
 	vertical-align: middle;
 }
-.layout_body .content table th .vat,
-.layout_body .content table th .vat
+.layout_body .content table th.vat,
+.layout_body .content table td.vat
 {
-	vertical-align: top;
+	vertical-align: top !important;
 }
 .layout_body .content .table2 th,
 .layout_body .content .table4 th
@@ -446,9 +446,14 @@ body
 	text-align: left;
 }
 /* Admin ~ Questions: Forms */
-.layout_body .questions_form tr:nth-child(1) td
+.layout_body .questions_form tr td
 {
 	text-align: left !important;
+	vertical-align: top !important;
+}
+.layout_body .questions_form tr td.tac
+{
+	text-align: center !important;
 }
 .layout_body .questions_form tr td textarea
 {

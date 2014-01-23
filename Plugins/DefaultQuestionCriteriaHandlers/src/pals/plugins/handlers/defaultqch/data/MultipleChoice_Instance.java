@@ -1,4 +1,4 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -6,18 +6,19 @@ import java.util.HashMap;
 import java.util.Random;
 import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
+import pals.plugins.handlers.defaultqch.MultipleChoiceRenderHolder;
 
 /**
  * Stores the answer data for a multiple-choice question.
  */
-public class Data_Answer_MultipleChoice implements Serializable
+public class MultipleChoice_Instance implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private Integer[]                   answers;                // Original indexes stored as items
     private HashMap<Integer,Integer>    randomIndexMappings;    // Random index,original index
     // Methods - Constructors **************************************************
-    public Data_Answer_MultipleChoice(Random rng, Data_Question_MultipleChoice qdata)
+    public MultipleChoice_Instance(Random rng, MultipleChoice_Question qdata)
     {
         this.randomIndexMappings = new HashMap<>();
         this.answers = new Integer[0];
@@ -38,7 +39,7 @@ public class Data_Answer_MultipleChoice implements Serializable
      * @param req Remote request data.
      * @param qdata The question data.
      */
-    public void processAnswers(int aqid, RemoteRequest req, Data_Question_MultipleChoice qdata)
+    public void processAnswers(int aqid, RemoteRequest req, MultipleChoice_Question qdata)
     {
         ArrayList<Integer> buffer = new ArrayList<>();
         String[] answers = req.getFields("multiple_choice_"+aqid);
@@ -86,7 +87,7 @@ public class Data_Answer_MultipleChoice implements Serializable
      * @param qdata The question data.
      * @return String-array of answers.
      */
-    public String[] getAnswers(Data_Question_MultipleChoice qdata)
+    public String[] getAnswers(MultipleChoice_Question qdata)
     {
         String[] buffer = new String[answers.length];
         String[] txtAnswers = qdata.getAnswers();
@@ -102,7 +103,7 @@ public class Data_Answer_MultipleChoice implements Serializable
      * request.
      * @return Creates and returns models representing the possible choices.
      */
-    public MultipleChoiceRenderHolder[] getViewModels(int aqid, RemoteRequest req, Data_Question_MultipleChoice qdata, boolean postback)
+    public MultipleChoiceRenderHolder[] getViewModels(int aqid, RemoteRequest req, MultipleChoice_Question qdata, boolean postback)
     {
         String[] txtAnswers = qdata.getAnswers();
         MultipleChoiceRenderHolder[] choices = new MultipleChoiceRenderHolder[txtAnswers.length];

@@ -1,5 +1,7 @@
 package pals.plugins.handlers.defaultqch;
 
+import pals.plugins.handlers.defaultqch.questions.*;
+import pals.plugins.handlers.defaultqch.criterias.*;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
@@ -17,7 +19,6 @@ import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.web.WebRequestData;
-import pals.plugins.handlers.defaultqch.Handler_Question_MCQ;
 
 /**
  * A plugin for the default questions and criteria types.
@@ -37,35 +38,45 @@ public class DefaultQC extends Plugin
     {
         // Define types of questions
         TypeQuestion    tqMultipleChoice,
-                        tqWrittenResponse;
+                        tqWrittenResponse,
+                        tqCodeJava;
         // Register the types of questions
-        if((tqMultipleChoice = registerTypeQuestion(conn, core, Handler_Question_MCQ.UUID_QTYPE, "Multiple Choice", "Allows students to pick an answer, or multiple answers, from a set of possible answers.")) == null)
+        if((tqMultipleChoice = registerTypeQuestion(conn, core, MCQ.UUID_QTYPE, "Multiple Choice/Response", "Allows students to pick an answer, or multiple answers, from a set of possible answers.")) == null)
             return false;
-        if((tqWrittenResponse = registerTypeQuestion(conn, core, Handler_Question_WrittenResponse.UUID_QTYPE, "Written Response", "Allows students to provide a written response.")) == null)
+        if((tqWrittenResponse = registerTypeQuestion(conn, core, WrittenResponse.UUID_QTYPE, "Written Response", "Allows students to provide a written response.")) == null)
             return false;
-        //if((tqCodeUpload = registerTypeQuestion(conn, core, UUID_QUESTIONTYPE_CODEUPLOAD, "Code Upload", "Allows students to upload code to be assessed.")) == null)
-        //    return false;
-        //if((tqCodeFragment = registerTypeQuestion(conn, core, UUID_QUESTIONTYPE_CODEFRAGMENT, "Code Fragment", "Allows students to answer with a code-fragment and compare the output with the correct answer.")) == null)
-        //    return false;
+        if((tqCodeJava = registerTypeQuestion(conn, core, CodeJava.UUID_QTYPE, "Code: Java", "Allows students to upload or provide fragments of Java code.")) == null)
+            return false;
         // Register criteria types
         TypeCriteria    tcManualMarking,
                         tcTextMatch,
                         tcRegexMatch,
-                        tcMultipleChoice;
-        if((tcManualMarking = registerTypeCriteria(conn, core, Handler_Criteria_ManualMarking.UUID_CTYPE, "Manual Marking", "Used by a lecturer to manually-mark a criteria of a question.")) == null)
+                        tcMultipleChoice,
+                        tcJavaTestInputs,
+                        tcJavaCodeMetrics,
+                        tcJavaMethodExists,
+                        tcJavaClassExists;
+        if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, "Manual Marking", "Used by a lecturer to manually-mark a criteria of a question.")) == null)
             return false;
-        if((tcTextMatch = registerTypeCriteria(conn, core, Handler_Criteria_TextMatch.UUID_CTYPE, "Text Match", "Gives marks for an answer matching a piece of text.")) == null)
+        if((tcTextMatch = registerTypeCriteria(conn, core, TextMatch.UUID_CTYPE, "Text Match", "Gives marks for an answer matching a piece of text.")) == null)
             return false;
-        if((tcRegexMatch = registerTypeCriteria(conn, core, Handler_Criteria_RegexMatch.UUID_CTYPE, "Regex Match", "Gives marks based on a regex match.")) == null)
+        if((tcRegexMatch = registerTypeCriteria(conn, core, RegexMatch.UUID_CTYPE, "Regex Match", "Gives marks based on a regex match.")) == null)
             return false;
-        if((tcMultipleChoice = registerTypeCriteria(conn, core, Handler_Criteria_MultipleChoice.UUID_CTYPE, "Multiple Choice", "Gives marks based on the same choices selected.")) == null)
+        if((tcMultipleChoice = registerTypeCriteria(conn, core, MultipleChoice.UUID_CTYPE, "Multiple Choice", "Gives marks based on the same choices selected.")) == null)
+            return false;
+        if((tcJavaTestInputs = registerTypeCriteria(conn, core, JavaTestInputs.UUID_CTYPE, "Java: Test Inputs", "Tests the input/output of code.")) == null)
+            return false;
+        if((tcJavaCodeMetrics = registerTypeCriteria(conn, core, JavaCodeMetrics.UUID_CTYPE, "Java: Code Metrics", "Performs metrics on code.")) == null)
+            return false;
+        if((tcJavaMethodExists = registerTypeCriteria(conn, core, JavaMethodExists.UUID_CTYPE, "Java: Method Exists", "Checks if a method exists.")) == null)
+            return false;
+        if((tcJavaClassExists = registerTypeCriteria(conn, core, JavaClassExists.UUID_CTYPE, "Java: Class Exists", "Checks if a class exists.")) == null)
             return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
         tqMultipleChoice.criteriaAdd(tcManualMarking);
         tqMultipleChoice.criteriaAdd(tcRegexMatch);
         tqMultipleChoice.criteriaAdd(tcTextMatch);
-        tqMultipleChoice.criteriaAdd(tcRegexMatch);
         tqMultipleChoice.criteriaAdd(tcMultipleChoice);
         if(!persistQuestionCriteria(core, tqMultipleChoice, conn))
             return false;
@@ -74,6 +85,16 @@ public class DefaultQC extends Plugin
         tqWrittenResponse.criteriaAdd(tcRegexMatch);
         tqWrittenResponse.criteriaAdd(tcTextMatch);
         if(!persistQuestionCriteria(core, tqWrittenResponse, conn))
+            return false;
+        // -- Code: Java
+        tqCodeJava.criteriaAdd(tcManualMarking);
+        tqCodeJava.criteriaAdd(tcRegexMatch);
+        tqCodeJava.criteriaAdd(tcTextMatch);
+        tqCodeJava.criteriaAdd(tcJavaTestInputs);
+        tqCodeJava.criteriaAdd(tcJavaCodeMetrics);
+        tqCodeJava.criteriaAdd(tcJavaMethodExists);
+        tqCodeJava.criteriaAdd(tcJavaClassExists);
+        if(!persistQuestionCriteria(core, tqCodeJava, conn))
             return false;
         
         return true;
@@ -171,10 +192,15 @@ public class DefaultQC extends Plugin
         Question q = (Question)hookData[1];
         // Delegate to question-type handler
         UUID qtype = q.getQtype().getUuidQType();
-        if(qtype.equals(Handler_Question_MCQ.UUID_QTYPE))
-            return Handler_Question_MCQ.pageQuestionEdit_multipleChoice(data, q);
-        else if(qtype.equals(Handler_Question_WrittenResponse.UUID_QTYPE))
-            return Handler_Question_WrittenResponse.pageQuestionEdit_writtenResponse(data, q);
+        // -- Multiple choice
+        if(qtype.equals(MCQ.UUID_QTYPE))
+            return MCQ.pageQuestionEdit(data, q);
+        // -- Written Response
+        else if(qtype.equals(WrittenResponse.UUID_QTYPE))
+            return WrittenResponse.pageQuestionEdit(data, q);
+        // -- Code: Java
+        else if(qtype.equals(CodeJava.UUID_QTYPE))
+            return CodeJava.pageQuestionEdit(data, q);
         return false;
     }
     private boolean pageCriteriaEdit(Object[] hookData)
@@ -185,14 +211,23 @@ public class DefaultQC extends Plugin
         QuestionCriteria qc = (QuestionCriteria)hookData[1];
         // Delegate to question-type handler
         UUID ctype = qc.getCriteria().getUuidCType();
-        if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
-            return Handler_Criteria_ManualMarking.pageCriteriaEdit(data, qc);
-        else if(ctype.equals(Handler_Criteria_TextMatch.UUID_CTYPE))
-            return Handler_Criteria_TextMatch.pageCriteriaEdit(data, qc);
-        else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
-            return Handler_Criteria_RegexMatch.pageCriteriaEdit(data, qc);
-        else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
-            return Handler_Criteria_MultipleChoice.pageCriteriaEdit(data, qc);
+        if(ctype.equals(ManualMarking.UUID_CTYPE))
+            return ManualMarking.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(TextMatch.UUID_CTYPE))
+            return TextMatch.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(RegexMatch.UUID_CTYPE))
+            return RegexMatch.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(MultipleChoice.UUID_CTYPE))
+            return MultipleChoice.pageCriteriaEdit(data, qc);
+        
+        else if(ctype.equals(JavaClassExists.UUID_CTYPE))
+            return JavaClassExists.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
+            return JavaCodeMetrics.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
+            return JavaMethodExists.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
+            return JavaTestInputs.pageCriteriaEdit(data, qc);
         return false;
     }
     private boolean pageQuestionCapture(Object[] hookData)
@@ -212,10 +247,12 @@ public class DefaultQC extends Plugin
             iaq = new InstanceAssignmentQuestion(question, ia, null, false, 0);
         // Delegate to be rendered and question-data captured
         UUID qtype = question.getQuestion().getQtype().getUuidQType();
-        if(qtype.equals(Handler_Question_MCQ.UUID_QTYPE))
-            return Handler_Question_MCQ.pageQuestionCapture_multipleChoice(data, ia, iaq, html, secure);
-        else if(qtype.equals(Handler_Question_WrittenResponse.UUID_QTYPE))
-            return Handler_Question_WrittenResponse.pageQuestionCapture_writtenResponse(data, ia, iaq, html, secure);
+        if(qtype.equals(MCQ.UUID_QTYPE))
+            return MCQ.pageQuestionCapture(data, ia, iaq, html, secure);
+        else if(qtype.equals(WrittenResponse.UUID_QTYPE))
+            return WrittenResponse.pageQuestionCapture(data, ia, iaq, html, secure);
+        else if(qtype.equals(CodeJava.UUID_QTYPE))
+            return CodeJava.pageQuestionCapture(data, ia, iaq, html, secure);
         return false;
     }
     private boolean pageQuestionDisplay(Object[] hookData)
@@ -236,10 +273,12 @@ public class DefaultQC extends Plugin
             iaq = new InstanceAssignmentQuestion(question, ia, null, false, 0);
          // Delegate to be rendered
         UUID qtype = question.getQuestion().getQtype().getUuidQType();
-        if(qtype.equals(Handler_Question_MCQ.UUID_QTYPE))
-            return Handler_Question_MCQ.pagepageQuestionDisplay_multipleChoice(data, ia, iaq, html, secure, editMode);
-        else if(qtype.equals(Handler_Question_WrittenResponse.UUID_QTYPE))
-            return Handler_Question_WrittenResponse.pagepageQuestionDisplay_writtenResponse(data, ia, iaq, html, secure, editMode);
+        if(qtype.equals(MCQ.UUID_QTYPE))
+            return MCQ.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
+        else if(qtype.equals(WrittenResponse.UUID_QTYPE))
+            return WrittenResponse.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
+        else if(qtype.equals(CodeJava.UUID_QTYPE))
+            return CodeJava.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
         return false;
     }
     // Methods - Criteria ******************************************************
@@ -252,14 +291,24 @@ public class DefaultQC extends Plugin
         InstanceAssignmentCriteria iac = (InstanceAssignmentCriteria)hookData[1];
         // Delegate to the correct method for marking
         UUID ctype = iac.getQC().getCriteria().getUuidCType();
-        if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
-            return Handler_Criteria_ManualMarking.criteriaMarking(conn, iac);
-        else if(ctype.equals(Handler_Criteria_TextMatch.UUID_CTYPE))
-            return Handler_Criteria_TextMatch.criteriaMarking(conn, iac);
-        else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
-            return Handler_Criteria_RegexMatch.criteriaMarking(getCore(), conn, iac);
-        else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
-            return Handler_Criteria_MultipleChoice.criteriaMarking(conn, iac);
+        if(ctype.equals(ManualMarking.UUID_CTYPE))
+            return ManualMarking.criteriaMarking(conn, iac);
+        else if(ctype.equals(TextMatch.UUID_CTYPE))
+            return TextMatch.criteriaMarking(conn, iac);
+        else if(ctype.equals(RegexMatch.UUID_CTYPE))
+            return RegexMatch.criteriaMarking(getCore(), conn, iac);
+        else if(ctype.equals(MultipleChoice.UUID_CTYPE))
+            return MultipleChoice.criteriaMarking(conn, iac);
+        
+        else if(ctype.equals(JavaClassExists.UUID_CTYPE))
+            return JavaClassExists.criteriaMarking(conn, iac);
+        else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
+            return JavaCodeMetrics.criteriaMarking(conn, iac);
+        else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
+            return JavaMethodExists.criteriaMarking(conn, iac);
+        else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
+            return JavaTestInputs.criteriaMarking(conn, iac);
+        
         return false;
     }
     private boolean criteriaFeedback(Object[] hookData)
@@ -274,14 +323,24 @@ public class DefaultQC extends Plugin
         StringBuilder html = (StringBuilder)hookData[4];
         // Delegate to the suitable method based on criteria UUID
         UUID ctype = iac.getQC().getCriteria().getUuidCType();
-        if(ctype.equals(Handler_Criteria_TextMatch.UUID_CTYPE))
-            return Handler_Criteria_TextMatch.criteriaDisplay(data, ia, iaq, iac, html);
-        else if(ctype.equals(Handler_Criteria_RegexMatch.UUID_CTYPE))
-            return Handler_Criteria_RegexMatch.criteriaDisplay(data, ia, iaq, iac, html);
-        else if(ctype.equals(Handler_Criteria_ManualMarking.UUID_CTYPE))
-            return Handler_Criteria_ManualMarking.criteriaDisplay(data, ia, iaq, iac, html);
-        else if(ctype.equals(Handler_Criteria_MultipleChoice.UUID_CTYPE))
-            return Handler_Criteria_MultipleChoice.criteriaDisplay(data, ia, iaq, iac, html);
+        if(ctype.equals(TextMatch.UUID_CTYPE))
+            return TextMatch.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(RegexMatch.UUID_CTYPE))
+            return RegexMatch.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(ManualMarking.UUID_CTYPE))
+            return ManualMarking.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(MultipleChoice.UUID_CTYPE))
+            return MultipleChoice.criteriaDisplay(data, ia, iaq, iac, html);
+        
+        else if(ctype.equals(JavaClassExists.UUID_CTYPE))
+            return JavaClassExists.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
+            return JavaCodeMetrics.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
+            return JavaMethodExists.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
+            return JavaTestInputs.criteriaDisplay(data, ia, iaq, iac, html);
+        
         return false;
     }
 }

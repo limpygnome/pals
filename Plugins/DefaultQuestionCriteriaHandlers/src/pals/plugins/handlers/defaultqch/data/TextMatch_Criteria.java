@@ -1,22 +1,22 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 
 /**
  * A model for holding data for a text-match criteria type.
  */
-public class Data_Criteria_TextMatch implements Serializable
+public class TextMatch_Criteria implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String text;
     private boolean caseSensitive;
     // Methods - Constructors **************************************************
-    public Data_Criteria_TextMatch()
+    public TextMatch_Criteria()
     {
         this("unspecified text", false);
     }
-    public Data_Criteria_TextMatch(String text, boolean caseSensitive)
+    public TextMatch_Criteria(String text, boolean caseSensitive)
     {
         this.text = text;
         this.caseSensitive = false;

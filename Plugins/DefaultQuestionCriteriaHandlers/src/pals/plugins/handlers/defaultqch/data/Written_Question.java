@@ -1,17 +1,17 @@
-package pals.plugins.handlers.defaultqch;
+package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 
 /**
  * A model for holding data for a written-response question-type.
  */
-public class Data_Question_Written implements Serializable
+public class Written_Question implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String text;
     // Methods - Constructors **************************************************
-    public Data_Question_Written()
+    public Written_Question()
     {
         this.text = "Default question text...";
     }
