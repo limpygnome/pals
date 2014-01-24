@@ -77,6 +77,6 @@ public class CompilerObject extends SimpleJavaFileObject
      */
     public String getSource()
     {
-        return source;
+        return source+".java";
     }
 }

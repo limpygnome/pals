@@ -86,6 +86,13 @@ public class Debug
         code.append("   public static String food() { return \"om nom nom, food.\";}").append("\n");
         code.append("}").append("\n");
         cfm.getClassLoader().add("hello.Cat", code.toString());
+        // -- File 4
+        code = new StringBuilder();
+        code.append("public class SingleNoPackage").append("\n");
+        code.append("{").append("\n");
+        code.append("   public static String food() { return \"om nom nom, food.\";}").append("\n");
+        code.append("}").append("\n");
+        cfm.getClassLoader().add("SingleNoPackage", code.toString());
         // Compile the source code
         DiagnosticCollector<JavaFileObject> diag = new DiagnosticCollector<>();
         StringWriter sw = new StringWriter();

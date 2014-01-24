@@ -1,6 +1,7 @@
 package pals.base;
 
 import java.io.File;
+import pals.base.assessment.InstanceAssignmentQuestion;
 
 /**
  * A static class responsible for delegating the storage of general files.
@@ -48,13 +49,22 @@ public class Storage
     }
     // Methods - Path Construction *********************************************
     /**
+     * @param pathShared
+     * @return The root path used for storing temporary data for instance assignment questions
+     */
+    public static String getPath_tempAssignmentInstanceQuestion(String pathShared)
+    {
+        return pathShared + "/temp_iaq";
+    }
+    /**
      * @param pathShared The path of the shared directory/storage.
+     * @param iaq  The instance of the assignment question.
      * @return The path of the temporary directory for storing compilation
      * data.
      */
-    public static String getPath_compilationTemp(String pathShared)
+    public static String getPath_tempAssignmentInstanceQuestion(String pathShared, InstanceAssignmentQuestion iaq)
     {
-        return pathShared + "/temp_comp";
+        return pathShared + "/temp_iaq/"+iaq.getAIQID();
     }
     /**
      * Temporary web directory; items in this directory should not be left for

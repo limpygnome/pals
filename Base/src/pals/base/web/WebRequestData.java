@@ -65,6 +65,31 @@ public class WebRequestData
         this.templateData = new HashMap<>();
         this.user = null;
     }
+    // Methods *****************************************************************
+    /**
+     * @param relUrl The relative URL of the CSS file to append.
+     */
+    public synchronized void appendHeaderCSS(String relUrl)
+    {
+        appendHeader("<link rel=\"Stylesheet\" href=\""+relUrl+"\">");
+    }
+    /**
+     * @param relUrl The relative URL of the JavaScript file to append.
+     */
+    public synchronized void appendHeaderJS(String relUrl)
+    {
+        appendHeader("<script src=\""+relUrl+"\"></script>");
+    }
+    /**
+     * @param data The data to append to the header of the page.
+     */
+    public synchronized void appendHeader(String data)
+    {
+        String prevData = (String)templateData.get("pals_header");
+        StringBuilder sb = prevData != null ? new StringBuilder(prevData) : new StringBuilder();
+        sb.append(data);
+        templateData.put("pals_header", sb.toString());
+    }
     // Methods - Static ********************************************************
     public static WebRequestData create(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
     {

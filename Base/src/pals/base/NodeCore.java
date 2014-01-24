@@ -196,6 +196,12 @@ public class NodeCore
             if(!dirLogs.exists())
                 dirLogs.mkdir();
         }
+        // Ensure temproary IAQ folder exists
+        {
+            File dirIAQ = new File(Storage.getPath_tempAssignmentInstanceQuestion(pathShared));
+            if(!dirIAQ.exists())
+                dirIAQ.mkdir();
+        }
         // Start logging
         {
             EnumSet loggingTypes = Logging.EntryType.getSet(settings.getStr("node/logging_types"));

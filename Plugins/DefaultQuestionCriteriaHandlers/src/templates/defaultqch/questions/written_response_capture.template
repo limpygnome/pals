@@ -1,24 +1,24 @@
 <table class="table4">
     <tr>
         <td>
-            ${text}
+            ${text?html}
         </td>
     </tr>
     <tr>
         <td>
-            <textarea name="written_response_${aqid}" rows="4"><#if answer??>${answer}</#if></textarea>
+            <textarea name="written_response_${aqid}" rows="4"><#if answer??>${answer?html}</#if></textarea>
         </td>
     </tr>
 </table>
 
 <#if error??>
     <p class="error">
-        ${error}
+        ${error?html}
     </p>
 </#if>
 
 <#if success??>
     <p class="success">
-        ${success}
+        ${success?html}
     </p>
 </#if>

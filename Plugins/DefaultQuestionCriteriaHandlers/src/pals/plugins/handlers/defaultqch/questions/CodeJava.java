@@ -1,5 +1,11 @@
 package pals.plugins.handlers.defaultqch.questions;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaFileObject;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentQuestion;
@@ -7,7 +13,10 @@ import pals.base.assessment.Question;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
+import pals.plugins.handlers.defaultqch.java.CompilerResult;
+import pals.plugins.handlers.defaultqch.java.Utils;
 
 /**
  * Handles code-fragment questions.
@@ -16,6 +25,33 @@ public class CodeJava
 {
     // Constants ***************************************************************
     public static final UUID UUID_QTYPE = UUID.parse("3b452432-d939-4e39-a450-3867655412a3");
+    // Inner-Classes ***********************************************************
+    public static class ModelView_CodeError
+    {
+        // Fields *************************************************************8
+        public String message;
+        public int line, col;
+        // Methods - Constructors **********************************************
+        public ModelView_CodeError(String message, int line, int col)
+        {
+            this.message = message;
+            this.line = line;
+            this.col = col;
+        }
+        // Methods - Accessors *************************************************
+        public String getMessage()
+        {
+            return message;
+        }
+        public int getLine()
+        {
+            return line;
+        }
+        public int getCol()
+        {
+            return col;
+        }
+    }
     // Methods *****************************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
@@ -66,51 +102,112 @@ public class CodeJava
     }
     public static boolean pageQuestionCapture(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
     {
-//        // Load question data
-//        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
-//        if(qdata == null)
-//            return false;
-//        // Load answer data
-//        Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iaq.getData();
-//        // -- New attempt; create random indexes and persist...
-//        if(adata == null)
-//        {
-//            adata = new Data_Answer_MultipleChoice(data.getCore().getRNG(), qdata);
-//            iaq.setData(adata);
-//            iaq.persist(data.getConnector());
-//        }
-//        // Check postback
-//        int aqid = iaq.getAssignmentQuestion().getAQID();
-//        String pb = data.getRequestData().getField("multiple_choice_pb_"+aqid);
-//        HashMap<String,Object> kvs = new HashMap<>();
-//        if(secure && pb != null)
-//        {
-//            // Process answers
-//            adata.processAnswers(aqid, data.getRequestData(), qdata);
-//            // Update the iaq model and persist
-//            iaq.setData(adata);
-//            iaq.setAnswered(true);
-//            InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
-//            switch(iaqps)
-//            {
-//                case Failed:
-//                case Failed_Serialize:
-//                case Invalid_AssignmentQuestion:
-//                case Invalid_InstanceAssignment:
-//                    kvs.put("error", "Failed to update question ('"+iaqps.name()+"')!");
-//                    break;
-//                case Success:
-//                    kvs.put("success", "Saved answer.");
-//                    break;
-//            }
-//        }
-//        // Render the template
-//        kvs.put("text", qdata != null ? qdata.getText() : "No question defined...");
-//        kvs.put("choices", adata.getViewModels(aqid, data.getRequestData(), qdata, pb != null));
-//        if(qdata.isSingleAnswer())
-//            kvs.put("single_choice", true);
-//        kvs.put("aqid", aqid);
-//        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_capture"));
+        // Load question data
+        CodeJava_Question qdata = (CodeJava_Question)iaq.getAssignmentQuestion().getQuestion().getData();
+        if(qdata == null)
+            return false;
+        // Load instance data
+        CodeJava_Instance adata = (CodeJava_Instance)iaq.getData();
+        if(adata == null)
+            adata = new CodeJava_Instance();
+        // Delegate based on type
+        switch(qdata.getType())
+        {
+            case Fragment:
+                return pageQuestionCapture_fragment(data, ia, iaq, html, secure, qdata, adata);
+            case Upload:
+                return pageQuestionCapture_upload(data, ia, iaq, html, secure, qdata, adata);
+            default:
+                return false;
+        }
+    }
+    public static boolean pageQuestionCapture_upload(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, CodeJava_Question qdata, CodeJava_Instance adata)
+    {
+        return true;
+    }
+    public static boolean pageQuestionCapture_fragment(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, CodeJava_Question qdata, CodeJava_Instance adata)
+    {
+        HashMap<String,Object> kvs = new HashMap<>();
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        int aqid = iaq.getAssignmentQuestion().getAQID();
+        String code = req.getField("codejava_"+aqid+"_code");
+        if(secure && code != null)
+        {
+            String parsedClassName;
+            // Parse the full class-name
+            if((parsedClassName = Utils.parseFullClassName(code)) == null)
+                kvs.put("error", "Could not parse class-name from your code; check it for syntax errors!");
+            else
+            {
+                // Update the model
+                adata.codeClear();
+                adata.codeAdd(parsedClassName, code);
+                // Attempt to compile
+                // -- if fails, set answered to false.
+                CompilerResult cr = Utils.compile(data.getCore(), iaq, adata);
+                switch(cr.getStatus())
+                {
+                    case Failed_CompilerNotFound:
+                        kvs.put("error", "Compiler not found; please try again or contact an administrator.");
+                        break;
+                    case Failed_TempDirectory:
+                        kvs.put("error", "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
+                        break;
+                    default:
+                    case Failed:
+                        kvs.put("error", "Failed to compile.");
+                        DiagnosticCollector<JavaFileObject> dc = cr.getErrors();
+                        if(dc != null)
+                        {
+                            List<Diagnostic<? extends JavaFileObject>> arr = dc.getDiagnostics();
+                            ModelView_CodeError[] msgs = new ModelView_CodeError[arr.size()];
+                            Diagnostic d;
+                            for(int i = 0; i < arr.size(); i++)
+                            {
+                                d = arr.get(i);
+                                msgs[i] = new ModelView_CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
+                            }
+                            kvs.put("error_messages", msgs);
+                        }
+                        break;
+                    case Success:
+                        kvs.put("info", "Compiled.");
+                        break;
+                }
+                // Update the iaq model
+                iaq.setAnswered(cr.getStatus() == CompilerResult.CompileStatus.Success);
+                iaq.setData(adata);
+                // Attempt to persist
+                InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
+                switch(iaqps)
+                {
+                    case Failed:
+                    case Failed_Serialize:
+                    case Invalid_AssignmentQuestion:
+                    case Invalid_InstanceAssignment:
+                        kvs.put("error", "Failed to update question ('"+iaqps.name()+"')!");
+                        break;
+                    case Success:
+                        kvs.put("success", "Saved answer.");
+                        break;
+                }
+            }
+        }
+        // Set fields
+        kvs.put("aqid", aqid);
+        kvs.put("text", qdata.getText());
+        kvs.put("whitelist", qdata.getWhitelist());
+        kvs.put("code", code != null ? code : (adata.codeSize() == 1 ? adata.codeGetFirst() : ""));
+        // Render the question
+        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_capture"));
+        if(!data.containsTemplateData("codejava_css"))
+        {
+            data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
+            data.appendHeaderJS("/content/codemirror/addon/edit/matchbrackets.js");
+            data.appendHeaderJS("/content/codemirror/mode/clike/clike.js");
+            data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
+        }
         return true;
     }
     public static boolean pageQuestionDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)

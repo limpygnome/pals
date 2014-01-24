@@ -1,7 +1,7 @@
 <table class="table4">
     <tr>
         <td>
-            ${text}
+            ${text?html}
         </td>
     </tr>
     <#list choices as choice>
@@ -16,12 +16,12 @@
 
 <#if error??>
     <p class="error">
-        ${error}
+        ${error?html}
     </p>
 </#if>
 
 <#if success??>
     <p class="success">
-        ${success}
+        ${success?html}
     </p>
 </#if>
