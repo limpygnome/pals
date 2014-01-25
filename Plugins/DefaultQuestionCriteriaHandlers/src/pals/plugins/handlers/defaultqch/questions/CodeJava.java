@@ -13,6 +13,7 @@ import pals.base.assessment.Question;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.CodeError;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
@@ -25,33 +26,6 @@ public class CodeJava
 {
     // Constants ***************************************************************
     public static final UUID UUID_QTYPE = UUID.parse("3b452432-d939-4e39-a450-3867655412a3");
-    // Inner-Classes ***********************************************************
-    public static class ModelView_CodeError
-    {
-        // Fields *************************************************************8
-        public String message;
-        public int line, col;
-        // Methods - Constructors **********************************************
-        public ModelView_CodeError(String message, int line, int col)
-        {
-            this.message = message;
-            this.line = line;
-            this.col = col;
-        }
-        // Methods - Accessors *************************************************
-        public String getMessage()
-        {
-            return message;
-        }
-        public int getLine()
-        {
-            return line;
-        }
-        public int getCol()
-        {
-            return col;
-        }
-    }
     // Methods *****************************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
@@ -132,6 +106,7 @@ public class CodeJava
         RemoteRequest req = data.getRequestData();
         int aqid = iaq.getAssignmentQuestion().getAQID();
         String code = req.getField("codejava_"+aqid+"_code");
+        String compile = req.getField("codejava_"+aqid+"_compile");
         if(secure && code != null)
         {
             String parsedClassName;
@@ -140,44 +115,44 @@ public class CodeJava
                 kvs.put("error", "Could not parse class-name from your code; check it for syntax errors!");
             else
             {
-                // Update the model
+                // Update the code in the model
                 adata.codeClear();
                 adata.codeAdd(parsedClassName, code);
-                // Attempt to compile
-                // -- if fails, set answered to false.
-                CompilerResult cr = Utils.compile(data.getCore(), iaq, adata);
-                switch(cr.getStatus())
+                // Check if to compile
+                if(compile != null && compile.equals("1"))
                 {
-                    case Failed_CompilerNotFound:
-                        kvs.put("error", "Compiler not found; please try again or contact an administrator.");
-                        break;
-                    case Failed_TempDirectory:
-                        kvs.put("error", "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
-                        break;
-                    default:
-                    case Failed:
-                        kvs.put("error", "Failed to compile.");
-                        DiagnosticCollector<JavaFileObject> dc = cr.getErrors();
-                        if(dc != null)
-                        {
-                            List<Diagnostic<? extends JavaFileObject>> arr = dc.getDiagnostics();
-                            ModelView_CodeError[] msgs = new ModelView_CodeError[arr.size()];
-                            Diagnostic d;
-                            for(int i = 0; i < arr.size(); i++)
+                    // -- if fails, set answered to false.
+                    CompilerResult cr = Utils.compile(data.getCore(), iaq, adata);
+                    // Update the model's compile status
+                    adata.setCompileStatus(cr.getStatus());
+                    switch(cr.getStatus())
+                    {
+                        case Failed:
+                            DiagnosticCollector<JavaFileObject> dc = cr.getErrors();
+                            if(dc != null)
                             {
-                                d = arr.get(i);
-                                msgs[i] = new ModelView_CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
+                                // Iterate the errors from the compiler
+                                List<Diagnostic<? extends JavaFileObject>> arr = dc.getDiagnostics();
+                                CodeError[] msgs = new CodeError[arr.size()];
+                                Diagnostic d;
+                                for(int i = 0; i < arr.size(); i++)
+                                {
+                                    d = arr.get(i);
+                                    msgs[i] = new CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
+                                }
+                                adata.setErrors(msgs);
                             }
-                            kvs.put("error_messages", msgs);
-                        }
-                        break;
-                    case Success:
-                        kvs.put("info", "Compiled.");
-                        break;
+                            break;
+                    }
+                }
+                else
+                {
+                    adata.setCompileStatus(CompilerResult.CompileStatus.Unknown);
+                    adata.setErrors(null);
                 }
                 // Update the iaq model
-                iaq.setAnswered(cr.getStatus() == CompilerResult.CompileStatus.Success);
                 iaq.setData(adata);
+                iaq.setAnswered(true);
                 // Attempt to persist
                 InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
                 switch(iaqps)
@@ -199,6 +174,26 @@ public class CodeJava
         kvs.put("text", qdata.getText());
         kvs.put("whitelist", qdata.getWhitelist());
         kvs.put("code", code != null ? code : (adata.codeSize() == 1 ? adata.codeGetFirst() : ""));
+        kvs.put("error_messages", adata.getErrors());
+        // -- Compiler status
+        switch(adata.getStatus())
+        {
+            case Unknown:
+                kvs.put("warning", "This question has not been compiled.");
+                break;
+            case Failed_CompilerNotFound:
+                kvs.put("error", "Compiler not found; please try again or contact an administrator.");
+                break;
+            case Failed_TempDirectory:
+                kvs.put("error", "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
+                break;
+            case Failed:
+                kvs.put("error", "Failed to compile.");
+                break;
+            case Success:
+                kvs.put("info", "Compiled.");
+                break;
+        }
         // Render the question
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_capture"));
         if(!data.containsTemplateData("codejava_css"))

@@ -2,6 +2,7 @@ package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import pals.plugins.handlers.defaultqch.java.CompilerResult;
 
 /**
  * Saves the response from a user for a Code-Java question instance.
@@ -10,11 +11,15 @@ public class CodeJava_Instance implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
-    private final HashMap<String,String> code;
+    private final HashMap<String,String>    code;
+    private CodeError[]                     errors;
+    private CompilerResult.CompileStatus    status;
     // Methods - Constructors **************************************************
     public CodeJava_Instance()
     {
         this.code = new HashMap<>();
+        this.errors = null;
+        this.status = CompilerResult.CompileStatus.Unknown;
     }
     // Methods - Code Collection ***********************************************
     /**
@@ -58,5 +63,38 @@ public class CodeJava_Instance implements Serializable
     public HashMap<String,String> getCode()
     {
         return this.code;
+    }
+    // Methods - Mutators ******************************************************
+    /**
+     * @param errors Errors from a compilation attempt for this question; can be
+     * null.
+     */
+    public void setErrors(CodeError[] errors)
+    {
+        this.errors = errors;
+    }
+    /**
+     * @param status The status from a compilation attempt; set to unknown if
+     * no compilation has taken place.
+     */
+    public void setCompileStatus(CompilerResult.CompileStatus status)
+    {
+        this.status = status;
+    }
+    // Methods - Accessors *****************************************************
+    /**
+     * @return Errors from a compilation attempt; can be null or empty.
+     */
+    public CodeError[] getErrors()
+    {
+        return errors;
+    }
+    /**
+     * @return The status from an attempted compilation; unknown if no
+     * compilation has taken place.
+     */
+    public CompilerResult.CompileStatus getStatus()
+    {
+        return status;
     }
 }

@@ -11,10 +11,16 @@ public class CompilerResult
     // Enums *******************************************************************
     public enum CompileStatus
     {
-        Success,
-        Failed,
-        Failed_CompilerNotFound,
-        Failed_TempDirectory
+        Unknown(0),
+        Success(1),
+        Failed(2),
+        Failed_CompilerNotFound(4),
+        Failed_TempDirectory(8);
+        private int formValue;
+        private CompileStatus(int formValue)
+        {
+            this.formValue = formValue;
+        }
     }
     // Fields ******************************************************************
     private CompileStatus                       status;

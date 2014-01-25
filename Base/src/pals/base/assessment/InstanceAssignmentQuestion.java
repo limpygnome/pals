@@ -1,6 +1,5 @@
 package pals.base.assessment;
 
-import com.mysql.jdbc.Buffer;
 import java.io.IOException;
 import java.util.ArrayList;
 import pals.base.NodeCore;

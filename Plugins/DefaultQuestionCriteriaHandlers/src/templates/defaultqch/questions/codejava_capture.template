@@ -1,12 +1,20 @@
 <table class="table4">
     <tr>
-        <td>
+        <td colspan="2">
             ${text?html}
         </td>
     </tr>
     <tr>
+        <td colspan="2">
+            <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="12"><#if code??>${code?html}</#if></textarea>
+        </td>
+    </tr>
+    <tr>
         <td>
-            <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="6"><#if code??>${code?html}</#if></textarea>
+            Options:
+        </td>
+        <td>
+            <input type="checkbox" name="codejava_${aqid}_compile" value="1" /> Compile on save.
         </td>
     </tr>
 </table>
@@ -41,6 +49,12 @@
 <#if info??>
     <p class="info">
         ${info?html}
+    </p>
+</#if>
+
+<#if warning??>
+    <p class="warning">
+        ${warning?html}
     </p>
 </#if>
 
