@@ -1,0 +1,30 @@
+<p>
+    ${text?html}
+</p>
+<h3 class="tac">Code</h3>
+<#if code?has_content>
+    <#list code as c>
+        <table class="table4">
+            <tr>
+                <th>${c[1]?html}</th>
+            </tr>
+            <tr>
+                <td>
+                    <textarea id="codejava_${aqid}_${c[0]?c}" rows="12">${c[2]?html}</textarea>
+                </td>
+            </tr>
+        </table>
+        <script>
+            CodeMirror.fromTextArea(document.getElementById("codejava_${aqid}_${c[0]?c}"), {
+                lineNumbers: true,
+                matchBrackets: true,
+                mode: "text/x-java",
+                readOnly: true
+            });
+        </script>
+    </#list>
+<#else>
+    <p>
+        No code answered for this question.
+    </p>
+</#if>

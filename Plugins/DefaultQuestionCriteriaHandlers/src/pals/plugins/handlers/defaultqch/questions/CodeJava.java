@@ -112,7 +112,7 @@ public class CodeJava
             String parsedClassName;
             // Parse the full class-name
             if((parsedClassName = Utils.parseFullClassName(code)) == null)
-                kvs.put("error", "Could not parse class-name from your code; check it for syntax errors!");
+                kvs.put("error", "Unable to save code; could not parse a class-name from your code. Check for syntax errors!");
             else
             {
                 // Update the code in the model
@@ -196,7 +196,7 @@ public class CodeJava
         }
         // Render the question
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_capture"));
-        if(!data.containsTemplateData("codejava_css"))
+        if(!data.containsTemplateData("codemirror_clike"))
         {
             data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
             data.appendHeaderJS("/content/codemirror/addon/edit/matchbrackets.js");
@@ -207,15 +207,30 @@ public class CodeJava
     }
     public static boolean pageQuestionDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
     {
-//        // Load question data
-//        Data_Question_MultipleChoice qdata = (Data_Question_MultipleChoice)iaq.getAssignmentQuestion().getQuestion().getData();
-//        // Load answer data
-//        Data_Answer_MultipleChoice adata = (Data_Answer_MultipleChoice)iaq.getData();
-//        // Render the template
-//        HashMap<String,Object> kvs = new HashMap<>();
-//        kvs.put("text", qdata.getText());
-//        kvs.put("answers", adata != null ? adata.getAnswers(qdata) : new String[0]);
-//        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/multiplechoice_display"));
+        // Load question data
+        CodeJava_Question qdata = (CodeJava_Question)iaq.getAssignmentQuestion().getQuestion().getData();
+        if(qdata == null)
+            return false;
+        // Load instance data
+        CodeJava_Instance adata = (CodeJava_Instance)iaq.getData();
+        if(adata == null)
+            adata = new CodeJava_Instance();
+        // Setup fields
+        HashMap<String,Object> kvs = new HashMap<>();
+        kvs.put("aqid", iaq.getAssignmentQuestion().getAQID());
+        kvs.put("text", qdata.getText());
+        kvs.put("errors", adata.getErrors());
+        kvs.put("code", adata.getCode());
+        // Render template
+        html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_display"));
+        // Setup code-mirror
+        if(!data.containsTemplateData("codemirror_clike"))
+        {
+            data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
+            data.appendHeaderJS("/content/codemirror/addon/edit/matchbrackets.js");
+            data.appendHeaderJS("/content/codemirror/mode/clike/clike.js");
+            data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
+        }
         return true;
     }
 }

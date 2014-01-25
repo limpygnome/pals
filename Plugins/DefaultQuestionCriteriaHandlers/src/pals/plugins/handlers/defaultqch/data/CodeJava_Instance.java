@@ -1,7 +1,8 @@
 package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 
 /**
@@ -11,13 +12,13 @@ public class CodeJava_Instance implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
-    private final HashMap<String,String>    code;
+    private final TreeMap<String,String>    code;
     private CodeError[]                     errors;
     private CompilerResult.CompileStatus    status;
     // Methods - Constructors **************************************************
     public CodeJava_Instance()
     {
-        this.code = new HashMap<>();
+        this.code = new TreeMap<>();
         this.errors = null;
         this.status = CompilerResult.CompileStatus.Unknown;
     }
@@ -56,14 +57,6 @@ public class CodeJava_Instance implements Serializable
     {
         return this.code.size();
     }
-    /**
-     * @return The underlying data-structure used to hold code provided by
-     * users.
-     */
-    public HashMap<String,String> getCode()
-    {
-        return this.code;
-    }
     // Methods - Mutators ******************************************************
     /**
      * @param errors Errors from a compilation attempt for this question; can be
@@ -96,5 +89,27 @@ public class CodeJava_Instance implements Serializable
     public CompilerResult.CompileStatus getStatus()
     {
         return status;
+    }
+    /**
+     * @return A double dimension array, where each row contains the following:
+     * 0 - the index of the code (int).
+     * 1 - the name of the code.
+     * 2 - the code.
+     */
+    public Object[][] getCode()
+    {
+        Object[][] buffer = new Object[code.size()][];
+        int offset = 0;
+        for(Map.Entry<String,String> i : code.entrySet())
+            buffer[offset++] = new Object[]{offset, i.getKey(), i.getValue()};
+        return buffer;
+    }
+    /**
+     * @return The underlying data-structure used to hold code provided by
+     * users.
+     */
+    public TreeMap<String,String> getCodeMap()
+    {
+        return this.code;
     }
 }

@@ -92,7 +92,7 @@ public class Utils
         // Setup virtual file system for compiler
         CompilerFileManager cfm = new CompilerFileManager(jc.getStandardFileManager(null, null, null), pathTemp, false);
         // Add the code to the virtual file-system
-        for(Map.Entry<String,String> file : adata.getCode().entrySet())
+        for(Map.Entry<String,String> file : adata.getCodeMap().entrySet())
             cfm.getClassLoader().add(file.getKey(), file.getValue());
         // Attempt to compile the code
         DiagnosticCollector<JavaFileObject> diag = new DiagnosticCollector<>();
