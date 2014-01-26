@@ -43,12 +43,14 @@ public class CodeJava_Question implements Serializable
     }
     // Fields ******************************************************************
     private String          text;
+    private String          skeleton;
     private String[]        whitelist;
     private QuestionType    type;
     // Methods - Constructors **************************************************
     public CodeJava_Question()
     {
         this.text = "Undefined question text...";
+        this.skeleton = "";
         this.whitelist = new String[0];
         this.type = QuestionType.Fragment;
     }
@@ -60,6 +62,13 @@ public class CodeJava_Question implements Serializable
     public void setText(String text)
     {
         this.text = text;
+    }
+    /**
+     * @param skeleton Sets the skeleton code.
+     */
+    public void setSkeleton(String skeleton)
+    {
+        this.skeleton = skeleton;
     }
     /**
      * @param whitelist Sets the array of classes white-listed; this includes
@@ -78,11 +87,18 @@ public class CodeJava_Question implements Serializable
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Question's text.
+     * @return The question's text.
      */
     public String getText()
     {
         return text;
+    }
+    /**
+     * @return The question's skeleton code.
+     */
+    public String getSkeleton()
+    {
+        return skeleton;
     }
     /**
      * @return Array of classes white-listed; can be empty for no restrictions.

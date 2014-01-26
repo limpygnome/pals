@@ -191,7 +191,7 @@ public class Questions extends Plugin
                         data.setTemplateData("error", "Title must be "+q.getTitleMin()+" to "+q.getTitleMax()+" characters in length!");
                         break;
                     case Success:
-                        data.getResponseData().setRedirectUrl("/admin/questions/"+q.getQID());
+                        data.getResponseData().setRedirectUrl("/admin/questions/"+q.getQID()+"/edit");
                         break;
                 }
             }

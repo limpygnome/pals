@@ -6,9 +6,16 @@ public class CodeError implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields *************************************************************8
-    public String message;
-    public int line, col;
+    private String  message;
+    private int     line,
+                    col;
     // Methods - Constructors **********************************************
+    public CodeError()
+    {
+        this.message = "No error message defined.";
+        this.line = -1;
+        this.col = -1;
+    }
     public CodeError(String message, int line, int col)
     {
         this.message = message;

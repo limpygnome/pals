@@ -7,7 +7,7 @@
                 Question:
             </td>
             <td>
-                <textarea rows="5" name="mc_text"><#if mc_text??>${mc_text}</#if></textarea>
+                <textarea rows="5" name="mc_text"><#if mc_text??>${mc_text?html}</#if></textarea>
             </td>
         </tr>
         <tr>
@@ -19,6 +19,14 @@
                     <option value="0" <#if mc_type?? && mc_type==0>selected</#if>>Code Fragment</option>
                     <option value="1" <#if mc_type?? && mc_type==1>selected</#if>>Code Upload</option>
                 </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Code Skeleton:
+            </td>
+            <td>
+                <textarea rows="10" name="mc_skeleton" id="mc_skeleton"><#if mc_skeleton??>${mc_skeleton?html}</#if></textarea>
             </td>
         </tr>
         <tr>
@@ -38,6 +46,14 @@
     </table>
     <input type="hidden" name="csrf" value="${csrf}" />
 </form>
+
+<script>
+    CodeMirror.fromTextArea(document.getElementById("mc_skeleton"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-java"
+    });
+</script>
 
 <p>
     Note: when code fragment mode is enabled, only single classes can be

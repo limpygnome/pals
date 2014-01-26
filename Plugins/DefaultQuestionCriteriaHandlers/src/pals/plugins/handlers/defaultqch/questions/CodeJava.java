@@ -26,7 +26,7 @@ public class CodeJava
 {
     // Constants ***************************************************************
     public static final UUID UUID_QTYPE = UUID.parse("3b452432-d939-4e39-a450-3867655412a3");
-    // Methods *****************************************************************
+    // Methods - Pages *********************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
         // Load question data
@@ -39,6 +39,7 @@ public class CodeJava
         RemoteRequest req = data.getRequestData();
         String mcText = req.getField("mc_text");
         String mcType = req.getField("mc_type");
+        String mcSkeleton = req.getField("mc_skeleton");
         String mcWhitelist = req.getField("mc_whitelist");
         if(mcText != null && mcType != null && mcWhitelist != null)
         {
@@ -50,6 +51,7 @@ public class CodeJava
                 // Update question data
                 qdata.setText(mcText);
                 qdata.setType(CodeJava_Question.QuestionType.parse(mcType));
+                qdata.setSkeleton(mcSkeleton);
                 qdata.setWhitelist(mcWhitelist.replace("\r", "").split("\n"));
                 // Persist the model
                 q.setData(qdata);
@@ -66,10 +68,12 @@ public class CodeJava
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit");
         data.setTemplateData("pals_content", "defaultqch/questions/codejava_edit");
+        hookCodeMirror(data);
         // -- Fields
         data.setTemplateData("question", q);
-        data.setTemplateData("mc_text", qdata.getText());
+        data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
         data.setTemplateData("mc_type", qdata.getType().getFormValue());
+        data.setTemplateData("mc_skeleton", mcSkeleton != null ? mcSkeleton : qdata.getSkeleton());
         data.setTemplateData("mc_whitelist", qdata.getWhitelistWeb());
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
@@ -107,6 +111,8 @@ public class CodeJava
         int aqid = iaq.getAssignmentQuestion().getAQID();
         String code = req.getField("codejava_"+aqid+"_code");
         String compile = req.getField("codejava_"+aqid+"_compile");
+        String reset = req.getField("codejava_"+aqid+"_reset");
+        boolean resetMode = reset != null && reset.equals("1");
         if(secure && code != null)
         {
             String parsedClassName;
@@ -117,38 +123,41 @@ public class CodeJava
             {
                 // Update the code in the model
                 adata.codeClear();
-                adata.codeAdd(parsedClassName, code);
-                // Check if to compile
-                if(compile != null && compile.equals("1"))
+                adata.errorClear();
+                adata.setCompileStatus(CompilerResult.CompileStatus.Unknown);
+                // Check we're not in reset-mode
+                if(!resetMode)
                 {
-                    // -- if fails, set answered to false.
-                    CompilerResult cr = Utils.compile(data.getCore(), iaq, adata);
-                    // Update the model's compile status
-                    adata.setCompileStatus(cr.getStatus());
-                    switch(cr.getStatus())
+                    adata.codeAdd(parsedClassName, code);
+                    // Check if to compile
+                    if(compile != null && compile.equals("1"))
                     {
-                        case Failed:
-                            DiagnosticCollector<JavaFileObject> dc = cr.getErrors();
-                            if(dc != null)
-                            {
-                                // Iterate the errors from the compiler
-                                List<Diagnostic<? extends JavaFileObject>> arr = dc.getDiagnostics();
-                                CodeError[] msgs = new CodeError[arr.size()];
-                                Diagnostic d;
-                                for(int i = 0; i < arr.size(); i++)
+                        // -- If fails, set answered to false.
+                        CompilerResult cr = Utils.compile(data.getCore(), iaq, adata);
+                        // Update the model's status
+                        adata.setCompileStatus(cr.getStatus());
+                        // Handle the compile result
+                        switch(cr.getStatus())
+                        {
+                            case Failed:
+                                DiagnosticCollector<JavaFileObject> dc = cr.getErrors();
+                                if(dc != null)
                                 {
-                                    d = arr.get(i);
-                                    msgs[i] = new CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
+                                    // Iterate the errors from the compiler
+                                    List<Diagnostic<? extends JavaFileObject>> arr = dc.getDiagnostics();
+                                    CodeError[] msgs = new CodeError[arr.size()];
+                                    Diagnostic d;
+                                    for(int i = 0; i < arr.size(); i++)
+                                    {
+                                        d = arr.get(i);
+                                        adata.errorsAdd(
+                                                new CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber())
+                                        );
+                                    }
                                 }
-                                adata.setErrors(msgs);
-                            }
-                            break;
+                                break;
+                        }
                     }
-                }
-                else
-                {
-                    adata.setCompileStatus(CompilerResult.CompileStatus.Unknown);
-                    adata.setErrors(null);
                 }
                 // Update the iaq model
                 iaq.setData(adata);
@@ -173,36 +182,29 @@ public class CodeJava
         kvs.put("aqid", aqid);
         kvs.put("text", qdata.getText());
         kvs.put("whitelist", qdata.getWhitelist());
-        kvs.put("code", code != null ? code : (adata.codeSize() == 1 ? adata.codeGetFirst() : ""));
+        if(!resetMode)
+            kvs.put("code", code != null ? code : (adata.codeSize() == 1 ? adata.codeGetFirst() : null));
+        kvs.put("skeleton", qdata.getSkeleton());
         kvs.put("error_messages", adata.getErrors());
         // -- Compiler status
-        switch(adata.getStatus())
+        CompilerResult.CompileStatus cs = adata.getStatus();
+        switch(cs)
         {
             case Unknown:
-                kvs.put("warning", "This question has not been compiled.");
+                kvs.put("warning", cs.getText());
                 break;
             case Failed_CompilerNotFound:
-                kvs.put("error", "Compiler not found; please try again or contact an administrator.");
-                break;
             case Failed_TempDirectory:
-                kvs.put("error", "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
-                break;
             case Failed:
-                kvs.put("error", "Failed to compile.");
+                kvs.put("error", cs.getText());
                 break;
             case Success:
-                kvs.put("info", "Compiled.");
+                kvs.put("info", cs.getText());
                 break;
         }
         // Render the question
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_capture"));
-        if(!data.containsTemplateData("codemirror_clike"))
-        {
-            data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
-            data.appendHeaderJS("/content/codemirror/addon/edit/matchbrackets.js");
-            data.appendHeaderJS("/content/codemirror/mode/clike/clike.js");
-            data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
-        }
+        hookCodeMirror(data);
         return true;
     }
     public static boolean pageQuestionDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
@@ -224,6 +226,12 @@ public class CodeJava
         // Render template
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_display"));
         // Setup code-mirror
+        hookCodeMirror(data);
+        return true;
+    }
+    // Methods *****************************************************************
+    private static void hookCodeMirror(WebRequestData data)
+    {
         if(!data.containsTemplateData("codemirror_clike"))
         {
             data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
@@ -231,6 +239,5 @@ public class CodeJava
             data.appendHeaderJS("/content/codemirror/mode/clike/clike.js");
             data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
         }
-        return true;
     }
 }

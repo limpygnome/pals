@@ -592,4 +592,9 @@ body
 	float: right;
 	text-align: right;
 }
+/* Code Mirror Box */
+.layout_body .content .CodeMirror
+{
+	border: solid 0.1em #CCC;
+}
 

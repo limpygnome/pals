@@ -6,7 +6,7 @@
     </tr>
     <tr>
         <td colspan="2">
-            <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="12"><#if code??>${code?html}</#if></textarea>
+            <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="12"><#if code??>${code?html}<#elseif skeleton??>${skeleton?html}</#if></textarea>
         </td>
     </tr>
     <tr>
@@ -14,7 +14,8 @@
             Options:
         </td>
         <td>
-            <input type="checkbox" name="codejava_${aqid}_compile" value="1" /> Compile on save.
+            <input type="checkbox" name="codejava_${aqid}_compile" value="1" /> Compile on save.    <br />
+            <input type="checkbox" name="codejava_${aqid}_reset" value="1" /> Reset to skeleton.    <br />
         </td>
     </tr>
 </table>
@@ -26,14 +27,6 @@
         mode: "text/x-java"
     });
 </script>
-
-<#if error_messages?? && error_messages?has_content>
-    <#list error_messages as msg>
-        <p class="error">
-            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
-        </p>
-    </#list>
-</#if>
 
 <#if whitelist?? && whitelist?has_content>
     <p>
@@ -68,4 +61,13 @@
     <p class="success">
         ${success?html}
     </p>
+</#if>
+
+<#if error_messages?? && error_messages?has_content>
+    <h3>Compile Errors</h3>
+    <#list error_messages as msg>
+        <p class="error">
+            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
+        </p>
+    </#list>
 </#if>

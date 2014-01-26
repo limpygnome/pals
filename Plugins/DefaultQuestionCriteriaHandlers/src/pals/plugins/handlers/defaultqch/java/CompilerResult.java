@@ -11,15 +11,26 @@ public class CompilerResult
     // Enums *******************************************************************
     public enum CompileStatus
     {
-        Unknown(0),
-        Success(1),
-        Failed(2),
-        Failed_CompilerNotFound(4),
-        Failed_TempDirectory(8);
-        private int formValue;
-        private CompileStatus(int formValue)
+        Unknown(0, "This question has not been compiled."),
+        Success(1, "Compiled."),
+        Failed(2, "Failed to compile."),
+        Failed_CompilerNotFound(4, "Compiler not found; please try again or contact an administrator."),
+        Failed_TempDirectory(8, "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
+        
+        private final int     formValue;
+        private final String  text;
+        private CompileStatus(int formValue, String text)
         {
             this.formValue = formValue;
+            this.text = text;
+        }
+        public int getFormValue()
+        {
+            return formValue;
+        }
+        public String getText()
+        {
+            return text;
         }
     }
     // Fields ******************************************************************

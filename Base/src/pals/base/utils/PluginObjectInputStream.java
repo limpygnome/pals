@@ -22,6 +22,10 @@ public class PluginObjectInputStream extends ObjectInputStream
     @Override
     protected Class<?> resolveClass(ObjectStreamClass osc) throws IOException, ClassNotFoundException
     {
+        String className = osc.getName();
+        // Remove [L<class name>; for indicating a class for an array
+        //if(className.startsWith("[L") && className.endsWith(";") && className.length() > 3)
+        //    className = className.substring(2, className.length()-1);
         // Attempt to fetch from super first
         try
         {
@@ -35,12 +39,12 @@ public class PluginObjectInputStream extends ObjectInputStream
         {
             try
             {
-                return p.getJarIO().fetchClassType(osc.getName());
+                return Class.forName(className, false, p.getJarIO().getRawLoader());
             }
-            catch(JarIOException ex)
+            catch(ClassNotFoundException ex)
             {
             }
         }
-        throw new ClassNotFoundException(osc.getName());
+        throw new ClassNotFoundException("PluginObjectInputStream - cannot find class '"+className+"'");
     }
 }

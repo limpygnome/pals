@@ -157,7 +157,8 @@ public class InstanceAssignmentQuestion
                 }
                 catch(ClassNotFoundException | IOException ex)
                 {
-                    return null;
+                    System.err.println("[IAQ WARNING] Could not deserialize data ~ "+ex.getMessage()+"~"+ex.getClass().getName()+" : core defined: "+(core != null));
+                    data = null;
                 }
             }
             else

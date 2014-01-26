@@ -1,6 +1,7 @@
 package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
@@ -13,13 +14,13 @@ public class CodeJava_Instance implements Serializable
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private final TreeMap<String,String>    code;
-    private CodeError[]                     errors;
+    private final ArrayList<CodeError>      errors;
     private CompilerResult.CompileStatus    status;
     // Methods - Constructors **************************************************
     public CodeJava_Instance()
     {
         this.code = new TreeMap<>();
-        this.errors = null;
+        this.errors = new ArrayList<>();
         this.status = CompilerResult.CompileStatus.Unknown;
     }
     // Methods - Code Collection ***********************************************
@@ -59,12 +60,18 @@ public class CodeJava_Instance implements Serializable
     }
     // Methods - Mutators ******************************************************
     /**
-     * @param errors Errors from a compilation attempt for this question; can be
-     * null.
+     * @param error Adds an error.
      */
-    public void setErrors(CodeError[] errors)
+    public void errorsAdd(CodeError error)
     {
-        this.errors = errors;
+        this.errors.add(error);
+    }
+    /**
+     * Clears any errors.
+     */
+    public void errorClear()
+    {
+        errors.clear();
     }
     /**
      * @param status The status from a compilation attempt; set to unknown if
@@ -80,7 +87,7 @@ public class CodeJava_Instance implements Serializable
      */
     public CodeError[] getErrors()
     {
-        return errors;
+        return errors.toArray(new CodeError[errors.size()]);
     }
     /**
      * @return The status from an attempted compilation; unknown if no
