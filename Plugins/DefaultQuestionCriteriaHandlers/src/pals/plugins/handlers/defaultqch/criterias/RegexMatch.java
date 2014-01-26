@@ -118,7 +118,7 @@ public class RegexMatch
         
         return true;
     }
-    public static boolean criteriaMarking(NodeCore core, Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
             iac.setMark(0);
@@ -163,9 +163,9 @@ public class RegexMatch
                 return false;
             // Update and persist the mark
             iac.setMark(matched ? 100 : 0);
-            iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
             iac.setData(matched);
         }
+        iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)

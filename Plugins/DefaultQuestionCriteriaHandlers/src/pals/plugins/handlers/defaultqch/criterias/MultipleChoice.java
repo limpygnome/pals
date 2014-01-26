@@ -2,6 +2,7 @@ package pals.plugins.handlers.defaultqch.criterias;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
@@ -132,7 +133,7 @@ public class MultipleChoice
         data.setTemplateData("crit_items", qdata != null ? qdata.getAnswers() : new String[0]);
         return true;
     }
-    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
             iac.setMark(0);
@@ -164,9 +165,9 @@ public class MultipleChoice
                 correct = false;
             // Update and persist the mark
             iac.setMark(correct ? 100 : 0);
-            iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
             iac.setData(correct);
         }
+        iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)

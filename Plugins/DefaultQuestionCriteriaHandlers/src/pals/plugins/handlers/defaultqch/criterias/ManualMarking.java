@@ -1,6 +1,7 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
 import java.util.HashMap;
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
@@ -77,7 +78,7 @@ public class ManualMarking
         
         return true;
     }
-    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
         // Set the criteria to manual-marking status
         iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);

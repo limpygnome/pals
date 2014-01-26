@@ -285,29 +285,30 @@ public class DefaultQC extends Plugin
     private boolean criteriaMarking(Object[] hookData)
     {
         // Parse hook data
-        if(hookData.length != 2 || !(hookData[0] instanceof Connector) || !(hookData[1] instanceof InstanceAssignmentCriteria))
+        if(hookData.length != 3 || !(hookData[0] instanceof Connector) || !(hookData[1] instanceof NodeCore) || !(hookData[2] instanceof InstanceAssignmentCriteria))
             return false;
         Connector conn = (Connector)hookData[0];
-        InstanceAssignmentCriteria iac = (InstanceAssignmentCriteria)hookData[1];
+        NodeCore core = (NodeCore)hookData[1];
+        InstanceAssignmentCriteria iac = (InstanceAssignmentCriteria)hookData[2];
         // Delegate to the correct method for marking
         UUID ctype = iac.getQC().getCriteria().getUuidCType();
         if(ctype.equals(ManualMarking.UUID_CTYPE))
-            return ManualMarking.criteriaMarking(conn, iac);
+            return ManualMarking.criteriaMarking(conn, core, iac);
         else if(ctype.equals(TextMatch.UUID_CTYPE))
-            return TextMatch.criteriaMarking(conn, iac);
+            return TextMatch.criteriaMarking(conn, core, iac);
         else if(ctype.equals(RegexMatch.UUID_CTYPE))
-            return RegexMatch.criteriaMarking(getCore(), conn, iac);
+            return RegexMatch.criteriaMarking(conn, core, iac);
         else if(ctype.equals(MultipleChoice.UUID_CTYPE))
-            return MultipleChoice.criteriaMarking(conn, iac);
+            return MultipleChoice.criteriaMarking(conn, core, iac);
         
         else if(ctype.equals(JavaClassExists.UUID_CTYPE))
-            return JavaClassExists.criteriaMarking(conn, iac);
+            return JavaClassExists.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
-            return JavaCodeMetrics.criteriaMarking(conn, iac);
+            return JavaCodeMetrics.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
-            return JavaMethodExists.criteriaMarking(conn, iac);
+            return JavaMethodExists.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
-            return JavaTestInputs.criteriaMarking(conn, iac);
+            return JavaTestInputs.criteriaMarking(conn, core, iac);
         
         return false;
     }

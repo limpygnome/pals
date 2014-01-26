@@ -58,7 +58,7 @@ body
 	position: relative;
 	width: 100%;
 	background: #999;
-	z-index: 1;
+	z-index: 6;
 }
 .layout_body .nav .ritems
 {

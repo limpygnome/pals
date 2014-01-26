@@ -18,13 +18,15 @@ import pals.base.utils.ExtendedThread;
 public class MarkerThread extends ExtendedThread
 {
     // Fields ******************************************************************
-    private final AssignmentMarker marker;
-    private final int number;
+    private final AssignmentMarker  marker; // Reference to the plugin.
+    private final int               number; // The # / number of this thread (for diagnostics/debugging).
+    private final NodeCore          core;
     // Methods - Constructors **************************************************
     public MarkerThread(AssignmentMarker marker, int number)
     {
         this.marker = marker;
         this.number = number;
+        this.core = marker.getCore();
     }
     // Methods *****************************************************************
     @Override
@@ -149,7 +151,7 @@ public class MarkerThread extends ExtendedThread
             // Delegate to the plugin responsible for marking
             UUID plugin = iac.getQC().getCriteria().getUuidPlugin();
             Plugin p = marker.getCore().getPlugins().getPlugin(plugin);
-            if(p == null || !p.eventHandler_handleHook("criteria_type.mark", new Object[]{conn, iac}))
+            if(p == null || !p.eventHandler_handleHook("criteria_type.mark", new Object[]{conn, core, iac}))
             {
                 // Set to manual marking, log the error
                 iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);

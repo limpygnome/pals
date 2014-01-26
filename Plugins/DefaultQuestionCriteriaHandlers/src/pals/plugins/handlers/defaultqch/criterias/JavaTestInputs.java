@@ -1,5 +1,6 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
@@ -20,7 +21,7 @@ public class JavaTestInputs
     {
         return false;
     }
-    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
         return false;
     }

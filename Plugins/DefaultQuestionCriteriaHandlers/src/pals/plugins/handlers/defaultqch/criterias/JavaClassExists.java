@@ -1,5 +1,7 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
+import pals.base.NodeCore;
+import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
@@ -20,9 +22,18 @@ public class JavaClassExists
     {
         return false;
     }
-    public static boolean criteriaMarking(Connector conn, InstanceAssignmentCriteria iac)
+    public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
-        return false;
+        if(!iac.getIAQ().isAnswered())
+            iac.setMark(0);
+        else
+        {
+            // Fetch path for assignment
+            //String path = Storage.getPath_tempAssignmentInstanceQuestion(get, iac.getIAQ())
+        }
+        // Update the model
+        iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
+        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
