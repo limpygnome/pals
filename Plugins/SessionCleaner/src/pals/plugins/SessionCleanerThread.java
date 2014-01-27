@@ -63,7 +63,7 @@ public class SessionCleanerThread extends Thread
                 // Cleanup temp web files
                 try
                 {
-                    File[] files = Files.getAllFiles(Storage.getPath_webTemp(sc.getCore().getPathShared()), false, true, null, false);
+                    File[] files = Files.getAllFiles(Storage.getPath_tempWeb(sc.getCore().getPathShared()), false, true, null, false);
                     for(File f : files)
                     {
                         if(System.currentTimeMillis()-f.lastModified() >= interval)

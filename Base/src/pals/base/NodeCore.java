@@ -184,23 +184,12 @@ public class NodeCore
                 System.err.println(LOGGING_ALIAS_START+" Storage path '" + storage.getPath() + "' (#2) checked, with r+w+e permissions.");
             }
         }
-        // Ensure temp folder exists for web uploads
+        // Ensure shared-path sub-dirs are created
+        if(!Storage.checkFoldersCreated(pathShared))
         {
-            File dirTemp = new File(Storage.getPath_webTemp(pathShared));
-            if(!dirTemp.exists())
-                dirTemp.mkdir();
-        }
-        // Ensure logs folder exists
-        {
-            File dirLogs = new File(Storage.getPath_logs(pathShared));
-            if(!dirLogs.exists())
-                dirLogs.mkdir();
-        }
-        // Ensure temproary IAQ folder exists
-        {
-            File dirIAQ = new File(Storage.getPath_tempAssignmentInstanceQuestion(pathShared));
-            if(!dirIAQ.exists())
-                dirIAQ.mkdir();
+            System.err.println(LOGGING_ALIAS_START+" Failed to ensure shared storage sub-directories have been created at '"+pathShared+"'!");
+            stop(StopType.Failure);
+            return false;
         }
         // Start logging
         {

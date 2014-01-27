@@ -42,7 +42,7 @@ public class SandboxSecurityManager extends SecurityManager
             // Build path data
             String fPath = new File(path).getCanonicalPath().replace("\\", "/");
             // Output debugging information
-            if(JavaSandbox.debugMode)
+            if(JavaSandbox.modeDebug)
                 System.out.println("[DEBUG] Security-manager - checking path - p: '"+path+"', fp: "+fPath+"', bp: '"+basePath+"'.");
             // Perform check
             if(!fPath.startsWith(basePath+"/") && !fPath.equals(basePath))
@@ -50,7 +50,7 @@ public class SandboxSecurityManager extends SecurityManager
         }
         catch(IOException ex)
         {
-            if(JavaSandbox.debugMode)
+            if(JavaSandbox.modeDebug)
                 JavaSandbox.printDebugData(ex);
             throw new SecurityException("Could not process path; considered restricted.");
         }
@@ -72,7 +72,7 @@ public class SandboxSecurityManager extends SecurityManager
     @Override
     public void checkPermission(Permission p)
     {
-        if(JavaSandbox.debugMode)
+        if(JavaSandbox.modeDebug)
             System.out.println("[DEBUG] Security-manager permission check data: '"+p.toString()+"' ~ name: '"+p.getName()+"', action(s) '"+p.getActions()+"', class '"+p.getClass().getName()+"'.");
         switch(p.getClass().getName())
         {

@@ -1,7 +1,11 @@
 package pals.plugins.handlers.defaultqch.java;
 
+import java.util.List;
+import java.util.Locale;
+import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
+import pals.plugins.handlers.defaultqch.data.CodeError;
 
 /**
  * The result from attempting to compile code.
@@ -72,5 +76,23 @@ public class CompilerResult
     public DiagnosticCollector<JavaFileObject> getErrors()
     {
         return errors;
+    }
+    /**
+     * @return Transforms the compiler errors into local errors; this may
+     * return an empty array, but never null.
+     */
+    public CodeError[] getCodeErrors()
+    {
+        if(errors == null)
+            return new CodeError[0];
+        List<Diagnostic<? extends JavaFileObject>> arr = errors.getDiagnostics();
+        CodeError[] buffer = new CodeError[arr.size()];
+        Diagnostic d;
+        for(int i = 0; i < arr.size(); i++)
+        {
+            d = arr.get(i);
+            buffer[i] = new CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
+        }
+        return buffer;
     }
 }

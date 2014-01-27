@@ -87,7 +87,7 @@ public class PALS_Servlet extends HttpServlet
                 try
                 {
                     // Prepare temp storage dir
-                    String tempFolder = Storage.getPath_webTemp(settings.getStr("storage/path"));
+                    String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
                     {
                         File tf = new File(tempFolder);
                         if(!tf.exists())
@@ -181,7 +181,7 @@ public class PALS_Servlet extends HttpServlet
             // cookies or headers at this point.
             
             // Destroy any temp files
-            String tempFolder = Storage.getPath_webTemp(settings.getStr("storage/path"));
+            String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
             File file;
             for(UploadedFile uf : dataRequest.getFiles())
             {

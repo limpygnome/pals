@@ -31,10 +31,8 @@ public class RegexMatch
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
-        Regex_Criteria cdata;
-        if(qc.getData() != null)
-            cdata = (Regex_Criteria)qc.getData();
-        else
+        Regex_Criteria cdata = (Regex_Criteria)qc.getData();
+        if(cdata == null)
             cdata = new Regex_Criteria();
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -49,48 +47,16 @@ public class RegexMatch
         {
             try
             {
-                int weight = Integer.parseInt(critWeight);
-                // Validate security
-                if(!CSRF.isSecure(data))
-                    data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
-                else
-                {
-                    // Test compiling the regex pattern
-                    // -- Exception is caught by try-catch
-                    Pattern.compile(critRegex);
-                    // Update data model
-                    cdata.setMode(
-                            (critMultiline != null && critMultiline.equals("1") ? Pattern.MULTILINE : 0) | (critCase != null && critCase.equals("1") ? Pattern.CASE_INSENSITIVE : 0) | (critDotall != null && critDotall.equals("1") ? Pattern.DOTALL : 0)
-                    );
-                    cdata.setRegexPattern(critRegex);
-                    // Update question criteria model
-                    qc.setData(cdata);
-                    qc.setWeight(weight);
-                    qc.setTitle(critTitle);
-                    QuestionCriteria.PersistStatus qcps = qc.persist(data.getConnector());
-                    switch(qcps)
-                    {
-                        case Failed:
-                        case Failed_Serialize:
-                        case Invalid_Criteria:
-                        case Invalid_Question:
-                            data.setTemplateData("error", "Failed to update model due to an unknown error ('"+qcps.name()+"'); try again or contact an administrator!");
-                            break;
-                        case Invalid_Title:
-                            data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
-                            break;
-                        case Invalid_Weight:
-                            data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
-                            break;
-                        case Success:
-                            data.setTemplateData("success", "Updated criteria settings successfully.");
-                            break;
-                    }
-                }
-            }
-            catch(NumberFormatException ex)
-            {
-                data.setTemplateData("error", "Weight must be numeric!");
+                // Test compiling the regex pattern
+                // -- Exception is caught by try-catch
+                Pattern.compile(critRegex);
+                // Update data-model
+                cdata.setRegexPattern(critRegex);
+                cdata.setMode(
+                                (critMultiline != null && critMultiline.equals("1") ? Pattern.MULTILINE : 0) | (critCase != null && critCase.equals("1") ? Pattern.CASE_INSENSITIVE : 0) | (critDotall != null && critDotall.equals("1") ? Pattern.DOTALL : 0)
+                        );
+                // Handle entire process
+                CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
             }
             catch(PatternSyntaxException ex)
             {
@@ -115,7 +81,6 @@ public class RegexMatch
             data.setTemplateData("crit_case", data);
         if( (critRegex == null && ((cdata.getMode() & Pattern.DOTALL) == Pattern.DOTALL)) || (critDotall != null && critDotall.equals("1")))
             data.setTemplateData("crit_dotall", data);
-        
         return true;
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)

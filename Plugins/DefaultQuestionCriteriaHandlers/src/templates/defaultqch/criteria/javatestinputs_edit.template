@@ -1,0 +1,171 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">Edit Criteria</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">
+    <table class="table2 questions_form">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Full Class Name:
+            </td>
+            <td>
+                <input type="text" name="crit_class_name" value="<#if crit_class_name??>${crit_class_name?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Method Name:
+            </td>
+            <td>
+                <input type="text" name="crit_method" value="<#if crit_method??>${crit_method?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Test Code:
+            </td>
+            <td>
+                <textarea name="crit_test_code" id="crit_test_code" rows="10"><#if crit_test_code??>${crit_test_code?html}</#if></textarea>
+                <br />
+                <input type="checkbox" name="crit_force_compile" value="1" /> Force recompile.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Input Types:
+            </td>
+            <td>
+                <textarea name="crit_input_types" rows="2"><#if crit_input_types??>${crit_input_types?html}</#if></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Input:
+            </td>
+            <td>
+                <textarea name="crit_inputs" rows="8"><#if crit_inputs??>${crit_inputs?html}</#if></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<script>
+    CodeMirror.fromTextArea(document.getElementById("crit_test_code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-java"
+    });
+</script>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if warning??>
+    <p class="warning">
+        ${warning?html}
+    </p>
+</#if>
+
+<#if info??>
+    <p class="info">
+        ${info?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<#if error_messages?? && error_messages?has_content>
+    <h3>Compile Errors</h3>
+    <#list error_messages as msg>
+        <p class="error">
+            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
+        </p>
+    </#list>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    Test code will only be compiled if changed; you can also tick the checkbox to force the code to be recompiled.
+</p>
+<p>
+    Input types should be in the format of the primitive data-types required to invoke a method; examples:
+</p>
+<table class="table2">
+    <tr>
+        <th>Method Header</th>
+        <th>Input Types</th>
+    </tr>
+    <tr>
+        <td>
+            public void sum(<b>int</b> a, <b>int</b> b)
+        </td>
+        <td>
+            int,int
+        </td>
+    </tr>
+    <tr>
+        <td>
+            public byte[] output(<b>String</b> text, <b>double</b> a, <b>double</b> b)
+        </td>
+        <td>
+            string,double,double
+        </td>
+    </tr>
+</table>
+<p>
+    The accepted input types:
+</p>
+<ul>
+    <li>byte</li>
+    <li>short</li>
+    <li>int</li>
+    <li>long</li>
+    <li>float</li>
+    <li>double</li>
+    <li>bool / boolean</li>
+    <li>char</li>
+    <li>string / str</li>
+</ul>
+<p>
+    The input box should have the values for each corresponding input-type on each line, separated by commas. Each line
+    represents a different input test. An example for a method which takes <i>string,int,int</i>, which has five tests:
+</p>
+<p>
+    test #1,4,16<br />
+    test #2,5,25<br />
+    test #3,6,36<br />
+    test #4,7,49
+</p>

@@ -24,7 +24,32 @@ public class QuestionCriteria
         Invalid_Question,
         Invalid_Criteria,
         Invalid_Weight,
-        Invalid_Title
+        Invalid_Title;
+        /**
+         * @param qc THe question-criteria model being persisted.
+         * @return The web text associated with the operation.
+         */
+        public String getText(QuestionCriteria qc)
+        {
+            switch(this)
+            {
+                default:
+                case Failed:
+                    return "Failed due to an unknown error; pelase try again or contact an administrator!";
+                case Failed_Serialize:
+                    return "Failed to serialize model; please try again or contact an administrator!";
+                case Invalid_Criteria:
+                    return "Invalid criteria-type.";
+                case Invalid_Question:
+                    return "Invalid question.";
+                case Invalid_Title:
+                    return "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!";
+                case Invalid_Weight:
+                    return "Invalid weight; must be numeric and greater than zero!";
+                case Success:
+                    return "Updated criteria successfully.";
+            }
+        }
     }
     // Fields ******************************************************************
     private int             qcid;       // Unique identifier for this model.

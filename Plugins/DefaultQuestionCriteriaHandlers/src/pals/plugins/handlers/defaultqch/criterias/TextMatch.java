@@ -28,10 +28,8 @@ public class TextMatch
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
-        TextMatch_Criteria cdata;
-        if(qc.getData() != null)
-            cdata = (TextMatch_Criteria)qc.getData();
-        else
+        TextMatch_Criteria cdata = (TextMatch_Criteria)qc.getData();
+        if(cdata == null)
             cdata = new TextMatch_Criteria();
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -42,47 +40,11 @@ public class TextMatch
         String critSensitive = req.getField("crit_sensitive");
         if(critTitle != null && critWeight != null && critMatch != null)
         {
-            // Validate security
-            if(!CSRF.isSecure(data))
-                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
-            else
-            {
-                try
-                {
-                    int weight = Integer.parseInt(critWeight);
-                    // Update the data model
-                    cdata.setText(critMatch);
-                    cdata.setCaseSensitive(critSensitive != null && critSensitive.equals("1"));
-                    // Update qc model
-                    qc.setData(cdata);
-                    qc.setTitle(critTitle);
-                    qc.setWeight(weight);
-                    // Persist qc model
-                    QuestionCriteria.PersistStatus qcps = qc.persist(data.getConnector());
-                    switch(qcps)
-                    {
-                        case Failed:
-                        case Failed_Serialize:
-                        case Invalid_Criteria:
-                        case Invalid_Question:
-                            data.setTemplateData("error", "Failed to update model due to an unknown error ('"+qcps.name()+"'); try again or contact an administrator!");
-                            break;
-                        case Invalid_Title:
-                            data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
-                            break;
-                        case Invalid_Weight:
-                            data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
-                            break;
-                        case Success:
-                            data.setTemplateData("success", "Updated criteria settings successfully.");
-                            break;
-                    }
-                }
-                catch(NumberFormatException ex)
-                {
-                    data.setTemplateData("error", "Weight must be numeric!");
-                }
-            }
+            // Update model
+            cdata.setText(critMatch);
+            cdata.setCaseSensitive(critSensitive != null && critSensitive.equals("1"));
+            // Handle entire process
+            CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit Criteria");
@@ -96,7 +58,6 @@ public class TextMatch
         data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
         if((critMatch == null && cdata.isCaseSensitive()) || (critSensitive != null && critSensitive.equals("1")))
             data.setTemplateData("crit_sensitive", cdata.isCaseSensitive());
-        
         return true;
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)

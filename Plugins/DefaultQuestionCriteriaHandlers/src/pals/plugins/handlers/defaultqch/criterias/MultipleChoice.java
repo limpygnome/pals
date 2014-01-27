@@ -57,57 +57,20 @@ public class MultipleChoice
         String critWeight = req.getField("crit_weight");
         if(qdata != null && critTitle != null && critWeight != null)
         {
-            // Validate security
-            if(!CSRF.isSecure(data))
-                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
-            else
+            // Fetch the items selected
+            ArrayList<Integer> buffer = new ArrayList<>();
+            for(int i = 0; i < totalAnswers; i++)
             {
-                int weight;
-                try
+                if(req.getField("crit_index_"+i) != null)
                 {
-                    weight = Integer.parseInt(critWeight);
-                }
-                catch(NumberFormatException ex)
-                {
-                    weight = -1;
-                }
-                // Fetch the items selected
-                ArrayList<Integer> buffer = new ArrayList<>();
-                for(int i = 0; i < totalAnswers; i++)
-                {
-                    if(req.getField("crit_index_"+i) != null)
-                    {
-                        buffer.add(i);
-                        itemsSelected[i] = true;
-                    }
-                }
-                // Update the data model
-                cdata.setIndexesCorrect(buffer.toArray(new Integer[buffer.size()]));
-                // Update qc model
-                qc.setData(cdata);
-                qc.setTitle(critTitle);
-                qc.setWeight(weight);
-                // Persist qc model
-                QuestionCriteria.PersistStatus qcps = qc.persist(data.getConnector());
-                switch(qcps)
-                {
-                    case Failed:
-                    case Failed_Serialize:
-                    case Invalid_Criteria:
-                    case Invalid_Question:
-                        data.setTemplateData("error", "Failed to update model due to an unknown error ('"+qcps.name()+"'); try again or contact an administrator!");
-                        break;
-                    case Invalid_Title:
-                        data.setTemplateData("error", "Invalid title; must be "+qc.getTitleMin()+" to "+qc.getTitleMax()+" characters in length!");
-                        break;
-                    case Invalid_Weight:
-                        data.setTemplateData("error", "Invalid weight; must be numeric and greater than zero!");
-                        break;
-                    case Success:
-                        data.setTemplateData("success", "Updated criteria settings successfully.");
-                        break;
+                    buffer.add(i);
+                    itemsSelected[i] = true;
                 }
             }
+            // Update the data model
+            cdata.setIndexesCorrect(buffer.toArray(new Integer[buffer.size()]));
+            // Handle entire process
+            CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, null);
         }
         else
         {

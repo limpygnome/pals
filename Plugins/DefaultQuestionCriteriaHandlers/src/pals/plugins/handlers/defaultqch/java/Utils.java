@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import pals.base.NodeCore;
 import pals.base.Storage;
 import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.web.WebRequestData;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 
 /**
@@ -58,19 +59,18 @@ public class Utils
      * Compiles the code for a question.
      * 
      * @param core  The current instance of the core.
-     * @param iaq The current instance of the assignment question.
-     * @param adata Answer instance data.
+     * @param pathTemp The temporary path to store the output from the
+     * compilation; this directory will be recreated.
+     * @param code A map of the code (name,source-code).
      * @return The result from the compilation.
      */
-    public static CompilerResult compile(NodeCore core, InstanceAssignmentQuestion iaq, CodeJava_Instance adata)
+    public static CompilerResult compile(NodeCore core, String pathTemp, Map<String,String> code)
     {
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         // Fetch compiler
         if(jc == null)
             return new CompilerResult(CompilerResult.CompileStatus.Failed_CompilerNotFound, null);
-        // Fetch the path for this question
-        // -- Create if it does not exist, else wipe the contents
-        String pathTemp = Storage.getPath_tempAssignmentInstanceQuestion(core.getPathShared(), iaq);
+        // Recreate the temporary directory
         {
             File f = new File(pathTemp);
             // Delete the directory
@@ -92,7 +92,7 @@ public class Utils
         // Setup virtual file system for compiler
         CompilerFileManager cfm = new CompilerFileManager(jc.getStandardFileManager(null, null, null), pathTemp, false);
         // Add the code to the virtual file-system
-        for(Map.Entry<String,String> file : adata.getCodeMap().entrySet())
+        for(Map.Entry<String,String> file : code.entrySet())
             cfm.getClassLoader().add(file.getKey(), file.getValue());
         // Attempt to compile the code
         DiagnosticCollector<JavaFileObject> diag = new DiagnosticCollector<>();
@@ -101,5 +101,20 @@ public class Utils
             return new CompilerResult(CompilerResult.CompileStatus.Failed, diag);
         else
             return new CompilerResult(CompilerResult.CompileStatus.Success, null);
+    }
+    /**
+     * Adds the required JS and CSS files for CodeMirror text editor, for Java.
+     * 
+     * @param data The data for the current web-request.
+     */
+    public static void pageHookCodeMirror_Java(WebRequestData data)
+    {
+        if(!data.containsTemplateData("codemirror_clike"))
+        {
+            data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
+            data.appendHeaderJS("/content/codemirror/addon/edit/matchbrackets.js");
+            data.appendHeaderJS("/content/codemirror/mode/clike/clike.js");
+            data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
+        }
     }
 }

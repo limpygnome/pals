@@ -6,6 +6,7 @@ import java.util.Locale;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
+import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentQuestion;
@@ -68,7 +69,7 @@ public class CodeJava
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit");
         data.setTemplateData("pals_content", "defaultqch/questions/codejava_edit");
-        hookCodeMirror(data);
+        Utils.pageHookCodeMirror_Java(data);
         // -- Fields
         data.setTemplateData("question", q);
         data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
@@ -133,28 +134,15 @@ public class CodeJava
                     if(compile != null && compile.equals("1"))
                     {
                         // -- If fails, set answered to false.
-                        CompilerResult cr = Utils.compile(data.getCore(), iaq, adata);
+                        CompilerResult cr = Utils.compile(data.getCore(), Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq), adata.getCodeMap());
                         // Update the model's status
                         adata.setCompileStatus(cr.getStatus());
                         // Handle the compile result
                         switch(cr.getStatus())
                         {
                             case Failed:
-                                DiagnosticCollector<JavaFileObject> dc = cr.getErrors();
-                                if(dc != null)
-                                {
-                                    // Iterate the errors from the compiler
-                                    List<Diagnostic<? extends JavaFileObject>> arr = dc.getDiagnostics();
-                                    CodeError[] msgs = new CodeError[arr.size()];
-                                    Diagnostic d;
-                                    for(int i = 0; i < arr.size(); i++)
-                                    {
-                                        d = arr.get(i);
-                                        adata.errorsAdd(
-                                                new CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber())
-                                        );
-                                    }
-                                }
+                                for(CodeError error : cr.getCodeErrors())
+                                    adata.errorsAdd(error);
                                 break;
                         }
                     }
@@ -204,7 +192,7 @@ public class CodeJava
         }
         // Render the question
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_capture"));
-        hookCodeMirror(data);
+        Utils.pageHookCodeMirror_Java(data);
         return true;
     }
     public static boolean pageQuestionDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure, boolean editMode)
@@ -226,18 +214,7 @@ public class CodeJava
         // Render template
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/codejava_display"));
         // Setup code-mirror
-        hookCodeMirror(data);
+        Utils.pageHookCodeMirror_Java(data);
         return true;
-    }
-    // Methods *****************************************************************
-    private static void hookCodeMirror(WebRequestData data)
-    {
-        if(!data.containsTemplateData("codemirror_clike"))
-        {
-            data.appendHeaderJS("/content/codemirror/lib/codemirror.js");
-            data.appendHeaderJS("/content/codemirror/addon/edit/matchbrackets.js");
-            data.appendHeaderJS("/content/codemirror/mode/clike/clike.js");
-            data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
-        }
     }
 }

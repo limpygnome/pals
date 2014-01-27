@@ -18,16 +18,17 @@ import java.net.URL;
  * -- 1:    The entry-point class.
  * -- 2:    The method to invoke; this must be static.
  * -- 3:    List of white-listed classes, or 0 for no white-listing.
- * -- 4:    Debug mode (1 for true or 0 for false).
+ * -- 4:    Output mode (1 or 0) - outputs the value from the method.
  * -- 5:    Timeout before self-terminating.
  * -- 6-n:  The arguments for the method; this is automatically parsed.
  *              Each argument should be with <type>=<value>
- *              Accepted types: int,long,float,double,string,char,boolean
+ *              Accepted types: refer to ParsedArgument class.
  */
 public class JavaSandbox
 {
     // Fields - Static *********************************************************
-    public static boolean   debugMode = false;
+    public static boolean   modeDebug = false,
+                            modeOutput = false;
     public static Thread    threadWatcher = null;
     public static int       timeout = -1;
     // Methods - Entry-Point ***************************************************
@@ -38,9 +39,9 @@ public class JavaSandbox
             System.err.println("Invalid arguments.");
             return;
         }
-        // Setup debug-mode
-        debugMode = args[4].equals("1");
-        if(debugMode)
+        // Setup outut-mode
+        modeOutput = args[4].equals("1");
+        if(modeDebug)
             System.out.println("[DEBUG] Debug-mode has been enabled.");
         // Parse time-out value
         try
@@ -77,7 +78,7 @@ public class JavaSandbox
         URL[] urls;
         try
         {
-            if(debugMode)
+            if(modeDebug)
                 System.out.println("[DEBUG] Loading classes at '"+new File(args[0]).getCanonicalPath()+"'.");
             urls = new URL[]{new File(args[0]).toURI().toURL()};
         }
@@ -124,7 +125,7 @@ public class JavaSandbox
                 srl.setWhiteListEnabled(true);
                 for(String className : whiteList.split(","))
                     srl.whiteListAdd(className);
-                if(debugMode)
+                if(modeDebug)
                     System.out.println("[DEBUG] Class white-listing has been enabled.");
             }
             else
@@ -185,11 +186,8 @@ public class JavaSandbox
         try
         {
             Object obj = meth.invoke(null, objs);
-            if(obj != null)
-            {
-                // Determine the type of value and print it
-                
-            }
+            if(modeOutput)
+                System.out.println(obj != null ? obj : "null");
         }
         catch(IllegalAccessException ex)
         {
@@ -206,7 +204,7 @@ public class JavaSandbox
     }
     public static void printDebugData(Exception ex)
     {
-        if(debugMode)
+        if(modeDebug)
         {
             System.err.println("DEBUG EXCEPTION INFORMATION");
             System.err.println("*******************************************************************");
