@@ -1,11 +1,6 @@
 package pals.plugins.handlers.defaultqch.questions;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaFileObject;
 import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;

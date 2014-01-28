@@ -1,5 +1,9 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import pals.base.NodeCore;
 import pals.base.Storage;
@@ -9,12 +13,17 @@ import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
+import pals.base.utils.PalsProcess;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
-import pals.plugins.handlers.defaultqch.data.TestInputs_Criteria;
+import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
+import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
+import pals.plugins.handlers.defaultqch.data.JavaTestInputs_Criteria;
+import pals.plugins.handlers.defaultqch.data.JavaTestInputs_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
+import pals.plugins.handlers.defaultqch.questions.CodeJava;
 
 /**
  * Handles text inputs criteria marking.
@@ -27,9 +36,9 @@ public class JavaTestInputs
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
         // Load criteria data
-        TestInputs_Criteria cdata = (TestInputs_Criteria)qc.getData();
+        JavaTestInputs_Criteria cdata = (JavaTestInputs_Criteria)qc.getData();
         if(cdata == null)
-            cdata = new TestInputs_Criteria();
+            cdata = new JavaTestInputs_Criteria();
         // Check for postback
         RemoteRequest req = data.getRequestData();
         String critTitle = req.getField("crit_title");
@@ -78,10 +87,15 @@ public class JavaTestInputs
             cdata.setClassName(critClassName);
             cdata.setMethod(critMethod);
             cdata.setTestCode(critTestCode);
-            cdata.setInputTypes(critInputTypes);
-            cdata.setInputs(critInputs);
-            // Handle entire process
-            CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
+            if(!cdata.setInputTypes(critInputTypes))
+                data.setTemplateData("error", "Invalid input-types.");
+            else if(!cdata.setInputs(critInputs))
+                data.setTemplateData("error", "Invalid inputs.");
+            else
+            {
+                // Handle entire process
+                CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
+            }
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit Criteria");
@@ -102,7 +116,147 @@ public class JavaTestInputs
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
-        return false;
+        if(!iac.getIAQ().isAnswered())
+            iac.setMark(0);
+        else
+        {
+            // Load idata, qdata and cdata
+            CodeJava_Instance       idata = (CodeJava_Instance)iac.getIAQ().getData();
+            CodeJava_Question       qdata = (CodeJava_Question)iac.getQC().getQuestion().getData();
+            JavaTestInputs_Criteria cdata = (JavaTestInputs_Criteria)iac.getQC().getData();
+            if(idata == null || idata.getStatus() != CompilerResult.CompileStatus.Success)
+            {
+                iac.setMark(0);     // No answer data; no need to mark.
+                System.err.println("no data.");
+            }
+            else if(qdata == null || cdata == null || cdata.getInputs().length == 0)
+                return false;       // Question or criteria has not been setup properly.
+            else
+            {
+                System.err.println("inside test.");
+                // Fetch path of compiled classes
+                String      pathQC = Storage.getPath_tempQC(core.getPathShared(), iac.getQC());
+                String      pathIAQ = Storage.getPath_tempIAQ(core.getPathShared(), iac.getIAQ());
+                // Fetch data ready for tests
+                String[]    types = cdata.getInputTypes();
+                String[][]  inputs = cdata.getInputs();
+                String[]    whiteList = qdata.getWhitelist();
+                String      className = cdata.getClassName();
+                String      method = cdata.getMethod();
+                int         timeout = core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 12000);
+                int         timeoutJS = core.getSettings().getInt("tools/javasandbox/timeout_ms", 10000);
+                String      javaSandbox;
+                try
+                {
+                    javaSandbox = new File(core.getSettings().getStr("tools/javasandbox/path")).getCanonicalPath();
+                    pathQC = new File(pathQC).getCanonicalPath();
+                    pathIAQ = new File(pathIAQ).getCanonicalPath();
+                }
+                catch(IOException ex)
+                {
+                    iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                    return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+                }
+                // Iterate each test input; test with student's and lecturer's code
+                JavaTestInputs_InstanceCriteria icdata = new JavaTestInputs_InstanceCriteria(inputs.length);
+                String argsQC, argsIAQ;
+                String valQC, valIAQ;
+                int correct = 0;
+                String[] formattedInputs;
+                
+                System.err.println("DEBUG ~ java sb ~ "+javaSandbox);
+                
+                for(int row = 0; row < inputs.length; row++)
+                {
+                    // Format inputs
+                    formattedInputs = inputs[row];
+                    // Build args for both
+                    argsQC = Utils.buildJavaSandboxArgs(javaSandbox, pathQC, className, method, whiteList, true, timeoutJS, types, formattedInputs);
+                    argsIAQ = Utils.buildJavaSandboxArgs(javaSandbox, pathIAQ, className, method, whiteList, true, timeoutJS, types, formattedInputs);
+                    
+                    System.err.println("DEBUG ~ argsQC ~ '"+argsQC+"'");
+                    System.err.println("DEBUG ~ argsIAQ ~ '"+argsIAQ+"'");
+                    
+                    // Execute each process and capture output
+                    valQC = run(PalsProcess.create(core, "java", argsQC), timeout);
+                    valIAQ = run(PalsProcess.create(core, "java", argsQC), timeout);
+                    
+                    
+                    System.err.println("DEBUG ~ valQC ~ '"+valQC+"'");
+                    System.err.println("DEBUG ~ valIAQ ~ '"+valIAQ+"'");
+                    
+                    // Compare
+                    if(valIAQ == null || valQC == null)
+                    {
+                        // Something has gone wrong, set to manual marking
+                        System.err.println("DEBUG ~ failed null.");
+                        iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+                    }
+                    else if(valQC.equals(valIAQ))
+                        correct++;
+                    // Update output
+                    icdata.setInput(row, inputsToStr(formattedInputs));
+                    icdata.setOutput(row, valIAQ);
+                }
+                // Update data model for feedback
+                iac.setData(icdata);
+                // Calculate score
+                iac.setMark( (int)(((double)correct/(double)inputs.length)*100.0) );
+                
+                System.err.println("DEBUG ~ successfully finished.");
+            }
+        }
+        iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
+        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+    }
+    private static String inputsToStr(String[] inputs)
+    {
+        if(inputs.length == 0)
+            return "";
+        StringBuilder sb = new StringBuilder();
+        for(String s : inputs)
+            sb.append(s).append(',');
+        return sb.deleteCharAt(sb.length()-1).toString();
+    }
+    private static String run(PalsProcess proc, int timeout)
+    {
+        // Start the process
+        if(!proc.start())
+            return null;
+        // Begin reading standard output
+        StringBuilder buffer = new StringBuilder();
+        BufferedReader br = new BufferedReader(new InputStreamReader(proc.getProcess().getInputStream()));
+        // Wait for the process to terminate
+        long timeoutL = (long)timeout;
+        long start = System.currentTimeMillis();
+        char[] cbuffer = new char[1024];
+        int cbufferRead;
+        while(!proc.hasExited())
+        {
+            try
+            {
+                // Check if to kill the process
+                if(System.currentTimeMillis()-start > timeoutL)
+                {
+                    proc.getProcess().destroy();
+                    break;
+                }
+                // Read more output
+                try
+                {
+                    while((cbufferRead = br.read(cbuffer)) != -1)
+                        buffer.append(cbuffer, 0, cbufferRead);
+                }
+                catch(IOException ex)
+                {
+                }
+                // Sleep...
+                Thread.sleep(10);
+            }
+            catch(InterruptedException ex) {}
+        }
+        return buffer.toString().trim();
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {

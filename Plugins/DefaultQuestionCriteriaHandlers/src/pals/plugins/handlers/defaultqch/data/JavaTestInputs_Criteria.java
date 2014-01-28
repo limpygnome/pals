@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * A model for holding criteria data for a testing inputs question-criteria.
  */
-public class TestInputs_Criteria implements Serializable
+public class JavaTestInputs_Criteria implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
@@ -15,7 +15,7 @@ public class TestInputs_Criteria implements Serializable
     private String[]    inputTypes;
     private String[][]  inputs;
     // Methods - Constructors **************************************************
-    public TestInputs_Criteria()
+    public JavaTestInputs_Criteria()
     {
         this.testCode = this.className = this.method = null;
         inputTypes = new String[0];
@@ -134,7 +134,8 @@ public class TestInputs_Criteria implements Serializable
         StringBuilder sb = new StringBuilder();
         for(String s : inputTypes)
             sb.append(s).append(',');
-        sb.deleteCharAt(sb.length()-1);
+        if(sb.length() > 0)
+            sb.deleteCharAt(sb.length()-1);
         return sb.toString();
     }
     /**

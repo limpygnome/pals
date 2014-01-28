@@ -160,6 +160,8 @@ public class JavaSandbox
                 pa = ParsedArgument.parse(args[i]);
                 objs[i-argsStartIndex] = pa.getArgValue();
                 classes[i-argsStartIndex] = pa.getArgClass();
+                if(modeDebug)
+                    System.out.println("[DEBUG] Argument "+(i-argsStartIndex)+": "+pa.getArgClass().getName()+"="+pa.getArgValue());
             }
         }
         catch(IllegalArgumentException ex)
@@ -201,6 +203,8 @@ public class JavaSandbox
             printDebugData(ex);
             return;
         }
+        // Kill the JVM
+        System.exit(0);
     }
     public static void printDebugData(Exception ex)
     {

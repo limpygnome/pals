@@ -52,7 +52,7 @@ namespace WindowsUserTool
                 proc.StartInfo.RedirectStandardOutput = true;
                 proc.StartInfo.RedirectStandardError = true;
                 if (args.Length == 5)
-                    proc.StartInfo.Arguments = args[4];
+                    proc.StartInfo.Arguments = args[4].Replace("\\\"", "\"");
                 proc.StartInfo.UseShellExecute = false;
                 // Add hooks for standard in/out/err
                 proc.ErrorDataReceived += new DataReceivedEventHandler(proc_ErrorDataReceived);

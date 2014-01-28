@@ -164,7 +164,7 @@ public class MarkerThread extends ExtendedThread
             }
             else
             {
-                marker.getCore().getLogging().log("Ass. Marker", "Marked criteria '"+iac.getIAQ().getAIQID()+"','"+iac.getQC().getQCID()+"'.", Logging.EntryType.Info);
+                marker.getCore().getLogging().log("Ass. Marker", "Marked criteria '"+iac.getIAQ().getAIQID()+"','"+iac.getQC().getQCID()+"' ~ "+iac.getMark()+"%.", Logging.EntryType.Info);
                 // Check if the assignment needs the overall mark computed
                 try
                 {

@@ -41,6 +41,21 @@ public class PalsProcess
             return false;
         }
     }
+    /**
+     * @return Indicates if the process has terminated.
+     */
+    public boolean hasExited()
+    {
+        try
+        {
+            proc.exitValue();
+            return true;
+        }
+        catch(IllegalThreadStateException ex)
+        {
+            return false;
+        }
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The underlying process.

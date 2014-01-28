@@ -117,4 +117,50 @@ public class Utils
             data.appendHeaderCSS("/content/codemirror/lib/codemirror.css");
         }
     }
+    /**
+     * Builds the arguments for the Java Sandbox.
+     * 
+     * @param javaSandboxPath The path to the Java sandbox program.
+     * @param directory The directory of where the compiled class files reside.
+     * @param className The class-name of the method to invoke.
+     * @param method The method to invoke.
+     * @param whiteListedClasses An array of white-listed classes.
+     * @param outputValue
+     * @param timeout
+     * @param inputTypes
+     * @param inputs
+     * @return 
+     */
+    public static String buildJavaSandboxArgs(String javaSandboxPath, String directory, String className, String method, String[] whiteListedClasses, boolean outputValue, int timeout, String[] inputTypes, String[] inputs)
+    {
+        if(inputTypes.length != inputs.length)
+            throw new IllegalArgumentException();
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("-jar \"").append(javaSandboxPath).append("\" ");
+        // -- Directory
+        sb.append("\"").append(directory).append("\" ");
+        // -- Class
+        sb.append("\"").append(className).append("\" ");
+        // -- Method
+        sb.append("\"").append(method).append("\" ");
+        // -- White-listed classes
+        if(whiteListedClasses.length > 0)
+        {
+            sb.append("\"");
+            for(String c : whiteListedClasses)
+                sb.append(c).append(",");
+            sb.deleteCharAt(sb.length()-1).append("\" ");
+        }
+        else
+            sb.append("\"0\" ");
+        // -- Output mode
+        sb.append("\"").append(outputValue ? "1" : "0").append("\" ");
+        // -- Timeout
+        sb.append("\"").append(timeout).append("\" ");
+        // -- Inputs/args
+        for(int i = 0; i < inputs.length; i++)
+            sb.append("\"").append(inputTypes[i]).append("=").append(inputs[i]).append("\" ");
+        return sb.deleteCharAt(sb.length()-1).toString();
+    }
 }
