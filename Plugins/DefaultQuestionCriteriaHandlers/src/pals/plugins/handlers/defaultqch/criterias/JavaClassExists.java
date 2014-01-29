@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Storage;
 import pals.base.UUID;
@@ -16,6 +17,7 @@ import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.DefaultQC;
 import pals.plugins.handlers.defaultqch.data.ClassExists_Criteria;
 
 /**
@@ -59,18 +61,21 @@ public class JavaClassExists
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
         if(!iac.getIAQ().isAnswered())
-        {
             iac.setMark(0);
-            iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
-        }
         else
         {
             // Load criteria-data
             ClassExists_Criteria cdata = (ClassExists_Criteria)iac.getQC().getData();
+            if(cdata == null)
+            {
+                iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+            }
             // Fetch path for assignment
             String path = Storage.getPath_tempIAQ(core.getPathShared(), iac.getIAQ());
             // Check the path exists
             File f = new File(path);
+            boolean exists = false;
             if(f.exists())
             {
                 try
@@ -78,7 +83,6 @@ public class JavaClassExists
                     // Create class-loader at the path
                     URLClassLoader cl = new URLClassLoader(new URL[]{f.toURI().toURL()});
                     // Check if the class exists
-                    boolean exists;
                     try
                     {
                         cl.loadClass(cdata.getClassName());
@@ -88,17 +92,20 @@ public class JavaClassExists
                     {
                         exists = false;
                     }
-                    // Update model
-                    iac.setMark(exists ? 100 : 0);
-                    iac.setData(exists);
-                    iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
                 }
                 catch(MalformedURLException ex)
                 {
+                    core.getLogging().logEx(DefaultQC.LOGGING_ALIAS, "IAC ~ aiqid "+iac.getIAQ().getAIQID()+", qcid "+iac.getQC().getQCID(), ex, Logging.EntryType.Warning);
                     iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                    return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                 }
             }
+            // Update model
+            iac.setMark(exists ? 100 : 0);
+            iac.setData(exists);
+            iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
         }
+        iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)

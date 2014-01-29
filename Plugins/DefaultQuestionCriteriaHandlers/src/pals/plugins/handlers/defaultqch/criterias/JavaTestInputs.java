@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Storage;
 import pals.base.UUID;
@@ -17,6 +18,7 @@ import pals.base.utils.PalsProcess;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.DefaultQC;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
 import pals.plugins.handlers.defaultqch.data.JavaTestInputs_Criteria;
@@ -154,6 +156,7 @@ public class JavaTestInputs
                 }
                 catch(IOException ex)
                 {
+                    core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Failed to create paths for Java-Sandbox/pathQC/pathIAQ ~ aiqid "+iac.getIAQ().getAIQID()+", qcid "+iac.getQC().getQCID(), Logging.EntryType.Warning);
                     iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
                     return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                 }
@@ -179,7 +182,7 @@ public class JavaTestInputs
                     
                     // Execute each process and capture output
                     valQC = run(PalsProcess.create(core, "java", argsQC), timeout);
-                    valIAQ = run(PalsProcess.create(core, "java", argsQC), timeout);
+                    valIAQ = run(PalsProcess.create(core, "java", argsIAQ), timeout);
                     
                     
                     System.err.println("DEBUG ~ valQC ~ '"+valQC+"'");
@@ -194,7 +197,12 @@ public class JavaTestInputs
                         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                     }
                     else if(valQC.equals(valIAQ))
+                    {
                         correct++;
+                        icdata.setCorrect(row, true);
+                    }
+                    else
+                        icdata.setCorrect(row, false);
                     // Update output
                     icdata.setInput(row, inputsToStr(formattedInputs));
                     icdata.setOutput(row, valIAQ);
@@ -260,6 +268,17 @@ public class JavaTestInputs
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
+        // Load icdata
+        JavaTestInputs_InstanceCriteria icdata = (JavaTestInputs_InstanceCriteria)iac.getData();
+        if(icdata != null)
+        {
+            HashMap<String,Object> kvs = new HashMap<>();
+            kvs.put("result", icdata);
+            kvs.put("mark", iac.getMark());
+            kvs.put("input_mark", (1.0/icdata.getTests())*100.0);
+            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestinputs_display"));
+            return true;
+        }
         return false;
     }
 }

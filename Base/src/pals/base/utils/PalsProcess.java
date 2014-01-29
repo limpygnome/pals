@@ -96,8 +96,6 @@ public class PalsProcess
      */
     public static PalsProcess create(NodeCore core, String fullPath, String args)
     {
-        // Escape quotes in args
-        args = args.replace("\"", "\\\"");
         // Fetch credentials
         String username = core.getSettings().getStr("processes/credentials/username");
         String password = core.getSettings().getStr("processes/credentials/password");
@@ -111,6 +109,8 @@ public class PalsProcess
                 case Windows:
                     // Calculate absolute path to tool for switching users
                     File f = new File(core.getSettings().getStr("tools/windows_user_tool/path"));
+                    // Escape args
+                    args = args.replace("\"", "\\\"");
                     // Execute
                     System.out.println("\""+f.getCanonicalPath()+"\" \""+username+"\" \""+password+"\" \""+core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 10000)+"\" \""+fullPath+"\" \""+args+"\"");
                     pb.command("\""+f.getCanonicalPath()+"\" \""+username+"\" \""+password+"\" \""+core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 10000)+"\" \""+fullPath+"\" \""+args+"\"");

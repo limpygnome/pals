@@ -11,11 +11,13 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     // Fields ******************************************************************
     private String[]    input;
     private String[]    output;
+    private boolean[]   correct;
     // Methods - Constructors **************************************************
     public JavaTestInputs_InstanceCriteria(int numberOfTests)
     {
         input = new String[numberOfTests];
         output = new String[numberOfTests];
+        correct = new boolean[numberOfTests];
     }
     // Methods - Mutators ******************************************************
     /**
@@ -33,6 +35,14 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     public void setOutput(int index, String value)
     {
         output[index] = value;
+    }
+    /**
+     * @param index The index of the test.
+     * @param correct Sets if the test is correct (true) or not (false).
+     */
+    public void setCorrect(int index, boolean correct)
+    {
+        this.correct[index] = correct;
     }
     // Methods - Accessors *****************************************************
     /**
@@ -57,5 +67,13 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     public int getTests()
     {
         return input.length;
+    }
+    /**
+     * @param index The index of the test.
+     * @return Indicates if the test was correct.
+     */
+    public boolean isCorrect(int index)
+    {
+        return correct[index];
     }
 }

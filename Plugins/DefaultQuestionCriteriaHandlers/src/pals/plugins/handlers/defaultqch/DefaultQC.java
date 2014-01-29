@@ -26,7 +26,7 @@ import pals.base.web.WebRequestData;
 public class DefaultQC extends Plugin
 {
     // Fields - Constants ******************************************************
-    private static final String LOGGING_ALIAS = "Default QC";
+    public static final String LOGGING_ALIAS = "Default QC";
     // Methods - Constructors **************************************************
     public DefaultQC(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
     {

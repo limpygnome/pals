@@ -1,0 +1,47 @@
+<table class="table3 jti">
+    <tr>
+        <th>#</th>
+        <th>Input</th>
+        <th>Output</th>
+        <th>Mark</th>
+    </tr>
+    <#list 0..result.getTests()-1 as i>
+        <tr class="<#if result.isCorrect(i)>jti_correct<#else>jti_incorrect</#if>">
+            <td>
+                ${i+1}
+            </td>
+            <td>
+                ${result.getInput(i)?html}
+            </td>
+            <td>
+                ${result.getOutput(i)?html}
+            </td>
+            <td>
+                <#if result.isCorrect(i)>
+                    ${input_mark?c}%
+                <#else>
+                    0%
+                </#if>
+            </td>
+        </tr>
+    </#list>
+    <tr>
+        <td colspan="2"></td>
+        <td>Sum:</td>
+        <td>${mark?string}%</td>
+    </tr>
+</table>
+
+<#if mark == 100>
+    <p class="success">
+        All inputs correctly produced output.
+    </p>
+<#elseif (mark > 0)>
+    <p class="warning">
+        Some inputs produced incorrect outputs.
+    </p>
+<#else>
+    <p class="error">
+        No inputs produced correct output.
+    </p>
+</#if>

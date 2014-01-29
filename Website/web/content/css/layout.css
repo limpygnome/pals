@@ -597,4 +597,35 @@ body
 {
 	border: solid 0.1em #CCC;
 }
+/* CodeJava ~ Java Inputs Table */
+.jti tr th:nth-child(1), .jti tr td:nth-child(1),
+.jti tr th:nth-child(4), .jti tr td:nth-child(4)
+{
+	width: 2em;
+}
+.jti tr th:nth-child(2), .jti tr td:nth-child(2)
+{
+	width: 12em;
+}
+.jti tr th:nth-child(3), .jti tr td:nth-child(3)
+{
+	width: 26em;
+}
+.jti_correct td
+{
+	background: #9F9;
+}
+.jti_incorrect td
+{
+	background: #FCC;
+}
+.jti tr:last-child td:nth-child(2)
+{
+	width: auto !important;
+	text-align: right;
+}
+.jti tr:last-child td:nth-child(3)
+{
+	width: auto !important;
+}
 
