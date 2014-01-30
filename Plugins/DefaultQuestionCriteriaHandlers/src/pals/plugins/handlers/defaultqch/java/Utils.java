@@ -2,6 +2,7 @@ package pals.plugins.handlers.defaultqch.java;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -12,10 +13,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import pals.base.NodeCore;
-import pals.base.Storage;
-import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.web.WebRequestData;
-import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 
 /**
  * A utilities class for handling Java.
