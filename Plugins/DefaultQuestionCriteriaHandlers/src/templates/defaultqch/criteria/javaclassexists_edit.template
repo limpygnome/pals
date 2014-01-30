@@ -12,7 +12,7 @@
                 Title:
             </td>
             <td>
-                <input type="text" name="crit_title" value="${crit_title}" />
+                <input type="text" name="crit_title" value="${crit_title?html}" />
             </td>
         </tr>
         <tr>
@@ -20,7 +20,7 @@
                 Weight:
             </td>
             <td>
-                <input type="text" name="crit_weight" value="${crit_weight}" />
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
             </td>
         </tr>
         <tr>
@@ -28,9 +28,40 @@
                 Class Name:
             </td>
             <td>
-                <input type="text" name="crit_class_name" value="<#if crit_class_name??>${crit_class_name}</#if>" />
+                <input type="text" name="crit_class_name" value="<#if crit_class_name??>${crit_class_name?html}</#if>" />
             </td>
         </tr>
+        <#if crit_mode == 2>
+            <tr>
+                <td>
+                    Method:
+                </td>
+                <td>
+                    <input type="text" name="crit_method" value="<#if crit_method??>${crit_method?html}</#if>" />
+                </td>
+            </tr>
+            <tr>
+                <th colspan="2">
+                    Method Specifics
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    Parameters:
+                </td>
+                <td>
+                    <textarea name="crit_method_params" rows="5"><#if crit_method_params??>${crit_method_params?html}</#if></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Return Type:
+                </td>
+                <td>
+                    <input type="text" name="crit_method_rt" value="<#if crit_method_rt??>${crit_method_rt?html}</#if>" />
+                </td>
+            </tr>
+        </#if>
         <tr>
             <th colspan="2">
                 Modifiers
@@ -55,13 +86,18 @@
             <td colspan="2">
                 <input type="checkbox" name="crit_mod_abstract" value="1" <#if crit_mod_abstract>checked</#if> /> Abstract    <br />
                 <input type="checkbox" name="crit_mod_final" value="1" <#if crit_mod_final>checked</#if> /> Final       <br />
-                <input type="checkbox" name="crit_mod_interface" value="1" <#if crit_mod_interface>checked</#if> /> Interface   <br />
                 <input type="checkbox" name="crit_mod_native" value="1" <#if crit_mod_native>checked</#if> /> Native      <br />
                 <input type="checkbox" name="crit_mod_private" value="1" <#if crit_mod_private>checked</#if> /> Private     <br />
                 <input type="checkbox" name="crit_mod_protected" value="1" <#if crit_mod_protected>checked</#if> /> Protected   <br />
                 <input type="checkbox" name="crit_mod_public" value="1" <#if crit_mod_public>checked</#if> /> Public      <br />
                 <input type="checkbox" name="crit_mod_static" value="1" <#if crit_mod_static>checked</#if> /> Static      <br />
-                <input type="checkbox" name="crit_mod_strict" value="1" <#if crit_mod_strict>checked</#if> /> Strict (strictfp)
+                <#if crit_mode == 1>
+                    <input type="checkbox" name="crit_mod_interface" value="1" <#if crit_mod_interface>checked</#if> /> Interface   <br />
+                    <input type="checkbox" name="crit_mod_strict" value="1" <#if crit_mod_strict>checked</#if> /> Strict (strictfp)     <br />
+                </#if>
+                <#if crit_mode == 2>
+                    <input type="checkbox" name="crit_mod_sync" value="1" <#if crit_mod_sync>checked</#if> /> Synchronized      <br />
+                </#if>
             </td>
         </tr>
         <tr>
@@ -83,5 +119,16 @@
 <#if success??>
     <p class="success">
         ${success}
+    </p>
+</#if>
+
+<#if crit_mode == 2>
+    <p>
+        Note: for method parameters, you should specify the full class-name of each parameter on each line,
+        in the same order they are passed.
+    </p>
+    <p>
+        Note 2: for the return-type; you should specify the full class-name of the returned class. Leave this
+        empty for void.
     </p>
 </#if>

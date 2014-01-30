@@ -5,8 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.TreeSet;
 import pals.base.NodeCore;
 
 /**
@@ -17,15 +18,28 @@ public class Misc
     /**
      * @param array Array of items.
      * @return Array of unique items; excludes null and empty elements too.
+     * The items are also ordered.
      */
     public static String[] arrayStringUnique(String[] array)
     {
-        HashSet<String> buffer = new HashSet<>();
+        TreeSet<String> buffer = new TreeSet<>();
         for(String s : array)
         {
             if(s != null && s.length() > 0)
                 buffer.add(s);
         }
+        return buffer.toArray(new String[buffer.size()]);
+    }
+    /**
+     * @param array Array of items.
+     * @return Array of items with no empty or null items.
+     */
+    public static String[] arrayStringNonEmpty(String[] array)
+    {
+        ArrayList<String> buffer = new ArrayList<>();
+        for(String s : array)
+            if(s != null && s.length() > 0)
+                buffer.add(s);
         return buffer.toArray(new String[buffer.size()]);
     }
     /**

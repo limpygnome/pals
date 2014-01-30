@@ -54,6 +54,48 @@ public class Utils
         return null;
     }
     /**
+     * @param fullName The full name of the class to parse.
+     * @return The class of the full-name; supports primitives simply by
+     * their name, as well as String by its short name.
+     */
+    public static Class parseClass(String fullName)
+    {
+        if(fullName == null)
+            return null;
+        switch(fullName)
+        {
+            case "byte":
+                return byte.class;
+            case "short":
+                return short.class;
+            case "int":
+                return int.class;
+            case "long":
+                return long.class;
+            case "float":
+                return float.class;
+            case "double":
+                return double.class;
+            case "boolean":
+            case "bool":
+                return boolean.class;
+            case "char":
+                return char.class;
+            case "String":
+            case "string":
+                return String.class;
+            default:
+                try
+                {
+                    return Class.forName(fullName);
+                }
+                catch(ClassNotFoundException ex)
+                {
+                    return null;
+                }
+        }
+    }
+    /**
      * Compiles the code for a question.
      * 
      * @param core  The current instance of the core.

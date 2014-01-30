@@ -19,14 +19,14 @@ public class JavaMethodExists
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
-        return false;
+        return JavaExistsShared.pageCriteriaEdit(data, qc, JavaExistsShared.CriteriaType.Method);
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
-        return false;
+        return JavaExistsShared.criteriaMarking(conn, core, iac, JavaExistsShared.CriteriaType.Method);
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
-        return false;
+        return JavaExistsShared.criteriaDisplay(data, ia, iaq, iac, html, JavaExistsShared.CriteriaType.Method);
     }
 }
