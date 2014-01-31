@@ -8,6 +8,7 @@ import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
@@ -28,9 +29,9 @@ public class DefaultQC extends Plugin
     // Fields - Constants ******************************************************
     public static final String LOGGING_ALIAS = "Default QC";
     // Methods - Constructors **************************************************
-    public DefaultQC(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public DefaultQC(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override

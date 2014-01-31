@@ -22,7 +22,11 @@ CREATE TABLE pals_plugins
 	-- The state of the plugin (refer to pals.base.Plugin.DbPluginState).
 	state				INT					DEFAULT 0,
 	-- Indicates the plugin is a system-type (boolean); if so, it should not be removable.
-	system				VARCHAR(1) 			DEFAULT 0
+	system				VARCHAR(1) 			DEFAULT 0,
+	-- The plugin version
+	version_major		INT					NOT NULL,
+	version_minor		INT					NOT NULL,
+	version_build		INT					NOT NULL
 );
 -- Instances of HTTP sessions, used to store data between requests of web-users.
 CREATE TABLE pals_http_sessions

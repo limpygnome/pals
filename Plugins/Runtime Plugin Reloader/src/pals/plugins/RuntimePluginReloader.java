@@ -12,6 +12,7 @@ import pals.base.Settings;
 import pals.base.Storage;
 import pals.base.TemplateItem;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.utils.JarIO;
@@ -33,9 +34,9 @@ public class RuntimePluginReloader extends pals.base.Plugin
     private FileAlterationMonitor   filesMonitorTemplates;
     private FileAlterationListener  filesListenerTemplates;
     // Methods - Constructors **************************************************
-    public RuntimePluginReloader(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public RuntimePluginReloader(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
     }
 
     // Methods - Event Handlers ************************************************

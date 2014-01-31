@@ -354,6 +354,17 @@ public class PluginManager
                     return PluginLoad.Failed;
                 }
             }
+            // Parse version
+            Version version;
+            try
+            {
+                version = new Version(ps.getInt("plugin/version/major"), ps.getInt("plugin/version/minor"), ps.getInt("plugin/version/build"));
+            }
+            catch(IllegalArgumentException ex)
+            {
+                core.getLogging().logEx(LOGGING_ALIAS, "Failed to parse version data for plugin at '"+jarPath+"' [" + uuid.getHexHyphens() + "].", ex, Logging.EntryType.Error);
+                return PluginLoad.Failed;
+            }
             // Open jar at new location
             jar = JarIO.open(pathNew + "/plugin.jar", fileDependencies.toArray(new String[fileDependencies.size()]));
             // Fetch the plugin class and load an instance into the runtime
@@ -366,7 +377,7 @@ public class PluginManager
             }
             Class c = jar.fetchClassType(classPath);
             // -- Create a new instance
-            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, JarIO.class, Settings.class, String.class).newInstance(core, uuid, jar, ps, jarPath);
+            Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, JarIO.class, Version.class, Settings.class, String.class).newInstance(core, uuid, jar, version, ps, jarPath);
             // Check the state of the plugin
             try
             {
@@ -375,13 +386,32 @@ public class PluginManager
                 conn.tableLock("pals_plugins", false);
                 // Retrieve the state
                 boolean failed = false, rejected = false, exists = false;
-                Result res = conn.read("SELECT state FROM pals_plugins WHERE uuid_plugin=?;", p.getUUID().getBytes());
+                Result res = conn.read("SELECT state, version_major, version_minor, version_build FROM pals_plugins WHERE uuid_plugin=?;", p.getUUID().getBytes());
                 DbPluginState s = DbPluginState.PendingInstall;
                 if(res.next())
                 {
                     exists = true;
                     // Check the state
                     s = DbPluginState.getType((int)res.get("state"));
+                    // Parse database version
+                    Version dbv;
+                    try
+                    {
+                        dbv = new Version((int)res.get("version_major"), (int)res.get("version_minor"), (int)res.get("version_build"));
+                    }
+                    catch(IllegalArgumentException ex)
+                    {
+                        core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - could not parse database version.", Logging.EntryType.Error);
+                        jar.dispose();
+                        return PluginLoad.Failed;
+                    }
+                    // Check the version is correct, if it exists
+                    if(!dbv.equals(version))
+                    {
+                        core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - version is different; expected '"+dbv+"', current '"+version+"'.", Logging.EntryType.Error);
+                        jar.dispose();
+                        return PluginLoad.Failed;
+                    }
                 }
                 // Handle state
                 DbPluginState newState = s;
@@ -394,7 +424,7 @@ public class PluginManager
                         if(!exists)
                         {
                             // Create plugin record
-                            conn.execute("INSERT INTO pals_plugins (uuid_plugin, title, state, system) VALUES(?,?,?,?);", p.getUUID().getBytes(), p.getTitle(), DbPluginState.PendingInstall.val, p.isSystemPlugin() ? "1" : "0");
+                            conn.execute("INSERT INTO pals_plugins (uuid_plugin, title, state, system, version_major, version_minor, version_build) VALUES(?,?,?,?,?,?,?);", p.getUUID().getBytes(), p.getTitle(), DbPluginState.PendingInstall.val, p.isSystemPlugin() ? "1" : "0", version.getMajor(), version.getMinor(), version.getBuild());
                             core.getLogging().log(LOGGING_ALIAS, "Plugin '" + p.getTitle() + "' [" + uuid.getHexHyphens() + "] - added to the database.", Logging.EntryType.Info);
                         }
                         // Run installation of plugin
@@ -483,7 +513,7 @@ public class PluginManager
                 jar.dispose();
                 return PluginLoad.Failed;
             }
-            core.getLogging().log(LOGGING_ALIAS, "Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "].", Logging.EntryType.Info);
+            core.getLogging().log(LOGGING_ALIAS, "Loaded plugin '" + p.getTitle() + "' ('" + jarPath + "')[" + uuid.getHexHyphens() + "][v"+version+"].", Logging.EntryType.Info);
             return PluginLoad.Loaded;
         }
         catch(SettingsException ex)

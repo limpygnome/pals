@@ -19,12 +19,14 @@ public class Plugin
     private final NodeCore      core;           // The current instance of the core.
     protected final Settings    settings;       // The plugin's settings (read-only).
     private final String        jarLocation;    // The location of where the plugin was loaded.
+    private final Version       version;        // The version of the plugin.
     // Methods - Constructors **************************************************
-    public Plugin(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarLocation)
+    public Plugin(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarLocation)
     {
-        this.jario = jario;
         this.core = core;
         this.uuid = uuid;
+        this.jario = jario;
+        this.version = version;
         this.settings = settings;
         this.jarLocation = jarLocation;
     }
@@ -181,5 +183,12 @@ public class Plugin
     public JarIO getJarIO()
     {
         return jario;
+    }
+    /**
+     * @return The version of the plugin.
+     */
+    public Version getVersion()
+    {
+        return version;
     }
 }

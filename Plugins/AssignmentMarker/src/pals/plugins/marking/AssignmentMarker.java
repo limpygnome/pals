@@ -5,6 +5,7 @@ import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.ThreadPool;
@@ -17,9 +18,9 @@ public class AssignmentMarker extends Plugin
     // Fields ******************************************************************
     private final ThreadPool<MarkerThread> threads;     // The threads for processing/marking work.
     // Methods - Constructors **************************************************
-    public AssignmentMarker(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public AssignmentMarker(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
         this.threads = new ThreadPool<>();
     }
     // Methods - Event Handlers ************************************************

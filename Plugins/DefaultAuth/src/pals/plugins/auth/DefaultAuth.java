@@ -9,6 +9,7 @@ import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.WebManager;
 import pals.base.auth.User;
 import pals.base.auth.UserGroup;
@@ -31,9 +32,9 @@ public class DefaultAuth extends Plugin
     private static final String SESSION_KEY__USERID = "defaultauth_userid";
     private static final String LOGGING_ALIAS = "DefaultAuth";
     // Methods - Constructors **************************************************
-    public DefaultAuth(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public DefaultAuth(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override

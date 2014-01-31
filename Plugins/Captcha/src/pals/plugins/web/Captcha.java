@@ -14,6 +14,7 @@ import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.WebManager;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
@@ -28,9 +29,9 @@ public class Captcha extends Plugin
     // Constants ***************************************************************
     private static final String SESSION_KEY__CAPTCHA = "captcha";
     // Methods - Constructors **************************************************
-    public Captcha(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public Captcha(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override

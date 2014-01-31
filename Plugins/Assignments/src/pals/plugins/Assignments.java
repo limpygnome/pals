@@ -8,6 +8,7 @@ import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
@@ -29,9 +30,9 @@ import pals.base.web.security.Escaping;
 public class Assignments extends Plugin
 {
     // Methods - Constructors **************************************************
-    public Assignments(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public Assignments(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override

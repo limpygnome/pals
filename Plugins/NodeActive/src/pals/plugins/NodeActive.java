@@ -4,6 +4,7 @@ import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 
@@ -16,9 +17,9 @@ public class NodeActive extends Plugin
     // Fields ******************************************************************
     private NodeActiveThread nat;
     // Methods - Constructor ***************************************************
-    public NodeActive(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public NodeActive(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
         nat = new NodeActiveThread(this);
     }
     @Override

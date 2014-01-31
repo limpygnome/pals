@@ -6,6 +6,7 @@ import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.WebManager;
 import pals.base.assessment.Assignment;
 import pals.base.assessment.Question;
@@ -26,9 +27,9 @@ import pals.plugins.web.Captcha;
 public class Questions extends Plugin
 {
     // Methods - Constructors **************************************************
-    public Questions(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public Questions(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
     }
     // Methods - Event Handlers ************************************************
     @Override

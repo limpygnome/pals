@@ -4,6 +4,7 @@ import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
 import pals.base.UUID;
+import pals.base.Version;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 
@@ -15,9 +16,9 @@ public class SessionCleaner extends Plugin
     // Fields ******************************************************************
     private SessionCleanerThread thread;
     // Methods - Constructors **************************************************
-    public SessionCleaner(NodeCore core, UUID uuid, JarIO jario, Settings settings, String jarPath)
+    public SessionCleaner(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
-        super(core, uuid, jario, settings, jarPath);
+        super(core, uuid, jario, version, settings, jarPath);
         thread = new SessionCleanerThread(this);
     }
     // Methods - Event Handlers ************************************************
