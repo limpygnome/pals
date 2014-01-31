@@ -104,6 +104,7 @@ public class PalsProcess
         try
         {
             OS os = getOS();
+            System.out.println("CURRENT OS ~ " + os.name());
             switch(os)
             {
                 case Windows:
@@ -116,7 +117,8 @@ public class PalsProcess
                     pb.command("\""+f.getCanonicalPath()+"\" \""+username+"\" \""+password+"\" \""+core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 10000)+"\" \""+fullPath+"\" \""+args+"\"");
                     break;
                 case Linux:
-                    pb.command("sshpass -p \""+password+"\" ssh "+username+"@localhost \""+fullPath+(args.length() > 0 ? " "+args : "")+"\"");
+                    System.out.println("sshpass -p \""+password+"\" ssh -o \"StrictHostKeyChecking no\" "+username+"@localhost "+fullPath.replace(" ", "\\ ")+(args.length() > 0 ? " "+args.replace(" ", "\\ ") : ""));
+                    pb.command("sshpass -p \""+password+"\" ssh -o \"StrictHostKeyChecking no\" "+username+"@localhost "+fullPath.replace(" ", "\\ ")+(args.length() > 0 ? " "+args.replace(" ", "\\ ") : ""));
                     break;
                 default:
                     return null;

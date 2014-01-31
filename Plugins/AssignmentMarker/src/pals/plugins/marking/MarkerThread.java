@@ -17,6 +17,8 @@ import pals.base.utils.ExtendedThread;
  */
 public class MarkerThread extends ExtendedThread
 {
+    // Constants ***************************************************************
+    private final String LOCK_TABLE = "pals_node_locking";
     // Fields ******************************************************************
     private final AssignmentMarker  marker; // Reference to the plugin.
     private final int               number; // The # / number of this thread (for diagnostics/debugging).
@@ -92,13 +94,13 @@ public class MarkerThread extends ExtendedThread
         conn.disconnect();
         marker.getCore().getLogging().log("Ass. Marker", "Thread "+number+" ending execution.", Logging.EntryType.Info);
     }
-    private synchronized boolean processWork(Connector conn, int timeout)
+    private boolean processWork(Connector conn, int timeout)
     {
         // Process assignments where the due-date has been surpassed and unhandled
         try
         {
             conn.execute("BEGIN;");
-            conn.tableLock("pals_assignment_instance_question_criteria", true);
+            conn.tableLock(LOCK_TABLE, true);
             // Fetch any unhandled surpassed assignments
             Result res = conn.read("SELECT assid FROM pals_assignment WHERE due_handled='0' AND due IS NOT NULL AND due < current_timestamp;");
             int assid;
@@ -129,7 +131,7 @@ public class MarkerThread extends ExtendedThread
         try
         {
             // Lock the table to fetch work
-            conn.tableLock("pals_assignment_instance_question_criteria", false);
+            conn.tableLock(LOCK_TABLE, false);
             // Fetch the next piece of work to do
             iac = InstanceAssignmentCriteria.loadNextWork(marker.getCore(), conn, timeout);
             // Unlock the table
@@ -170,7 +172,7 @@ public class MarkerThread extends ExtendedThread
                 {
                     boolean needsMarkComputed = false;
                     InstanceAssignment ia = iac.getIAQ().getInstanceAssignment();
-                    conn.tableLock("pals_assignment_instance_question_criteria", false);
+                    conn.tableLock(LOCK_TABLE, false);
                     if(ia.isMarkComputationNeeded(conn))
                     {
                         // Set the assignment to 'Marking'

@@ -557,12 +557,22 @@ body
 {
 	font-size: large;
 }
-.layout_body .assignment_question_mark
+.layout_body .assignment_question_mark,
+.layout_body .assignment_question_weight
 {
 	float: right;
 	font-size: large;
-	color: #0C0;
 	margin: 0.25em;
+	text-align: right;
+}
+.layout_body .assignment_question_mark
+{
+	width: 2.5em;
+	color: #0C0;
+}
+.layout_body .assignment_question_weight
+{
+	color: #CCC;
 }
 .layout_body .assignment_mark .red
 {
@@ -572,6 +582,20 @@ body
 {
 	margin: 0.5em;
 	border-bottom: solid 0.2em #CCC;
+}
+.layout_body .assignment_criterias .qc_weight,
+.layout_body .assignment_criterias .grade
+{
+	display: inline-block;
+}
+.layout_body .assignment_criterias .qc_weight
+{
+	margin-right: 0.5em;
+	color: #CCC;
+}
+.layout_body .assignment_criterias .grade
+{
+	width: 4em;
 }
 .layout_body .assignment_criterias.manual_marking
 {

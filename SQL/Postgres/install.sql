@@ -261,5 +261,6 @@ CREATE TABLE pals_assignment_instance_question_criteria
 	cdata				BYTEA,
 	PRIMARY KEY(aiqid, qcid)
 );
-
-
+CREATE TABLE pals_node_locking
+(
+);

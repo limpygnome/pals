@@ -10,6 +10,9 @@ import java.nio.charset.Charset;
  * Notes:
  * - MIME - Multipurpose Internet Mail Extensions; refer to RFC 1521:
  *   -- http://tools.ietf.org/html/rfc1521
+ * - Session private should be used to timeout the session, when idle; refer to
+ * the following for guidelines:
+ * https://www.owasp.org/index.php/Session_Management#Ensure_Idle.2C_absolute_timeouts_are_as_short_as_practical
  */
 public class RemoteResponse implements Serializable
 {
@@ -20,6 +23,7 @@ public class RemoteResponse implements Serializable
     public static final String DEFAULT_MIME_TYPE = "text/html;charset=UTF-8";
     // Fields ******************************************************************
     private String  sessionID;      // Session identifier.
+    private boolean sessionPrivate; // Indicates if the user session is private, and thus should expire after a longer duration.
     private byte[]  buffer;         // Response data to be written to the user.
     private String  responseType;   // The MIME response type of the data.
     private String  urlRedirect;    // Used for redirecting to a new URL.
@@ -28,6 +32,7 @@ public class RemoteResponse implements Serializable
     public RemoteResponse()
     {
         this.sessionID = null;
+        this.sessionPrivate = false;
         this.buffer = null;
         this.responseType = DEFAULT_MIME_TYPE;
         this.urlRedirect = null;
@@ -56,6 +61,14 @@ public class RemoteResponse implements Serializable
     public void setSessionID(String sessionID)
     {
         this.sessionID = sessionID;
+    }
+    /**
+     * @param sessionPrivate Sets if the user session is private, and thus
+     * should expire after a longer duration.
+     */
+    public void setSessionPrivate(boolean sessionPrivate)
+    {
+        this.sessionPrivate = sessionPrivate;
     }
     /**
      * @param responseType The MIME type of the response data; cannot be null.
@@ -95,6 +108,14 @@ public class RemoteResponse implements Serializable
     public String getSessionID()
     {
         return sessionID;
+    }
+    /**
+     * @return Indicates if the user session is private, and thus should expire
+     * after a longer duration.
+     */
+    public boolean isSessionPrivate()
+    {
+        return sessionPrivate;
     }
     /**
      * @return The MIME type of the response data.

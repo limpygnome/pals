@@ -7,7 +7,7 @@
 </#if>
 
 <form method="post">
-    <table class="table2">
+    <table class="table2 questions_form">
         <tr>
             <td>
                 Title:
@@ -82,7 +82,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">Back</a>
                 <input type="submit" value="Update" />
             </td>

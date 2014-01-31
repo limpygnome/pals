@@ -88,10 +88,15 @@ public class SandboxSecurityManager extends SecurityManager
                     case "line.separator":
                         switch(p.getActions())
                         {
-                            case "read":
-                                return;
+                            case "read":        return;
                         }
-                    break;
+                        break;
+                    case "java.protocol.handler.pkgs":
+                        switch(p.getActions())
+                        {
+                            case "read":        return;
+                        }
+                        break;
                 }
                 break;
             }

@@ -18,14 +18,17 @@
     <#list questions as question>
         <#if !capture_mode>
             <#if question.hasInstanceQuestion()>
-                <div class="assignment_question_mark" style="color: rgb(${((255*(100-question.getInstanceQuestion().getMark()))/100)?int}, ${((204*question.getInstanceQuestion().getMark())/100)?int},0);">
+                <div title="Question Grade" class="assignment_question_mark" style="color: rgb(${((255*(100-question.getInstanceQuestion().getMark()))/100)?int}, ${((204*question.getInstanceQuestion().getMark())/100)?int},0);">
                     ${question.getInstanceQuestion().getMark()?string}%
                 </div>
             <#else>
-                <div class="assignment_question_mark" style="color: rgb(255,0,0)">
+                <div title="Question Grade" class="assignment_question_mark" style="color: rgb(255,0,0)">
                     0
                 </div>
             </#if>
+            <div class="assignment_question_weight" title="Question Weight">
+                [${question.getInstanceQuestion().getAssignmentQuestion().getWeight()?c}]
+            </div>
         </#if>
         <h3>Question ${question.getNumber()?string}</h3>
         <#if !capture_mode>

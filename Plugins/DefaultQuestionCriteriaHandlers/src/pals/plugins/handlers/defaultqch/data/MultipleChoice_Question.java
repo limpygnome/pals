@@ -53,6 +53,8 @@ public class MultipleChoice_Question implements Serializable
         StringBuilder sb = new StringBuilder();
         for(String s : answers)
             sb.append(s).append("\n");
+        if(sb.length() > 0)
+            sb.deleteCharAt(sb.length()-1);
         return sb.toString();
     }
     /**

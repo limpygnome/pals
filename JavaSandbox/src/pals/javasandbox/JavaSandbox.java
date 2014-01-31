@@ -124,7 +124,11 @@ public class JavaSandbox
             {
                 srl.setWhiteListEnabled(true);
                 for(String className : whiteList.split(","))
+                {
                     srl.whiteListAdd(className);
+                    if(modeDebug)
+                        System.out.println("[DEBUG] Added class '"+className+"' to whitelist.");
+                }
                 if(modeDebug)
                     System.out.println("[DEBUG] Class white-listing has been enabled.");
             }
@@ -136,6 +140,12 @@ public class JavaSandbox
         try
         {
             c = srl.loadClass(args[1]);
+        }
+        catch(SecurityException ex)
+        {
+            System.err.println("Attempted to load restricted class '"+args[1]+"'.");
+            printDebugData(ex);
+            return;
         }
         catch(ClassNotFoundException ex)
         {
@@ -190,6 +200,12 @@ public class JavaSandbox
             Object obj = meth.invoke(null, objs);
             if(modeOutput)
                 System.out.println(obj != null ? obj : "null");
+        }
+        catch(SecurityException ex)
+        {
+            System.err.println("Attempted to perform prohibited action during runtime.");
+            printDebugData(ex);
+            return;
         }
         catch(IllegalAccessException ex)
         {

@@ -169,3 +169,6 @@
     test #3,6,36<br />
     test #4,7,49
 </p>
+<p>
+    The overall mark for the criteria is calculated by the fraction of inputs/outputs testing correct.
+</p>

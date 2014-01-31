@@ -25,6 +25,7 @@ public class WebManager
 {
     // Fields - Constants ******************************************************
     private static final String LOGGING_ALIAS = "PALS Web Man.";
+    private static final String DEFAULT_URL = "home";
     // Fields ******************************************************************
     private NodeCore    core;           // The current instance of the node core.
     private UrlTree     urls;           // Used for finding which plugins are used when forwarding requests.
@@ -87,7 +88,12 @@ public class WebManager
         try
         {
             // Fetch plugins capable of serving the request, else fetch pagenotfound handlers
-            UUID[] uuids = urls.getUUIDs(request.getRelativeUrl());
+            String relUrl = request.getRelativeUrl();
+            if(relUrl.length() == 0)
+            {
+                data.getRequestData().setRelativeUrl(relUrl = DEFAULT_URL);
+            }
+            UUID[] uuids = urls.getUUIDs(relUrl.length() > 0 ? relUrl : DEFAULT_URL);
             Plugin ph;
             boolean handled = false;
             for(UUID uuid : uuids)

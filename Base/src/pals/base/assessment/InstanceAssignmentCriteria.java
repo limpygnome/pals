@@ -293,7 +293,8 @@ public class InstanceAssignmentCriteria
                 }
                 catch(ClassNotFoundException | IOException ex)
                 {
-                    return null;
+                    System.err.println("[IAC WARNING] Could not deserialize data ~ "+ex.getMessage()+"~"+ex.getClass().getName()+" : core defined: "+(core != null));
+                    data = null;
                 }
             }
             else

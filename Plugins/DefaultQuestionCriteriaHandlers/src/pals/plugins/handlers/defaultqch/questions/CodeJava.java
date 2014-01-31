@@ -26,10 +26,8 @@ public class CodeJava
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
         // Load question data
-        CodeJava_Question qdata;
-        if(q.getData() != null)
-            qdata = q.getData();
-        else
+        CodeJava_Question qdata = (CodeJava_Question)q.getData();
+        if(q.getData() == null)
             qdata = new CodeJava_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -84,6 +82,9 @@ public class CodeJava
         CodeJava_Instance adata = (CodeJava_Instance)iaq.getData();
         if(adata == null)
             adata = new CodeJava_Instance();
+        // Ensure IAQ has been persisted; we'll need the identifier for compilation
+        if(!iaq.isPersisted() && iaq.persist(data.getConnector()) != InstanceAssignmentQuestion.PersistStatus.Success)
+            return false;
         // Delegate based on type
         switch(qdata.getType())
         {

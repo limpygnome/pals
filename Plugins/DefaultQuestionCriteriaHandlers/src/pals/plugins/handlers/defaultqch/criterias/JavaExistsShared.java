@@ -238,7 +238,7 @@ public class JavaExistsShared
                                 // Locate the method
                                 try
                                 {
-                                    Method m = c.getMethod(cdata.getMethod(), params);
+                                    Method m = c.getDeclaredMethod(cdata.getMethod(), params);
                                     if(m.getReturnType().equals(rt))
                                     {
                                         // Check modifiers

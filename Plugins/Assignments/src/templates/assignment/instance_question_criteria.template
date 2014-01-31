@@ -10,12 +10,13 @@
                     ${criteria.getQC().getTitle()?html}
                 </div>
                 <div class="right">
+                    <div class="qc_weight" title="Criteria Weight">[${criteria.getQC().getWeight()?c}]</div>
                     <#if edit_mode>
-                        <input type="text" class="textbox" name="criteria_${question.getInstanceQuestion().getAIQID()?c}_${criteria.getQC().getQCID()?c}" value="${criteria.getMark()?c}" />%
+                        <input type="text" class="grade textbox" name="criteria_${question.getInstanceQuestion().getAIQID()?c}_${criteria.getQC().getQCID()?c}" value="${criteria.getMark()?c}" />%
                     <#else>
-                        <span style="color: rgb(${((255*(100-criteria.getMark()))/100)?int}, ${((204*criteria.getMark())/100)?int},0);">
+                        <div title="Criteria Grade" class="grade" style="color: rgb(${((255*(100-criteria.getMark()))/100)?int}, ${((204*criteria.getMark())/100)?int},0);">
                             ${criteria.getMark()?string}%
-                        </span>
+                        </div>
                     </#if>
                 </div>
                 <div class="clear"></div>

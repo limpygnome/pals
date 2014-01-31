@@ -148,6 +148,7 @@ public class PALS_Servlet extends HttpServlet
             {
                 Cookie cookieSess = new Cookie(SESSION_COOKIE_NAME, dataResponse.getSessionID());
                 cookieSess.setPath("/");
+                cookieSess.setMaxAge(dataResponse.isSessionPrivate() ? 3600 : 600);
                 response.addCookie(cookieSess);
             }
             // -- Check for redirect

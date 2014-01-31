@@ -22,3 +22,5 @@ DROP TABLE IF EXISTS pals_assignment_questions					CASCADE;
 DROP TABLE IF EXISTS pals_assignment_instance 					CASCADE;
 DROP TABLE IF EXISTS pals_assignment_instance_question 			CASCADE;
 DROP TABLE IF EXISTS pals_assignment_instance_question_criteria	CASCADE;
+
+DROP TABLE IF EXISTS pals_node_locking							CASCADE;

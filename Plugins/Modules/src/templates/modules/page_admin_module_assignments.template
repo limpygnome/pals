@@ -41,7 +41,7 @@
                 </td>
                 <td>
                     <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
-                        View
+                        View / Attempts
                     </a>
                     &nbsp;
                     <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">

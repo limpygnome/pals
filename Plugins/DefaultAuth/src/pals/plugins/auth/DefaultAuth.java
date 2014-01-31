@@ -353,9 +353,11 @@ public class DefaultAuth extends Plugin
         if(data.getUser() != null)
             return false;
         // Check form data
-        RemoteRequest request = data.getRequestData();
-        String username = request.getField("username");
-        String password = request.getField("password");
+        RemoteRequest req = data.getRequestData();
+        String username = req.getField("username");
+        String password = req.getField("password");
+        String sessPrivate = req.getField("sess_private");
+        boolean sPrivate = sessPrivate != null && sessPrivate.equals("1");
         if(username != null && password != null)
         {
             User user;
@@ -378,6 +380,7 @@ public class DefaultAuth extends Plugin
                     // Correct! Setup the user and redirect to home
                     data.getSession().setAttribute(SESSION_KEY__USERID, user.getUserID());
                     data.setUser(user);
+                    data.getResponseData().setSessionPrivate(sPrivate);
                     data.getResponseData().setRedirectUrl("/");
                 }
                 else
@@ -388,7 +391,8 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("pals_title", "Account - Login");
         data.setTemplateData("pals_content", "default_auth/page_login");
         // -- Set fields
-        data.setTemplateData("login_username", Escaping.htmlEncode(username));
+        data.setTemplateData("login_username", username);
+        data.setTemplateData("sess_private", sPrivate);
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }

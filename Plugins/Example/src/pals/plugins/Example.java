@@ -8,6 +8,7 @@ import pals.base.UUID;
 import pals.base.WebManager;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
+import pals.base.web.MultipartUrlParser;
 import pals.base.web.WebRequestData;
 
 /**
@@ -89,14 +90,27 @@ public class Example extends pals.base.Plugin
     {
         return web.urlsRegister(this, new String[]
         {
+            "home",
             "hello_world"
         });
     }
     @Override
     public boolean eventHandler_webRequest(WebRequestData data)
     {
-        data.setTemplateData("pals_title", "Hello World!");
-        data.setTemplateData("pals_content", "test");
+        MultipartUrlParser mup = new MultipartUrlParser(data);
+        switch(mup.getPart(0))
+        {
+            case "hello_world":
+                data.setTemplateData("pals_title", "Hello World!");
+                data.setTemplateData("pals_content", "test");
+                break;
+            case "home":
+                data.setTemplateData("pals_title", "Welcome!");
+                data.setTemplateData("pals_content", "home");
+                break;
+            default:
+                return false;
+        }
         return true;
     }
     @Override

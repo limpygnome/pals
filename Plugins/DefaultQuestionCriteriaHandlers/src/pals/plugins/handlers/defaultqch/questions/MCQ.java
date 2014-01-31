@@ -22,10 +22,8 @@ public class MCQ
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
         // Load question data
-        MultipleChoice_Question qdata;
-        if(q.getData() != null)
-            qdata = q.getData();
-        else
+        MultipleChoice_Question qdata = (MultipleChoice_Question)q.getData();
+        if(qdata == null)
             qdata = new MultipleChoice_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();

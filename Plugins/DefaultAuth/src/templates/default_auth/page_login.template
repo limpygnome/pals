@@ -7,7 +7,7 @@
                 Username:
             </td>
             <td>
-                <input type="text" name="username" placeholder="Username..." value="${login_username}" />
+                <input type="text" name="username" placeholder="Username..." value="<#if login_username??>${login_username?html}</#if>" />
             </td>
         </tr>
         <tr>
@@ -16,6 +16,14 @@
             </td>
             <td>
                 <input type="password" name="password" placeholder="Password..." />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+            <td>
+                <input type="checkbox" name="sess_private" value="1" <#if sess_private?? && sess_private>checked</#if> /> Private Computer
             </td>
         </tr>
         <#include "../captcha_form">
@@ -30,6 +38,6 @@
 </form>
 <#if error??>
     <div class="error">
-        ${error}
+        ${error?html}
     </div>
 </#if>
