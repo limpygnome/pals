@@ -1,6 +1,5 @@
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import pals.base.Settings;
 import pals.base.SettingsException;
 import pals.base.Storage;
@@ -8,7 +7,6 @@ import pals.base.Storage;
 /**
  * Loads required settings when the context/web-app is started.
  */
-@WebListener()
 public class PALS_SettingsListener implements ServletContextListener
 {
     // Fields ******************************************************************

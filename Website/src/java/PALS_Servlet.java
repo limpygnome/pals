@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Random;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +31,6 @@ import pals.base.web.UploadedFile;
 /**
  * The servlet for handling web-requests to the PALS system.
  */
-@WebServlet(urlPatterns = {"/pals"})
 public class PALS_Servlet extends HttpServlet
 {
     // Enums *******************************************************************

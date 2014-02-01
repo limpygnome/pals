@@ -5,7 +5,11 @@
             30
         </session-timeout>
     </session-config>
-    <!-- The filter responsible for pushing requests to the PALS system -->
+    <!-- The listener responsible for loading settings when the application starts -->
+    <listener>
+        <listener-class>PALS_SettingsListener</listener-class>
+    </listener>
+    <!-- The filter responsible for pushing requests to the PALS system / url-rewriting -->
     <filter>
         <filter-name>RequestsFilter</filter-name>
         <filter-class>PALS_RequestsFilter</filter-class>
@@ -14,12 +18,13 @@
         <filter-name>RequestsFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <!-- The servlet for handling PAL requests -->
+    <!-- The servlet for communicating with nodes -->
     <servlet>
-        <servlet-name>RequestHandlerServlet</servlet-name>
+        <servlet-name>PalsServlet</servlet-name>
         <servlet-class>PALS_Servlet</servlet-class>
-        <!-- This shouldnt actually be required; this is just for Tomcat, or
-        another webserver, for manual mapping of servlets -->
-        <url-pattern>/home</url-pattern>
     </servlet>
+    <servlet-mapping>
+        <servlet-name>PalsServlet</servlet-name>
+        <url-pattern>/pals</url-pattern>
+    </servlet-mapping>
 </web-app>

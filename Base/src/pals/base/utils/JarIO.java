@@ -214,9 +214,10 @@ public class JarIO
     {
         try
         {
-            loader.close();
+            if(loader != null)
+                loader.close();
         }
-        catch(IOException ex)
+        catch(Exception ex)
         {
         }
         this.loader = null;

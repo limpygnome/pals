@@ -367,13 +367,19 @@ public class PluginManager
             }
             // Open jar at new location
             jar = JarIO.open(pathNew + "/plugin.jar", fileDependencies.toArray(new String[fileDependencies.size()]));
+            // Check we loaded the jar
+            if(jar == null)
+            {
+                core.getLogging().log(LOGGING_ALIAS, "Failed to load jar at '" + jarPath + "'.", Logging.EntryType.Warning);
+                return PluginLoad.FailedIrrelevant;
+            }
             // Fetch the plugin class and load an instance into the runtime
             String classPath = ps.getStr("plugin/classpath");
-            if(classPath == null)
+            if(classPath == null || classPath.length() == 0)
             {
-                core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Error);
+                core.getLogging().log(LOGGING_ALIAS, "Failed to load plugin at '" + jarPath + "' - no class-path specified.", Logging.EntryType.Warning);
                 jar.dispose();
-                return PluginLoad.Failed;
+                return PluginLoad.FailedIrrelevant;
             }
             Class c = jar.fetchClassType(classPath);
             // -- Create a new instance
