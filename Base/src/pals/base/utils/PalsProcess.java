@@ -2,6 +2,7 @@ package pals.base.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import pals.base.NodeCore;
 
 /**
@@ -38,6 +39,7 @@ public class PalsProcess
         }
         catch(IOException ex)
         {
+            System.err.println("PalsProcess ~ failed to start process ~ "+ex.getMessage());
             return false;
         }
     }
@@ -86,15 +88,33 @@ public class PalsProcess
             return OS.Unknown;
     }
     /**
+     * @param path A file-system path to be passed to the {@link #create(pals.base.NodeCore, java.lang.String, java.lang.String)}.
+     * @return A formatted path.
+     */
+    public static String formatPath(String path)
+    {
+        switch(getOS())
+        {
+            case Linux:
+                return path.replace(" ", "\\ ");
+            default:
+                return path;
+        }
+    }
+    /**
      * Creates a new process and applies the authentication specified in this
      * node's configuration/settings.
+     * 
+     * Warning:
+     * All paths, including fullPath and any paths in args, should be formatted
+     * with the method {@link #formatPath(java.lang.String)}.
      * 
      * @param core Current instance of the core.
      * @param fullPath The full path of the program  to execute.
      * @param args The arguments to be passed to the program.
      * @return The process created; null if it failed to be created.
      */
-    public static PalsProcess create(NodeCore core, String fullPath, String args)
+    public static PalsProcess create(NodeCore core, String fullPath, String[] args)
     {
         // Fetch credentials
         String username = core.getSettings().getStr("processes/credentials/username");
@@ -104,25 +124,42 @@ public class PalsProcess
         try
         {
             OS os = getOS();
-            System.out.println("CURRENT OS ~ " + os.name());
+            String[] cmd;
             switch(os)
             {
                 case Windows:
                     // Calculate absolute path to tool for switching users
                     File f = new File(core.getSettings().getStr("tools/windows_user_tool/path"));
                     // Escape args
-                    args = args.replace("\"", "\\\"");
-                    // Execute
-                    System.out.println("\""+f.getCanonicalPath()+"\" \""+username+"\" \""+password+"\" \""+core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 10000)+"\" \""+fullPath+"\" \""+args+"\"");
-                    pb.command("\""+f.getCanonicalPath()+"\" \""+username+"\" \""+password+"\" \""+core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 10000)+"\" \""+fullPath+"\" \""+args+"\"");
+                    cmd = new String[]
+                    {
+                        f.getCanonicalPath(),
+                        username,
+                        password,
+                        Integer.toString(core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 10000)),
+                        fullPath,
+                        windowsArgs(args)
+                    };                    
                     break;
                 case Linux:
-                    System.out.println("sshpass -p \""+password+"\" ssh -o \"StrictHostKeyChecking no\" "+username+"@localhost "+fullPath.replace(" ", "\\ ")+(args.length() > 0 ? " "+args.replace(" ", "\\ ") : ""));
-                    pb.command("sshpass -p \""+password+"\" ssh -o \"StrictHostKeyChecking no\" "+username+"@localhost "+fullPath.replace(" ", "\\ ")+(args.length() > 0 ? " "+args.replace(" ", "\\ ") : ""));
+                    cmd = new String[]
+                    {
+                        "/usr/bin/sshpass",
+                        "-p",
+                        password,
+                        "ssh",
+                        "-o",
+                        "StrictHostKeyChecking=no",
+                        username+"@localhost",
+                        fullPath
+                    };
+                    cmd = Misc.arrayMerge(String.class, cmd, args);
                     break;
                 default:
                     return null;
             }
+            printDebug(cmd);
+            pb.command(cmd);
         }
         catch(IOException ex)
         {
@@ -131,5 +168,27 @@ public class PalsProcess
         // Setup redirection
         pb.redirectErrorStream(true);
         return new PalsProcess(pb);
+    }
+    private static void printDebug(String[] args)
+    {
+        StringBuilder sb = new StringBuilder("[Debug][PalsProcess] Args: ");
+        if(args.length > 0)
+        {
+            for(String s : args)
+                sb.append("\"").append(s).append("\" ");
+            sb.deleteCharAt(sb.length()-1);
+        }
+        else
+            sb.append("[No arguments]");
+        System.err.println(sb.toString());
+    }
+    private static String windowsArgs(String[] args)
+    {
+        StringBuilder sb = new StringBuilder();
+        for(String s : args)
+            sb.append("\\\"").append(s).append("\\\" ");
+        if(sb.length() > 1)
+            sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
     }
 }

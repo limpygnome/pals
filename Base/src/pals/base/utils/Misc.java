@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeSet;
@@ -82,6 +83,25 @@ public class Misc
                 return true;
         }
         return false;
+    }
+    /**
+     * Merges two arrays.
+     * 
+     * @param <T> The type of the array.
+     * @param t The class of the type.
+     * @param arr1 Array to be merged.
+     * @param arr2 Array to be merged.
+     * @return The two arrays merged.
+     */
+    public static <T> T[] arrayMerge(Class t, T[] arr1, T[] arr2)
+    {
+        T[] buffer = (T[])Array.newInstance(t, arr1.length+arr2.length);
+        int i;
+        for(i = 0; i < arr1.length; i++)
+            buffer[i] = arr1[i];
+        for(i = 0; i < arr2.length; i++)
+            buffer[i+arr1.length] = arr2[i];
+        return buffer;
     }
     /**
      * Generates a random alpha-numeric string.

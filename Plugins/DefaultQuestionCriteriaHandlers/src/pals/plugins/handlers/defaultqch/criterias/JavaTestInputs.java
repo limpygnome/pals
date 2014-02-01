@@ -25,7 +25,6 @@ import pals.plugins.handlers.defaultqch.data.JavaTestInputs_Criteria;
 import pals.plugins.handlers.defaultqch.data.JavaTestInputs_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
-import pals.plugins.handlers.defaultqch.questions.CodeJava;
 
 /**
  * Handles text inputs criteria marking.
@@ -127,15 +126,11 @@ public class JavaTestInputs
             CodeJava_Question       qdata = (CodeJava_Question)iac.getQC().getQuestion().getData();
             JavaTestInputs_Criteria cdata = (JavaTestInputs_Criteria)iac.getQC().getData();
             if(idata == null || idata.getStatus() != CompilerResult.CompileStatus.Success)
-            {
                 iac.setMark(0);     // No answer data; no need to mark.
-                System.err.println("no data.");
-            }
             else if(qdata == null || cdata == null || cdata.getInputs().length == 0)
                 return false;       // Question or criteria has not been setup properly.
             else
             {
-                System.err.println("inside test.");
                 // Fetch path of compiled classes
                 String      pathQC = Storage.getPath_tempQC(core.getPathShared(), iac.getQC());
                 String      pathIAQ = Storage.getPath_tempIAQ(core.getPathShared(), iac.getIAQ());
@@ -162,13 +157,10 @@ public class JavaTestInputs
                 }
                 // Iterate each test input; test with student's and lecturer's code
                 JavaTestInputs_InstanceCriteria icdata = new JavaTestInputs_InstanceCriteria(inputs.length);
-                String argsQC, argsIAQ;
+                String[] argsQC, argsIAQ;
                 String valQC, valIAQ;
                 int correct = 0;
                 String[] formattedInputs;
-                
-                System.err.println("DEBUG ~ java sb ~ "+javaSandbox);
-                
                 for(int row = 0; row < inputs.length; row++)
                 {
                     // Format inputs
@@ -176,23 +168,13 @@ public class JavaTestInputs
                     // Build args for both
                     argsQC = Utils.buildJavaSandboxArgs(javaSandbox, pathQC, className, method, whiteList, true, timeoutJS, types, formattedInputs);
                     argsIAQ = Utils.buildJavaSandboxArgs(javaSandbox, pathIAQ, className, method, whiteList, true, timeoutJS, types, formattedInputs);
-                    
-                    System.err.println("DEBUG ~ argsQC ~ '"+argsQC+"'");
-                    System.err.println("DEBUG ~ argsIAQ ~ '"+argsIAQ+"'");
-                    
                     // Execute each process and capture output
                     valQC = run(PalsProcess.create(core, "java", argsQC), timeout);
                     valIAQ = run(PalsProcess.create(core, "java", argsIAQ), timeout);
-                    
-                    
-                    System.err.println("DEBUG ~ valQC ~ '"+valQC+"'");
-                    System.err.println("DEBUG ~ valIAQ ~ '"+valIAQ+"'");
-                    
-                    // Compare
+                    // Compare values
                     if(valIAQ == null || valQC == null)
                     {
                         // Something has gone wrong, set to manual marking
-                        System.err.println("DEBUG ~ failed null.");
                         iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
                         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                     }
@@ -211,8 +193,6 @@ public class JavaTestInputs
                 iac.setData(icdata);
                 // Calculate score
                 iac.setMark( (int)(((double)correct/(double)inputs.length)*100.0) );
-                
-                System.err.println("DEBUG ~ successfully finished.");
             }
         }
         iac.setStatus(InstanceAssignmentCriteria.Status.Marked);

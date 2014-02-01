@@ -13,6 +13,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import pals.base.NodeCore;
+import pals.base.utils.PalsProcess;
 import pals.base.web.WebRequestData;
 
 /**
@@ -171,36 +172,37 @@ public class Utils
      * @param inputs
      * @return 
      */
-    public static String buildJavaSandboxArgs(String javaSandboxPath, String directory, String className, String method, String[] whiteListedClasses, boolean outputValue, int timeout, String[] inputTypes, String[] inputs)
+    public static String[] buildJavaSandboxArgs(String javaSandboxPath, String directory, String className, String method, String[] whiteListedClasses, boolean outputValue, int timeout, String[] inputTypes, String[] inputs)
     {
         if(inputTypes.length != inputs.length)
             throw new IllegalArgumentException();
         
-        StringBuilder sb = new StringBuilder();
-        sb.append("-jar \"").append(javaSandboxPath).append("\" ");
-        // -- Directory
-        sb.append("\"").append(directory).append("\" ");
-        // -- Class
-        sb.append("\"").append(className).append("\" ");
-        // -- Method
-        sb.append("\"").append(method).append("\" ");
-        // -- White-listed classes
-        if(whiteListedClasses.length > 0)
-        {
-            sb.append("\"");
-            for(String c : whiteListedClasses)
-                sb.append(c).append(",");
-            sb.deleteCharAt(sb.length()-1).append("\" ");
-        }
-        else
-            sb.append("\"0\" ");
-        // -- Output mode
-        sb.append("\"").append(outputValue ? "1" : "0").append("\" ");
-        // -- Timeout
-        sb.append("\"").append(timeout).append("\" ");
-        // -- Inputs/args
+        final int BASE_ARGS = 8;
+        String[] buffer = new String[BASE_ARGS+inputs.length];
+        // Setup base args
+        buffer[0] = "-jar";
+        buffer[1] = PalsProcess.formatPath(javaSandboxPath);
+        buffer[2] = PalsProcess.formatPath(directory);
+        buffer[3] = className;
+        buffer[4] = method;
+        buffer[5] = buildJavaSandboxArgs_whiteList(whiteListedClasses);
+        buffer[6] = outputValue ? "1" : "0";
+        buffer[7] = Integer.toString(timeout);
+        // Setup input args
         for(int i = 0; i < inputs.length; i++)
-            sb.append("\"").append(inputTypes[i]).append("=").append(inputs[i]).append("\" ");
-        return sb.deleteCharAt(sb.length()-1).toString();
+        {
+            buffer[BASE_ARGS+i] = inputTypes[i]+"="+inputs[i];
+        }
+        return buffer;
+    }
+    private static String buildJavaSandboxArgs_whiteList(String[] whiteListedClasses)
+    {
+        if(whiteListedClasses.length == 0)
+            return "0";
+        StringBuilder sb = new StringBuilder();
+        for(String s : whiteListedClasses)
+            sb.append(s).append(',');
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
     }
 }
