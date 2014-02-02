@@ -15,7 +15,9 @@ import pals.base.web.WebRequestData;
 public class JavaClassExists
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("0ce02a08-9d6d-4d1d-bd8d-536d60fc1b65");
+    public static final UUID    UUID_CTYPE = UUID.parse("0ce02a08-9d6d-4d1d-bd8d-536d60fc1b65");
+    public static final String  TITLE = "Java: Class Exists";
+    public static final String  DESCRIPTION = "Checks the existence and modifiers of a class.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

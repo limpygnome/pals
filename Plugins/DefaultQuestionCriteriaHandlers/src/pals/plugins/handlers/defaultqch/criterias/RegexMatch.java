@@ -26,7 +26,9 @@ import pals.plugins.handlers.defaultqch.questions.WrittenResponse;
 public class RegexMatch
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("3e6518e8-bb13-4878-bb4c-c0d687ad2e6e");
+    public static final UUID    UUID_CTYPE = UUID.parse("3e6518e8-bb13-4878-bb4c-c0d687ad2e6e");
+    public static final String  TITLE = "Regex Match";
+    public static final String  DESCRIPTION = "Gives marks based on a regular-expression match.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

@@ -381,7 +381,7 @@ public class DefaultAuth extends Plugin
                     // Correct! Setup the user and redirect to home
                     data.getSession().setAttribute(SESSION_KEY__USERID, user.getUserID());
                     data.setUser(user);
-                    data.getResponseData().setSessionPrivate(sPrivate);
+                    data.getSession().setIsPrivate(sPrivate);
                     data.getResponseData().setRedirectUrl("/");
                 }
                 else

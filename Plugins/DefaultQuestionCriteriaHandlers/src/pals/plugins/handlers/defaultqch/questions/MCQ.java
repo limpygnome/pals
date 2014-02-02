@@ -17,7 +17,9 @@ import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
 public class MCQ
 {
     // Constants ***************************************************************
-    public static final UUID UUID_QTYPE = UUID.parse("f38c3f28-4f63-49b5-994c-fd618c654de0");
+    public static final UUID    UUID_QTYPE = UUID.parse("f38c3f28-4f63-49b5-994c-fd618c654de0");
+    public static final String  TITLE = "Multiple Choice/Response";
+    public static final String  DESCRIPTION = "Allows students to pick an answer, or multiple answers, from a set of possible choices.";
     // Methods *****************************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {

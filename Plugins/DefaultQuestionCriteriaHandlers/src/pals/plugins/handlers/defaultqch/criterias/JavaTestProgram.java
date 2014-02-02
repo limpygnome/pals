@@ -10,14 +10,14 @@ import pals.base.database.Connector;
 import pals.base.web.WebRequestData;
 
 /**
- * Handles code text-metrics criteria marking.
+ * A criteria for testing a program.
  */
-public class JavaCodeMetrics
+public class JavaTestProgram
 {
     // Constants ***************************************************************
-    public static final UUID    UUID_CTYPE = UUID.parse("5855d34f-cf37-435f-bddd-0dbfcea72fd7");
-    public static final String  TITLE = "Java: Code Metrics";
-    public static final String  DESCRIPTION = "Performs static analysis on code using metrics.";
+    public static final UUID    UUID_CTYPE = UUID.parse("5ed0135a-f438-4487-ba24-6c7acd4c48ae");
+    public static final String  TITLE = "Java: Test Program";
+    public static final String  DESCRIPTION = "Performs dynamic analysis of a program using standard input/output.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

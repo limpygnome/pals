@@ -18,7 +18,9 @@ import pals.base.web.security.CSRF;
 public class ManualMarking
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("03830aa9-39d7-4bfe-9ab5-a9c765e6e426");
+    public static final UUID    UUID_CTYPE = UUID.parse("03830aa9-39d7-4bfe-9ab5-a9c765e6e426");
+    public static final String  TITLE = "Manual Marking/Feedback";
+    public static final String  DESCRIPTION = "Allows a marker to provide manual feedback for a question.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

@@ -15,7 +15,9 @@ import pals.base.web.WebRequestData;
 public class JavaMethodExists
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("1746eb7b-eda5-45ee-8c45-699f7d0a6d0c");
+    public static final UUID    UUID_CTYPE = UUID.parse("1746eb7b-eda5-45ee-8c45-699f7d0a6d0c");
+    public static final String  TITLE = "Java: Method Exists";
+    public static final String  DESCRIPTION = "Checks the existence and modifiers of a method.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

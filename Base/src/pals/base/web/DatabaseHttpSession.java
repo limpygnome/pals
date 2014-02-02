@@ -52,9 +52,9 @@ public class DatabaseHttpSession
         Removed,
     }
     // Constants ***************************************************************
-    private static final Random rng;                    // RNG for session IDs - made final to protect seed value; else a generated ID could be guessed (theoretically).
-    private static final int    ID_SIZE = 512;          // The maximum length (bytes) of a session identifier.
-    private static final int    KEY_LENGTH_MAX = 32;    // The maximum length of a key.
+    private static final Random rng;                        // RNG for session IDs - made final to protect seed value; else a generated ID could be guessed (theoretically).
+    private static final int    ID_SIZE = 512;              // The maximum length (bytes) of a session identifier.
+    private static final int    KEY_LENGTH_MAX = 32;        // The maximum length of a key.
     static
     {
         // Create new RNG using a very unique seed
@@ -68,13 +68,15 @@ public class DatabaseHttpSession
     private final HashMap<String,Object>        data;       // A copy of the session data retrieved from the server.
     private final HashMap<String,SValueChange>  changes;    // Tracks the type of changes (value) of attributes (key).
     private final String                        ipAddress;  // The IP address of the session; further protects against brute-forcing of the session ID.
+    private boolean                             isPrivate;  // Indicates if the session is private.
     // Methods - Constructors **************************************************
-    private DatabaseHttpSession(String ipAddress)
+    private DatabaseHttpSession(String ipAddress, boolean isPrivate)
     {
         this.sessid = null;
         this.data = new HashMap<>();
         this.changes = new HashMap<>();
         this.ipAddress = ipAddress;
+        this.isPrivate = isPrivate;
     }
     // Methods - Static ********************************************************
     /**
@@ -99,7 +101,7 @@ public class DatabaseHttpSession
         if(ipAddress == null || ipAddress.length() == 0)
             throw new IllegalArgumentException("Attempted to create a DatabaseHttpSession with an invalid IP address!");
         // Create instance of the session object
-        DatabaseHttpSession session = new DatabaseHttpSession(ipAddress);
+        DatabaseHttpSession session = new DatabaseHttpSession(ipAddress, false);
         // Parse session ID (else generate a new one)
         if(base64id != null)
         {
@@ -112,11 +114,12 @@ public class DatabaseHttpSession
         if(session.sessid != null)
         {
             // Check the session belongs to the IP
-            Result sess = conn.read("SELECT ip FROM pals_http_sessions WHERE ip=? AND sessid =?;", ipAddress, session.sessid);
+            Result sess = conn.read("SELECT ip, private FROM pals_http_sessions WHERE ip=? AND sessid =?;", ipAddress, session.sessid);
             if(!sess.next() || !ipAddress.equals(sess.get("ip")))
                 session.sessid = null;
             else
             {
+                session.isPrivate = ((String)sess.get("private")).equals("1");
                 // Load a snapshot of the session data
                 Result sessionData = conn.read("SELECT key, data FROM pals_http_session_data WHERE sessid=?;", session.sessid);
                 ByteArrayInputStream deserialBais;
@@ -162,12 +165,12 @@ public class DatabaseHttpSession
         if((long)conn.executeScalar("SELECT COUNT(sessid) FROM pals_http_sessions WHERE sessid=? AND ip=?;", sessid, ipAddress) == 0)
         {
             // Create session record
-            conn.execute("INSERT INTO pals_http_sessions (sessid, creation, last_active, ip) VALUES(?,current_timestamp,current_timestamp,?);", sessid, ipAddress);
+            conn.execute("INSERT INTO pals_http_sessions (sessid, creation, last_active, ip, private) VALUES(?,current_timestamp,current_timestamp,?,?);", sessid, ipAddress, isPrivate ? "1" : "0");
         }
         else
         {
             // Update the time of last-active to now
-            conn.execute("UPDATE pals_http_sessions SET last_active=current_timestamp WHERE sessid=?;", sessid);
+            conn.execute("UPDATE pals_http_sessions SET last_active=current_timestamp, private=? WHERE sessid=?;", isPrivate ? "1" : "0", sessid);
         }
         // Persist changed session data
         Object k;
@@ -285,32 +288,40 @@ public class DatabaseHttpSession
         else
             changes.put(key, SValueChange.Removed);
     }
+    /**
+     * @param isPrivate Indicates if the session should be marked with a private
+     * flag.
+     */
+    public synchronized void setIsPrivate(boolean isPrivate)
+    {
+        this.isPrivate = isPrivate;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Indicates if the session is empty.
      */
-    public boolean isEmpty()
+    public synchronized boolean isEmpty()
     {
         return data.isEmpty();
     }
     /**
      * @return The number of session attributes.
      */
-    public int size()
+    public synchronized int size()
     {
         return data.size();
     }
     /**
      * @return The session ID.
      */
-    public byte[] getId()
+    public synchronized byte[] getId()
     {
         return sessid;
     }
     /**
      * @return The session ID, as a base-64 string.
      */
-    public String getIdBase64()
+    public synchronized String getIdBase64()
     {
         return Base64.encodeBase64String(sessid);
     }
@@ -318,7 +329,7 @@ public class DatabaseHttpSession
      * @param key The key to check.
      * @return True = exists, false = does not exist.
      */
-    public boolean contains(String key)
+    public synchronized boolean contains(String key)
     {
         return data.containsKey(key);
     }
@@ -329,15 +340,22 @@ public class DatabaseHttpSession
      * @param key The key of the attribute.
      * @return The value/instance of the attribute; can be null.
      */
-    public <T extends Serializable> T getAttribute(String key)
+    public synchronized <T extends Serializable> T getAttribute(String key)
     {
         return (T)data.get(key);
     }
     /**
      * @return The IP address of the current session.
      */
-    public String getIpAddress()
+    public synchronized String getIpAddress()
     {
         return ipAddress;
+    }
+    /**
+     * @return Indicates if the session has been marked with a private flag.
+     */
+    public synchronized boolean isPrivate()
+    {
+        return isPrivate;
     }
 }

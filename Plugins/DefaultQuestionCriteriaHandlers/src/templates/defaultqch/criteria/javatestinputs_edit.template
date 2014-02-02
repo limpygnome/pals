@@ -66,6 +66,14 @@
             </td>
         </tr>
         <tr>
+            <td>
+                Options:
+            </td>
+            <td>
+                <input type="checkbox" name="crit_hidden" value="1" <#if crit_hidden?? && crit_hidden>checked</#if> /> Hide Solution
+            </td>
+        </tr>
+        <tr>
             <td colspan="2" class="tac">
                 <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                 <input type="submit" value="Update" />

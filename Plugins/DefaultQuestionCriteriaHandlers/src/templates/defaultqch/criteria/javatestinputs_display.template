@@ -1,8 +1,14 @@
-<table class="table3 jti">
+<table class="table3 jti <#if hide_solution?? && hide_solution>jti_hide_solution</#if>">
+    <tr>
+        <td colspan="2"></td>
+        <th colspan="2">Output</th>
+        <td></td>
+    </tr>
     <tr>
         <th>#</th>
         <th>Input</th>
-        <th>Output</th>
+        <th>Expected</th>
+        <th>Your Code</th>
         <th>Mark</th>
     </tr>
     <#list 0..result.getTests()-1 as i>
@@ -13,8 +19,17 @@
             <td>
                 ${result.getInput(i)?html}
             </td>
+            <#if !hide_solution>
+                <td>
+                    ${result.getOutputCorrect(i)?html}
+                </td>
+            <#elseif i == 0>
+                <td rowspan="${result.getTests()}">
+                    The solution has been hidden.
+                </td>
+            </#if>
             <td>
-                ${result.getOutput(i)?html}
+                ${result.getOutputStudent(i)?html}
             </td>
             <td>
                 <#if result.isCorrect(i)>
@@ -26,7 +41,7 @@
         </tr>
     </#list>
     <tr>
-        <td colspan="2"></td>
+        <td colspan="3"></td>
         <td>Sum:</td>
         <td>${mark?string}%</td>
     </tr>

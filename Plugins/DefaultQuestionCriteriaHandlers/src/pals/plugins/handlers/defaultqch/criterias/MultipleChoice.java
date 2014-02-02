@@ -24,7 +24,9 @@ import pals.plugins.handlers.defaultqch.questions.MCQ;
 public class MultipleChoice
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("a45bf985-5b0e-4643-bce7-d55b9e5f24f8");
+    public static final UUID    UUID_CTYPE = UUID.parse("a45bf985-5b0e-4643-bce7-d55b9e5f24f8");
+    public static final String  TITLE = "Multiple Choice/Response Choices";
+    public static final String  DESCRIPTION = "Gives marks for the same choices selected.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

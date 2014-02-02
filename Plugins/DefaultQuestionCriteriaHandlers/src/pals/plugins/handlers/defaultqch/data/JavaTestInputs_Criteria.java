@@ -14,12 +14,14 @@ public class JavaTestInputs_Criteria implements Serializable
     private String      method;
     private String[]    inputTypes;
     private String[][]  inputs;
+    private boolean     hideSolution;
     // Methods - Constructors **************************************************
     public JavaTestInputs_Criteria()
     {
         this.testCode = this.className = this.method = null;
         inputTypes = new String[0];
         inputs = new String[0][0];
+        this.hideSolution = false;
     }
     // Methods - Mutators ******************************************************
     /**
@@ -97,6 +99,13 @@ public class JavaTestInputs_Criteria implements Serializable
         this.inputs = parsed;
         return true;
     }
+    /**
+     * @param hideSolution Indicates if to hide the solution result.
+     */
+    public void setHideSolution(boolean hideSolution)
+    {
+        this.hideSolution = hideSolution;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The code used to produce the same output as the student's code.
@@ -163,5 +172,12 @@ public class JavaTestInputs_Criteria implements Serializable
         if(sb.length() > 0)
             sb.deleteCharAt(sb.length()-1);
         return sb.toString();
+    }
+    /**
+     * @return Indicates if to hide the solution.
+     */
+    public boolean getHideSolution()
+    {
+        return hideSolution;
     }
 }

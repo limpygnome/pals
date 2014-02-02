@@ -141,14 +141,11 @@ public class PALS_Servlet extends HttpServlet
             RemoteResponse dataResponse = ri.handleWebRequest(dataRequest);
             
             // Handle response
-            // -- Update the session ID
-            if(!dataResponse.getSessionID().equals(sessid))
-            {
-                Cookie cookieSess = new Cookie(SESSION_COOKIE_NAME, dataResponse.getSessionID());
-                cookieSess.setPath("/");
-                cookieSess.setMaxAge(dataResponse.isSessionPrivate() ? 3600 : 600);
-                response.addCookie(cookieSess);
-            }
+            // -- Update the session ID cookie
+            Cookie cookieSess = new Cookie(SESSION_COOKIE_NAME, dataResponse.getSessionID());
+            cookieSess.setPath("/");
+            cookieSess.setMaxAge(dataResponse.isSessionPrivate() ? 3600 : 600);
+            response.addCookie(cookieSess);
             // -- Check for redirect
             String redirect = dataResponse.getRedirectUrl();
             if(redirect != null)

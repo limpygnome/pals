@@ -42,11 +42,11 @@ public class DefaultQC extends Plugin
                         tqWrittenResponse,
                         tqCodeJava;
         // Register the types of questions
-        if((tqMultipleChoice = registerTypeQuestion(conn, core, MCQ.UUID_QTYPE, "Multiple Choice/Response", "Allows students to pick an answer, or multiple answers, from a set of possible answers.")) == null)
+        if((tqMultipleChoice = registerTypeQuestion(conn, core, MCQ.UUID_QTYPE, MCQ.TITLE, MCQ.DESCRIPTION)) == null)
             return false;
-        if((tqWrittenResponse = registerTypeQuestion(conn, core, WrittenResponse.UUID_QTYPE, "Written Response", "Allows students to provide a written response.")) == null)
+        if((tqWrittenResponse = registerTypeQuestion(conn, core, WrittenResponse.UUID_QTYPE, WrittenResponse.TITLE, WrittenResponse.DESCRIPTION)) == null)
             return false;
-        if((tqCodeJava = registerTypeQuestion(conn, core, CodeJava.UUID_QTYPE, "Code: Java", "Allows students to upload or provide fragments of Java code.")) == null)
+        if((tqCodeJava = registerTypeQuestion(conn, core, CodeJava.UUID_QTYPE, CodeJava.TITLE, CodeJava.DESCRIPTION)) == null)
             return false;
         // Register criteria types
         TypeCriteria    tcManualMarking,
@@ -56,22 +56,25 @@ public class DefaultQC extends Plugin
                         tcJavaTestInputs,
                         tcJavaCodeMetrics,
                         tcJavaMethodExists,
-                        tcJavaClassExists;
-        if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, "Manual Marking", "Used by a lecturer to manually-mark a criteria of a question.")) == null)
+                        tcJavaClassExists,
+                        tcJavaTestProgram;
+        if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
             return false;
-        if((tcTextMatch = registerTypeCriteria(conn, core, TextMatch.UUID_CTYPE, "Text Match", "Gives marks for an answer matching a piece of text.")) == null)
+        if((tcTextMatch = registerTypeCriteria(conn, core, TextMatch.UUID_CTYPE, TextMatch.TITLE, TextMatch.DESCRIPTION)) == null)
             return false;
-        if((tcRegexMatch = registerTypeCriteria(conn, core, RegexMatch.UUID_CTYPE, "Regex Match", "Gives marks based on a regex match.")) == null)
+        if((tcRegexMatch = registerTypeCriteria(conn, core, RegexMatch.UUID_CTYPE, RegexMatch.TITLE, RegexMatch.DESCRIPTION)) == null)
             return false;
-        if((tcMultipleChoice = registerTypeCriteria(conn, core, MultipleChoice.UUID_CTYPE, "Multiple Choice", "Gives marks based on the same choices selected.")) == null)
+        if((tcMultipleChoice = registerTypeCriteria(conn, core, MultipleChoice.UUID_CTYPE, MultipleChoice.TITLE, MultipleChoice.DESCRIPTION)) == null)
             return false;
-        if((tcJavaTestInputs = registerTypeCriteria(conn, core, JavaTestInputs.UUID_CTYPE, "Java: Test Inputs", "Tests the input/output of code.")) == null)
+        if((tcJavaTestInputs = registerTypeCriteria(conn, core, JavaTestInputs.UUID_CTYPE, JavaTestInputs.TITLE, JavaTestInputs.DESCRIPTION)) == null)
             return false;
-        if((tcJavaCodeMetrics = registerTypeCriteria(conn, core, JavaCodeMetrics.UUID_CTYPE, "Java: Code Metrics", "Performs metrics on code.")) == null)
+        if((tcJavaCodeMetrics = registerTypeCriteria(conn, core, JavaCodeMetrics.UUID_CTYPE, JavaCodeMetrics.TITLE, JavaCodeMetrics.DESCRIPTION)) == null)
             return false;
-        if((tcJavaMethodExists = registerTypeCriteria(conn, core, JavaMethodExists.UUID_CTYPE, "Java: Method Exists", "Checks if a method exists.")) == null)
+        if((tcJavaMethodExists = registerTypeCriteria(conn, core, JavaMethodExists.UUID_CTYPE, JavaMethodExists.TITLE, JavaMethodExists.DESCRIPTION)) == null)
             return false;
-        if((tcJavaClassExists = registerTypeCriteria(conn, core, JavaClassExists.UUID_CTYPE, "Java: Class Exists", "Checks if a class exists.")) == null)
+        if((tcJavaClassExists = registerTypeCriteria(conn, core, JavaClassExists.UUID_CTYPE, JavaClassExists.TITLE, JavaClassExists.DESCRIPTION)) == null)
+            return false;
+        if((tcJavaTestProgram = registerTypeCriteria(conn, core, JavaTestProgram.UUID_CTYPE, JavaTestProgram.TITLE, JavaTestProgram.DESCRIPTION)) == null)
             return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
@@ -95,6 +98,7 @@ public class DefaultQC extends Plugin
         tqCodeJava.criteriaAdd(tcJavaCodeMetrics);
         tqCodeJava.criteriaAdd(tcJavaMethodExists);
         tqCodeJava.criteriaAdd(tcJavaClassExists);
+        tqCodeJava.criteriaAdd(tcJavaTestProgram);
         if(!persistQuestionCriteria(core, tqCodeJava, conn))
             return false;
         

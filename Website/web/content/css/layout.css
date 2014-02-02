@@ -622,18 +622,20 @@ body
 	border: solid 0.1em #CCC;
 }
 /* CodeJava ~ Java Inputs Table */
-.jti tr th:nth-child(1), .jti tr td:nth-child(1),
-.jti tr th:nth-child(4), .jti tr td:nth-child(4)
+.jti tr:nth-child(n+2) th:nth-child(1), .jti tr:nth-child(n+2) td:nth-child(1),
+.jti tr:nth-child(n+2) th:nth-child(5), .jti tr:nth-child(n+2) td:nth-child(5),
+.jti_hide_solution:nth-child(n+2) th:nth-child(4), .jti_hide_solution:nth-child(n+2) td:nth-child(4)
 {
-	width: 2em;
+	width: 2em !important;
 }
-.jti tr th:nth-child(2), .jti tr td:nth-child(2)
+.jti tr:nth-child(n+2) th:nth-child(2), .jti tr:nth-child(n+2) td:nth-child(2)
 {
-	width: 12em;
+	width: 8em;
 }
-.jti tr th:nth-child(3), .jti tr td:nth-child(3)
+.jti tr:nth-child(n+2) th:nth-child(3), .jti tr:nth-child(n+2) td:nth-child(3),
+.jti tr:nth-child(n+2) th:nth-child(4), .jti tr:nth-child(n+2) td:nth-child(4)
 {
-	width: 26em;
+	width: 20em;
 }
 .jti_correct td
 {

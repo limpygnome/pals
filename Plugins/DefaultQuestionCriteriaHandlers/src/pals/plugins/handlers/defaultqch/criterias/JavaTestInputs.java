@@ -32,7 +32,9 @@ import pals.plugins.handlers.defaultqch.java.Utils;
 public class JavaTestInputs
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("49d5b5fa-e0b9-427a-8171-04e7ae33fe64");
+    public static final UUID    UUID_CTYPE = UUID.parse("49d5b5fa-e0b9-427a-8171-04e7ae33fe64");
+    public static final String  TITLE = "Java: Test Inputs";
+    public static final String  DESCRIPTION = "Performs dynamic analysis of individual methods using varied inputs.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
@@ -49,7 +51,9 @@ public class JavaTestInputs
         String critTestCode = req.getField("crit_test_code");
         String critInputTypes = req.getField("crit_input_types");
         String critInputs = req.getField("crit_inputs");
+        // -- Optional
         String critForceCompile = req.getField("crit_force_compile");
+        String critHidden = req.getField("crit_hidden");
         if(critTitle != null && critWeight != null && critClassName != null && critMethod != null && critTestCode != null && critInputTypes != null && critInputs != null)
         {
             boolean compile = !critTestCode.equals(cdata.getTestCode()) || (critForceCompile != null && critForceCompile.equals("1"));
@@ -88,6 +92,7 @@ public class JavaTestInputs
             cdata.setClassName(critClassName);
             cdata.setMethod(critMethod);
             cdata.setTestCode(critTestCode);
+            cdata.setHideSolution(critHidden != null && critHidden.equals("1"));
             if(!cdata.setInputTypes(critInputTypes))
                 data.setTemplateData("error", "Invalid input-types.");
             else if(!cdata.setInputs(critInputs))
@@ -113,6 +118,7 @@ public class JavaTestInputs
         data.setTemplateData("crit_test_code", critTestCode != null ? critTestCode : cdata.getTestCode());
         data.setTemplateData("crit_input_types", critInputTypes != null ? critInputTypes : cdata.getInputTypesWeb());
         data.setTemplateData("crit_inputs", critInputs != null ? critInputs : cdata.getInputsWeb());
+        data.setTemplateData("crit_hidden", (critTitle != null && critHidden != null && critHidden.equals("1")) || (cdata.getHideSolution()));
         return true;
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
@@ -164,7 +170,7 @@ public class JavaTestInputs
                 for(int row = 0; row < inputs.length; row++)
                 {
                     // Format inputs
-                    formattedInputs = inputs[row];
+                    Utils.formatInputs(core, types, (formattedInputs = inputs[row]));
                     // Build args for both
                     argsQC = Utils.buildJavaSandboxArgs(javaSandbox, pathQC, className, method, whiteList, true, timeoutJS, types, formattedInputs);
                     argsIAQ = Utils.buildJavaSandboxArgs(javaSandbox, pathIAQ, className, method, whiteList, true, timeoutJS, types, formattedInputs);
@@ -179,15 +185,11 @@ public class JavaTestInputs
                         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                     }
                     else if(valQC.equals(valIAQ))
-                    {
                         correct++;
-                        icdata.setCorrect(row, true);
-                    }
-                    else
-                        icdata.setCorrect(row, false);
-                    // Update output
+                    // Update result model
                     icdata.setInput(row, inputsToStr(formattedInputs));
-                    icdata.setOutput(row, valIAQ);
+                    icdata.setOutputCorrect(row, valQC);
+                    icdata.setOutputStudent(row, valIAQ);
                 }
                 // Update data model for feedback
                 iac.setData(icdata);
@@ -248,14 +250,17 @@ public class JavaTestInputs
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
+        // Load cdata
+        JavaTestInputs_Criteria cdata = (JavaTestInputs_Criteria)iac.getQC().getData();
         // Load icdata
         JavaTestInputs_InstanceCriteria icdata = (JavaTestInputs_InstanceCriteria)iac.getData();
-        if(icdata != null)
+        if(icdata != null && cdata != null)
         {
             HashMap<String,Object> kvs = new HashMap<>();
             kvs.put("result", icdata);
             kvs.put("mark", iac.getMark());
             kvs.put("input_mark", (1.0/icdata.getTests())*100.0);
+            kvs.put("hide_solution", cdata.getHideSolution());
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestinputs_display"));
             return true;
         }

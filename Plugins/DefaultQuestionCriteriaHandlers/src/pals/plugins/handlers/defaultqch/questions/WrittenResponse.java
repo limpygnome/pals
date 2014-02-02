@@ -16,7 +16,9 @@ import pals.plugins.handlers.defaultqch.data.Written_Question;
 public class WrittenResponse
 {
     // Constants ***************************************************************
-    public static final UUID UUID_QTYPE = UUID.parse("fcfec4ec-3347-4219-a988-f69b632b657e");
+    public static final UUID    UUID_QTYPE = UUID.parse("fcfec4ec-3347-4219-a988-f69b632b657e");
+    public static final String  TITLE = "Written Response";
+    public static final String  DESCRIPTION = "Allows students to provide a written response.";
     // Methods *****************************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {

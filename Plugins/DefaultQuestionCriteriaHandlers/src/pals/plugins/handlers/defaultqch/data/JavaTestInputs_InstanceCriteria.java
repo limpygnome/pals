@@ -10,14 +10,13 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String[]    input;
-    private String[]    output;
-    private boolean[]   correct;
+    private String[]    outputCorrect;
+    private String[]    outputStudent;
     // Methods - Constructors **************************************************
     public JavaTestInputs_InstanceCriteria(int numberOfTests)
     {
         input = new String[numberOfTests];
-        output = new String[numberOfTests];
-        correct = new boolean[numberOfTests];
+        outputCorrect = outputStudent = new String[numberOfTests];
     }
     // Methods - Mutators ******************************************************
     /**
@@ -30,19 +29,19 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     }
     /**
      * @param index The index of the test.
-     * @param value The value to set for the output of the test.
+     * @param value The output from the student.
      */
-    public void setOutput(int index, String value)
+    public void setOutputStudent(int index, String value)
     {
-        output[index] = value;
+        outputStudent[index] = value;
     }
     /**
-     * @param index The index of the test.
-     * @param correct Sets if the test is correct (true) or not (false).
+     * @param index The The index of the test.
+     * @param value The output from the correct solution.
      */
-    public void setCorrect(int index, boolean correct)
+    public void setOutputCorrect(int index, String value)
     {
-        this.correct[index] = correct;
+        outputCorrect[index] = value;
     }
     // Methods - Accessors *****************************************************
     /**
@@ -55,11 +54,19 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     }
     /**
      * @param index The index of the test.
-     * @return The output from the test.
+     * @return The output from the student for the test.
      */
-    public String getOutput(int index)
+    public String getOutputStudent(int index)
     {
-        return output[index];
+        return outputStudent[index];
+    }
+    /**
+     * @param index The index of the test.
+     * @return The output from solution for the test.
+     */
+    public String getOutputCorrect(int index)
+    {
+        return outputCorrect[index];
     }
     /**
      * @return The total number of tests.
@@ -74,6 +81,6 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
      */
     public boolean isCorrect(int index)
     {
-        return correct[index];
+        return outputCorrect[index].equals(outputStudent[index]);
     }
 }

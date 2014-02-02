@@ -23,7 +23,9 @@ import pals.plugins.handlers.defaultqch.questions.WrittenResponse;
 public class TextMatch
 {
     // Constants ***************************************************************
-    public static final UUID UUID_CTYPE = UUID.parse("b9a1143c-98cb-446b-9b39-42addac71f4f");
+    public static final UUID    UUID_CTYPE = UUID.parse("b9a1143c-98cb-446b-9b39-42addac71f4f");
+    public static final String  TITLE = "Text Match";
+    public static final String  DESCRIPTION = "Gives marks for an answer matching a piece of text.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {

@@ -34,7 +34,8 @@ CREATE TABLE pals_http_sessions
 	sessid				BYTEA				PRIMARY KEY,
 	creation			TIMESTAMP			NOT NULL,
 	last_active			TIMESTAMP			NOT NULL,
-	ip					VARCHAR(45)			NOT NULL
+	ip					VARCHAR(45)			NOT NULL,
+	private				VARCHAR(1)			NOT NULL
 );
 -- Stores data belonging to a HTTP session.
 CREATE TABLE pals_http_session_data

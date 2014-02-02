@@ -153,8 +153,9 @@ public class WebManager
             String dd = core.getTemplates().render(data,  template != null ? template : "pals/page");
             response.setBuffer(dd);
         }
-        // Update session ID
+        // Update session data in response
         response.setSessionID(data.getSession().getIdBase64());
+        response.setSessionPrivate(data.getSession().isPrivate());
         // Persist session data
         try
         {

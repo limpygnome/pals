@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.DiagnosticCollector;
@@ -21,6 +22,12 @@ import pals.base.web.WebRequestData;
  */
 public class Utils
 {
+    // Fields - Static *********************************************************
+    private final static Pattern patternRandom;
+    static
+    {
+        patternRandom = Pattern.compile("^rand\\(([0-9]+):([0-9]+)\\)$");
+    }
     // Methods - Static ********************************************************
     /**
      * @param code The code to be parsed.
@@ -190,10 +197,59 @@ public class Utils
         buffer[7] = Integer.toString(timeout);
         // Setup input args
         for(int i = 0; i < inputs.length; i++)
-        {
             buffer[BASE_ARGS+i] = inputTypes[i]+"="+inputs[i];
-        }
         return buffer;
+    }
+    public static void formatInputs(NodeCore core, String[] inputTypes, String[] inputRow)
+    {
+        for(int i = 0; i < inputRow.length; i++)
+        {
+            if(inputRow[i].startsWith("rand"))
+                inputRow[i] = formatInputs_inputRandom(core, inputTypes[i], inputRow[i]);
+        }
+    }
+    private static String formatInputs_inputRandom(NodeCore core, String type, String input)
+    {
+        Matcher m = patternRandom.matcher(input);
+        // Check we have a match...
+        if(!m.matches())
+            return input;
+        // Parse min and max range
+        String  rawMin = m.group(1),
+                rawMax = m.group(2);
+        try
+        {
+            int min = Integer.parseInt(rawMin);
+            int max = Integer.parseInt(rawMax);
+            if(min >= max)
+                return input;
+            // Fetch RNG and produce random value
+            int rv = core.getRNG().nextInt(max-min+1)-min;
+            // Parse input
+            switch(type)
+            {
+                case "byte":
+                    return Byte.toString((byte)rv);
+                case "short":
+                    return Short.toString((short)rv);
+                case "integer":
+                case "int":
+                    return Integer.toString(rv);
+                case "long":
+                    return Long.toString((long)rv);
+                case "float":
+                    return Float.toString((float)rv);
+                case "double":
+                    return Double.toString((double)rv);
+                case "bool":
+                case "boolean":
+                    return Boolean.toString(rv % 2 == 1);
+                case "char":
+                    return Character.toString((char)rv);
+            }
+        }
+        catch(NumberFormatException ex) {}
+        return input;
     }
     private static String buildJavaSandboxArgs_whiteList(String[] whiteListedClasses)
     {

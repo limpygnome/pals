@@ -21,7 +21,9 @@ import pals.plugins.handlers.defaultqch.java.Utils;
 public class CodeJava
 {
     // Constants ***************************************************************
-    public static final UUID UUID_QTYPE = UUID.parse("3b452432-d939-4e39-a450-3867655412a3");
+    public static final UUID    UUID_QTYPE = UUID.parse("3b452432-d939-4e39-a450-3867655412a3");
+    public static final String  TITLE = "Code: Java";
+    public static final String  DESCRIPTION = "Allows students to upload or provide fragments of Java code.";
     // Methods - Pages *********************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
