@@ -1,6 +1,7 @@
 package pals.base.assessment;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
@@ -148,21 +149,7 @@ public class InstanceAssignmentQuestion
         try
         {
             // Deserialize data
-            Object data;
-            if(res.get("qdata") != null)
-            {
-                try
-                {
-                    data = Misc.bytesDeserialize(core, (byte[])res.get("qdata"));
-                }
-                catch(ClassNotFoundException | IOException ex)
-                {
-                    System.err.println("[IAQ WARNING] Could not deserialize data ~ "+ex.getMessage()+"~"+ex.getClass().getName()+" : core defined: "+(core != null));
-                    data = null;
-                }
-            }
-            else
-                data = null;
+            Object data = Utils.loadData(core, res, "qdata");
             // Load instance of assignment, if null
             if(ia == null)
             {
@@ -274,9 +261,10 @@ public class InstanceAssignmentQuestion
         this.ia = ia;
     }
     /**
+     * @param <T> The type must be serializable.
      * @param data Sets the data for this instance of the assignment-question.
      */
-    public void setData(Object data)
+    public <T extends Serializable> void setData(T data)
     {
         this.data = data;
     }

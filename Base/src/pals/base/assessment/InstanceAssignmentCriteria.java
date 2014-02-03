@@ -1,6 +1,7 @@
 package pals.base.assessment;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
@@ -284,21 +285,7 @@ public class InstanceAssignmentCriteria
     {
         try
         {
-            Object data;
-            if(res.get("cdata") != null)
-            {
-                try
-                {
-                    data = Misc.bytesDeserialize(core, (byte[])res.get("cdata"));
-                }
-                catch(ClassNotFoundException | IOException ex)
-                {
-                    System.err.println("[IAC WARNING] Could not deserialize data ~ "+ex.getMessage()+"~"+ex.getClass().getName()+" : core defined: "+(core != null));
-                    data = null;
-                }
-            }
-            else
-                data = null;
+            Object data = Utils.loadData(core, res, "cdata");
             InstanceAssignmentCriteria iac = new InstanceAssignmentCriteria(iaq, qc, Status.getStatus((int)res.get("status")), (int)res.get("mark"), data);
             iac.persisted = true;
             return iac;
@@ -460,9 +447,10 @@ public class InstanceAssignmentCriteria
         this.mark = mark;
     }
     /**
+     * @param <T> The type must be serializable.
      * @param data The unique data to be set for this instance; can be null.
      */
-    public void setData(Object data)
+    public <T extends Serializable> void setData(T data)
     {
         this.data = data;
     }

@@ -147,7 +147,6 @@ public class JavaTestInputs
                 String      className = cdata.getClassName();
                 String      method = cdata.getMethod();
                 int         timeout = core.getSettings().getInt("tools/windows_user_tool/timeout_ms", 12000);
-                int         timeoutJS = core.getSettings().getInt("tools/javasandbox/timeout_ms", 10000);
                 String      javaSandbox;
                 try
                 {
@@ -172,8 +171,8 @@ public class JavaTestInputs
                     // Format inputs
                     Utils.formatInputs(core, types, (formattedInputs = inputs[row]));
                     // Build args for both
-                    argsQC = Utils.buildJavaSandboxArgs(javaSandbox, pathQC, className, method, whiteList, true, timeoutJS, types, formattedInputs);
-                    argsIAQ = Utils.buildJavaSandboxArgs(javaSandbox, pathIAQ, className, method, whiteList, true, timeoutJS, types, formattedInputs);
+                    argsQC = Utils.buildJavaSandboxArgs(core, javaSandbox, pathQC, className, method, whiteList, true, types, formattedInputs);
+                    argsIAQ = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, className, method, whiteList, true, types, formattedInputs);
                     // Execute each process and capture output
                     valQC = run(PalsProcess.create(core, "java", argsQC), timeout);
                     valIAQ = run(PalsProcess.create(core, "java", argsIAQ), timeout);
@@ -218,8 +217,7 @@ public class JavaTestInputs
         StringBuilder buffer = new StringBuilder();
         BufferedReader br = new BufferedReader(new InputStreamReader(proc.getProcess().getInputStream()));
         // Wait for the process to terminate
-        long timeoutL = (long)timeout;
-        long start = System.currentTimeMillis();
+        long timeoutL = System.currentTimeMillis()+(long)timeout;
         char[] cbuffer = new char[1024];
         int cbufferRead;
         while(!proc.hasExited())
@@ -227,7 +225,7 @@ public class JavaTestInputs
             try
             {
                 // Check if to kill the process
-                if(System.currentTimeMillis()-start > timeoutL)
+                if(System.currentTimeMillis() > timeoutL)
                 {
                     proc.getProcess().destroy();
                     break;

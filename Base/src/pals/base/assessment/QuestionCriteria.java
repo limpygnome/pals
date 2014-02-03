@@ -161,15 +161,7 @@ public class QuestionCriteria
                 question = Question.load(core, conn, (int)result.get("qid"));
             }
             // Deserialize data
-            Object data;
-            try
-            {
-                data = Misc.bytesDeserialize(core, (byte[])result.get("data"));
-            }
-            catch(IOException | ClassNotFoundException ex)
-            {
-                return null;
-            }
+            Object data = Utils.loadData(core, result, "data");
             // Create instance and return
             QuestionCriteria qc = new QuestionCriteria(question, tc, (String)result.get("title"), data, (int)result.get("weight"));
             qc.qcid = (int)result.get("qcid");

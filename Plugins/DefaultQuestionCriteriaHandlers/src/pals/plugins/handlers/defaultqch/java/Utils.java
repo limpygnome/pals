@@ -2,10 +2,8 @@ package pals.plugins.handlers.defaultqch.java;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.DiagnosticCollector;
@@ -168,18 +166,18 @@ public class Utils
     /**
      * Builds the arguments for the Java Sandbox.
      * 
+     * @param core The current instance of the core.
      * @param javaSandboxPath The path to the Java sandbox program.
      * @param directory The directory of where the compiled class files reside.
      * @param className The class-name of the method to invoke.
      * @param method The method to invoke.
      * @param whiteListedClasses An array of white-listed classes.
-     * @param outputValue
-     * @param timeout
-     * @param inputTypes
-     * @param inputs
-     * @return 
+     * @param outputValue Indicates if to output the value from the method invoked.
+     * @param inputTypes Array of types, corresponding with the indexes of inputs.
+     * @param inputs The input values, to be parsed, for locating and invoking the method.
+     * @return Arguments for launching sandbox program.
      */
-    public static String[] buildJavaSandboxArgs(String javaSandboxPath, String directory, String className, String method, String[] whiteListedClasses, boolean outputValue, int timeout, String[] inputTypes, String[] inputs)
+    public static String[] buildJavaSandboxArgs(NodeCore core, String javaSandboxPath, String directory, String className, String method, String[] whiteListedClasses, boolean outputValue, String[] inputTypes, String[] inputs)
     {
         if(inputTypes.length != inputs.length)
             throw new IllegalArgumentException();
@@ -194,7 +192,7 @@ public class Utils
         buffer[4] = method;
         buffer[5] = buildJavaSandboxArgs_whiteList(whiteListedClasses);
         buffer[6] = outputValue ? "1" : "0";
-        buffer[7] = Integer.toString(timeout);
+        buffer[7] = Integer.toString(core.getSettings().getInt("tools/javasandbox/timeout_ms", 10000));
         // Setup input args
         for(int i = 0; i < inputs.length; i++)
             buffer[BASE_ARGS+i] = inputTypes[i]+"="+inputs[i];

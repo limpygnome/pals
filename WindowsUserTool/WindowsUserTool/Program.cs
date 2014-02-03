@@ -66,7 +66,7 @@ namespace WindowsUserTool
                 {
                     while (true)
                     {
-                        proc.StandardInput.Write(Console.Read());
+                        proc.StandardInput.WriteLine(Console.ReadLine());
                     }
                 });
                 threadInput.Start();
@@ -96,7 +96,7 @@ namespace WindowsUserTool
         }
         static void proc_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Console.WriteLine(e.Data);
+            Console.Error.WriteLine(e.Data);
         }
     }
 }

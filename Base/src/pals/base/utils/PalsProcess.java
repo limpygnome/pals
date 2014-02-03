@@ -158,7 +158,7 @@ public class PalsProcess
                 default:
                     return null;
             }
-            printDebug(cmd);
+            //printDebug(cmd);
             pb.command(cmd);
         }
         catch(IOException ex)

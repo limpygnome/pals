@@ -54,7 +54,7 @@ public class ManualMarking
     {
         boolean editMode = data.containsTemplateData("edit_mode") && (boolean)data.getTemplateData("edit_mode");
         boolean secure = data.containsTemplateData("secure") && (boolean)data.getTemplateData("secure");
-        Object fdata = iac.getData();
+        String fdata = (String)iac.getData();
         HashMap<String,Object> kvs = new HashMap<>();
         // Check for postback
         RemoteRequest req = data.getRequestData();
@@ -104,7 +104,7 @@ public class ManualMarking
             }
         }
         // Render template
-        if(fdata != null && (fdata instanceof String))
+        if(fdata != null)
         {
             String text = (String)fdata;
             if(text.length() > 0)

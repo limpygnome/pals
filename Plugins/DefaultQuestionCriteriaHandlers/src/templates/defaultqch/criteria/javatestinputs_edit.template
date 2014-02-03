@@ -178,5 +178,9 @@
     test #4,7,49
 </p>
 <p>
+    Instead of specifying a specific input value, you can also write <b>rand(<i>min</i>:<i>max</i>)</b> to generate
+    a pseudo-random value inclusively within a range.
+</p>
+<p>
     The overall mark for the criteria is calculated by the fraction of inputs/outputs testing correct.
 </p>

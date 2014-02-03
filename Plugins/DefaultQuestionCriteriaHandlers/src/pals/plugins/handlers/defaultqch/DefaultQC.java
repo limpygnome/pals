@@ -233,6 +233,8 @@ public class DefaultQC extends Plugin
             return JavaMethodExists.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
             return JavaTestInputs.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
+            return JavaTestProgram.pageCriteriaEdit(data, qc);
         return false;
     }
     private boolean pageQuestionCapture(Object[] hookData)
@@ -314,6 +316,8 @@ public class DefaultQC extends Plugin
             return JavaMethodExists.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
             return JavaTestInputs.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
+            return JavaTestProgram.criteriaMarking(conn, core, iac);
         
         return false;
     }
@@ -346,6 +350,8 @@ public class DefaultQC extends Plugin
             return JavaMethodExists.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
             return JavaTestInputs.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
+            return JavaTestProgram.criteriaDisplay(data, ia, iaq, iac, html);
         
         return false;
     }

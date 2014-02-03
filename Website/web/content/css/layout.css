@@ -654,4 +654,33 @@ body
 {
 	width: auto !important;
 }
-
+/* CodeJava - Java Test Program Table */
+.jtp tr th:nth-child(1), .jtp tr td:nth-child(1),
+.jtp tr th:nth-child(3), .jtp tr td:nth-child(3)
+{
+	width: 2em;
+}
+.jtp tr th:nth-child(2), .jtp tr td:nth-child(2)
+{
+	width: 4em;
+}
+.jtp tr th:nth-child(3), .jtp tr td:nth-child(3)
+{
+	width: 34em;
+	text-align: left !important;
+}
+.jtp .jtp_info
+{
+	background: #9CF;
+	color: #06C;
+}
+.jtp .jtp_incorrect
+{
+	background: #FCC;
+	color: #F00;
+}
+.jtp .jtp_correct
+{
+	background: #9F9;
+	color: #060;
+}

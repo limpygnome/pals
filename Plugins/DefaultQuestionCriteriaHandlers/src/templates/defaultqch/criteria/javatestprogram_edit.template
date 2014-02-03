@@ -1,0 +1,119 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">Edit Criteria</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">
+    <table class="table2 questions_form">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Entry Point
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Class:
+            </td>
+            <td>
+                <input type="text" name="crit_class" value="<#if crit_class??>${crit_class?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Method:
+            </td>
+            <td>
+                <input type="text" name="crit_method" value="<#if crit_method??>${crit_method?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Arguments:
+            </td>
+            <td>
+                <textarea rows="5" name="crit_args"><#if crit_args??>${crit_args?html}</#if></textarea><br />
+                Put each argument on a new-line.
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">I/O</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <textarea rows="16" name="crit_io"><#if crit_io??>${crit_io?html}</#if></textarea><br />
+                Refer to notes at the bottom for usage.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Error Threshold:
+            </td>
+            <td>
+                <input type="text" name="crit_error_threshold" value="<#if crit_error_threshold??>${crit_error_threshold?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Options:
+            </td>
+            <td>
+                <input type="checkbox" name="crit_merge" value="1" <#if crit_merge?? && crit_merge>checked</#if> /> Merge standard error with standard output.<br />
+                <input type="checkbox" name="crit_hide" value="1" <#if crit_hide?? && crit_hide>checked</#if> /> Hide solution.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    The I/O box should start with either <b>in</b> (standard input) or <b>out</b> (standard output); this
+    should be followed with <b>=</b> and then the value to either expect or input to either standard input
+    or standard output - this can be empty.
+</p>
+<p>
+    An example for inputting two parameters and expecting an answer:
+</p>
+<p>
+    out=Please enter the first number:<br />
+    in=5<br />
+    out=Please enter the second number:<br />
+    in=10<br />
+    out=The sum is 15.
+</p>

@@ -122,16 +122,7 @@ public class Question
             if(tq == null)
                 return null;
             // Read serialized object
-            Object obj;
-            try
-            {
-                obj = Misc.bytesDeserialize(core, (byte[])result.get("data"));
-            }
-            catch(IOException | ClassNotFoundException ex)
-            {
-                System.out.println(ex.getMessage());
-                return null;
-            }
+            Object obj = Utils.loadData(core, result, "data");
             // Create and return instance
             Question q = new Question(tq, (String)result.get("title"), obj);
             q.qid = (int)result.get("qid");

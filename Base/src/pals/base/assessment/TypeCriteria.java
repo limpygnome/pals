@@ -2,7 +2,6 @@ package pals.base.assessment;
 
 import java.util.ArrayList;
 import pals.base.UUID;
-import static pals.base.assessment.TypeQuestion.load;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
