@@ -684,3 +684,9 @@ body
 	background: #9F9;
 	color: #060;
 }
+.jtp_solution
+{
+	width: 100%;
+	border: solid 0.2em #CCC;
+	background: #DDD;
+}

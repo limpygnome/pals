@@ -1,4 +1,8 @@
 <h2>Welcome!</h2>
+<div class="fr">
+    <img alt="Welcome to PALS" src="/content/images/welcome.png" />
+</div>
+
 <p>
     ...to the PALS (Programming Assessment and Learning System) system.
 </p>

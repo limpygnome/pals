@@ -1,12 +1,9 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import pals.base.Logging;
@@ -269,7 +266,8 @@ public class JavaTestProgram
         if(qcdata != null && idata != null)
         {
             HashMap<String,Object> kvs = new HashMap<>();
-            kvs.put("solution", qcdata.getIOWeb());
+            if(!qcdata.getHideSolution())
+                kvs.put("solution", qcdata.getIOWeb());
             kvs.put("result", idata);
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestprogram_display"));
             return true;

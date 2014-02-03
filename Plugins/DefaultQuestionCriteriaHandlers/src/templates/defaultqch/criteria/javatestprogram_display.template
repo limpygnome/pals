@@ -35,3 +35,10 @@
         </tr>
     </#list>
 </table>
+
+<#if solution??>
+    <h3 class="tac">Solution Script</h3>
+    <p>
+        <textarea rows="${result.getLines()?c}" class="jtp_solution" readonly>${solution?html}</textarea>
+    </p>
+</#if>

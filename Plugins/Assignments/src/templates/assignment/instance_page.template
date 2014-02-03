@@ -1,4 +1,4 @@
-<h2>Assignment - ${assignment.getTitle()?html}</h2>
+<h2><a href="/modules">Modules</a> - <a href="/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/assignments/instance/${assignment_instance.getAIID()?c}">Assignment</a> - ${assignment.getTitle()?html}</h2>
 
 <div class="assignment_pages">
     <div class="left">
