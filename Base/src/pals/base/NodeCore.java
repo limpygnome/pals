@@ -9,6 +9,7 @@ import java.util.Random;
 import org.apache.commons.io.FileUtils;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 import pals.base.database.connectors.*;
 
 /**
@@ -244,17 +245,18 @@ public class NodeCore
         // Perform node SQL operations
         try
         {
+            String nodeTitle = settings.getStr("node/title", "Untitled Node");
             // Check this node exists in the database, else create the record
-            long result = (long)conn.executeScalar("SELECT COUNT('') FROM pals_nodes WHERE uuid_node=?;", uuidNode.getBytes());
-            if(result == 0)
+            Result res = conn.read("SELECT title FROM pals_nodes WHERE uuid_node=?;", uuidNode.getBytes());
+            if(!res.next())
             {
-                conn.execute("INSERT INTO pals_nodes (uuid_node,last_active) VALUES(?,current_timestamp);", uuidNode.getBytes());
+                conn.execute("INSERT INTO pals_nodes (uuid_node,title,last_active) VALUES(?,?,current_timestamp);", uuidNode.getBytes(), nodeTitle);
                 logging.log(LOGGING_ALIAS_START, "Added node to database.", Logging.EntryType.Info);
             }
-            // Update RMI information for this node
+            // Update title and RMI information for this node
             try
             {
-                conn.execute("UPDATE pals_nodes SET rmi_ip=?, rmi_port=? WHERE uuid_node=?", InetAddress.getLocalHost().getHostAddress(), settings.getInt("rmi/port", 1099), uuidNode.getBytes());
+                conn.execute("UPDATE pals_nodes SET title=?, rmi_ip=?, rmi_port=? WHERE uuid_node=?", nodeTitle, InetAddress.getLocalHost().getHostAddress(), settings.getInt("rmi/port", 1099), uuidNode.getBytes());
             }
             catch(UnknownHostException ex)
             {
@@ -407,6 +409,8 @@ public class NodeCore
                 newState = State.Stopped;
                 break;
         }
+        // Enter last entry into log
+        logging.log(LOGGING_ALIAS_STOP, "Core stopped.", Logging.EntryType.Info);
         // Unload logging
         if(logging != null)
         {
@@ -417,10 +421,11 @@ public class NodeCore
         uuidNode = null;
         // Update state
         state = newState;
-        logging.log(LOGGING_ALIAS_STOP, "Core stopped.", Logging.EntryType.Info);
         // Notify any threads
         notifyAll();
-        return false;
+        // Output to console
+        System.out.println("PALS CORE STOP Core has completely shutdown.");
+        return true;
     }
     // Methods *****************************************************************
     /**

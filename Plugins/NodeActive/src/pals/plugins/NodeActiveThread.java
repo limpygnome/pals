@@ -3,15 +3,15 @@ package pals.plugins;
 import pals.base.Logging;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.utils.ExtendedThread;
 
 /**
  * The class used to handle the updating of the database for this node.
  */
-public class NodeActiveThread extends Thread
+public class NodeActiveThread extends ExtendedThread
 {
     // Fields ******************************************************************
     private NodeActive na;
-    private boolean run;
     // Methods - Constructors **************************************************
     public NodeActiveThread(NodeActive na)
     {
@@ -21,11 +21,10 @@ public class NodeActiveThread extends Thread
     @Override
     public void run()
     {
-        run = true;
         long interval = (long)na.getSettings().getInt("interval_ms");
         long lastUpdated = System.currentTimeMillis();
         Connector conn;
-        while(run)
+        while(!extended_isStopped())
         {
             // Sleep for a while to avoid excessive CPU usage
             try
@@ -34,11 +33,11 @@ public class NodeActiveThread extends Thread
             }
             catch(InterruptedException ex)
             {
-                if(run)
+                if(!extended_isStopped())
                     na.getCore().getLogging().logEx("NodeActive", "Unexpectedly woken.", ex, Logging.EntryType.Warning);
             }
             // Check if we need to update yet
-            if(System.currentTimeMillis()-lastUpdated >= interval)
+            if(System.currentTimeMillis()-lastUpdated >= interval-100) // Allow 100 m/s early
             {
                 lastUpdated = System.currentTimeMillis();
                 // Update the database
@@ -57,10 +56,5 @@ public class NodeActiveThread extends Thread
                 conn.disconnect();
             }
         }
-    }
-    public void stopRunning()
-    {
-        run = false;
-        interrupt();
     }
 }

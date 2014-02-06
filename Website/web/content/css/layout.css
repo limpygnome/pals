@@ -201,7 +201,7 @@ body
 {
 	text-align: center;
 }
-.layout_body .content table input[type=submit], .layout_body .button
+.layout_body .content table input[type=submit], .layout_body .content table button, .layout_body .button
 {
 	margin: 0em;
 	border: solid 0.1em #060;
@@ -217,6 +217,7 @@ body
 	font: inherit;
 }
 .layout_body .content table input[type=submit]:hover, .layout_body .content table input[type=submit]:focus,
+.layout_body .content table button:hover, .layout_body .content table button:focus,
 .layout_body .content .button:hover, .layout_body .content .button:focus
 {
 	background-color: #999;
@@ -361,6 +362,10 @@ body
 .layout_body .content .table4 tr td
 {
 	text-align: left;
+}
+.layout_body .content .table4 tr td.tac
+{
+	text-align: center !important;
 }
 /* Container */
 .layout_body .container
@@ -689,4 +694,13 @@ body
 	width: 100%;
 	border: solid 0.2em #CCC;
 	background: #DDD;
+}
+/* Admin - Nodes */
+.node_online
+{
+	background: #9F9;
+}
+.node_offline
+{
+	background: #FCC;
 }

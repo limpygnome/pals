@@ -11,7 +11,7 @@ import pals.base.web.WebRequestData;
  * - If a plugin is not installed, it will not be allowed near the runtime.
  * - An uninstalled plugin will be rejected when being loaded into the runtime.
  */
-public class Plugin
+public abstract class Plugin
 {
     // Fields ******************************************************************
     private JarIO               jario;          // Used for interfacing with the plugin's jar.
@@ -37,10 +37,7 @@ public class Plugin
      * @param core The current instance of the core.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginLoad(NodeCore core)
-    {
-        return false;
-    }
+    public abstract boolean eventHandler_pluginLoad(NodeCore core);
     /**
      * Invoked to install the plugin.
      * 
@@ -48,10 +45,7 @@ public class Plugin
      * @param conn Database connector; this must not be disconnected.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginInstall(NodeCore core, Connector conn)
-    {
-        return false;
-    }
+    public abstract boolean eventHandler_pluginInstall(NodeCore core, Connector conn);
     /**
      * Invoked to uninstall the plugin.
      * 
@@ -59,10 +53,7 @@ public class Plugin
      * @param conn Database connector; this must not be disconnected.
      * @return True if successful, false if failed.
      */
-    public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
-    {
-        return false;
-    }
+    public abstract boolean eventHandler_pluginUninstall(NodeCore core, Connector conn);
     // Methods - Optional ******************************************************
     /**
      * Invoked before the plugin is unloaded from the runtime.

@@ -310,6 +310,7 @@ public class CodeJava
         kvs.put("text", qdata.getText());
         if(!viewCode)
         {
+            kvs.put("view_code", false);
             kvs.put("whitelist", qdata.getWhitelist());
             kvs.put("skeleton", qdata.getSkeleton());
             kvs.put("error_messages", adata.getErrors());
@@ -318,6 +319,8 @@ public class CodeJava
         }
         else
         {
+            kvs.put("view_code", true);
+            kvs.put("code", adata.getCode());
         }
         // -- Compiler status
         CompilerResult.CompileStatus cs = adata.getStatus();

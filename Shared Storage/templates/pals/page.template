@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!--
+		Programming Assessment and Learning System (PALS)
+			- Processed in:	<#if pals_time??>${pals_time}</#if> m/s
+			- Node:			<#if pals_node??>${pals_node}</#if>
+	-->
+	<title>PALS - <#if pals_title??>${pals_title} - </#if><#if pals_institution??>${pals_institution}</#if></title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="/content/css/layout.css">
+	<#if pals_header??>${pals_header}</#if>
+</head>
+<body>
+	<div class="layout_body">
+		<div class="banner">
+			<div class="items">
+				<h1>PALS - <#if pals_institution??>${pals_institution}</#if></h1>
+			</div>
+		</div>
+		<div class="nav">
+			<ul class="items">
+				<div class="ritems">
+					<#if user??>
+						${user.getUsername()} <a href="/account/logout">Logout</a>
+					<#else>
+						<a href="/account/register">Register</a> <a href="/account/login">Login</a>
+					</#if>
+				</div>
+				<li>
+					<a href="/home">Home</a>
+				</li>
+				<#if user??>
+				<li>
+					<a href="/modules">Modules</a>
+					<#list user.getModules(data.getConnector()) as module>
+					<ul>
+						<li>
+							<a href="/modules/${module.getModuleID()?string}">${module.getTitle()}</a>
+						</li>
+					</ul>
+					</#list>
+				</li>
+				</#if>
+				<#if user?? && user.getGroup().isAdmin()>
+				<li>
+					<a href="/admin">Admin</a>
+					<ul>
+						<#if user.getGroup().isAdminSystem()>
+						<li>
+							<a href="/admin/nodes">Nodes</a>
+						</li>
+						</#if>
+						<#if user.getGroup().isAdminSystem()>
+						<li>
+							<a href="/admin/plugins">Plugins</a>
+						</li>
+						</#if>
+						<#if user.getGroup().isAdminModules()>
+						<li>
+							<a href="/admin/modules">Modules</a>
+						</li>
+						</#if>
+						<#if user.getGroup().isAdminQuestions()>
+						<li>
+							<a href="/admin/questions">Questions</a>
+						</li>
+						</#if>
+						<#if user.getGroup().isAdminUsers()>
+						<li>
+							<a href="/admin/users">Users</a>
+						</li>
+						</#if>
+						<#if user.getGroup().isMarkerGeneral()>
+						<li>
+							<a href="/admin/marking">Marking</a>
+						</li>
+						</#if>
+						<#if user.getGroup().isAdminModules()>
+						<li>
+							<a href="/admin/stats">Stats</a>
+						</li>
+						</#if>
+					</ul>
+				</li>
+				</#if>
+				<#if user??>
+				<li>
+					<a href="/account/settings">Account</a>
+					<ul>
+						<li>
+							<a href="/account/settings">Settings</a>
+						</li>
+						<li>
+							<a href="/account/logout">Logout</a>
+						</li>
+					</ul>
+				</li>
+				</#if>
+				<div class="clear"></div>
+			</ul>
+			<div class="clear"></div>
+		</div>
+		<div class="content">
+			<#if pals_content??>
+				<#include "../"+pals_content>
+			</#if>
+			&nbsp;
+		</div>
+		<div class="footer">
+			Programming Assessment and Learning System
+			<br />
+			<a href="http://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 (CC-BY)</a>
+		</div>
+	</div>
+</body>
+</html>

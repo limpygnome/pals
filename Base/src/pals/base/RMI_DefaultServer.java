@@ -28,4 +28,9 @@ public class RMI_DefaultServer extends UnicastRemoteObject  implements RMI_Inter
         // Return wrapper...
         return response;
     }
+    @Override
+    public void shutdown() throws RemoteException
+    {
+        core.stop(NodeCore.StopType.Shutdown);
+    }
 }

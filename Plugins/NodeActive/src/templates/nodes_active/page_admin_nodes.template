@@ -1,0 +1,47 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/nodes">Nodes</a></h2>
+
+<table class="table3">
+    <tr>
+        <td colspan="3"></td>
+        <th colspan="2">RMI</th>
+        <td></td>
+    </tr>
+    <tr>
+        <th>UUID</th>
+        <th>Title</th>
+        <th>Last Active</th>
+        <th>IP</th>
+        <th>Port</th>
+        <th>Options</th>
+    </tr>
+    <#list nodes as node>
+        <tr class="<#if node.isOnline()>node_online<#else>node_offline</#if>">
+            <td>${node.getUUID().getHexHyphens()?html}</td>
+            <td>${node.getTitle()?html}</td>
+            <td title="${node.getLastActive().toString("dd/MM/YYYY HH:mm:ss")?html}">${node.getLastActiveHuman()?html}</td>
+            <td><#if node.getRmiIP??>${node.getRmiIP()?html}</#if></td>
+            <td><#if node.getRmiPort??>${node.getRmiPort()?c}</#if></td>
+            <td>
+                <a href="/admin/nodes?uuid=${node.getUUID().getHex()?html}&amp;action=shutdown&amp;csrf=${csrf}">Shutdown</a>
+            </td>
+        </tr>
+    </#list>
+</table>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<#if warning??>
+    <p class="warning">
+        ${warning?html}
+    </p>
+</#if>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>

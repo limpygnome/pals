@@ -14,6 +14,20 @@ import pals.base.web.WebRequestData;
  */
 public class JavaCodeMetrics
 {
+    // lines of code
+    // correctly named classes and methods - capitalisation ~ refer to java api
+    // ratio of comment-lines to code-lines
+    // style++ ~ use p1,p2,p3,p4 values idea (from former NY paper / rees 1982):
+    // -- lines of code
+    // -- blank lines
+    // -- comment lines
+    // -- number of global variables
+    // -- number of local variables
+    // -- number of numeric constants
+    // -- number of classes
+    // -- number of methods
+    // -- average methods per class
+    
     // Constants ***************************************************************
     public static final UUID    UUID_CTYPE = UUID.parse("5855d34f-cf37-435f-bddd-0dbfcea72fd7");
     public static final String  TITLE = "Java: Code Metrics";

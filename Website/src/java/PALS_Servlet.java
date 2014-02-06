@@ -168,14 +168,14 @@ public class PALS_Servlet extends HttpServlet
             // cookies or headers at this point.
             
             // Destroy any temp files
-//            String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
-//            File file;
-//            for(UploadedFile uf : dataRequest.getFiles())
-//            {
-//                file = new File(tempFolder + "/" + uf.getTempName());
-//                if(file.exists() && file.isFile())
-//                    file.delete();
-//            }
+            String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
+            File file;
+            for(UploadedFile uf : dataRequest.getFiles())
+            {
+                file = new File(tempFolder + "/" + uf.getTempName());
+                if(file.exists() && file.isFile())
+                    file.delete();
+            }
         }
         catch(RemoteException ex)
         {

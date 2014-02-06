@@ -17,4 +17,8 @@ public interface RMI_Interface extends Remote
      * @throws RemoteException Thrown if an issue occurs with RMI.
      */
     public RemoteResponse handleWebRequest(RemoteRequest request) throws RemoteException;
+    /**
+     * Informs this node to shutdown; this will not shutdown the physical host.
+     */
+    public void shutdown() throws RemoteException;
 }

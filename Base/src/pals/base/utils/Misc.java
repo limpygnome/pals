@@ -9,6 +9,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeSet;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.Period;
 import pals.base.NodeCore;
 
 /**
@@ -197,5 +200,34 @@ public class Misc
         ByteArrayInputStream deserialBais = new ByteArrayInputStream(data);
         ObjectInputStream deserialOis = new PluginObjectInputStream(core, deserialBais);
         return deserialOis.readObject();
+    }
+    /**
+     * @param dt The date-time to compare to present.
+     * @return A more human-readable date-time representation, which returns
+     * a string saying e.g. x days ago.
+     */
+    public static String humanDateTime(DateTime dt)
+    {
+        Period p = new Period(dt, DateTime.now());
+        int years = p.getYears();
+        int months = p.getMonths();
+        int days = p.getDays();
+        int hours = p.getHours();
+        int mins = p.getMinutes();
+        int secs = p.getSeconds();
+        if(years == 0)
+        {
+            if(months > 0)
+                return months+" month"+(months!=1?"s":"")+" ago";
+            else if(days > 0)
+                return days+" day"+(days!=1?"s":"")+" ago";
+            else if(hours > 0)
+                return hours+" hour"+(hours!=1?"s":"")+" ago";
+            else if(mins > 0)
+                return mins+" minute"+(mins!=1?"s":"")+" ago";
+            else if(secs > 0)
+                return secs+" second"+(secs!=1?"s":"")+" ago";
+        }
+        return dt.toString("dd/MM/YYYY HH:mm:ss");
     }
 }

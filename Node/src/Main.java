@@ -45,5 +45,6 @@ public class Main
                 System.err.println("Node error ~ InterruptedException ~ core.waitStateChange ~ '" + ex.getMessage() + "'!");
             }
         }
+        System.exit(0);
     }
 }

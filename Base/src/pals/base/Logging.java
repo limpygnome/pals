@@ -160,6 +160,9 @@ public class Logging
      */
     public synchronized void log(String alias, String message, EntryType et)
     {
+        // Check the alias is valid
+        if(alias == null || alias.length() == 0)
+            return;
         // Check we log the type of event
         if(!typesLogged.contains(et))
             return;
