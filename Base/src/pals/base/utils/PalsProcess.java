@@ -110,12 +110,14 @@ public class PalsProcess
      * with the method {@link #formatPath(java.lang.String)}.
      * 
      * @param core Current instance of the core.
+     * @param workingDir The working directory of the process.
      * @param fullPath The full path of the program  to execute.
      * @param args The arguments to be passed to the program.
      * @return The process created; null if it failed to be created.
      */
-    public static PalsProcess create(NodeCore core, String fullPath, String[] args)
+    public static PalsProcess create(NodeCore core, String workingDir, String fullPath, String[] args)
     {
+        File fWD = new File(workingDir);
         // Fetch credentials
         String username = core.getSettings().getStr("processes/credentials/username");
         String password = core.getSettings().getStr("processes/credentials/password");
@@ -158,7 +160,8 @@ public class PalsProcess
                 default:
                     return null;
             }
-            //printDebug(cmd);
+            printDebug(cmd);
+            pb.directory(fWD);
             pb.command(cmd);
         }
         catch(IOException ex)

@@ -156,8 +156,10 @@ public class JavaTestProgram
                     sandboxArgs = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, qcdata.getEpClass(), qcdata.getEpMethod(), qdata.getWhitelist(), false, inputTypes, inputs);
                 }
                 // Create process for code
-                PalsProcess proc = PalsProcess.create(core, "java", sandboxArgs);
+                PalsProcess proc = PalsProcess.create(core, pathIAQ, "java", sandboxArgs);
+                // Define process parameters
                 proc.getProcessBuilder().redirectErrorStream(qcdata.getMergeStdErr());
+                // Start process
                 if(!proc.start())
                 {
                     iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);

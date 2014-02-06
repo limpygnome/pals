@@ -147,4 +147,35 @@ public class Files
                 getFiles(f, files, includeDirs, includeFiles, extFilter, subDirs);
         }
     }
+    /**
+     * @param path The path of the directory to test, exclusive of the array
+     * returned.
+     * @return Array of directories which are empty; can be empty (array).
+     */
+    public static File[] getDirsEmpty(String path)
+    {
+        File f = new File(path);
+        if(!f.exists())
+            return new File[0];
+        ArrayList<File> dirs = new ArrayList<>();
+        // Recurse sub-dirs of specified path
+        getDirsEmptyRecursive(f, dirs, true);
+        return dirs.toArray(new File[dirs.size()]);
+    }
+    private static void getDirsEmptyRecursive(File dir, ArrayList<File> dirs, boolean topDir)
+    {
+        File[] fl = dir.listFiles();
+        // Check if the current directory is empty
+        if(fl.length == 0)
+            dirs.add(dir);
+        else
+        {
+            // Iterate sub-dirs
+            for(File f : dir.listFiles())
+            {
+                if(f.isDirectory())
+                    getDirsEmptyRecursive(f, dirs, false);
+            }
+        }
+    }
 }

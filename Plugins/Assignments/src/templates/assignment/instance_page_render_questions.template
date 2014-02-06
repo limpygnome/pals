@@ -14,7 +14,7 @@
     </p>
 </#if>
 
-<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/${current_page?c}<#if edit_mode>?edit=1</#if>">
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/${current_page?c}<#if edit_mode>?edit=1</#if>" enctype="multipart/form-data">
     <#list questions as question>
         <#if !capture_mode>
             <#if question.hasInstanceQuestion()>

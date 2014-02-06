@@ -46,7 +46,12 @@ public class SandboxSecurityManager extends SecurityManager
                 System.out.println("[DEBUG] Security-manager - checking path - p: '"+path+"', fp: "+fPath+"', bp: '"+basePath+"'.");
             // Perform check
             if(!fPath.startsWith(basePath+"/") && !fPath.equals(basePath))
-                throw new SecurityException("Restricted path.");
+            {
+                System.out.println("[DEBUG] Path disallowed ~ '"+path+"'.");
+                throw new SecurityException("Restricted path '"+path+"'.");
+            }
+            else if(JavaSandbox.modeDebug)
+                System.out.println("[DEBUG] Path allowed ~ '"+path+"'.");
         }
         catch(IOException ex)
         {
@@ -97,10 +102,14 @@ public class SandboxSecurityManager extends SecurityManager
                             case "read":        return;
                         }
                         break;
+                    case "user.dir":
+                        // Working-directory - safe
+                        // -- http://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
+                        return;
                 }
                 break;
             }
         }
-        throw new SecurityException();
+        throw new SecurityException("Attempted disallowed operation; permission: "+p.getClass().getName()+"/"+p.getName());
     }
 }

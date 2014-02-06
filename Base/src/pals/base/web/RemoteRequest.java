@@ -160,7 +160,8 @@ public class RemoteRequest implements Serializable
     }
     /**
      * @param key The key/name of the file.
-     * @return The file associated with the key.
+     * @return The file associated with the key; null if the item does not
+     * exist.
      */
     public synchronized UploadedFile getFile(String key)
     {

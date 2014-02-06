@@ -1,6 +1,7 @@
 package pals.plugins.handlers.defaultqch.java;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
@@ -12,6 +13,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import org.apache.commons.io.FileUtils;
 import pals.base.NodeCore;
+import pals.base.utils.Files;
 import pals.base.utils.PalsProcess;
 import pals.base.web.WebRequestData;
 
@@ -116,24 +118,22 @@ public class Utils
         // Fetch compiler
         if(jc == null)
             return new CompilerResult(CompilerResult.CompileStatus.Failed_CompilerNotFound, null);
-        // Recreate the temporary directory
+        // Reset directory
+        try
         {
             File f = new File(pathTemp);
-            // Delete the directory
-            if(f.exists())
-            {
-                try
-                {
-                    FileUtils.deleteDirectory(f);
-                }
-                catch(IOException ex)
-                {
-                    return new CompilerResult(CompilerResult.CompileStatus.Failed_TempDirectory, null);
-                }
-            }
-            // (Re)create the directory
-            if(!f.mkdir())
-                return new CompilerResult(CompilerResult.CompileStatus.Failed_TempDirectory, null);
+            // Purge .class files
+            File[] t = Files.getAllFiles(pathTemp, false, true, ".class", true);
+            for(File c : t)
+                c.delete();
+            // Remove empty directories
+            t = Files.getDirsEmpty(pathTemp);
+            for(File c : t)
+                c.delete();
+        }
+        catch(IOException ex)
+        {
+            return new CompilerResult(CompilerResult.CompileStatus.Failed_TempDirectory, null);
         }
         // Setup virtual file system for compiler
         CompilerFileManager cfm = new CompilerFileManager(jc.getStandardFileManager(null, null, null), pathTemp, false);

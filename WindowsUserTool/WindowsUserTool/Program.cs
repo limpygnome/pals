@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Diagnostics;
 using System.Security;
@@ -48,6 +49,7 @@ namespace WindowsUserTool
                 proc.StartInfo.UserName = username;
                 proc.StartInfo.Password = password;
                 proc.StartInfo.FileName = args[3];
+                proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(args[3]);
                 proc.StartInfo.RedirectStandardInput = true;
                 proc.StartInfo.RedirectStandardOutput = true;
                 proc.StartInfo.RedirectStandardError = true;

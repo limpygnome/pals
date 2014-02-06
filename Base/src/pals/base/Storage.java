@@ -1,6 +1,7 @@
 package pals.base;
 
 import java.io.File;
+import java.util.Random;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
@@ -134,6 +135,32 @@ public class Storage
     public static String getPath_tempWeb(String pathShared)
     {
         return pathShared + "/temp_web";
+    }
+    /**
+     * Gets a temporary path for a directory; this should be deleted by the
+     * system invoking this method.
+     * 
+     * @param pathShared The path of the shared directory/storage.
+     * @param ip The remote address of the user.
+     * @return The path for a new directory; this must be created by the
+     * invoker.
+     */
+    public static String getPath_tempWebDir(String pathShared, String ip)
+    {
+        Random rng = new Random(System.currentTimeMillis());
+        return pathShared+"/temp_web/"+ip.replace(":", ".")+"_"+rng.nextInt();
+    }
+    /**
+     * Gets a temporary path for uploading a file; this should be deleted by
+     * the system invoking this method.
+     * 
+     * @param pathShared The path of the shared directory/storage.
+     * @param ip The remote address of the user.
+     * @return The path for a new file.
+     */
+    public static String getPath_tempWebFile(String pathShared, String ip)
+    {
+        return getPath_tempWebDir(pathShared, ip)+".part";
     }
     /**
      * @param pathShared The path of the shared directory/storage.

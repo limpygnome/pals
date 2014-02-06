@@ -1,0 +1,125 @@
+<table class="table4">
+    <tr>
+        <td colspan="2">
+            ${text?html}
+        </td>
+    </tr>
+    <tr>
+        <th colspan="2">Code Skeleton (Read-Only)</th>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="12" readonly><#if code??>${code?html}<#elseif skeleton??>${skeleton?html}</#if></textarea>
+        </td>
+    </tr>
+    <tr>
+        <th colspan="2">Upload</th>
+    </tr>
+    <tr>
+        <td>
+            File:
+        </td>
+        <td>
+            <input type="file" name="codejava_${aqid}_upload" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Options:
+        </td>
+        <td>
+            <input type="checkbox" name="codejava_${aqid}_compile" value="1" /> Compile code files.
+            <input type="checkbox" name="codejava_${aqid}_reset" value="1" /> Reset existing files.
+        </td>
+    </tr>
+    <tr>
+        <th colspan="2">Uploaded Files</th>
+    </tr>
+    <tr>
+        <td>
+            Code:
+        </td>
+        <td>
+            <#if code_names?? && code_names?has_content>
+                <ul>
+                    <#list code_names as cn>
+                        <li>${cn?html}</li>
+                    </#list>
+                </ul>
+            <#else>
+                No files uploaded.
+            </#if>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Other:
+        </td>
+        <td>
+            <#if file_names?? && file_names?has_content>
+                <ul>
+                    <#list file_names as fn>
+                        <li>${fn?html}</li>
+                    </#list>
+                </ul>
+            <#else>
+                No files uploaded.
+            </#if>
+        </td>
+    </tr>
+</table>
+
+<input type="hidden" name="codejava_${aqid}_submitted" value="1" />
+
+<script>
+    CodeMirror.fromTextArea(document.getElementById("codejava_${aqid}_code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-java",
+        readOnly: true
+    });
+</script>
+
+<#if whitelist?? && whitelist?has_content>
+    <p>
+        The following classes are allowed only:
+    </p>
+    <ul>
+        <#list whitelist as s>
+            <li>${s?html}</li>
+        </#list>
+    </ul>
+</#if>
+
+<#if info??>
+    <p class="info">
+        ${info?html}
+    </p>
+</#if>
+
+<#if warning??>
+    <p class="warning">
+        ${warning?html}
+    </p>
+</#if>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<#if error_messages?? && error_messages?has_content>
+    <h3>Compile Errors</h3>
+    <#list error_messages as msg>
+        <p class="error">
+            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
+        </p>
+    </#list>
+</#if>

@@ -174,8 +174,8 @@ public class JavaTestInputs
                     argsQC = Utils.buildJavaSandboxArgs(core, javaSandbox, pathQC, className, method, whiteList, true, types, formattedInputs);
                     argsIAQ = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, className, method, whiteList, true, types, formattedInputs);
                     // Execute each process and capture output
-                    valQC = run(PalsProcess.create(core, "java", argsQC), timeout);
-                    valIAQ = run(PalsProcess.create(core, "java", argsIAQ), timeout);
+                    valQC = run(PalsProcess.create(core, pathQC, "java", argsQC), timeout);
+                    valIAQ = run(PalsProcess.create(core, pathIAQ, "java", argsIAQ), timeout);
                     // Compare values
                     if(valIAQ == null || valQC == null)
                     {

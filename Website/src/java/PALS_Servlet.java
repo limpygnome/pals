@@ -74,26 +74,16 @@ public class PALS_Servlet extends HttpServlet
             RemoteRequest dataRequest = new RemoteRequest(sessid, relUrl, request.getRemoteAddr());
             // -- Add request fields
             for(Map.Entry<String,String[]> param : request.getParameterMap().entrySet())
-            {
                 dataRequest.setFields(param.getKey(), param.getValue());
-            }
             // -- Add request files (and possibly fields)
             if(ServletFileUpload.isMultipartContent(request))
             {
-                Random rng = new Random(System.currentTimeMillis());
                 ServletFileUpload uploads = new ServletFileUpload();
                 try
                 {
-                    // Prepare temp storage dir
-                    String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
-                    {
-                        File tf = new File(tempFolder);
-                        if(!tf.exists())
-                            tf.mkdir();
-                    }
                     FileItemIterator itFile = uploads.getItemIterator(request);
                     // Iterate each upload item
-                    String filename;
+                    File file;
                     FileItemStream fis;
                     FileOutputStream fos;
                     InputStream is;
@@ -104,13 +94,14 @@ public class PALS_Servlet extends HttpServlet
                     {
                         fis = itFile.next();
                         is = fis.openStream();
-                        if(!fis.isFormField())
+                        if(!fis.isFormField() && fis.getName() != null && fis.getName().length() > 0)
                         {
-                            // Build filename
-                            filename = "part_" + request.getRemoteAddr().replace(":", ".") + "_" + rng.nextInt() + ".part";
+                            file = new File(
+                                    Storage.getPath_tempWebFile(settings.getStr("storage/path"), request.getRemoteAddr())
+                            );
                             // Write data to disk
                             size = 0;
-                            fos = new FileOutputStream(new File(tempFolder + "/" + filename));
+                            fos = new FileOutputStream(file);
                             data = new byte[1024];
                             while((bytesRead = is.read(data)) != -1)
                             {
@@ -120,7 +111,7 @@ public class PALS_Servlet extends HttpServlet
                             fos.flush();
                             fos.close();
                             // Add to request
-                            dataRequest.setFile(fis.getFieldName(), new UploadedFile(fis.getName(), fis.getContentType(), size, filename));
+                            dataRequest.setFile(fis.getFieldName(), new UploadedFile(fis.getName(), fis.getContentType(), size, file.getName()));
                         }
                         else
                         {
@@ -177,14 +168,14 @@ public class PALS_Servlet extends HttpServlet
             // cookies or headers at this point.
             
             // Destroy any temp files
-            String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
-            File file;
-            for(UploadedFile uf : dataRequest.getFiles())
-            {
-                file = new File(tempFolder + "/" + uf.getTempName());
-                if(file.exists() && file.isFile())
-                    file.delete();
-            }
+//            String tempFolder = Storage.getPath_tempWeb(settings.getStr("storage/path"));
+//            File file;
+//            for(UploadedFile uf : dataRequest.getFiles())
+//            {
+//                file = new File(tempFolder + "/" + uf.getTempName());
+//                if(file.exists() && file.isFile())
+//                    file.delete();
+//            }
         }
         catch(RemoteException ex)
         {

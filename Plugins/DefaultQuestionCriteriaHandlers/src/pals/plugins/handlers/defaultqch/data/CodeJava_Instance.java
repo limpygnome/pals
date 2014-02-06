@@ -3,25 +3,51 @@ package pals.plugins.handlers.defaultqch.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 
 /**
  * Saves the response from a user for a Code-Java question instance.
+ * 
+ * The underlying data-structures are kept null, unless needed, to conserve
+ * storage for serialization.
+ * 
+ * The names of files uploaded are also stored, which reduces I/O latency and
+ * calls (since files can be within sub-directories which requires recursion).
  */
 public class CodeJava_Instance implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
-    private final TreeMap<String,String>    code;
-    private final ArrayList<CodeError>      errors;
-    private CompilerResult.CompileStatus    status;
+    private         TreeMap<String,String>          code;
+    private         TreeSet<String>                 files;
+    private final   ArrayList<CodeError>            errors;
+    private         CompilerResult.CompileStatus    status;
     // Methods - Constructors **************************************************
     public CodeJava_Instance()
     {
-        this.code = new TreeMap<>();
+        this.code = null;
+        this.files = null;
         this.errors = new ArrayList<>();
         this.status = CompilerResult.CompileStatus.Unknown;
+    }
+    // Methods - File Collection ***********************************************
+    public void filesClear()
+    {
+        if(files != null)
+            files.clear();
+    }
+    public void filesAdd(String fileName)
+    {
+        if(files == null)
+            files = new TreeSet<>();
+        files.add(fileName);
+    }
+    public int filesCount()
+    {
+        return files == null ? 0 : files.size();
     }
     // Methods - Code Collection ***********************************************
     /**
@@ -29,7 +55,8 @@ public class CodeJava_Instance implements Serializable
      */
     public void codeClear()
     {
-        this.code.clear();
+        if(code != null)
+            code.clear();
     }
     /**
      * @param className The full class-name of the code being added.
@@ -37,6 +64,8 @@ public class CodeJava_Instance implements Serializable
      */
     public void codeAdd(String className, String code)
     {
+        if(this.code == null)
+            this.code = new TreeMap<>();
         this.code.put(className, code);
     }
     /**
@@ -44,19 +73,20 @@ public class CodeJava_Instance implements Serializable
      */
     public void codeRemove(String className)
     {
-        this.code.remove(className);
+        if(code != null)
+            code.remove(className);
     }
     
     public String codeGetFirst()
     {
-        return code.isEmpty() ? null : code.entrySet().iterator().next().getValue();
+        return code == null || code.isEmpty() ? null : code.entrySet().iterator().next().getValue();
     }
     /**
      * @return The number of classes provided by the user.
      */
     public int codeSize()
     {
-        return this.code.size();
+        return code == null ? 0 : code.size();
     }
     // Methods - Mutators ******************************************************
     /**
@@ -64,7 +94,7 @@ public class CodeJava_Instance implements Serializable
      */
     public void errorsAdd(CodeError error)
     {
-        this.errors.add(error);
+        errors.add(error);
     }
     /**
      * Clears any errors.
@@ -113,10 +143,37 @@ public class CodeJava_Instance implements Serializable
     }
     /**
      * @return The underlying data-structure used to hold code provided by
-     * users.
+     * users; can be null.
      */
     public TreeMap<String,String> getCodeMap()
     {
-        return this.code;
+        return code;
+    }
+    /**
+     * @return An array of the names of code files submitted,
+     * ordered. Can be empty.
+     */
+    public String[] getCodeNames()
+    {
+        if(code == null)
+            return new String[0];
+        Set<String> names = code.keySet();
+        return names.toArray(new String[names.size()]);
+    }
+    /**
+     * @return The underlying data-structure used to hold a list of files;
+     * can be null.
+     */
+    public TreeSet<String> getFilesMap()
+    {
+        return files;
+    }
+    /**
+     * @return An array of the relative paths of files submitted,
+     * ordered. Can be empty.
+     */
+    public String[] getFileNames()
+    {
+        return files == null ? new String[0] : files.toArray(new String[files.size()]);
     }
 }
