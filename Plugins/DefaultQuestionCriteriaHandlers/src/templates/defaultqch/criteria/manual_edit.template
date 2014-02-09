@@ -12,7 +12,7 @@
                 Title:
             </td>
             <td>
-                <input type="text" name="crit_title" value="${crit_title}" />
+                <input type="text" name="crit_title" value="${crit_title?html}" />
             </td>
         </tr>
         <tr>
@@ -20,7 +20,7 @@
                 Weight:
             </td>
             <td>
-                <input type="text" name="crit_weight" value="${crit_weight}" />
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
             </td>
         </tr>
         <tr>

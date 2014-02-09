@@ -69,6 +69,14 @@ public class CodeJava_Instance implements Serializable
         this.code.put(className, code);
     }
     /**
+     * @param className The full class-name of the source-code to fetch.
+     * @return The source-code of the specified class-name, or null.
+     */
+    public String codeGet(String className)
+    {
+        return code.get(className);
+    }
+    /**
      * @param className The full name of the class to remove.
      */
     public void codeRemove(String className)

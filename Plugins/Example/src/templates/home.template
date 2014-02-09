@@ -7,6 +7,8 @@
     ...to the PALS (Programming Assessment and Learning System) system.
 </p>
 
-<p>
-    Please <a href="/login">login</a> to access your assessment and learning environment.
-</p>
+<#if !(user??)>
+    <p>
+        Please <a href="/login">login</a> to access your assessment and learning environment.
+    </p>
+</#if>

@@ -1,0 +1,129 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">Edit Criteria</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">
+    <table class="table2 questions_form">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Type:
+            </td>
+            <td>
+                <select name="crit_type">
+                    <#list 0..types?size-1 as i>
+                        <option value="${types[i][0]?c}" <#if crit_type?? && crit_type==types[i][0]>selected</#if>>${types[i][1]?html}</option>
+                    </#list>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Classes:
+            </td>
+            <td>
+                <textarea name="crit_classes" rows="5"><#if crit_classes??>${crit_classes?html}</#if></textarea><br />
+                Leave empty for all classes.
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Metric Thresholds
+            </th>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <img src="/content/images/metrics_diagram.png" alt="Thresholds Diagram" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Lo:
+            </td>
+            <td>
+                <input type="text" name="crit_lo" value="<#if crit_lo??>${crit_lo}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Lotol:
+            </td>
+            <td>
+                <input type="text" name="crit_lotol" value="<#if crit_lotol??>${crit_lotol}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Hitol:
+            </td>
+            <td>
+                <input type="text" name="crit_hitol" value="<#if crit_hitol??>${crit_hitol}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Hi:
+            </td>
+            <td>
+                <input type="text" name="crit_hi" value="<#if crit_hi??>${crit_hi}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    A metric computes a value based on the code provided by a student; this allows marks
+    to be rewarded based on the metric falling within ranges.
+</p>
+<p>
+    Types without <i>ratio</i> are literal values; e.g. <i>lines of code</i> will compute
+    a value which is the total lines of code uploaded.
+</p>
+<p>
+    Types with <i>ratio</i>, result in a metric value inclusively between 0.0 to 1.0;
+    this is calculated by <i>[total of type of lines]/[total lines]</i>.
+</p>
+<p>
+    A metric value between lo to lotol or hitol to hi are lineally scaled between
+    zero to full marks. A metric value between lotol to hitol receives full-marks. This
+    methodology comes from <i>Rees 82</i>, <i>Automatic Assessment Aids for Pascal
+    Programs</i>.
+</p>
