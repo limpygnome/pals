@@ -165,14 +165,18 @@ public class JavaTestInputs
                 String[] argsQC, argsIAQ;
                 String valQC, valIAQ;
                 int correct = 0;
-                String[] formattedInputs;
+                String[] formattedArgs;
                 for(int row = 0; row < inputs.length; row++)
                 {
+                    formattedArgs = inputs[row];
+                    // Append types to args
+                    for(int i = 0; i < formattedArgs.length; i++)
+                        formattedArgs[i] = types[i]+"="+formattedArgs[i];
                     // Format inputs
-                    Utils.formatInputs(core, types, (formattedInputs = inputs[row]));
+                    Utils.formatInputs(core, formattedArgs);
                     // Build args for both
-                    argsQC = Utils.buildJavaSandboxArgs(core, javaSandbox, pathQC, className, method, whiteList, true, types, formattedInputs);
-                    argsIAQ = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, className, method, whiteList, true, types, formattedInputs);
+                    argsQC = Utils.buildJavaSandboxArgs(core, javaSandbox, pathQC, className, method, whiteList, true, formattedArgs);
+                    argsIAQ = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, className, method, whiteList, true, formattedArgs);
                     // Execute each process and capture output
                     valQC = run(PalsProcess.create(core, pathQC, "java", argsQC), timeout);
                     valIAQ = run(PalsProcess.create(core, pathIAQ, "java", argsIAQ), timeout);
@@ -186,7 +190,7 @@ public class JavaTestInputs
                     else if(valQC.equals(valIAQ))
                         correct++;
                     // Update result model
-                    icdata.setInput(row, inputsToStr(formattedInputs));
+                    icdata.setInput(row, inputsToStr(formattedArgs));
                     icdata.setOutputCorrect(row, valQC);
                     icdata.setOutputStudent(row, valIAQ);
                 }
@@ -204,8 +208,12 @@ public class JavaTestInputs
         if(inputs.length == 0)
             return "";
         StringBuilder sb = new StringBuilder();
+        int ind;
         for(String s : inputs)
-            sb.append(s).append(',');
+        {
+            ind = s.indexOf('=');
+            sb.append(ind == s.length()-1 ? "" : s.substring(ind+1)).append(';');
+        }
         return sb.deleteCharAt(sb.length()-1).toString();
     }
     private static String run(PalsProcess proc, int timeout)

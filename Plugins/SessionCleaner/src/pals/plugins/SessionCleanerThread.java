@@ -6,16 +6,16 @@ import pals.base.Logging;
 import pals.base.Storage;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.utils.ExtendedThread;
 import pals.base.utils.Files;
 
 /**
  * The thread used for performing cleanups.
  */
-public class SessionCleanerThread extends Thread
+public class SessionCleanerThread extends ExtendedThread
 {
     // Fields ******************************************************************
     private SessionCleaner sc;
-    private boolean shouldRun;
     // Methods - Constructors **************************************************
     public SessionCleanerThread(SessionCleaner sc)
     {
@@ -25,16 +25,16 @@ public class SessionCleanerThread extends Thread
     @Override
     public void run()
     {
-        shouldRun = true;
         // Run periodically to cleanup temp files and session data
         long    interval = sc.getSettings().getInt("interval_ms"),
-                intervalPrivate = sc.getSettings().getInt("interval_private_ms");
+                sessionPublic = sc.getSettings().getInt("session_public_ms"),
+                sessionPrivate = sc.getSettings().getInt("session_private_ms");
         long    lastRan = System.currentTimeMillis();
         Connector conn;
-        while(shouldRun)
+        while(!extended_isStopped())
         {
             // Check if to perform a cleanup
-            if(System.currentTimeMillis()-lastRan >= interval)
+            if(System.currentTimeMillis()-lastRan >= interval-100) // Allow for 100 m/s early
             {
                 lastRan = System.currentTimeMillis();
                 // Cleanup the database
@@ -43,7 +43,7 @@ public class SessionCleanerThread extends Thread
                 {
                     if(conn == null)
                         throw new DatabaseException(DatabaseException.Type.ConnectionFailure);
-                    conn.execute("DELETE FROM pals_http_sessions WHERE (private='0' AND last_active < current_timestamp-CAST(? AS INTERVAL) OR (private='1' AND last_active < current_timestamp-CAST(? AS INTERVAL));", interval+" milliseconds", intervalPrivate+" milliseconds");
+                    conn.execute("DELETE FROM pals_http_sessions WHERE ((private='0' AND last_active < current_timestamp-CAST(? AS INTERVAL)) OR (private='1' AND last_active < current_timestamp-CAST(? AS INTERVAL)));", sessionPublic+" milliseconds", sessionPrivate+" milliseconds");
                 }
                 catch(DatabaseException ex)
                 {
@@ -57,7 +57,7 @@ public class SessionCleanerThread extends Thread
                     File[] files = Files.getAllFiles(Storage.getPath_tempWeb(sc.getCore().getPathShared()), false, true, null, false);
                     for(File f : files)
                     {
-                        if(System.currentTimeMillis()-f.lastModified() >= interval)
+                        if(System.currentTimeMillis()-f.lastModified() >= sessionPublic)
                             f.delete();
                     }
                 }
@@ -72,15 +72,9 @@ public class SessionCleanerThread extends Thread
             }
             catch(InterruptedException ex)
             {
-                if(shouldRun)
-                    sc.getCore().getLogging().logEx("SessionCleaner", "Unexpectedly woken.", ex, Logging.EntryType.Error);
+                if(!extended_isStopped())
+                    sc.getCore().getLogging().logEx(SessionCleaner.LOGGING_ALIAS, "Unexpectedly woken.", ex, Logging.EntryType.Error);
             }
         }
-    }
-    // Methods *****************************************************************
-    public void stopRunning()
-    {
-        shouldRun = false;
-        interrupt();
     }
 }

@@ -21,7 +21,7 @@
             </td>
             <#if !hide_solution>
                 <td>
-                    ${result.getOutputCorrect(i)?html}
+                    ${result.getOutputCorrectWeb(i)}
                 </td>
             <#elseif i == 0>
                 <td rowspan="${result.getTests()}">
@@ -29,7 +29,7 @@
                 </td>
             </#if>
             <td>
-                ${result.getOutputStudent(i)?html}
+                ${result.getOutputStudentWeb(i)}
             </td>
             <td>
                 <#if result.isCorrect(i)>

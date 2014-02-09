@@ -1,20 +1,53 @@
 package pals.javasandbox;
 
+import pals.javasandbox.parsers.PA_Boolean;
+import pals.javasandbox.parsers.PA_Byte;
+import pals.javasandbox.parsers.PA_Char;
+import pals.javasandbox.parsers.PA_Double;
+import pals.javasandbox.parsers.PA_Float;
+import pals.javasandbox.parsers.PA_Integer;
+import pals.javasandbox.parsers.PA_Long;
+import pals.javasandbox.parsers.PA_Short;
+import pals.javasandbox.parsers.PA_String;
+import pals.javasandbox.parsers.Parser;
+
 /**
  * A parsed argument.
  * 
  * Accepted types:
  * - all primitives : byte, short, int, long, float, double, boolean and char.
+ * - object type: string
+ * 
+ * Argument format:
+ * <type>=<value>
+ * 
+ * Values which are arrays should contain commas; therefore strings cannot have
+ * commas, or they will be treated as a string array.
  */
 public class ParsedArgument
 {
     // Fields ******************************************************************
-    private final Object    argValue;
-    private final Class     argClass;
+    private Object  argValue;
+    private Class   argClass;
     // Methods - Constructors **************************************************
-    public ParsedArgument(Object argValue, Class argClass)
+    private ParsedArgument()
+    {
+        this.argValue = null;
+        this.argClass = null;
+    }
+    // Methods - Mutators ******************************************************
+    /**
+     * @param argValue Sets the parsed value.
+     */
+    public void setArgValue(Object argValue)
     {
         this.argValue = argValue;
+    }
+    /**
+     * @param argClass Sets the parsed class.
+     */
+    public void setArgClass(Class argClass)
+    {
         this.argClass = argClass;
     }
     // Methods - Accessors *****************************************************
@@ -32,52 +65,77 @@ public class ParsedArgument
     {
         return argClass;
     }
-    
+    /**
+     * Parses an argument.
+     * 
+     * @param arg The argument data; refer to class documentation.
+     * @return A parsed argument.
+     * @throws IllegalArgumentException Thrown if the argument data is
+     * invalid.
+     */
     public static ParsedArgument parse(String arg) throws IllegalArgumentException
     {
         // http://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html
        int se = arg.indexOf("=");
-       if(se != -1 && se < arg.length() - 1)
+       if(se != -1)
        {
            try
            {
-               String  k = arg.substring(0, se),
-                       v = arg.substring(se+1);
+               // Prepare values
+               boolean array = false;
+               String   k = arg.substring(0, se).toLowerCase();
+               String[] v = se == arg.length()-1 ? new String[0] : arg.substring(se+1).split(",");
+               if(k.length() > 4 && k.endsWith(":arr"))
+               {
+                   array = true;
+                   k = k.substring(0, k.length()-4);
+               }
+               // Create parser
+               Parser p;
                switch(k)
                {
                    case "byte":
-                       return new ParsedArgument(Byte.parseByte(v), byte.class);
+                       p = new PA_Byte();
+                       break;
                    case "short":
-                       return new ParsedArgument(Short.parseShort(v), short.class);
+                       p = new PA_Short();
+                       break;
                    case "int":
-                       return new ParsedArgument(Integer.parseInt(v), int.class);
+                       p = new PA_Integer();
+                       break;
                    case "long":
-                       return new ParsedArgument(Long.parseLong(v), long.class);
+                       p = new PA_Long();
+                       break;
                    case "float":
-                       return new ParsedArgument(Float.parseFloat(v), float.class);
+                       p = new PA_Float();
+                       break;
                    case "double":
-                       return new ParsedArgument(Double.parseDouble(v), double.class);
+                       p = new PA_Double();
+                       break;
                    case "string":
                    case "str":
-                       return new ParsedArgument(v, String.class);
+                       p = new PA_String();
+                       break;
                    case "char":
-                       if(v.length() == 1)
-                           return new ParsedArgument(v.charAt(0), char.class);
-                       else
-                       {
-                           // Attempt to parse as number
-                           int value = Integer.parseInt(v);
-                           return new ParsedArgument((char)value, char.class);
-                       }
+                       p = new PA_Char();
+                       break;
                    case "bool":
                    case "boolean":
-                       return new ParsedArgument(Boolean.parseBoolean(v), boolean.class);
+                       p = new PA_Boolean();
+                       break;
+                   default:
+                       throw new IllegalArgumentException("Invalid sandbox parsed argument type '"+k+"'.");
                }
+               // Parse data
+               ParsedArgument pa = new ParsedArgument();
+               p.parse(pa, v, array);
+               return pa;
            }
            catch(NumberFormatException | NullPointerException ex)
            {
+               throw new IllegalArgumentException("Invalid sandbox argument value(s).");
            }
        }
-       throw new IllegalArgumentException();
+       throw new IllegalArgumentException("Invalid sandbox argument(s).");
     }
 }

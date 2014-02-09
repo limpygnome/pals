@@ -123,13 +123,13 @@ public class AverageIdentifiers implements Metric
             }
             kvs.put("info", String.format("Average %s identifier length of %.0f - %.0f identifiers found.", type, rdata[2], rdata[1]));
             if(rdata[2] <= cdata.getLo())
-                kvs.put("error", "Your identifiers are too short in length.");
+                kvs.put("error", "Your "+type+" identifiers are too short in length.");
             else if(rdata[2] > cdata.getLo() && rdata[2] < cdata.getLotol())
-                kvs.put("warning", "Your identifiers are just a little too short.");
+                kvs.put("warning", "Your "+type+" identifiers are just a little too short.");
             else if(rdata[2] > cdata.getHitol() && rdata[2] < cdata.getHi())
-                kvs.put("warning", "Your identifiers are just a little too long.");
+                kvs.put("warning", "Your "+type+" identifiers are just a little too long.");
             else if(rdata[2] >= cdata.getHi())
-                kvs.put("error", "Your identifiers are too long.");
+                kvs.put("error", "Your "+type+" identifiers are too long.");
             else
                 kvs.put("success", "Acceptable average identifier length.");
             

@@ -388,6 +388,7 @@ public class CodeJava
                 }
                 // Update the iaq model
                 iaq.setData(adata);
+                iaq.setAnswered(adata.getStatus() == CompilerResult.CompileStatus.Success);
                 // Attempt to persist
                 InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
                 switch(iaqps)

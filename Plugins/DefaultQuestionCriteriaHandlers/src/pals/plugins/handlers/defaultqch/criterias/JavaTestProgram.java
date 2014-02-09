@@ -47,7 +47,7 @@ public class JavaTestProgram
     }
     // Constants ***************************************************************
     public static final UUID    UUID_CTYPE = UUID.parse("5ed0135a-f438-4487-ba24-6c7acd4c48ae");
-    public static final String  TITLE = "Java: Test Program";
+    public static final String  TITLE = "Java: Test Program I/O";
     public static final String  DESCRIPTION = "Performs dynamic analysis of a program using standard input/output.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
@@ -58,13 +58,13 @@ public class JavaTestProgram
             cdata = new JavaTestProgram_Criteria();
         // Check for postback
         RemoteRequest req = data.getRequestData();
-        String critTitle = req.getField("crit_title");
-        String critWeight = req.getField("crit_weight");
-        String critClass = req.getField("crit_class");
-        String critMethod = req.getField("crit_method");
-        String critArgs = req.getField("crit_args");
-        String critIO = req.getField("crit_io");
-        String critErrorThreshold = req.getField("crit_error_threshold");
+        String critTitle            = req.getField("crit_title");
+        String critWeight           = req.getField("crit_weight");
+        String critClass            = req.getField("crit_class");
+        String critMethod           = req.getField("crit_method");
+        String critArgs             = req.getField("crit_args");
+        String critIO               = req.getField("crit_io");
+        String critErrorThreshold   = req.getField("crit_error_threshold");
         // -- Optional
         String critMerge = req.getField("crit_merge");
         String critHide = req.getField("crit_hide");
@@ -149,11 +149,9 @@ public class JavaTestProgram
                 // Build sandbox arguments
                 String[] sandboxArgs;
                 {
-                    String[] inputs = qcdata.getEpArgs();
-                    String[] inputTypes = new String[inputs.length];
-                    for(int i = 0; i < inputs.length; i++)
-                        inputTypes[i] = "string";
-                    sandboxArgs = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, qcdata.getEpClass(), qcdata.getEpMethod(), qdata.getWhitelist(), false, inputTypes, inputs);
+                    String[] args = qcdata.getEpArgs();
+                    Utils.formatInputs(core, args);
+                    sandboxArgs = Utils.buildJavaSandboxArgs(core, javaSandbox, pathIAQ, qcdata.getEpClass(), qcdata.getEpMethod(), qdata.getWhitelist(), false, args);
                 }
                 // Create process for code
                 PalsProcess proc = PalsProcess.create(core, pathIAQ, "java", sandboxArgs);

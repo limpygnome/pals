@@ -176,7 +176,7 @@ public class JavaSandbox
         }
         catch(IllegalArgumentException ex)
         {
-            System.err.println("Could not parse entry-point arguments.");
+            System.err.println("Could not parse entry-point arguments ~ "+ex.getMessage()+".");
             printDebugData(ex);
             return;
         }

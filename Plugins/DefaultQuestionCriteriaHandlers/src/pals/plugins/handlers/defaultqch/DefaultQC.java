@@ -137,12 +137,35 @@ public class DefaultQC extends Plugin
         }
         return tc;
     }
+    private void unregisterTypeQuestion(Connector conn, UUID uuid)
+    {
+        TypeQuestion tq = TypeQuestion.load(conn, uuid);
+        if(tq != null)
+            tq.remove(conn);
+    }
+    private void unregisterTypeCriteria(Connector conn, UUID uuid)
+    {
+        TypeCriteria tc = TypeCriteria.load(conn, uuid);
+        if(tc != null)
+            tc.remove(conn);
+    }
     @Override
     public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         // Remove question types
-        
+        unregisterTypeQuestion(conn, CodeJava.UUID_QTYPE);
+        unregisterTypeQuestion(conn, MCQ.UUID_QTYPE);
+        unregisterTypeQuestion(conn, WrittenResponse.UUID_QTYPE);
         // Remove criteria types
+        unregisterTypeCriteria(conn, JavaClassExists.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaCodeMetrics.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaMethodExists.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaTestInputs.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaTestProgram.UUID_CTYPE);
+        unregisterTypeCriteria(conn, ManualMarking.UUID_CTYPE);
+        unregisterTypeCriteria(conn, MultipleChoice.UUID_CTYPE);
+        unregisterTypeCriteria(conn, RegexMatch.UUID_CTYPE);
+        unregisterTypeCriteria(conn, TextMatch.UUID_CTYPE);
         return true;
     }
     @Override

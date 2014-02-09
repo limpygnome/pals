@@ -219,7 +219,7 @@ public class JavaExistsShared
                                 Class[] params = new Class[tparams.length];
                                 for(int i = 0; i < tparams.length; i++)
                                 {
-                                    if((params[i] = Utils.parseClass(tparams[i])) == null)
+                                    if((params[i] = Utils.parseClass(tparams[i], cl)) == null)
                                     {
                                         // We have failed to parse a class for a question
                                         core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Could not parse param class '"+tparams[i]+"' during marking; aiqid '"+iac.getIAQ().getAIQID()+"', qcid '"+iac.getQC().getQCID()+"'.", Logging.EntryType.Warning);
@@ -229,7 +229,9 @@ public class JavaExistsShared
                                 }
                                 // Build return-type
                                 Class rt;
-                                if((rt = Utils.parseClass(trt)) == null)
+                                if(trt == null || trt.length() == 0)
+                                    rt = null;
+                                else if((rt = Utils.parseClass(trt, cl)) == null)
                                 {
                                     core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Could not parse return-type class '"+trt+"' during marking; aiqid '"+iac.getIAQ().getAIQID()+"', qcid '"+iac.getQC().getQCID()+"'.", Logging.EntryType.Warning);
                                     iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
@@ -239,7 +241,7 @@ public class JavaExistsShared
                                 try
                                 {
                                     Method m = c.getDeclaredMethod(cdata.getMethod(), params);
-                                    if(m.getReturnType().equals(rt))
+                                    if((rt == null && m.getReturnType().equals(Void.TYPE)) || m.getReturnType().equals(rt))
                                     {
                                         // Check modifiers
                                         ms = modifiers == -1 || m.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;

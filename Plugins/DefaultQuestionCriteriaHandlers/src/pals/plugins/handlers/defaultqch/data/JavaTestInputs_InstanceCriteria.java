@@ -1,6 +1,7 @@
 package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
+import pals.base.web.security.Escaping;
 
 /**
  * Stores the results from a Java test-inputs criteria.
@@ -67,6 +68,24 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     public String getOutputCorrect(int index)
     {
         return outputCorrect[index];
+    }
+    /**
+     * @param index The index of the test.
+     * @return The output from the student, with new-lines replaced by HTML
+     * line-breaks.
+     */
+    public String getOutputStudentWeb(int index)
+    {
+        return Escaping.htmlEncode(outputStudent[index]).replace("\n", "<br />");
+    }
+    /**
+     * @param index The index of the test.
+     * @return The output from the solution, with new-lines replaced by
+     * HTML line-breaks.
+     */
+    public String getOutputCorrectWeb(int index)
+    {
+        return Escaping.htmlEncode(outputCorrect[index]).replace("\n", "<br />");
     }
     /**
      * @return The total number of tests.

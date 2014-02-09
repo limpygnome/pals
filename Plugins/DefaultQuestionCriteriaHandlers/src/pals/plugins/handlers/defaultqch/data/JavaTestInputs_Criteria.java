@@ -63,7 +63,10 @@ public class JavaTestInputs_Criteria implements Serializable
             if(s.length() == 0 ||
                         !(
                             s.equals("byte") || s.equals("short") || s.equals("int") || s.equals("long") || s.equals("float") || s.equals("double") ||
-                            s.equals("bool") || s.equals("boolean") || s.equals("char") || s.equals("string") || s.equals("str")
+                            s.equals("bool") || s.equals("boolean") || s.equals("char") || s.equals("string") || s.equals("str") ||
+                    
+                            s.equals("byte:arr") || s.equals("short:arr") || s.equals("int:arr") || s.equals("long:arr") || s.equals("float:arr") || s.equals("double:arr") ||
+                            s.equals("bool:arr") || s.equals("boolean:arr") || s.equals("char:arr") || s.equals("string:arr") || s.equals("str:arr")
                         )
                     )
                 return false;
@@ -76,7 +79,8 @@ public class JavaTestInputs_Criteria implements Serializable
      * @param inputs The inputs to be tested; each line should correspond
      * to a set of inputs to test, with each set consisting of the corresponding
      * values for each primitive input-type to be specified. setInputTypes
-     * should be invoked first.
+     * should be invoked first. Values should be separated by semi-colon;
+     * a value, which is an array, should separate values using commas.
      * @return True = parsed correctly, false = failed.
      */
     public boolean setInputs(String inputs)
@@ -89,7 +93,7 @@ public class JavaTestInputs_Criteria implements Serializable
         // Validate and clean-up each row
         for(int r = 0; r < rows; r++)
         {
-            line = raw[r].trim().split(",");
+            line = raw[r].trim().split(";");
             if(line.length != cols)
                 return false;
             for(int c = 0; c < cols; c++)
