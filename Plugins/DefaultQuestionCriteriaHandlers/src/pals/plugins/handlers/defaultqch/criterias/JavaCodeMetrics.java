@@ -153,29 +153,11 @@ public class JavaCodeMetrics
             else
             {
                 // Setup the metric
-                Metric m;
-                switch(cdata.getType())
+                Metric m = markMetric(cdata.getType());
+                if(m == null)
                 {
-                    case AverageLengthIdentifiersClasses:
-                    case AverageLengthIdentifiersFields:
-                    case AverageLengthIdentifiersMethods:
-                        m = new AverageIdentifiers();
-                        break;
-                    case BlankLines:
-                    case BlankLines_Ratio:
-                        m = new BlankLines();
-                        break;
-                    case CommentLines:
-                    case CommentLines_Ratio:
-                        m = new CommentLines();
-                        break;
-                    case LinesOfCode:
-                    case LinesOfCode_Ratio:
-                        m = new LinesOfCode();
-                        break;
-                    default:
-                        core.getLogging().log("JavaCode Metrics", "Unhandled metric type '"+cdata.getType().name()+"'.", Logging.EntryType.Info);
-                        return false;
+                    core.getLogging().log("JavaCode Metrics", "Unhandled metric type '"+cdata.getType().name()+"'.", Logging.EntryType.Info);
+                    return false;
                 }
                 // Init metric
                 m.init(core, iac, idata, cdata);
@@ -206,9 +188,39 @@ public class JavaCodeMetrics
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
-        return false;
+        JavaCodeMetrics_Criteria cdata = (JavaCodeMetrics_Criteria)iac.getQC().getData();
+        if(cdata == null)
+            return false;
+        // Create instance of metric
+        Metric m = markMetric(cdata.getType());
+        if(m == null)
+            return false;
+        // Invoke metric to render criteria
+        m.metricDisplay(data, ia, iaq, iac, html, cdata);
+        return true;
     }
     // Methods - Marking *******************************************************
+    private static Metric markMetric(JavaCodeMetrics_Criteria.MetricType type)
+    {
+        switch(type)
+        {
+            case AverageLengthIdentifiersClasses:
+            case AverageLengthIdentifiersFields:
+            case AverageLengthIdentifiersMethods:
+                return new AverageIdentifiers();
+            case BlankLines:
+            case BlankLines_Ratio:
+                return new BlankLines();
+            case CommentLines:
+            case CommentLines_Ratio:
+                return new CommentLines();
+            case LinesOfCode:
+            case LinesOfCode_Ratio:
+                return new LinesOfCode();
+            default:
+                return null;
+        }
+    }
     private static int mark(double lo, double lotol, double hitol, double hi, double value)
     {
         // Check the value is within range

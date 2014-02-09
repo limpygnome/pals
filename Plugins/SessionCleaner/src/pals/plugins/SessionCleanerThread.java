@@ -27,21 +27,12 @@ public class SessionCleanerThread extends Thread
     {
         shouldRun = true;
         // Run periodically to cleanup temp files and session data
-        long interval = sc.getSettings().getInt("interval_ms");
-        long lastRan = System.currentTimeMillis();
+        long    interval = sc.getSettings().getInt("interval_ms"),
+                intervalPrivate = sc.getSettings().getInt("interval_private_ms");
+        long    lastRan = System.currentTimeMillis();
         Connector conn;
         while(shouldRun)
         {
-            // Sleep for a while...
-            try
-            {
-                sleep(interval);
-            }
-            catch(InterruptedException ex)
-            {
-                if(shouldRun)
-                    sc.getCore().getLogging().logEx("SessionCleaner", "Unexpectedly woken.", ex, Logging.EntryType.Error);
-            }
             // Check if to perform a cleanup
             if(System.currentTimeMillis()-lastRan >= interval)
             {
@@ -52,7 +43,7 @@ public class SessionCleanerThread extends Thread
                 {
                     if(conn == null)
                         throw new DatabaseException(DatabaseException.Type.ConnectionFailure);
-                    conn.execute("DELETE FROM pals_http_sessions WHERE last_active < current_timestamp-CAST(? AS INTERVAL);", interval+" milliseconds");
+                    conn.execute("DELETE FROM pals_http_sessions WHERE (private='0' AND last_active < current_timestamp-CAST(? AS INTERVAL) OR (private='1' AND last_active < current_timestamp-CAST(? AS INTERVAL));", interval+" milliseconds", intervalPrivate+" milliseconds");
                 }
                 catch(DatabaseException ex)
                 {
@@ -73,6 +64,16 @@ public class SessionCleanerThread extends Thread
                 catch(FileNotFoundException ex)
                 {
                 }
+            }
+            // Sleep for a while...
+            try
+            {
+                sleep(interval);
+            }
+            catch(InterruptedException ex)
+            {
+                if(shouldRun)
+                    sc.getCore().getLogging().logEx("SessionCleaner", "Unexpectedly woken.", ex, Logging.EntryType.Error);
             }
         }
     }

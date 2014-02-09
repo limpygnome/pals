@@ -7,9 +7,13 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashMap;
 import pals.base.NodeCore;
 import pals.base.Storage;
+import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
+import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.web.WebRequestData;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.JavaCodeMetrics_Criteria;
 
@@ -96,6 +100,41 @@ public class AverageIdentifiers implements Metric
         double avg = totalIdents > 0 && totalChars > 0 ? (double)totalChars / (double)totalIdents : 0.0;
         iac.setData(new double[]{totalChars, totalIdents, avg});
         return avg;
+    }
+    @Override
+    public void metricDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html, JavaCodeMetrics_Criteria cdata)
+    {
+        if(iac.getData() != null)
+        {
+            double[] rdata = (double[])iac.getData();
+            HashMap<String,Object> kvs = new HashMap<>();
+            String type = "unknown";
+            switch(cdata.getType())
+            {
+                case AverageLengthIdentifiersClasses:
+                    type = "class";
+                    break;
+                case AverageLengthIdentifiersMethods:
+                    type = "method";
+                    break;
+                case AverageLengthIdentifiersFields:
+                    type = "field";
+                    break;
+            }
+            kvs.put("info", String.format("Average %s identifier length of %.0f - %.0f identifiers found.", type, rdata[2], rdata[1]));
+            if(rdata[2] <= cdata.getLo())
+                kvs.put("error", "Your identifiers are too short in length.");
+            else if(rdata[2] > cdata.getLo() && rdata[2] < cdata.getLotol())
+                kvs.put("warning", "Your identifiers are just a little too short.");
+            else if(rdata[2] > cdata.getHitol() && rdata[2] < cdata.getHi())
+                kvs.put("warning", "Your identifiers are just a little too long.");
+            else if(rdata[2] >= cdata.getHi())
+                kvs.put("error", "Your identifiers are too long.");
+            else
+                kvs.put("success", "Acceptable average identifier length.");
+            
+            html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_display"));
+        }
     }
     @Override
     public void dispose(CodeJava_Instance idata, JavaCodeMetrics_Criteria cdata)

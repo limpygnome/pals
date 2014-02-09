@@ -1,3 +1,15 @@
+<#if info??>
+    <p class="info">
+        ${info?html}
+    </p>
+</#if>
+
+<#if warning??>
+    <p class="warning">
+        ${warning?html}
+    </p>
+</#if>
+
 <#if error??>
     <p class="error">
         ${error?html}
