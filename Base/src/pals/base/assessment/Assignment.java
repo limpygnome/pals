@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import org.joda.time.DateTime;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -101,6 +102,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new Assignment[0];
         }
     }
@@ -109,9 +113,11 @@ public class Assignment
      * 
      * @param conn Database connector.
      * @param module The module.
+     * @param filterActive Indicates if to filter the assignments by those
+     * which are active.
      * @return Array of assignments for the specified module; possibly empty.
      */
-    public static Assignment[] load(Connector conn, Module module)
+    public static Assignment[] load(Connector conn, Module module, boolean filterActive)
     {
         if(module == null)
             return new Assignment[0];
@@ -119,7 +125,7 @@ public class Assignment
         {
             ArrayList<Assignment> buffer = new ArrayList<>();
             Assignment ass;
-            Result res = conn.read("SELECT * FROM pals_assignment WHERE moduleid=?;", module.getModuleID());
+            Result res = conn.read("SELECT * FROM pals_assignment WHERE moduleid=?"+(filterActive ? " AND active='1'" : "")+";", module.getModuleID());
             while(res.next())
             {
                 ass = load(conn, module, res);
@@ -130,6 +136,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new Assignment[0];
         }
     }
@@ -155,6 +164,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -186,6 +198,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -243,7 +258,9 @@ public class Assignment
             }
             catch(DatabaseException ex)
             {
-                System.err.println(ex.getMessage());
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return PersistStatus.Failed;
             }
         }
@@ -265,6 +282,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -436,6 +456,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new Integer[0];
         }
     }
@@ -454,6 +477,9 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -492,6 +518,7 @@ public class Assignment
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

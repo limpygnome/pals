@@ -38,14 +38,14 @@
                 </td>
                 <td>
                     <#if ass.getTimeStart()??>
-                        ${ass.getTimeStart().toString("YYYY-mm-dd HH:mm:ss")}
+                        ${ass.getTimeStart().toString("YYYY/mm/dd HH:mm:ss")}
                     <#else>
                         --
                     </#if>
                 </td>
-                <td>
+                <td title="${ass.getTimeEnd()?html}">
                     <#if ass.getTimeEnd()??>
-                        ${ass.getTimeEnd().toString("YYYY-mm-dd HH:mm:ss")}
+                        ${ass.getTimeEnd().toString("YYYY/mm/dd HH:mm:ss")}
                     <#else>
                         --
                     </#if>

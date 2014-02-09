@@ -3,6 +3,7 @@ package pals.base.assessment;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -83,6 +84,7 @@ public class InstanceAssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new InstanceAssignmentQuestion[0];
         }
     }
@@ -104,6 +106,7 @@ public class InstanceAssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -130,6 +133,7 @@ public class InstanceAssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -167,6 +171,7 @@ public class InstanceAssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -223,6 +228,9 @@ public class InstanceAssignmentQuestion
             }
             catch(DatabaseException ex)
             {
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return PersistStatus.Failed;
             }
         }
@@ -242,6 +250,9 @@ public class InstanceAssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

@@ -3,6 +3,8 @@ package pals.base.assessment;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -72,6 +74,9 @@ public class TypeQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new TypeQuestion[0];
         }
     }
@@ -93,6 +98,9 @@ public class TypeQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -112,6 +120,9 @@ public class TypeQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -138,6 +149,9 @@ public class TypeQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -176,6 +190,9 @@ public class TypeQuestion
             }
             catch(DatabaseException ex)
             {
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return PersistStatus.Failed;
             }
         }
@@ -213,6 +230,9 @@ public class TypeQuestion
             catch(DatabaseException ex2)
             {
             }
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return CriteriaPersistStatus.Failed;
         }
     }
@@ -234,6 +254,9 @@ public class TypeQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

@@ -155,28 +155,23 @@ public class Modules extends Plugin
     private boolean pageModuleView(WebRequestData data, MultipartUrlParser mup, Module module, User user)
     {
         // Fetch the module's assignments
-        Assignment[] assignments = Assignment.load(data.getConnector(), module);
+        Assignment[] assignments = Assignment.load(data.getConnector(), module, true);
         // Create view models
         ModuleViewModel[] models = new ModuleViewModel[assignments.length];
         // Sum the weight of the assignments and create view models
-        boolean assignmentsAvailable = false;
         int total = 0;
         int offset = 0;
         for(Assignment ass : assignments)
         {
-            if(ass.isActive())
-            {
-                total += ass.getWeight();
-                models[offset++] = new ModuleViewModel(data.getConnector(), ass, user);
-                assignmentsAvailable = true;
-            }
+            total += ass.getWeight();
+            models[offset++] = new ModuleViewModel(data.getConnector(), ass, user);
         }
         // Setup the page
         data.setTemplateData("pals_title", "Module - "+Escaping.htmlEncode(module.getTitle()));
         data.setTemplateData("pals_content", "modules/page_module");
         // -- Fields
         data.setTemplateData("module", module);
-        data.setTemplateData("assignments", assignmentsAvailable ? models : new Assignment[0]);
+        data.setTemplateData("assignments", models);
         data.setTemplateData("total_weight", total);
         return true;
     }
@@ -478,7 +473,7 @@ public class Modules extends Plugin
         data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments");
         data.setTemplateData("pals_content", "modules/page_admin_module_assignments");
         // Fetch the assignments
-        Assignment[] assignments = Assignment.load(data.getConnector(), module);
+        Assignment[] assignments = Assignment.load(data.getConnector(), module, false);
         // Compute the total weight
         int total = 0;
         for(Assignment ass : assignments)

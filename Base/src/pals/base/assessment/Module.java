@@ -1,6 +1,8 @@
 package pals.base.assessment;
 
 import java.util.ArrayList;
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -66,6 +68,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new Module[0];
         }
     }
@@ -91,6 +96,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new Module[0];
         }
     }
@@ -108,6 +116,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -126,6 +137,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -155,6 +169,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return ModulePersistStatus.Failed;
         }
     }
@@ -172,6 +189,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
         }
     }
     // Methods *****************************************************************
@@ -208,6 +228,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -238,6 +261,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -257,6 +283,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -285,6 +314,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -303,6 +335,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -330,6 +365,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new User[0];
         }
     }
@@ -375,6 +413,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return 0;
         }
     }
@@ -390,6 +431,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return 0;
         }
     }
@@ -406,6 +450,9 @@ public class Module
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

@@ -71,9 +71,9 @@
 							<a href="/admin/users">Users</a>
 						</li>
 						</#if>
-						<#if user.getGroup().isMarkerGeneral()>
+						<#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>
 						<li>
-							<a href="/admin/marking">Marking</a>
+							<a href="/marking">Marking</a>
 						</li>
 						</#if>
 						<#if user.getGroup().isAdminModules()>

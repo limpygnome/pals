@@ -3,6 +3,7 @@ package pals.base.assessment;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
@@ -110,6 +111,7 @@ public class QuestionCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new QuestionCriteria[0];
         }
     }
@@ -133,6 +135,7 @@ public class QuestionCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -169,6 +172,7 @@ public class QuestionCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -230,6 +234,9 @@ public class QuestionCriteria
             }
             catch(DatabaseException ex)
             {
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return PersistStatus.Failed;
             }
         }
@@ -251,6 +258,9 @@ public class QuestionCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

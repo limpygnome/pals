@@ -4,6 +4,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Interval;
+import org.joda.time.Period;
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -143,6 +147,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new InstanceAssignment[0];
         }
     }
@@ -168,6 +175,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -214,6 +224,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -263,7 +276,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
-            System.err.println(ex.getMessage());
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return PersistStatus.Failed;
         }
     }
@@ -284,6 +299,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -327,6 +345,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -432,21 +453,13 @@ public class InstanceAssignment
         return timeEnd;
     }
     /**
-     * @return The duration between the two times; can be null if either of the
-     * times is null.
-     */
-    public Duration getTimeDuration()
-    {
-        return timeStart != null && timeEnd != null ? new Duration(timeStart, timeEnd) : null;
-    }
-    /**
      * @return The method getTimeDuration, represented as a string; can be null
      * if the conditions of getTimeDuration meet null.
      */
     public String getTimeDurationStr()
     {
-        Duration dur = getTimeDuration();
-        return dur == null ? null : dur.getStandardDays()+"d "+dur.getStandardHours()+"h "+dur.getStandardMinutes()+"m "+dur.getStandardSeconds()+"s";
+        Period p = timeStart != null && timeEnd != null ? new Period(timeStart, timeEnd) : null;
+        return p == null ? null : p.getDays()+"d "+p.getHours()+"h "+p.getMinutes()+"m "+p.getSeconds()+"s";
     }
     /**
      * @param conn Database connector.
@@ -465,6 +478,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -484,6 +500,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -501,6 +520,9 @@ public class InstanceAssignment
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return -1;
         }
     }

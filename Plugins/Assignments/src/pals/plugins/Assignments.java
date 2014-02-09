@@ -15,6 +15,7 @@ import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
@@ -23,6 +24,8 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.base.web.security.Escaping;
+import pals.plugins.assignments.ModelAssignmentsList;
+import pals.plugins.assignments.ModelInstancesList;
 
 /**
  * A plugin used for taking/sitting and marking assignments.
@@ -69,7 +72,8 @@ public class Assignments extends Plugin
     public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
     {
         if(!web.urlsRegister(this, new String[]{
-            "assignments"
+            "assignments",
+            "marking"
         }))
             return false;
         return true;
@@ -101,6 +105,13 @@ public class Assignments extends Plugin
                         }
                     }
                 }
+                case "marking":
+                {
+                    User u = data.getUser();
+                    if(!u.getGroup().isAdminModules() || !u.getGroup().isMarkerGeneral())
+                        return false;
+                    return pageMarking(data, mup);
+                }
             }
         }
         return false;
@@ -110,7 +121,7 @@ public class Assignments extends Plugin
     {
         return "PALS [WEB]: Assignments";
     }
-    // Methods - Pages *********************************************************
+    // Methods - Pages - Assignments *******************************************
     private boolean pageAssignments_take(WebRequestData data, MultipartUrlParser mup)
     {
         // Fetch the assignment
@@ -487,5 +498,38 @@ public class Assignments extends Plugin
             return html.toString();
         else
             return "";
+    }
+    // Methods - Pages - Marking ***********************************************
+    private boolean pageMarking(WebRequestData data, MultipartUrlParser mup)
+    {
+        if(mup.getPart(1) != null)
+            return pageMarking_assignment(data, mup);
+        else
+            return pageMarking_listAssignments(data, mup);
+    }
+    private boolean pageMarking_listAssignments(WebRequestData data, MultipartUrlParser mup)
+    {
+        // Fetch list of assignments with instances requiring marking
+        ModelAssignmentsList[] models = ModelAssignmentsList.load(data.getConnector());
+        // Setup the page
+        data.setTemplateData("pals_title", "Manual Marking");
+        data.setTemplateData("pals_content", "marking/list_assignments");
+        data.setTemplateData("models", models);
+        return true;
+    }
+    private boolean pageMarking_assignment(WebRequestData data, MultipartUrlParser mup)
+    {
+        // Load assignment
+        Assignment ass = Assignment.load(data.getConnector(), null, mup.parseInt(1, -1));
+        if(ass == null)
+            return false;
+        // Fetch list of instance assignments pending marking for this assignment
+        ModelInstancesList[] models = ModelInstancesList.load(data.getConnector(), ass);
+        // Setup the page
+        data.setTemplateData("pals_title", "Manual Marking");
+        data.setTemplateData("pals_content", "marking/list_instances");
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("models", models);
+        return true;
     }
 }

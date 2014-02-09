@@ -1,6 +1,7 @@
 package pals.base.assessment;
 
 import java.util.ArrayList;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -91,6 +92,7 @@ public class AssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new AssignmentQuestion[0];
         }
     }
@@ -117,6 +119,7 @@ public class AssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -148,6 +151,7 @@ public class AssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -204,6 +208,9 @@ public class AssignmentQuestion
             }
             catch(DatabaseException ex)
             {
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return PersistStatus.Failed;
             }
         }
@@ -225,6 +232,9 @@ public class AssignmentQuestion
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

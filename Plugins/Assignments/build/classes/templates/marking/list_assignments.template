@@ -1,0 +1,46 @@
+<h2><a href="/marking">Manual Marking</a></h2>
+
+<table class="table3 marking_list">
+    <tr>
+        <th>Assignment Title</th>
+        <th>Due</th>
+        <th>Pending Instances</th>
+        <th>Options</th>
+    </tr>
+    <#if models?has_content>
+        <#list models as m>
+            <#if !(mm_title??)||mm_title != m.getModuleTitle()>
+                <#assign mm_title=m.getModuleTitle()>
+                <tr>
+                    <th colspan="4" class="sub">${m.getModuleTitle()?html}</th>
+                </tr>
+            </#if>
+            <tr>
+                <td>
+                    ${m.getAssTitle()?html}
+                </td>
+                <td>
+                    <#if m.getAssDue()??>
+                        ${m.getAssDue().toString("YYYY/mm/dd HH:mm:ss")?html}
+                    <#else>
+                        --
+                    </#if>
+                </td>
+                <td>
+                    ${m.getAssPending()?string}
+                </td>
+                <td>
+                    <a href="/marking/${m.getAssID()?c}">
+                        View Instances
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="4">
+                No assignments require manual marking.
+            </td>
+        </tr>
+    </#if>
+</table>

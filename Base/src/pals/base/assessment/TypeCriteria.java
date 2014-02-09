@@ -1,6 +1,8 @@
 package pals.base.assessment;
 
 import java.util.ArrayList;
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -65,6 +67,9 @@ public class TypeCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new TypeCriteria[0];
         }
     }
@@ -86,6 +91,9 @@ public class TypeCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -105,6 +113,9 @@ public class TypeCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -143,6 +154,9 @@ public class TypeCriteria
             }
             catch(DatabaseException ex)
             {
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return TypeCriteria.PersistStatus.Failed;
             }
         }
@@ -165,6 +179,9 @@ public class TypeCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -262,6 +279,9 @@ public class TypeCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

@@ -1,0 +1,44 @@
+<h2><a href="/marking">Manual Marking</a> - <a href="/marking/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a></h2>
+
+<h3 class="tac">Instances Awaiting Marking</h3>
+
+<table class="table3">
+    <tr>
+        <th>ID</th>
+        <th>Time Submitted</th>
+        <th>Username</th>
+        <th>Options</th>
+    </tr>
+    <#if models?has_content>
+        <#list models as m>
+            <tr>
+                <td>
+                    ${m.getIaAIID()?c}
+                </td>
+                <td>
+                    ${m.getIaTimeEnd().toString("YYYY/mm/dd HH:mm:ss")}
+                </td>
+                <td>
+                    ${m.getIaUsername()?html}
+                </td>
+                <td>
+                    <a href="/assignments/instance/${m.getIaAIID()?c}?edit=1" target="_blank">
+                        Mark
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="4">
+                No instances for this assignment require manual marking.
+            </td>
+        </tr>
+    </#if>
+</table>
+
+<p class="tac">
+    <a class="button" href="/marking">
+        Back
+    </a>
+</p>

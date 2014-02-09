@@ -3,6 +3,7 @@ package pals.base.assessment;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -188,6 +189,9 @@ public class InstanceAssignmentCriteria
             catch(DatabaseException ex2)
             {
             }
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return CreateInstanceStatus.Failed;
         }
     }
@@ -215,6 +219,7 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -236,6 +241,7 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -268,6 +274,7 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -292,6 +299,7 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -320,6 +328,7 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return new InstanceAssignmentCriteria[0];
         }
     }
@@ -372,6 +381,9 @@ public class InstanceAssignmentCriteria
             }
             catch(DatabaseException ex)
             {
+                NodeCore core;
+                if((core = NodeCore.getInstance())!=null)
+                    core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
                 return PersistStatus.Failed;
             }
         }
@@ -391,6 +403,9 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }
@@ -410,6 +425,9 @@ public class InstanceAssignmentCriteria
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
     }

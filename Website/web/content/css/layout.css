@@ -269,6 +269,11 @@ body
 	background: #CCC;
 	color: #333;
 }
+/* Tables - Sub-headers */
+.layout_body .content table tr th.sub
+{
+	background: #DDD;
+}
 /* Table 1 ~ data */
 .layout_body .content .table
 {
@@ -703,4 +708,21 @@ body
 .node_offline
 {
 	background: #FCC;
+}
+/* Marking - List */
+.marking_list tr th:nth-child(1), .marking_list tr td:nth-child(1)
+{
+	width: 20em;
+}
+.marking_list tr th:nth-child(2), .marking_list tr td:nth-child(2)
+{
+	width: 10em;
+}
+.marking_list tr th:nth-child(3), .marking_list tr td:nth-child(3)
+{
+	width: 4em;
+}
+.marking_list tr th:nth-child(4), .marking_list tr td:nth-child(4)
+{
+	width: 8em;
 }
