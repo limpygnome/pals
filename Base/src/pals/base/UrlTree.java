@@ -114,8 +114,8 @@ public class UrlTree
                 return RegisterStatus.Failed_AlreadyExists;
             else
             {
-                currNode.setUuid(uuid);
-                currNode.setTerminator(true);
+                nextChild.setUuid(uuid);
+                nextChild.setTerminator(true);
                 return RegisterStatus.Success;
             }
         }

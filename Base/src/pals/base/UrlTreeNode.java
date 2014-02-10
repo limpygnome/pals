@@ -12,9 +12,9 @@ import java.util.Map;
 class UrlTreeNode
 {
     // Fields ******************************************************************
-    private boolean terminator;                                                 // Indicates the node is a terminator.
-    private UUID plugin;                                                        // The plugin which owns this node/url-path.
-    final HashMap<String, UrlTreeNode> children = new HashMap<>();      // Map of child paths to their tree nodes.
+    private boolean                     terminator;                     // Indicates the node is a terminator.
+    private UUID                        plugin;                         // The plugin which owns this node/url-path.
+    final HashMap<String, UrlTreeNode>  children = new HashMap<>();     // Map of child paths to their tree nodes.
     // Methods - Constructors **************************************************
     UrlTreeNode(UUID plugin, boolean terminator)
     {

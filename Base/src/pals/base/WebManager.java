@@ -196,7 +196,7 @@ public class WebManager
         {
             if((rs = urls.add(plugin, path)) != UrlTree.RegisterStatus.Success)
             {
-                core.getLogging().log(LOGGING_ALIAS, "Failed to add path '" + path + "' for plugin '" + plugin.getUUID().getHexHyphens() + "' - '" + rs + "'!", Logging.EntryType.Warning);
+                core.getLogging().log(LOGGING_ALIAS, "Failed to add path '"+path+"' for plugin '" + plugin.getUUID().getHexHyphens() + "' - '" + rs + "'!", Logging.EntryType.Warning);
                 return false;
             }
         }

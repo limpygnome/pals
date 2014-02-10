@@ -91,6 +91,7 @@ public class Example extends pals.base.Plugin
     {
         return web.urlsRegister(this, new String[]
         {
+            "admin",
             "home",
             "hello_world"
         });
@@ -108,6 +109,12 @@ public class Example extends pals.base.Plugin
             case "home":
                 data.setTemplateData("pals_title", "Welcome!");
                 data.setTemplateData("pals_content", "home");
+                break;
+            case "admin":
+                if(data.getUser() == null || !data.getUser().getGroup().isAdmin())
+                    return false;
+                data.setTemplateData("pals_title", "Admin");
+                data.setTemplateData("pals_content", "admin");
                 break;
             default:
                 return false;
