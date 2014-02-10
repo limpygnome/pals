@@ -416,9 +416,20 @@ body
 	color: #F00;
 }
 /* Modules */
-.layout_body .content .table3 .module_col1
+.layout_body .content .table3.modules tr th:nth-child(1),
+.layout_body .content .table3.modules tr td:nth-child(1)
 {
 	width: 30em;
+}
+.layout_body .content .table3.modules tr th:nth-child(n+2):nth-child(-n+5),
+.layout_body .content .table3.modules tr td:nth-child(n+2):nth-child(-n+5)
+{
+	width: 3em;
+}
+.layout_body .content .table3.modules tr th:nth-child(6),
+.layout_body .content .table3.modules tr td:nth-child(6)
+{
+	width: 8em;
 }
 .layout_body .content .modules tr td:nth-child(1),
 .layout_body .content .modules_admin tr td:nth-child(1),

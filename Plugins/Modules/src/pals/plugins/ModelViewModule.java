@@ -10,7 +10,7 @@ import pals.base.database.Result;
 /**
  * A model for displaying module-assignment information.
  */
-public class ModuleViewModel
+public class ModelViewModule
 {
     // Fields ******************************************************************
     private Assignment  ass;
@@ -19,7 +19,7 @@ public class ModuleViewModel
     private int         attempts;
     private boolean     lastActive;
     // Methods - Constructors **************************************************
-    public ModuleViewModel(Connector conn, Assignment ass, User user)
+    public ModelViewModule(Connector conn, Assignment ass, User user)
     {
         this.ass = ass;
         try

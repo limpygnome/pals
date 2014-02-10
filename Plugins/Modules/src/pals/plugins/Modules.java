@@ -78,6 +78,8 @@ public class Modules extends Plugin
     @Override
     public boolean eventHandler_webRequest(WebRequestData data)
     {
+        if(data.getUser() == null)
+            return false;
         MultipartUrlParser mup = new MultipartUrlParser(data);
         String page;
         switch(mup.getPart(0))
@@ -119,18 +121,17 @@ public class Modules extends Plugin
     // Methods - Pages - Main **************************************************
     private boolean pageModules(WebRequestData data)
     {
-        if(data.getUser() == null)
-            return false;
+        // Fetch models
+        ModelViewModules[] models = ModelViewModules.load(data.getConnector(), data.getUser());
         // Setup the page
         data.setTemplateData("pals_title", "Modules");
         data.setTemplateData("pals_content", "modules/page_modules");
+        data.setTemplateData("models", models);
         return true;
     }
     private boolean pageModule(WebRequestData data, MultipartUrlParser mup)
     {
         User user = data.getUser();
-        if(user == null)
-            return false;
         // Load the module model
         Module module = Module.load(data.getConnector(), mup.parseInt(1, -1));
         if(module == null)
@@ -157,14 +158,14 @@ public class Modules extends Plugin
         // Fetch the module's assignments
         Assignment[] assignments = Assignment.load(data.getConnector(), module, true);
         // Create view models
-        ModuleViewModel[] models = new ModuleViewModel[assignments.length];
+        ModelViewModule[] models = new ModelViewModule[assignments.length];
         // Sum the weight of the assignments and create view models
         int total = 0;
         int offset = 0;
         for(Assignment ass : assignments)
         {
             total += ass.getWeight();
-            models[offset++] = new ModuleViewModel(data.getConnector(), ass, user);
+            models[offset++] = new ModelViewModule(data.getConnector(), ass, user);
         }
         // Setup the page
         data.setTemplateData("pals_title", "Module - "+Escaping.htmlEncode(module.getTitle()));
@@ -205,7 +206,7 @@ public class Modules extends Plugin
     {
         // Check permissions
         User user = data.getUser();
-        if(user == null || !user.getGroup().isAdminModules())
+        if(!user.getGroup().isAdminModules())
             return false;
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Modules");
@@ -217,7 +218,7 @@ public class Modules extends Plugin
     {
         // Check permissions
         User user = data.getUser();
-        if(user == null || !user.getGroup().isAdminModules())
+        if(!user.getGroup().isAdminModules())
             return false;
         // Check field data
         RemoteRequest request = data.getRequestData();
@@ -257,7 +258,7 @@ public class Modules extends Plugin
     {
         // Check permissions
         User user = data.getUser();
-        if(user == null || !user.getGroup().isAdminModules())
+        if(!user.getGroup().isAdminModules())
             return false;
         // Parse the module
         int moduleid = mup.parseInt(2, -1);

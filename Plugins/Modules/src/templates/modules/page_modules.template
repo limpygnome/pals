@@ -7,15 +7,15 @@
         <td>&nbsp;</td>
     </tr>
     <tr>
-        <th class="module_col1">Title</th>
+        <th>Title</th>
         <th title="Total">T</th>
         <th title="Unanswered">U</th>
         <th title="Answered">A</th>
         <th title="Incomplete">I</th>
         <th>Options</th>
     </tr>
-    <#if user.getModules(data.getConnector())?has_content>
-        <#list user.getModules(data.getConnector()) as module>
+    <#if models?has_content>
+        <#list models as module>
             <tr>
                 <td>
                     <a href="/modules/${module.getModuleID()?c}">
@@ -23,16 +23,16 @@
                     </a>
                 </td>
                 <td>
-                    to-do.
+                    ${module.getTotal()?string}
                 </td>
                 <td>
-                    to-do.
+                    ${module.getUnanswered()?string}
                 </td>
                 <td>
-                    to-do.
+                    ${module.getAnswered()?string}
                 </td>
                 <td>
-                    to-do.
+                    ${module.getIncomplete()?string}
                 </td>
                 <td>
                     <a href="/modules/${module.getModuleID()?c}">
