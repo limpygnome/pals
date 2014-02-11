@@ -29,7 +29,10 @@
     </#if>
     <#if user.getGroup().isAdminUsers()>
     <li>
-            <a href="/admin/users">Users</a> - manage the user system.
+            <a href="/admin/users">Users</a> - manage users.
+    </li>
+    <li>
+            <a href="/admin/groups">Groups</a> - manage user-groups.
     </li>
     </#if>
     <#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>
