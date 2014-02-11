@@ -1,5 +1,6 @@
 package pals.base;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -8,13 +9,14 @@ import java.util.Random;
  * Using specification RFC4122, available at:
  * http://www.ietf.org/rfc/rfc4122.txt
  */
-public class UUID
+public class UUID implements Serializable
 {
     // Fields - Static *********************************************************
-    private static Random rand = null;
+    private static  Random  rand = null;
     // Fields ******************************************************************
-    private final String data, dataHyphens;    // The UUID as a hexadecimal string without hyphens (32 characters), upper-case.
-    private byte[] cacheBytes;
+    private final   String  data,
+                            dataHyphens;    // The UUID as a hexadecimal string without hyphens (32 characters), upper-case.
+    private          byte[] cacheBytes;
     // Methods - Constructors **************************************************
     private UUID(String data)
     {

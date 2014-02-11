@@ -8,14 +8,22 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
+import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.Storage;
 import pals.base.TemplateItem;
+import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.Version;
+import pals.base.WebManager;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.utils.JarIO;
+import pals.base.web.MultipartUrlParser;
+import pals.base.web.RemoteRequest;
+import pals.base.web.WebRequestData;
+import pals.base.web.security.CSRF;
+import pals.plugin_reloader.models.ModelPlugin;
 
 /**
  * A plugin which monitors the file-system and automatically loads/reloads
@@ -195,6 +203,120 @@ public class RuntimePluginReloader extends pals.base.Plugin
         catch(Exception ex)
         {
         }
+        // Dispose urls
+        core.getWebManager().urlsUnregister(this);
+        // Dispose templates
+        core.getTemplates().remove(this);
+    }
+    @Override
+    public boolean eventHandler_registerTemplates(NodeCore core, TemplateManager manager)
+    {
+        if(!manager.load(this, "templates"))
+            return false;
+        return true;
+    }
+    @Override
+    public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
+    {
+        if(!web.urlsRegister(this, new String[]{
+            "admin/plugins"
+        }))
+            return false;
+        return true;
+    }
+    @Override
+    public boolean eventHandler_webRequest(WebRequestData data)
+    {
+        if(data.getUser() == null)
+            return false;
+        MultipartUrlParser mup = new MultipartUrlParser(data);
+        String page = mup.getPart(0);
+        if(page != null)
+        {
+            switch(page)
+            {
+                case "admin":
+                    if(!data.getUser().getGroup().isAdminSystem())
+                        return false;
+                    page = mup.getPart(1);
+                    if(page != null)
+                    {
+                        switch(page)
+                        {
+                            case "plugins":
+                                return pageAdmin_plugins(data);
+                        }
+                    }
+                    break;
+            }
+        }
+        return false;
+    }
+    public boolean pageAdmin_plugins(WebRequestData data)
+    {
+        // Check for postback
+        RemoteRequest req = data.getRequestData();
+        String action = req.getField("action");
+        String uuid = req.getField("uuid");
+        // -- Optional
+        String force = req.getField("force");
+        if(action != null && uuid != null)
+        {
+            UUID pUUID = UUID.parse(uuid);
+            ModelPlugin p;
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator.");
+            else if((p=ModelPlugin.load(data.getConnector(), pUUID)) == null)
+                return false;
+            else if(pUUID != null)
+            {
+                switch(action)
+                {
+                    case "uninstall":
+                        if(p.isSystem())
+                            data.setTemplateData("error", "Cannot uninstall plugin; system flag is set.");
+                        else
+                        {
+                            // Update state of plugin
+                            ModelPlugin.pluginUninstall(data.getConnector(), p);
+                            // Inform nodes to unload plugin
+                            ModelPlugin.pluginUnload(data.getConnector(), p);
+                            data.setTemplateData("success", "Successfully set plugin '"+p.getTitle()+"' ["+p.getUUID().getHexHyphens()+"] to uninstall.");
+                        }
+                        break;
+                    case "delete":
+                        if(p.isSystem())
+                            data.setTemplateData("error", "Cannot delete plugin; system flag is set.");
+                        else if((force == null || !force.equals("1")) && p.getState() != PluginManager.DbPluginState.Uninstalled.getDbVal())
+                                data.setTemplateData("error", "Plugin must be uninstalled; use force-delete to ignore state safety check.");
+                        else
+                        {
+                            // Remove from database
+                            ModelPlugin.pluginDelete(data.getConnector(), p);
+                            // Inform nodes to unload plugin
+                            ModelPlugin.pluginUnload(data.getConnector(), p);
+                            data.setTemplateData("success", "Successfully deleted plugin '"+p.getTitle()+"' ["+p.getUUID().getHexHyphens()+"].");
+                        }
+                        break;
+                    case "unload":
+                        ModelPlugin.pluginUnload(data.getConnector(), p);
+                        data.setTemplateData("success", "Successfully unloaded plugin '"+p.getTitle()+"' ["+p.getUUID().getHexHyphens()+"] from all nodes.");
+                        break;
+                    default:
+                        return false;
+                }
+            }
+            else
+                return false;
+        }
+        // Fetch plugins
+        ModelPlugin[] plugins = ModelPlugin.load(data.getConnector());
+        // Setup page
+        data.setTemplateData("pals_title", "Modules");
+        data.setTemplateData("pals_content", "plugin_reloader/plugins");
+        data.setTemplateData("plugins", plugins);
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
     }
     // Methods - Overrides *****************************************************
     @Override

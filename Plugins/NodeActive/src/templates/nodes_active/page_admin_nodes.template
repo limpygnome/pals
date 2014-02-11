@@ -23,10 +23,24 @@
             <td><#if node.getRmiPort??>${node.getRmiPort()?c}</#if></td>
             <td>
                 <a href="/admin/nodes?uuid=${node.getUUID().getHex()?html}&amp;action=shutdown&amp;csrf=${csrf}">Shutdown</a>
+                &nbsp;
+                <a href="/admin/nodes?uuid=${node.getUUID().getHex()?html}&amp;action=restart&amp;csrf=${csrf}">Restart</a>
             </td>
         </tr>
     </#list>
 </table>
+
+<p class="tac">
+    <a class="button" href="/admin/nodes?all=1&amp;action=shutdown&amp;csrf=${csrf}">
+        Shutdown All Nodes
+    </a>
+</p>
+
+<p class="tac">
+    <a class="button" href="/admin/nodes?all=1&amp;action=reboot&amp;csrf=${csrf}">
+        Reboot All Nodes
+    </a>
+</p>
 
 <#if success??>
     <p class="success">

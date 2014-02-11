@@ -1,10 +1,15 @@
 package pals.plugins.nodesactive;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import pals.base.Logging;
 import pals.base.NodeCore;
+import pals.base.RMI_Interface;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -143,5 +148,41 @@ public class ModelNode
     public Integer getRmiPort()
     {
         return rmiPort;
+    }
+    // Methods - Static ********************************************************
+    public static void nodeAllShutdown(Connector conn)
+    {
+        nodeAll(conn, true);
+    }
+    public static void nodeAllRestart(Connector conn)
+    {
+        nodeAll(conn, false);
+    }
+    private static void nodeAll(Connector conn, boolean shutdown)
+    {
+        try
+        {
+            Result res = conn.read("SELECT rmi_ip, rmi_port FROM pals_nodes WHERE rmi_ip IS NOT NULL AND rmi_port IS NOT NULL;");
+            Registry r;
+            RMI_Interface ri;
+            while(res.next())
+            {
+                try
+                {
+                    r = LocateRegistry.getRegistry((String)res.get("rmi_ip"), (int)res.get("rmi_port"));
+                    ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
+                    if(shutdown)
+                        ri.shutdown();
+                    else
+                        ri.restart();
+                }
+                catch(DatabaseException | NotBoundException | RemoteException ex)
+                {
+                }
+            }
+        }
+        catch(DatabaseException ex)
+        {
+        }
     }
 }

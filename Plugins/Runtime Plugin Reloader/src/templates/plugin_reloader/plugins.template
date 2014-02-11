@@ -1,0 +1,122 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/plugins">Plugins</a></h2>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<table class="table3 plugins">
+    <tr>
+        <th>UUID</th>
+        <th>Title</th>
+        <th>System</th>
+        <th>Version</th>
+        <th>Options</th>
+    </tr>
+    <#if plugins?has_content>
+        <#list plugins as plugin>
+            <tr class="<#if plugin.getState()==1||plugin.getState()==2>pk_installed<#elseif plugin.getState()==4>pk_pend_uninstall<#elseif plugin.getState()==8>pk_uninstalled</#if>">
+                <td>
+                    ${plugin.getUUID().getHexHyphens()?html}
+                </td>
+                <td>
+                    ${plugin.getTitle()?html}
+                </td>
+                <td>
+                    <#if plugin.isSystem()>
+                        Yes
+                    <#else>
+                        No
+                    </#if>
+                </td>
+                <td>
+                    ${plugin.getVersion().getMajor()?c}.${plugin.getVersion().getMinor()?c}.${plugin.getVersion().getBuild()?c}
+                </td>
+                <td>
+                    <a href="/admin/plugins?uuid=${plugin.getUUID().getHex()?html}&amp;action=uninstall&amp;csrf=${csrf}">
+                        Uninstall
+                    </a>
+                    <br />
+                    <a href="/admin/plugins?uuid=${plugin.getUUID().getHex()?html}&amp;action=delete&amp;csrf=${csrf}">
+                        Delete
+                    </a>
+                    <br />
+                    <a href="/admin/plugins?uuid=${plugin.getUUID().getHex()?html}&amp;action=delete&amp;csrf=${csrf}&amp;force=1">
+                        Force Delete
+                    </a>
+                    <br />
+                    <a href="/admin/plugins?uuid=${plugin.getUUID().getHex()?html}&amp;action=unload&amp;csrf=${csrf}">
+                        Unload
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="5">
+                No plugins loaded in runtime.
+            </td>
+        </tr>
+    </#if>
+</table>
+
+<h3>Colour Key</h3>
+<table class="table2 plugins_key">
+    <tr>
+        <th></th>
+        <th>Status</th>
+        <th>Description</th>
+    </tr>
+    <tr class="pk_installed">
+        <td></td>
+        <td>Installed / Active</td>
+        <td>The plugin has been installed globally and can be loaded into nodes.</td>
+    </tr>
+    <tr class="pk_pend_uninstall">
+        <td></td>
+        <td>Awaiting Uninstallation</td>
+        <td>The plugin is pending global uninstallation.</td>
+    </tr>
+    <tr class="pk_uninstalled">
+        <td></td>
+        <td>Globally Uninstalled</td>
+        <td>The plugin has been uninstalled globally; it may still be running on some nodes.</td>
+    </tr>
+</table>
+
+<h3>Notes</h3>
+<p>
+    If you want to remove a plugin from all the nodes, you will first need to uninstall a
+    plugin. You will then need to remove the jar from the node's plugin directory, or
+    the shared storage (depending on your configuration). Then you will need to restart
+    the affected nodes and you can delete a plugin.
+</p>
+<p>
+    During the process between uninstalling and deleting a plugin from the node(s),
+    the node(s) may throw exceptions due to the plugin being actively loaded. The plugin
+    will also be requested to unload from all the nodes, when you click uninstall,
+    however this is not guaranteed.
+</p>
+<p>
+    You can delete a plugin before removing the jar from all the nodes; if a node was
+    to reboot, with the plugin jar available, it will automatically reinstall the plugin.
+</p>
+<p>
+    If you upgrade the version of a plugin, any nodes with older versions will be
+    rejected from loading into the runtime. If a plugin is upgraded during runtime,
+    nodes with an older version will not be affected - this could cause problems.
+</p>
+<p>
+    If a plugin physically changes during runtime, the physical changes can be picked-up
+    by the <i>PALS: Runtime Plugin Reloader</i>, with the plugin reloaded during runtime.
+    Therefore to avoid issues, you are recommended to use shared storage for distributing
+    plugins, which are copied to the local machine to avoid file-locks and I/O strain
+    on a central location.
+</p>

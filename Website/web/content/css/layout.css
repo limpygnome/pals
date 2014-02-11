@@ -737,3 +737,27 @@ body
 {
 	width: 8em;
 }
+/* Admin - Plugins */
+.plugins tr td:nth-child(2)
+{
+	text-align: left !important;
+}
+.plugins_key tr td
+{
+	text-align: left !important;
+}
+.plugins_key .pk_installed, .plugins .pk_installed
+{
+	background: #9F9;
+	color: #060;
+}
+.plugins_key .pk_pend_uninstall, .plugins .pk_pend_uninstall
+{
+	background: #FF9;
+	color: #C90;
+}
+.plugins_key .pk_uninstalled, .plugins .pk_uninstalled
+{
+	background: #FCC;
+	color: #F00;
+}

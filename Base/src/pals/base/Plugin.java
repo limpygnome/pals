@@ -54,6 +54,17 @@ public abstract class Plugin
      * @return True if successful, false if failed.
      */
     public abstract boolean eventHandler_pluginUninstall(NodeCore core, Connector conn);
+    /**
+     * Invoked to uninstall a plugin locally; this occurs before rejecting
+     * a plugin, when attempting to be loaded into the system, due to being
+     * uninstalled.
+     * 
+     * @param core The current instance of the core.
+     * @param conn Database connector; this must not be disconnected.
+     */
+    public void eventHandler_pluginUninstallLocal(NodeCore core, Connector conn)
+    {
+    }
     // Methods - Optional ******************************************************
     /**
      * Invoked before the plugin is unloaded from the runtime.

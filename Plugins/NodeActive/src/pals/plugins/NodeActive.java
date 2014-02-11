@@ -115,6 +115,7 @@ public class NodeActive extends Plugin
         // Process actions
         RemoteRequest req = data.getRequestData();
         String uuid = req.getField("uuid");
+        String all = req.getField("all");
         String action = req.getField("action");
         if(uuid != null && action != null)
         {
@@ -128,6 +129,7 @@ public class NodeActive extends Plugin
             {
                 switch(action)
                 {
+                    case "restart":
                     case "shutdown":
                         if(node.getRmiIP() == null || node.getRmiPort() == null)
                             data.setTemplateData("error", "Node has no RMI information associated; host cannot be contacted.");
@@ -137,14 +139,36 @@ public class NodeActive extends Plugin
                             {
                                 Registry r = LocateRegistry.getRegistry(node.getRmiIP(), node.getRmiPort());
                                 RMI_Interface ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
-                                ri.shutdown();
+                                if(action.equals("shutdown"))
+                                    ri.shutdown();
+                                else
+                                    ri.restart();
                                 data.setTemplateData("success", "Node has been instructed to shutdown.");
                             }
                             catch(NotBoundException | RemoteException ex)
                             {
-                                data.setTemplateData("warning", "Could not contact node; possibly already shutdown.");
+                                data.setTemplateData("warning", "Could not contact node; possibly already shutdown/restarting.");
                             }
                         }
+                        break;
+                    default:
+                        return false;
+                }
+            }
+        }
+        else if(all != null && all.equals("1") && action != null)
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else
+            {
+                switch(action)
+                {
+                    case "shutdown":
+                        ModelNode.nodeAllShutdown(data.getConnector());
+                        break;
+                    case "restart":
+                        ModelNode.nodeAllRestart(data.getConnector());
                         break;
                     default:
                         return false;

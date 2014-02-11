@@ -29,6 +29,22 @@ public class RMI_DefaultServer extends UnicastRemoteObject  implements RMI_Inter
         return response;
     }
     @Override
+    public void pluginUnload(UUID plugin) throws RemoteException
+    {
+        if(plugin == null)
+            return;
+        Plugin p = core.getPlugins().getPlugin(plugin);
+        if(p != null)
+            core.getPlugins().unload(p);
+    }
+
+    @Override
+    public void restart() throws RemoteException
+    {
+        core.stop(NodeCore.StopType.Normal);
+        core.start();
+    }
+    @Override
     public void shutdown() throws RemoteException
     {
         core.stop(NodeCore.StopType.Shutdown);

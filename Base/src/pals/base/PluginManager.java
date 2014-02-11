@@ -82,6 +82,13 @@ public class PluginManager
                     return Unknown;
             }
         }
+        /**
+         * @return The value of the state for persistence on the database.
+         */
+        public int getDbVal()
+        {
+            return val;
+        }
     }
     /**
      * The status from attempting to load a plugin.
@@ -461,6 +468,16 @@ public class PluginManager
                         break;
                     case Uninstalled:
                         rejected = true;
+                        // Invoke plugin's local uninstall handler
+                        // -- Catch any exceptions; this plugin is no longer critical.
+                        try
+                        {
+                            p.eventHandler_pluginUninstallLocal(core, conn);
+                        }
+                        catch(Exception ex)
+                        {
+                            core.getLogging().logEx(LOGGING_ALIAS, ex, Logging.EntryType.Warning);
+                        }
                         break;
                     case Unknown:
                         failed = true;
