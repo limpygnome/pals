@@ -1,0 +1,54 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/print_off">Highest Marks</a></h2>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
+        Back
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/print_off.csv" target="_blank">
+        Download CSV
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/print_off.print" target="_blank">
+        Print
+    </a>
+</p>
+
+<table class="table3">
+    <tr>
+        <th>UserID</th>
+        <th>Username</th>
+        <th>Mark</th>
+        <th>Instance</th>
+    </tr>
+    <#if models?has_content>
+        <#list models as m>
+            <tr>
+                <td>
+                    ${m.getUserID()?c}
+                </td>
+                <td>
+                    ${m.getUsername()?html}
+                </td>
+                <td>
+                    ${m.getMark()?string}%
+                </td>
+                <td>
+                    <#if m.getAIID()??>
+                        <a class="button" href="/assignments/instance/${m.getAIID()?c}?edit=1" target="_blank">
+                            View
+                        </a>
+                    <#else>
+                        --
+                    </#if>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="4">
+                This module has no users enrolled.
+            </td>
+        </tr>
+    </#if>
+</table>

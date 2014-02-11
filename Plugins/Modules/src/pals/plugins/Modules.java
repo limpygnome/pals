@@ -609,6 +609,10 @@ public class Modules extends Plugin
                         }
                     }
                 }
+                case "print_off":
+                case "print_off.csv":
+                case "print_off.print":
+                    return pageAdminModule_assignmentPrintOff(data, module, ass, page);
             }
         }
         return false;
@@ -632,6 +636,34 @@ public class Modules extends Plugin
             data.setTemplateData("page_next", page+1);
         if(page > 1)
             data.setTemplateData("page_prev", page-1);
+        return true;
+    }
+    private boolean pageAdminModule_assignmentPrintOff(WebRequestData data, Module module, Assignment ass, String page)
+    {
+        // Fetch the highest marks for each user, or zero if they did not achieve anything
+        ModelAssHighest[] models = ModelAssHighest.load(data.getConnector(), ass);
+        // Setup the page based on display type
+        String type = data.getRequestData().getField("type");
+        switch(page)
+        {
+            case "print_off.csv":
+                data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Highest Marks");
+                data.setTemplateData("pals_page", "modules/page_admin_module_assignment_csv");
+                data.getResponseData().setResponseType("text/csv");
+                break;
+            case "print_off.print":
+                data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Highest Marks");
+                data.setTemplateData("pals_page", "modules/page_admin_module_assignment_print");
+                break;
+            default:
+                data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Highest Marks");
+                data.setTemplateData("pals_content", "modules/page_admin_module_assignment_view");
+                break;
+        }
+        // -- Fields
+        data.setTemplateData("module", module);
+        data.setTemplateData("assignment", ass);
+        data.setTemplateData("models", models);
         return true;
     }
     private boolean pageAdminModule_assignmentDelete(WebRequestData data, Module module, Assignment ass)

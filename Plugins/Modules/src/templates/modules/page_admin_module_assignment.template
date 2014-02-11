@@ -20,6 +20,12 @@
 
 <h3>Attempts</h3>
 
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/print_off">
+        Highest Marks / Marks Print-Off
+    </a>
+</p>
+
 <table class="table3">
     <tr>
         <th>
@@ -98,7 +104,7 @@
         </#list>
     <#else>
         <tr>
-            <td colspan="7">
+            <td colspan="9">
                 No history available for this assignment.
             </td>
         </tr>

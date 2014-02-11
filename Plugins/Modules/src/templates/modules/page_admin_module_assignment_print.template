@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PALS - Assignment Marks</title>
+        <link rel="stylesheet" type="text/css" href="/content/css/assignment_print.css">
+    </head>
+</html>
+<body>
+    <h1>Assignment Marks</h1>
+    <table class="info">
+        <tr>
+            <th>Module ID:</th>
+            <td>${module.getModuleID()?c}</td>
+        </tr>
+        <tr>
+            <th>Module Title:</th>
+            <td>${module.getTitle()?html}</td>
+        </tr>
+        <tr>
+            <th>ID:</td>
+            <td>${assignment.getAssID()?c}</td>
+        </tr>
+        <tr>
+            <th>Title:</td>
+            <td>${assignment.getTitle()?html}</td>
+        </tr>
+    </table>
+    <table class="marks">
+        <tr>
+            <th>UserID</th>
+            <th>Username</th>
+            <th>Mark</th>
+            <th>Instance</th>
+        </tr>
+        <#if models?has_content>
+            <#list models as m>
+                <tr>
+                    <td>
+                        ${m.getUserID()?c}
+                    </td>
+                    <td>
+                        ${m.getUsername()?html}
+                    </td>
+                    <td>
+                        ${m.getMark()?string}%
+                    </td>
+                    <td>
+                        <#if m.getAIID()??>
+                            ${m.getAIID()?c}
+                        <#else>
+                            --
+                        </#if>
+                    </td>
+                </tr>
+            </#list>
+        <#else>
+            <tr>
+                <td colspan="4">
+                    No users are enrolled on this module.
+                </td>
+            </tr>
+        </#if>
+    </table>
+    <script>
+        window.print();
+    </script>
+</body>
+</html>
