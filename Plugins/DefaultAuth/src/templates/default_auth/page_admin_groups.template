@@ -1,0 +1,42 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a></h2>
+
+<table class="table3 groups">
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Users</th>
+        <th>Options</th>
+    </tr>
+    <#list groups as group>
+        <tr>
+            <td>
+                ${group.getGroupID()?c}
+            </td>
+            <td>
+                <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a>
+            </td>
+            <td>
+                ${group.getUserCount(data.getConnector())?string}
+            </td>
+            <td>
+                <a class="button" href="/admin/groups/${group.getGroupID()?c}">
+                    View
+                </a>
+                &nbsp;
+                <a class="button" href="/admin/groups/${group.getGroupID()?c}/edit">
+                    Edit
+                </a>
+                &nbsp;
+                <a class="button" href="/admin/groups/${group.getGroupID()?c}/delete">
+                    Delete
+                </a>
+            </td>
+        </tr>
+    </#list>
+</table>
+
+<p class="tac">
+    <a class="button" href="/admin/groups/create">
+        Create Group
+    </a>
+</p>

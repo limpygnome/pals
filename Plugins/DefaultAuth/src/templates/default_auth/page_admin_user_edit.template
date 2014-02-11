@@ -1,9 +1,17 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/users">Users</a> - <a href="/admin/users/create">Create User</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/users">Users</a> - <a href="/admin/users/${edit_user.getUserID()?c}/edit">Edit User</a></h2>
 
-<form method="post" action="/admin/users/create">
+<form method="post" action="/admin/users/${edit_user.getUserID()?c}/edit">
     <table class="table2">
         <tr>
-            <th colspan="2">Add User</th>
+            <th colspan="2">Edit User</th>
+        </tr>
+        <tr>
+            <td>
+                ID:
+            </td>
+            <td>
+                ${edit_user.getUserID()?c}
+            </td>
         </tr>
         <tr>
             <td>
@@ -51,7 +59,7 @@
         </tr>
         <tr>
             <td colspan="2" class="tac">
-                <input type="submit" value="Create" />
+                <input type="submit" value="Update" />
             </td>
         </tr>
     </table>

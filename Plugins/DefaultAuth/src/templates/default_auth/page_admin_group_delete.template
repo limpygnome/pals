@@ -1,0 +1,48 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a> - <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a> - <a href="/admin/groups/${group.getGroupID()?c}/delete">Delete</a></h2>
+
+<form method="post" action="/admin/groups/${group.getGroupID()?c}/delete">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                Confirm Group Deletion
+            </th>
+        </tr>
+        <tr>
+            <td>
+                ID:
+            </td>
+            <td>
+                ${group.getGroupID()?c}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                ${group.getTitle()?html}
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Deleting a group will also delete the group's users; this will also delete<br />
+                user data. This action cannot be undone, ensure you have made backups<br />
+                of required user data!
+            </td>
+        </tr>
+        <#include "../captcha_form">
+        <tr>
+            <td colspan="2" class="tac">
+                <input type="submit" value="Delete" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="confirm" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>

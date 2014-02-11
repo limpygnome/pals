@@ -1,0 +1,62 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a> - <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a> - <a href="/admin/groups/${group.getGroupID()?c}/edit">Edit</a></h2>
+
+<form method="post" action="/admin/groups/${group.getGroupID()?c}/edit">
+    <table class="table2">
+        <tr>
+            <th colspan="2">Edit Group</th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="group_title" value="${group_title}" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Permissions: Users</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="checkbox" name="group_user_login" value="1" <#if group_user_login>checked</#if> /> Login
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Permissions: Markers</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="checkbox" name="group_marker_general" value="1" <#if group_marker_general>checked</#if> /> General Marking
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Permissions: Admins</th>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="checkbox" name="group_admin_modules" value="1" <#if group_admin_modules>checked</#if> />         Modules     <br />
+                <input type="checkbox" name="group_admin_questions" value="1" <#if group_admin_questions>checked</#if> />     Questions   <br />
+                <input type="checkbox" name="group_admin_users" value="1" <#if group_admin_users>checked</#if> />             Users       <br />
+                <input type="checkbox" name="group_admin_system" value="1" <#if group_admin_system>checked</#if> />           System
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>

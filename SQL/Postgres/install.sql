@@ -71,7 +71,7 @@ CREATE TABLE pals_users_group
 -- -- Add default user-groups
 INSERT INTO pals_users_group (title,user_login,marker_general,admin_modules,admin_questions,admin_users,admin_system) VALUES
 ('Admins','1','1','1','1','1','1'),
-('Users','0','0','0','0','0','0')
+('Users','1','0','0','0','0','0')
 ;
 -- Represents abstract users on the system. Columns password and password_salt columns are optional,
 -- used for default authentication.
@@ -94,17 +94,7 @@ CREATE TABLE pals_users
 CREATE UNIQUE INDEX index_pals_users_username ON pals_users (lower(username));
 CREATE UNIQUE INDEX index_pals_users_email ON pals_users (lower(email));
 
--- The e-mail queue; used to avoid loss of possible e-mails from the system rebooting. Also
--- allows multiple nodes to process emails.
-CREATE TABLE pals_email_queue
-(
-	emailid				SERIAL				PRIMARY KEY,
-	title				VARCHAR(128)		NOT NULL,
-	content				TEXT				NOT NULL,
-	-- The e-mail length is based on http://www.rfc-editor.org/errata_search.php?rfc=3696&eid=1690
-	destination			VARCHAR(254)		NOT NULL,
-	last_attempted		TIMESTAMP
-);
+
 
 -- Possible modules for student enrollment.
 CREATE TABLE pals_modules

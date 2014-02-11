@@ -2,6 +2,7 @@ package pals.plugins.auth;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
@@ -21,6 +22,7 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.base.web.security.Escaping;
+import pals.plugins.auth.models.ModelUser;
 import pals.plugins.web.Captcha;
 
 /**
@@ -104,6 +106,7 @@ public class DefaultAuth extends Plugin
             "account/login",
             "account/logout",
             "admin/users",
+            "admin/groups"
         }))
             return false;
         return true;
@@ -163,18 +166,71 @@ public class DefaultAuth extends Plugin
                         return false;
                 }
             case "admin":
-                switch(mup.getPart(1))
+                // Check the user is allowed to modify the user system
+                if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
+                    return false;
+                // Continue to handle request...
+                String page = mup.getPart(1);
+                if(page != null)
                 {
-                    case "users":
-                        String page = mup.getPart(2);
-                        if(page == null)
-                            return pageAdminUsers_find(data);
-                        else if(page.equals("create"))
-                            return pageAdminUsers_create(data);
-                        else
-                            return pageAdminUsers_edit(data, page);
-                    default:
-                        return false;
+                    switch(page)
+                    {
+                        case "users":
+                            page = mup.getPart(2);
+                            if(page == null)
+                                return pageAdminUsers_groupUserView(data, null);
+                            else if(page.equals("create"))
+                                return pageAdminUsers_userCreate(data);
+                            else
+                            {
+                                page = mup.getPart(3);
+                                if(page == null)
+                                    return false;
+                                // Load user-model
+                                User user;
+                                if((user = User.load(data.getConnector(), mup.parseInt(2, -1))) == null)
+                                    return false;
+                                // Delegate
+                                switch(page)
+                                {
+                                    case "edit":
+                                        return pageAdminUsers_userEdit(data, user);
+                                    case "delete":
+                                        return pageAdminUsers_userDelete(data, user);
+                                    default:
+                                        return false;
+                                }
+                            }
+                        case "groups":
+                            page = mup.getPart(2);
+                            if(page == null)
+                                return pageAdminUsers_groupBrowse(data);
+                            else if(page.equals("create"))
+                                return pageAdminUsers_groupCreate(data);
+                            else
+                            {
+                                page = mup.getPart(3);
+                                // Load group model
+                                UserGroup ug;
+                                if((ug = UserGroup.load(data.getConnector(), mup.parseInt(2, -1))) == null)
+                                    return false;
+                                // Delegate
+                                if(page == null)
+                                    return pageAdminUsers_groupUserView(data, ug);
+                                else
+                                {
+                                    switch(page)
+                                    {
+                                        case "edit":
+                                            return pageAdminUsers_groupEdit(data, ug);
+                                        case "delete":
+                                            return pageAdminUsers_groupDelete(data, ug);
+                                    }
+                                }
+                            }
+                        default:
+                            return false;
+                    }
                 }
             default:
                 return false;
@@ -412,74 +468,401 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("pals_content", "default_auth/page_logout");
         return true;
     }
-    private boolean pageAdminUsers_find(WebRequestData data)
+    // Methods - Admin - Users *************************************************
+    private boolean pageAdminUsers_userCreate(WebRequestData data)
     {
-        // Check the user's permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
-            return false;
+        RemoteRequest req = data.getRequestData();
         // Check for postback
-        
-        // Fetch and display users
-        
+        String username = req.getField("username");
+        String email = req.getField("email");
+        String password = req.getField("password");
+        String passwordConfirm = req.getField("password_confirm");
+        String group = req.getField("group");
+        int groupid = -1;
+        boolean createdUser = false;
+        if(username != null && email != null && password != null && passwordConfirm != null && group != null)
+        {
+            // Parse group ID
+            try
+            {
+                groupid = Integer.parseInt(group);
+            }
+            catch(NumberFormatException ex)
+            {
+                groupid = -1;
+            }
+            // Check the session is valid and group loads
+            UserGroup ug;
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else if((ug = UserGroup.load(data.getConnector(), groupid)) == null)
+                data.setTemplateData("error", "Invalid user-group.");
+            else
+            {
+                User user = new User();
+                // Validate data reliant on user model
+                if(password.length() < user.getPasswordMin() || password.length() > user.getPasswordMax())
+                    data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
+                else if(!password.equals(passwordConfirm))
+                    data.setTemplateData("error", "Passwords do not match!");
+                else if(email.length() < user.getEmailMin() || email.length() > user.getEmailMax())
+                    data.setTemplateData("error", "Invalid e-mail.");
+                else
+                {
+                    String salt = getNewSalt();
+                    // Setup a new user
+                    user.setUsername(username);
+                    user.setPassword(hash(password, salt));
+                    user.setPasswordSalt(salt);
+                    user.setEmail(email);
+                    user.setGroup(ug);
+                    // Attempt to persist
+                    User.PersistStatus_User ps = user.persist(getCore(), data.getConnector());
+                    // Handle persist status
+                    switch(ps)
+                    {
+                        default:
+                        case InvalidGroup:
+                        case Failed:
+                            data.setTemplateData("error", "An error occurred ("+ps.toString()+"); please try again or contact an administrator!");
+                            break;
+                        case InvalidEmail_exists:
+                            data.setTemplateData("error", "E-mail address already in-use.");
+                            break;
+                        case InvalidEmail_format:
+                            data.setTemplateData("error", "Invalid e-mail.");
+                            break;
+                        case InvalidPassword_length:
+                            data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
+                            break;
+                        case InvalidUsername_exists:
+                            data.setTemplateData("error", "Username already in-use.");
+                            break;
+                        case InvalidUsername_format:
+                            data.setTemplateData("error", "Invalid username; must contain only alpha-numeric characters.");
+                            break;
+                        case InvalidUsername_length:
+                            data.setTemplateData("error", "Username must be "+user.getUsernameMin()+" to "+user.getUsernameMax()+" characters in length.");
+                            break;
+                        case Success:
+                            createdUser = true;
+                            data.setTemplateData("success", "Created user '"+username+"'.");
+                            break;
+                    }
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Users - Create");
+        data.setTemplateData("pals_content", "default_auth/page_admin_user_create");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("username", !createdUser ? username : null);
+        data.setTemplateData("email", !createdUser ? email : null);
+        data.setTemplateData("groups", UserGroup.load(data.getConnector()));
+        data.setTemplateData("groupid", groupid);
         return true;
     }
-    private boolean pageAdminUsers_edit(WebRequestData data, String rawUserid)
+    private boolean pageAdminUsers_userEdit(WebRequestData data, User user)
     {
-        // Check the user's permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
-            return false;
-        // Parse the user ID
-        int userid;
-        try
+        RemoteRequest request = data.getRequestData();
+        // Check for postback
+        String username = request.getField("username");
+        String password = request.getField("password");
+        String passwordConfirm = request.getField("password_confirm");
+        String group = request.getField("group");
+        String email = request.getField("email");
+        int groupid = -1;
+        if(username != null && password != null && passwordConfirm != null && group != null && email != null)
         {
-            userid = Integer.parseInt(rawUserid);
-        }
-        catch(NumberFormatException ex)
-        {
-            return false;
-        }
-        // Load the user-model
-        User user = User.load(data.getConnector(), userid);
-        if(user != null)
-        {
-            RemoteRequest request = data.getRequestData();
-            // Check for postback
-            String csrf = request.getField("csrf");
-            String username = request.getField("username");
-            String password = request.getField("password");
-            String passwordConfirm = request.getField("password_confirm");
-            String userGroup = request.getField("user_group");
-            String email = request.getField("email");
-            if(username != null && password != null && passwordConfirm != null && userGroup != null && email != null)
+            // Parse groupid
+            try
+            {
+                groupid = Integer.parseInt(group);
+            }
+            catch(NumberFormatException ex)
+            {
+                groupid = -1;
+            }
+            // Check the request is valid
+            UserGroup ug;
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else if((ug = UserGroup.load(data.getConnector(), groupid)) == null)
+                data.setTemplateData("error", "Invalid user-group.");
+            else if(password.length() != 0 && (password.length() < user.getPasswordMin() || password.length() > user.getPasswordMax()))
+                data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
+            else if(password.length() != 0 && !password.equals(passwordConfirm))
+                data.setTemplateData("error", "Passwords do not match!");
+            else if(email.length() < user.getEmailMin() || email.length() > user.getEmailMax())
+                data.setTemplateData("error", "Invalid e-mail.");
+            else
             {
                 // Update the user's account
-                
+                user.setUsername(username);
+                if(password.length() > 0)
+                {
+                    String salt = getNewSalt();
+                    user.setPassword(hash(password, salt));
+                    user.setPasswordSalt(salt);
+                }
+                user.setEmail(email);
+                user.setGroup(ug);
                 // Attempt to persist
+                User.PersistStatus_User ps = user.persist(getCore(), data.getConnector());
+                // Handle persist status
+                switch(ps)
+                {
+                    default:
+                    case InvalidGroup:
+                    case Failed:
+                        data.setTemplateData("error", "An error occurred ("+ps.toString()+"); please try again or contact an administrator!");
+                        break;
+                    case InvalidEmail_exists:
+                        data.setTemplateData("error", "E-mail address already in-use.");
+                        break;
+                    case InvalidEmail_format:
+                        data.setTemplateData("error", "Invalid e-mail.");
+                        break;
+                    case InvalidPassword_length:
+                        data.setTemplateData("error", "Password must be "+user.getPasswordMin()+" to "+user.getPasswordMax()+" characters in length!");
+                        break;
+                    case InvalidUsername_exists:
+                        data.setTemplateData("error", "Username already in-use.");
+                        break;
+                    case InvalidUsername_format:
+                        data.setTemplateData("error", "Invalid username; must contain only alpha-numeric characters.");
+                        break;
+                    case InvalidUsername_length:
+                        data.setTemplateData("error", "Username must be "+user.getUsernameMin()+" to "+user.getUsernameMax()+" characters in length.");
+                        break;
+                    case Success:
+                        data.setTemplateData("success", "Updated account settings.");
+                        break;
+                }
             }
-            // Setup page fields
-            data.setTemplateData("edit_user", user);
-            if(username != null)
-                data.setTemplateData("edit_username", username);
-            if(email != null)
-                data.setTemplateData("edit_email", email);
-            data.setTemplateData("csrf", CSRF.set(data));
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Users - Edit");
-        data.setTemplateData("pals_content", "default_auth/page_admin_user_create");
+        data.setTemplateData("pals_content", "default_auth/page_admin_user_edit");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("edit_user", user);
+        data.setTemplateData("username", username != null ? username : user.getUsername());
+        data.setTemplateData("email", email != null ? email : user.getEmail());
+        data.setTemplateData("groups", UserGroup.load(data.getConnector()));
+        data.setTemplateData("groupid", group != null ? groupid : user.getGroup().getGroupID());
         return true;
     }
-    private boolean pageAdminUsers_create(WebRequestData data)
+    private boolean pageAdminUsers_userDelete(WebRequestData data, User user)
     {
-        // Check the user's permissions
-        if(data.getUser() == null || !data.getUser().getGroup().isAdminUsers())
-            return false;
-        // Check for postback
-        
+        RemoteRequest req = data.getRequestData();
+        // Check postback for confirmation
+        String confirm = req.getField("confirm");
+        if(confirm != null && confirm.equals("1"))
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Invalid captcha verification code.");
+            else
+            {
+                // Unpersist the user
+                user.remove(data.getConnector());
+                data.getResponseData().setRedirectUrl("/admin/users");
+            }
+        }
         // Setup the page
-        
+        data.setTemplateData("pals_title", "Admin - Users - Delete");
+        data.setTemplateData("pals_content", "default_auth/page_admin_user_delete");
         // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("edit_user", user);
+        return true;
+    }
+    // Methods - Admin - Groups ************************************************
+    private boolean pageAdminUsers_groupCreate(WebRequestData data)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Check postback
+        String title = req.getField("group_title");
+        if(title != null)
+        {
+            UserGroup ug = new UserGroup(title, false, false, false, false, false, false);
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else
+            {
+                // Attempt to persist new group
+                UserGroup.PersistStatus_UserGroup ugps = ug.persist(data.getConnector());
+                // Handle persist status
+                switch(ugps)
+                {
+                    case Failed:
+                        data.setTemplateData("error", "Failed to create new group; please try again.");
+                        break;
+                    case Title_Length:
+                        data.setTemplateData("error", "Title must be x to x characters in length.");
+                        break;
+                    case Success:
+                        data.getResponseData().setRedirectUrl("/admin/groups/"+ug.getGroupID()+"/edit");
+                        break;
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Groups - Create");
+        data.setTemplateData("pals_content", "default_auth/page_admin_group_create");
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAdminUsers_groupBrowse(WebRequestData data)
+    {
+        // Fetch groups
+        UserGroup[] groups = UserGroup.load(data.getConnector());
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Groups");
+        data.setTemplateData("pals_content", "default_auth/page_admin_groups");
+        data.setTemplateData("groups", groups);
+        return true;
+    }
+    // Methods - Shared ********************************************************
+    private boolean pageAdminUsers_groupUserView(WebRequestData data, UserGroup group)
+    {
+        final int USERS_PER_PAGE = 20;
+        RemoteRequest req = data.getRequestData();
+        // Parse page
+        int page;
+        try
+        {
+            page = Integer.parseInt(req.getField("p"));
+            if(page < 1)
+                page = 1;
+        }
+        catch(NumberFormatException ex)
+        {
+            page = 1;
+        }
+        String filter = req.getField("filter");
+        // Fetch user models
+        ModelUser[] models;
+        if(group == null)
+            models = ModelUser.load(data.getConnector(), filter, USERS_PER_PAGE+1, (page*USERS_PER_PAGE)-USERS_PER_PAGE);
+        else
+            models = ModelUser.loadGroup(group, data.getConnector(), USERS_PER_PAGE+1, (page*USERS_PER_PAGE)-USERS_PER_PAGE);
+        // Check if we have +1 models, to indicate a next page
+        boolean nextPage = models.length > USERS_PER_PAGE;
+        if(nextPage)
+            models = Arrays.copyOf(models, USERS_PER_PAGE);
+        // Setup the page
+        if(group != null)
+        {
+            data.setTemplateData("pals_title", "Admin - Groups - Create");
+            data.setTemplateData("pals_content", "default_auth/page_admin_group_view");
+            data.setTemplateData("group", group);
+        }
+        else
+        {
+            data.setTemplateData("pals_title", "Admin - Users");
+            data.setTemplateData("pals_content", "default_auth/page_admin_users");
+            data.setTemplateData("filter", filter);
+        }
+        data.setTemplateData("models", models);
+        data.setTemplateData("users_per_page", USERS_PER_PAGE);
+        data.setTemplateData("users_page", page);
+        if(page > 1)
+            data.setTemplateData("users_page_prev", page-1);
+        if(page < Integer.MAX_VALUE && nextPage)
+            data.setTemplateData("users_page_next", page+1);
+        return true;
+    }
+    private boolean pageAdminUsers_groupEdit(WebRequestData data, UserGroup group)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Check postback
+        String groupTitle = req.getField("group_title");
+        // -- Optional
+        String userLogin   = req.getField("group_user_login");
         
+        String markerGeneral    = req.getField("group_marker_general");
+        
+        String adminModules     = req.getField("group_admin_modules");
+        String adminQuestions   = req.getField("group_admin_questions");
+        String adminUsers       = req.getField("group_admin_users");
+        String adminSystem      = req.getField("group_admin_system");
+        if(groupTitle != null)
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else
+            {
+                // Update model
+                group.setUserLogin(userLogin != null && userLogin.equals("1"));
+                
+                group.setMarkerGeneral(markerGeneral != null && markerGeneral.equals("1"));
+                
+                group.setAdminModules(adminModules != null && adminModules.equals("1"));
+                group.setAdminQuestions(adminQuestions != null && adminQuestions.equals("1"));
+                group.setAdminUsers(adminUsers != null && adminUsers.equals("1"));
+                group.setAdminSystem(adminSystem != null && adminSystem.equals("1"));
+                
+                // Attempt to persist
+                UserGroup.PersistStatus_UserGroup ugps = group.persist(data.getConnector());
+                // Handle persist status
+                switch(ugps)
+                {
+                    default:
+                        data.setTemplateData("error", "Failed to update group; please try again.");
+                        break;
+                    case Success:
+                        data.setTemplateData("success", "Updated group.");
+                        break;
+                }
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Groups - Create");
+        data.setTemplateData("pals_content", "default_auth/page_admin_group_edit");
+        // -- Fields
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("group", group);
+        data.setTemplateData("group_title", groupTitle != null ? groupTitle : group.getTitle());
+        // -- -- Permissions
+        data.setTemplateData("group_user_login", userLogin != null || (groupTitle == null && group.isUserLogin()));
+        
+        data.setTemplateData("group_marker_general", markerGeneral != null || (groupTitle == null && group.isMarkerGeneral()));
+        
+        data.setTemplateData("group_admin_modules", adminModules != null || (groupTitle == null && group.isAdminModules()));
+        data.setTemplateData("group_admin_questions", adminQuestions != null || (groupTitle == null && group.isAdminQuestions()));
+        data.setTemplateData("group_admin_users", adminUsers != null || (groupTitle == null && group.isAdminUsers()));
+        data.setTemplateData("group_admin_system", adminSystem != null || (groupTitle == null && group.isAdminSystem()));
+        return true;
+    }
+    private boolean pageAdminUsers_groupDelete(WebRequestData data, UserGroup group)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Check postback
+        String confirm = req.getField("confirm");
+        if(confirm != null)
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again.");
+            else if(!Captcha.isCaptchaCorrect(data))
+                data.setTemplateData("error", "Incorrect captcha verification code.");
+            else
+            {
+                // Unpersist the model
+                if(!group.remove(data.getConnector()))
+                    data.setTemplateData("error", "Could not remove group; please try again.");
+                else
+                    data.getResponseData().setRedirectUrl("/admin/groups");
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Groups - Create");
+        data.setTemplateData("pals_content", "default_auth/page_admin_group_delete");
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("group", group);
         return true;
     }
     // Methods *****************************************************************

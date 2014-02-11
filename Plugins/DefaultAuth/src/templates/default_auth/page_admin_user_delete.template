@@ -1,0 +1,56 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/users">Users</a> - <a href="/admin/users/${edit_user.getUserID()?c}/delete">Delete User</a></h2>
+
+<form method="post" action="/admin/users/${edit_user.getUserID()?c}/delete">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                Confirm User Deletion
+            </th>
+        </tr>
+        <tr>
+            <td>
+                ID:
+            </td>
+            <td>
+                ${edit_user.getUserID()?c}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Username:
+            </td>
+            <td>
+                ${edit_user.getUsername()?html}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                E-mail:
+            </td>
+            <td>
+                <#if edit_user.getEmail()??>${edit_user.getEmail()?html}</#if>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                Warning: you are about to delete a user. Any data associated with them will<br />
+                be lost. Ensure you have backups of their data, this action cannot be<br />
+                undone.
+            </td>
+        </tr>
+        <#include "../captcha_form">
+        <tr>
+            <td colspan="2" class="tac">
+                <input type="submit" value="Delete" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="confirm" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>

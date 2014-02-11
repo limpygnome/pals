@@ -1,0 +1,61 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a> - <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a></h2>
+
+<p class="tac">
+    <a class="button" href="/admin/groups/${group.getGroupID()?c}/edit">
+        Edit
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/groups/${group.getGroupID()?c}/delete">
+        Delete
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/groups">
+        Back
+    </a>
+</p>
+
+<h3 class="tac">Users in Group</h3>
+<table class="table3 group_users">
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Options</th>
+    </tr>
+    <#if models?has_content>
+        <#list models as m>
+            <tr>
+                <td>
+                    ${m.getUserID()?c}
+                </td>
+                <td>
+                    ${m.getUsername()?html}
+                </td>
+                <td>
+                    <a class="button" href="/admin/users/${m.getUserID()?c}/edit">
+                        Edit
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="3">
+                No users exist in this group.
+            </td>
+        </tr>
+    </#if>
+</table>
+
+<div class="p tac">
+    <#if users_page_prev??>
+        <a class="button fl" href="/admin/groups/${group.getGroupID()?c}?p=${users_page_prev?c}">
+            Previous
+        </a>
+    </#if>
+    Page ${users_page}
+    <#if users_page_next??>
+        <a class="button fr" href="/admin/groups/${group.getGroupID()?c}?p=${users_page_next?c}">
+            Next
+        </a>
+    </#if>
+</div>

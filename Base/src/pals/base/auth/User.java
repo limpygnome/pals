@@ -1,5 +1,6 @@
 package pals.base.auth;
 
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.assessment.Module;
 import pals.base.database.Connector;
@@ -87,6 +88,9 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -106,6 +110,9 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -139,6 +146,9 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -169,7 +179,7 @@ public class User
         // Regex from: http://www.regular-expressions.info/email.html
         else if(email != null && (email.length() < getEmailMin() || email.length() > getEmailMax() || !email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$")))
             return PersistStatus_User.InvalidEmail_format;
-        else if(group == null || group.getGroupid() == -1)
+        else if(group == null || group.getGroupID() == -1)
             return PersistStatus_User.InvalidGroup;
         try
         {
@@ -187,7 +197,7 @@ public class User
                         password,
                         passwordSalt,
                         email,
-                        group.getGroupid()
+                        group.getGroupID()
                         );
             }
             else
@@ -197,7 +207,7 @@ public class User
                         password,
                         passwordSalt,
                         email,
-                        group.getGroupid(),
+                        group.getGroupID(),
                         userid
                         );
             }
@@ -205,8 +215,34 @@ public class User
         }
         catch(DatabaseException ex)
         {
+            core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return PersistStatus_User.Failed;
         }
+    }
+    /**
+     * Unpersists the current model.
+     * 
+     * @param conn Database connector.
+     * @return Indicates if the operation succeeded.
+     */
+    public boolean remove(Connector conn)
+    {
+        try
+        {
+            if(userid != -1)
+            {
+                conn.execute("DELETE FROM pals_users WHERE userid=?;", userid);
+                userid = -1;
+                return true;
+            }
+        }
+        catch(DatabaseException ex)
+        {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
+        }
+        return false;
     }
     // Methods - Mutators ******************************************************
     /**

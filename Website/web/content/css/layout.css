@@ -196,11 +196,6 @@ body
 	color: #333;
 }
 /* Tables ~ shared */
-.layout_body .content table tr th,
-.layout_body .content table tr td
-{
-	text-align: center;
-}
 .layout_body .content table input[type=submit], .layout_body .content table button, .layout_body .button
 {
 	margin: 0em;
@@ -225,7 +220,8 @@ body
 	cursor: pointer;
 }
 .layout_body .content table input[type=text], .layout_body .content table input[type=password], .layout_body table textarea,
-.layout_body .content .textbox
+.layout_body .content .textbox,
+.layout_body .content table select
 {
 	border: solid 0.2em #CCC;
 	background: #EEE;
@@ -246,7 +242,8 @@ body
 .layout_body .content table input[type=password]:focus, .layout_body .content table input[type=password]:hover,
 .layout_body .content table input[type=file]:focus, .layout_body .content table input[type=file]:hover,
 .layout_body .content table textarea:focus, .layout_body .content table textarea:hover,
-.layout_body .content .textbox:focus, .layout_body .content .textbox:hover
+.layout_body .content .textbox:focus, .layout_body .content .textbox:hover,
+.layout_body .content table select:focus, .layout_body .content table select:hover
 {
 	box-shadow: #CCC 0em 0em 0.5em;
 }
@@ -760,4 +757,12 @@ body
 {
 	background: #FCC;
 	color: #F00;
+}
+.groups tr td:nth-child(2), .group_users tr td:nth-child(2)
+{
+	width: 20em;
+}
+.groups tr td:nth-child(1), .groups tr td:nth-child(3)
+{
+	text-align: center;
 }

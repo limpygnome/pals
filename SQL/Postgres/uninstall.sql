@@ -4,7 +4,6 @@ DROP TABLE IF EXISTS pals_http_sessions							CASCADE;
 DROP TABLE IF EXISTS pals_http_session_data						CASCADE;
 DROP TABLE IF EXISTS pals_users_group							CASCADE;
 DROP TABLE IF EXISTS pals_users									CASCADE;
-DROP TABLE IF EXISTS pals_email_queue							CASCADE;
 
 DROP TABLE IF EXISTS pals_modules								CASCADE;
 DROP TABLE IF EXISTS pals_modules_enrollment					CASCADE;

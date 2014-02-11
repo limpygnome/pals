@@ -1,5 +1,8 @@
 package pals.base.auth;
 
+import java.util.ArrayList;
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -57,7 +60,38 @@ public class UserGroup
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
+        }
+    }
+    /**
+     * Loads all of the user-groups on the system.
+     * 
+     * @param conn Database connector.
+     * @return Array of user-groups; can be empty.
+     */
+    public static UserGroup[] load(Connector conn)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_users_group ORDER BY title ASC;");
+            ArrayList<UserGroup> buffer = new ArrayList<>();
+            UserGroup t;
+            while(res.next())
+            {
+                if((t = load(res)) != null)
+                    buffer.add(t);
+            }
+            return buffer.toArray(new UserGroup[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
+            return new UserGroup[0];
         }
     }
     /**
@@ -84,6 +118,9 @@ public class UserGroup
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return null;
         }
     }
@@ -108,12 +145,12 @@ public class UserGroup
                         + "RETURNING groupid;"
                         ,
                         title,
-                        userLogin,
-                        markerGeneral,
-                        adminModules,
-                        adminQuestions,
-                        adminUsers,
-                        adminSystem
+                        userLogin ? "1" : "0",
+                        markerGeneral ? "1" : "0",
+                        adminModules ? "1" : "0",
+                        adminQuestions ? "1": "0",
+                        adminUsers ? "1" : "0",
+                        adminSystem ? "1" : "0"
                         );
             }
             else
@@ -133,8 +170,36 @@ public class UserGroup
         }
         catch(DatabaseException ex)
         {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return PersistStatus_UserGroup.Failed;
         }
+    }
+    /**
+     * Unpersists the user-group.
+     * 
+     * @param conn Database connector.
+     * @return Indicates if the operation succeeded.
+     */
+    public boolean remove(Connector conn)
+    {
+        try
+        {
+            if(groupid != -1)
+            {
+                conn.execute("DELETE FROM pals_users_group WHERE groupid=?;", groupid);
+                groupid = -1;
+                return true;
+            }
+        }
+        catch(DatabaseException ex)
+        {
+            NodeCore core;
+            if((core = NodeCore.getInstance())!=null)
+                core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
+        }
+        return false;
     }
     // Methods - Mutators ******************************************************
     /**
@@ -197,7 +262,7 @@ public class UserGroup
     /**
      * @return The identifier of this group.
      */
-    public int getGroupid()
+    public int getGroupID()
     {
         return groupid;
     }
@@ -256,6 +321,24 @@ public class UserGroup
     public boolean isAdminSystem()
     {
         return adminSystem;
+    }
+    /**
+     * @param conn Database connector.
+     * @return The number of users in the group; this is not cached.
+     */
+    public int getUserCount(Connector conn)
+    {
+        if(groupid != -1)
+        {
+            try
+            {
+                return (int)(long)conn.executeScalar("SELECT COUNT('') FROM pals_users WHERE groupid=?;", groupid);
+            }
+            catch(DatabaseException ex)
+            {
+            }
+        }
+        return -1;
     }
     // Methods - Accessors - Limits ********************************************
     /**

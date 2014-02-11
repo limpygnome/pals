@@ -71,6 +71,9 @@ public class JavaExistsShared
                 critSynchronized = req.getField("crit_mod_sync");
         if(critTitle != null && critWeight != null && critClassName != null && critClassOnly != null && (ct != CriteriaType.Method || (critMethod != null && critMethodParams != null && critMethodRT != null)))
         {
+            // In-case user has specified void
+            if(critMethodRT != null && critMethodRT.equals("void"))
+                critMethodRT = "";
             // Update data-model
             // -- Modifiers
             int modifiers;
