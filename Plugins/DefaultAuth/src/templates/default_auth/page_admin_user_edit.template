@@ -77,3 +77,31 @@
         ${error?html}
     </p>
 </#if>
+
+<table class="table2">
+    <tr>
+        <th colspan="2">Module Enrollment</th>
+    </tr>
+    <tr class="sub">
+        <th>ID</th>
+        <th>Title</th>
+    </tr>
+    <#if edit_user.getModules(data.getConnector())?has_content>
+        <#list user.getModules(data.getConnector()) as module>
+            <tr>
+                <td>
+                    ${module.getModuleID()?c}
+                </td>
+                <td>
+                    ${module.getTitle()?html}
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="2">
+                User is not enrolled on any modules.
+            </td>
+        </tr>
+    </#if>
+</table>

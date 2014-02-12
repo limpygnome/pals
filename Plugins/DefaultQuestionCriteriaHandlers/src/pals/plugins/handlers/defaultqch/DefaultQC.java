@@ -57,6 +57,7 @@ public class DefaultQC extends Plugin
                         tcJavaCodeMetrics,
                         tcJavaMethodExists,
                         tcJavaClassExists,
+                        tcJavaFieldExists,
                         tcJavaTestProgram;
         if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
             return false;
@@ -70,9 +71,11 @@ public class DefaultQC extends Plugin
             return false;
         if((tcJavaCodeMetrics = registerTypeCriteria(conn, core, JavaCodeMetrics.UUID_CTYPE, JavaCodeMetrics.TITLE, JavaCodeMetrics.DESCRIPTION)) == null)
             return false;
-        if((tcJavaMethodExists = registerTypeCriteria(conn, core, JavaMethodExists.UUID_CTYPE, JavaMethodExists.TITLE, JavaMethodExists.DESCRIPTION)) == null)
+        if((tcJavaMethodExists = registerTypeCriteria(conn, core, JavaExistsMethod.UUID_CTYPE, JavaExistsMethod.TITLE, JavaExistsMethod.DESCRIPTION)) == null)
             return false;
-        if((tcJavaClassExists = registerTypeCriteria(conn, core, JavaClassExists.UUID_CTYPE, JavaClassExists.TITLE, JavaClassExists.DESCRIPTION)) == null)
+        if((tcJavaClassExists = registerTypeCriteria(conn, core, JavaExistsClass.UUID_CTYPE, JavaExistsClass.TITLE, JavaExistsClass.DESCRIPTION)) == null)
+            return false;
+        if((tcJavaFieldExists = registerTypeCriteria(conn, core, JavaExistsField.UUID_CTYPE, JavaExistsField.TITLE, JavaExistsField.DESCRIPTION)) == null)
             return false;
         if((tcJavaTestProgram = registerTypeCriteria(conn, core, JavaTestProgram.UUID_CTYPE, JavaTestProgram.TITLE, JavaTestProgram.DESCRIPTION)) == null)
             return false;
@@ -98,6 +101,7 @@ public class DefaultQC extends Plugin
         tqCodeJava.criteriaAdd(tcJavaCodeMetrics);
         tqCodeJava.criteriaAdd(tcJavaMethodExists);
         tqCodeJava.criteriaAdd(tcJavaClassExists);
+        tqCodeJava.criteriaAdd(tcJavaFieldExists);
         tqCodeJava.criteriaAdd(tcJavaTestProgram);
         if(!persistQuestionCriteria(core, tqCodeJava, conn))
             return false;
@@ -157,9 +161,10 @@ public class DefaultQC extends Plugin
         unregisterTypeQuestion(conn, MCQ.UUID_QTYPE);
         unregisterTypeQuestion(conn, WrittenResponse.UUID_QTYPE);
         // Remove criteria types
-        unregisterTypeCriteria(conn, JavaClassExists.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaExistsClass.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaExistsMethod.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaExistsField.UUID_CTYPE);
         unregisterTypeCriteria(conn, JavaCodeMetrics.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaMethodExists.UUID_CTYPE);
         unregisterTypeCriteria(conn, JavaTestInputs.UUID_CTYPE);
         unregisterTypeCriteria(conn, JavaTestProgram.UUID_CTYPE);
         unregisterTypeCriteria(conn, ManualMarking.UUID_CTYPE);
@@ -248,12 +253,14 @@ public class DefaultQC extends Plugin
         else if(ctype.equals(MultipleChoice.UUID_CTYPE))
             return MultipleChoice.pageCriteriaEdit(data, qc);
         
-        else if(ctype.equals(JavaClassExists.UUID_CTYPE))
-            return JavaClassExists.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaExistsClass.UUID_CTYPE))
+            return JavaExistsClass.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaExistsMethod.UUID_CTYPE))
+            return JavaExistsMethod.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaExistsField.UUID_CTYPE))
+            return JavaExistsField.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
             return JavaCodeMetrics.pageCriteriaEdit(data, qc);
-        else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
-            return JavaMethodExists.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
             return JavaTestInputs.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
@@ -331,12 +338,14 @@ public class DefaultQC extends Plugin
         else if(ctype.equals(MultipleChoice.UUID_CTYPE))
             return MultipleChoice.criteriaMarking(conn, core, iac);
         
-        else if(ctype.equals(JavaClassExists.UUID_CTYPE))
-            return JavaClassExists.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaExistsClass.UUID_CTYPE))
+            return JavaExistsClass.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaExistsMethod.UUID_CTYPE))
+            return JavaExistsMethod.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaExistsField.UUID_CTYPE))
+            return JavaExistsMethod.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
             return JavaCodeMetrics.criteriaMarking(conn, core, iac);
-        else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
-            return JavaMethodExists.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
             return JavaTestInputs.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
@@ -364,13 +373,14 @@ public class DefaultQC extends Plugin
             return ManualMarking.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(MultipleChoice.UUID_CTYPE))
             return MultipleChoice.criteriaDisplay(data, ia, iaq, iac, html);
-        
-        else if(ctype.equals(JavaClassExists.UUID_CTYPE))
-            return JavaClassExists.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaExistsClass.UUID_CTYPE))
+            return JavaExistsClass.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaExistsMethod.UUID_CTYPE))
+            return JavaExistsMethod.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaExistsField.UUID_CTYPE))
+            return JavaExistsMethod.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaCodeMetrics.UUID_CTYPE))
             return JavaCodeMetrics.criteriaDisplay(data, ia, iaq, iac, html);
-        else if(ctype.equals(JavaMethodExists.UUID_CTYPE))
-            return JavaMethodExists.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaTestInputs.UUID_CTYPE))
             return JavaTestInputs.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaTestProgram.UUID_CTYPE))

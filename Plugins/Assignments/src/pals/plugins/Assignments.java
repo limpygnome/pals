@@ -217,6 +217,8 @@ public class Assignments extends Plugin
                 return pageAssignments_instanceReprocess(data, ia, pages, editMode, captureMode);
             case "reopen":
                 return pageAssignments_instanceReopen(data, ia, pages, editMode, captureMode);
+            case "delete":
+                return pageAssignments_instanceDelete(data, ia, pages, editMode, captureMode);
             default:
                 // Assume it's a question page
                 return pageAssignments_instanceQuestions(data, ia, pages, mup.parseInt(3, 1), editMode, captureMode);
@@ -485,6 +487,28 @@ public class Assignments extends Plugin
         }
         // Setup the page
         data.setTemplateData("instance_page", "assignment/instance_page_reopen");
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAssignments_instanceDelete(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)
+    {
+        // Check the assignment is not active and we're in edit-mode
+        if(ia.getStatus() == InstanceAssignment.Status.Active || !editMode)
+            return false;
+        // Check for postback from confirmation
+        String confirm = data.getRequestData().getField("confirm");
+        if(confirm != null && confirm.equals("1"))
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+            else
+            {
+                ia.delete(data.getConnector());
+                data.getResponseData().setRedirectUrl("/admin/modules/"+ia.getAss().getModule().getModuleID()+"/assignments/"+ia.getAss().getAssID());
+            }
+        }
+        // Setup the page
+        data.setTemplateData("instance_page", "assignment/instance_page_delete");
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }

@@ -85,10 +85,10 @@ public class ParsedArgument
                boolean array = false;
                String   k = arg.substring(0, se).toLowerCase();
                String[] v = se == arg.length()-1 ? new String[0] : arg.substring(se+1).split(",");
-               if(k.length() > 4 && k.endsWith(":arr"))
+               if(k.length() > 2 && k.endsWith("[]"))
                {
                    array = true;
-                   k = k.substring(0, k.length()-4);
+                   k = k.substring(0, k.length()-2);
                }
                // Create parser
                Parser p;

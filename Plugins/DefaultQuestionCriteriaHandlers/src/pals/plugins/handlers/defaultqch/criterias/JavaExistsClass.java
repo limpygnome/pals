@@ -10,9 +10,9 @@ import pals.base.database.Connector;
 import pals.base.web.WebRequestData;
 
 /**
- * Handles java class existence criteria marking.
+ * Handles Java class existence criteria marking.
  */
-public class JavaClassExists
+public class JavaExistsClass
 {
     // Constants ***************************************************************
     public static final UUID    UUID_CTYPE = UUID.parse("0ce02a08-9d6d-4d1d-bd8d-536d60fc1b65");

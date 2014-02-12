@@ -120,12 +120,14 @@
 </p>
 <p>
     The arguments box should have each parameter, in-order, on each line; this supports
-    primitives and String. For arrays, add :arr to the type. Examples:
+    primitives and String. Arrays are also supported, whith multiple values separated by
+    commas. Examples:
 </p>
 <p>
-    string:arr=test,<br />
-    string:arr=<br />
+    string[]=test<br />
+    string[]=<br />
     int=2
+    int[]=1,2,3,4,5,6
 </p>
 <p>
     Full list of available types:
@@ -141,3 +143,7 @@
     <li>char</li>
     <li>string / str</li>
 </ul>
+<p>
+    Instead of specifying an explicit input value, you can also write <b>rand(<i>min</i>:<i>max</i>)</b> to generate
+    a pseudo-random value inclusively within a range.
+</p>

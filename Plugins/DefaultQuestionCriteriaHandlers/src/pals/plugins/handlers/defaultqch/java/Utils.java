@@ -149,12 +149,15 @@ public class Utils
         if(jc == null)
             return new CompilerResult(CompilerResult.CompileStatus.Failed_CompilerNotFound, null);
         // Reset directory
+        File f = new File(pathTemp);
         try
         {
-            File f = new File(pathTemp);
             // Ensure dir exists
             if(!f.exists())
-                f.mkdir();
+            {
+                if(!f.mkdir())
+                    return new CompilerResult(CompilerResult.CompileStatus.Failed_TempDirectory, null);
+            }
             else
             {
                 // Purge .class files
@@ -178,7 +181,7 @@ public class Utils
             cfm.getClassLoader().add(file.getKey(), file.getValue());
         // Attempt to compile the code
         DiagnosticCollector<JavaFileObject> diag = new DiagnosticCollector<>();
-        boolean compiled = jc.getTask(null, cfm, diag, Arrays.asList(new String[]{"-d", pathTemp}), null, cfm.getClassLoader().getCompilerObjects()).call();
+        boolean compiled = jc.getTask(null, cfm, diag, Arrays.asList(new String[]{"-d", f.getAbsolutePath()}), null, cfm.getClassLoader().getCompilerObjects()).call();
         if(!compiled)
             return new CompilerResult(CompilerResult.CompileStatus.Failed, diag);
         else

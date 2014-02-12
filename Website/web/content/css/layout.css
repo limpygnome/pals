@@ -267,7 +267,7 @@ body
 	color: #333;
 }
 /* Tables - Sub-headers */
-.layout_body .content table tr th.sub
+.layout_body .content table tr.sub th
 {
 	background: #DDD;
 }
@@ -466,7 +466,6 @@ body
 /* Admin ~ Questions: Forms */
 .layout_body .questions_form tr td
 {
-	text-align: left !important;
 	vertical-align: top !important;
 }
 .layout_body .questions_form tr td.tac
@@ -544,11 +543,6 @@ body
 {
 	padding: 0.5em;
 	border-bottom: solid 0.4em #0C0;
-}
-.layout_body .assignment_pages .left,
-.layout_body .assignment_pages .right
-{
-	width: 50%;
 }
 .layout_body .assignment_pages .left
 {

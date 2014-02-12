@@ -1,6 +1,7 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -31,12 +32,14 @@ public class JavaExistsShared
     public enum CriteriaType
     {
         Class,
-        Method
+        Method,
+        Field
     }
     public enum MarkingStatus
     {
         Incorrect_NotFoundClass,
         Incorrect_NotFoundMethod,
+        Incorrect_NotFoundField,
         Incorrect_Modifiers,
         Incorrect_ReturnTypeMethod,
         Correct
@@ -57,6 +60,8 @@ public class JavaExistsShared
         String  critMethod =    req.getField("crit_method");
         String  critMethodParams = req.getField("crit_method_params");
         String  critMethodRT =  req.getField("crit_method_rt");
+        String  critFieldName = req.getField("crit_field_name");
+        String  critFieldType = req.getField("crit_field_type");
         // -- Optional
         String  critMod =       req.getField("crit_mod");
         String  critAbstract =  req.getField("crit_mod_abstract"),
@@ -68,8 +73,13 @@ public class JavaExistsShared
                 critPublic =    req.getField("crit_mod_public"),
                 critStatic =    req.getField("crit_mod_static"),
                 critStrict =    req.getField("crit_mod_strict"),
-                critSynchronized = req.getField("crit_mod_sync");
-        if(critTitle != null && critWeight != null && critClassName != null && critClassOnly != null && (ct != CriteriaType.Method || (critMethod != null && critMethodParams != null && critMethodRT != null)))
+                critSynchronized = req.getField("crit_mod_sync"),
+                critTransient = req.getField("crit_mod_trans"),
+                critVolatile =  req.getField("crit_mod_vol");
+        if(critTitle != null && critWeight != null && critClassName != null && critClassOnly != null &&
+                (ct != CriteriaType.Method || (critMethod != null && critMethodParams != null && critMethodRT != null)) &&
+                (ct != CriteriaType.Field || (critFieldName != null && critFieldType != null))
+            )
         {
             // In-case user has specified void
             if(critMethodRT != null && critMethodRT.equals("void"))
@@ -100,6 +110,10 @@ public class JavaExistsShared
                     modifiers |= Modifier.STRICT;
                 if(critSynchronized != null && critSynchronized.equals("1"))
                     modifiers |= Modifier.SYNCHRONIZED;
+                if(critTransient != null && critTransient.equals("1"))
+                    modifiers |= Modifier.TRANSIENT;
+                if(critVolatile != null && critVolatile.equals("1"))
+                    modifiers |= Modifier.VOLATILE;
             }
             else
                 modifiers = -1;
@@ -123,14 +137,19 @@ public class JavaExistsShared
             // -- Method name
             else if(ct == CriteriaType.Method && !cdata.setMethod(critMethod))
                 data.setTemplateData("error", "Invalid method name.");
+            // -- Field Name
+            else if(ct == CriteriaType.Field && !cdata.setFieldName(critFieldName))
+                data.setTemplateData("error", "Invalid field identifier.");
+            else if(ct == CriteriaType.Field && !cdata.setFieldType(critFieldType))
+                data.setTemplateData("error", "Invalid field type.");
             else
             {
                 if(ct == CriteriaType.Method)
                 {
-                    cdata.setParameters(critMethodParams);
-                    cdata.setReturnType(critMethodRT);
-                    cdata.setCriteriaType(ct);
+                    cdata.setMethodParameters(critMethodParams);
+                    cdata.setMethodReturnType(critMethodRT);
                 }
+                cdata.setCriteriaType(ct);
                 // Handle entire process
                 CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
             }
@@ -146,6 +165,9 @@ public class JavaExistsShared
             case Method:
                 data.setTemplateData("crit_mode", 2);
                 break;
+            case Field:
+                data.setTemplateData("crit_mode", 4);
+                break;
         }
         // -- Fields
         data.setTemplateData("criteria", qc);
@@ -155,11 +177,17 @@ public class JavaExistsShared
         data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
         data.setTemplateData("crit_class_name", critClassName != null ? critClassName : cdata.getClassName());
         data.setTemplateData("crit_class_only", cdata.getMarkClassOnly());
-        if(ct == CriteriaType.Method)
+        switch(ct)
         {
-            data.setTemplateData("crit_method", critMethod != null ? critMethod : cdata.getMethod());
-            data.setTemplateData("crit_method_params", critMethodParams != null ? critMethodParams : cdata.getParametersWeb());
-            data.setTemplateData("crit_method_rt", critMethodRT != null ? critMethodRT : cdata.getReturnType());
+            case Method:
+                data.setTemplateData("crit_method", critMethod != null ? critMethod : cdata.getMethod());
+                data.setTemplateData("crit_method_params", critMethodParams != null ? critMethodParams : cdata.getMethodParametersWeb());
+                data.setTemplateData("crit_method_rt", critMethodRT != null ? critMethodRT : cdata.getMethodReturnType());
+                break;
+            case Field:
+                data.setTemplateData("crit_field_name", critFieldName != null ? critFieldName : cdata.getFieldName());
+                data.setTemplateData("crit_field_type", critFieldType != null ? critFieldType : cdata.getFieldType());
+                break;
         }
         // -- -- Optional
         int tModifiers = cdata.getModifiers();
@@ -174,6 +202,8 @@ public class JavaExistsShared
         data.setTemplateData("crit_mod_static", (critStatic != null && critStatic.equals("1"))          || (critTitle == null && tModifiers != -1 && (tModifiers & Modifier.STATIC) == Modifier.STATIC));
         data.setTemplateData("crit_mod_strict", (critStrict != null && critStrict.equals("1"))          || (critTitle == null && tModifiers != -1 && (tModifiers & Modifier.STRICT) == Modifier.STRICT));
         data.setTemplateData("crit_mod_sync", (critSynchronized != null && critSynchronized.equals("1")) || (critTitle == null && tModifiers != -1 && (tModifiers & Modifier.SYNCHRONIZED) == Modifier.SYNCHRONIZED));
+        data.setTemplateData("crit_mod_trans", (critTransient != null && critTransient.equals("1")) || (critTitle == null && tModifiers != -1 && (tModifiers & Modifier.TRANSIENT) == Modifier.TRANSIENT));
+        data.setTemplateData("crit_mod_vol", (critVolatile != null && critVolatile.equals("1")) || (critTitle == null && tModifiers != -1 && (tModifiers & Modifier.VOLATILE) == Modifier.VOLATILE));
         return true;
     }
     static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac, CriteriaType ct)
@@ -209,16 +239,21 @@ public class JavaExistsShared
                         switch(cdata.getCriteriaType())
                         {
                             default:
+                            {
                                 iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
                                 return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+                            }
                             case Class:
+                            {
                                 // Check modifiers
                                 ms = modifiers == -1 || c.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;
                                 break;
+                            }
                             case Method:
+                            {
                                 // Build params
-                                String[] tparams = cdata.getParameters();
-                                String trt = cdata.getReturnType();
+                                String[] tparams = cdata.getMethodParameters();
+                                String trt = cdata.getMethodReturnType();
                                 Class[] params = new Class[tparams.length];
                                 for(int i = 0; i < tparams.length; i++)
                                 {
@@ -257,6 +292,31 @@ public class JavaExistsShared
                                     ms = MarkingStatus.Incorrect_NotFoundMethod;
                                 }
                                 break;
+                            }
+                            case Field:
+                            {
+                                // Build field type
+                                Class ft;
+                                if((ft = Utils.parseClass(cdata.getFieldType(), cl)) == null)
+                                {
+                                    core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Could not parse field-type class '"+cdata.getFieldType()+"' during marking; aiqid '"+iac.getIAQ().getAIQID()+"', qcid '"+iac.getQC().getQCID()+"'.", Logging.EntryType.Warning);
+                                    iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                                    return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+                                }
+                                // Locate field
+                                try
+                                {
+                                    Field field = c.getDeclaredField(cdata.getFieldName());
+                                    if(field.getGenericType().equals(ft))
+                                        ms = modifiers == -1 || field.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;
+                                    else
+                                        ms = MarkingStatus.Incorrect_Modifiers;
+                                }
+                                catch(NoSuchFieldException | SecurityException ex)
+                                {
+                                    ms = MarkingStatus.Incorrect_NotFoundField;
+                                }
+                            }
                         }
                     }
                     catch(ClassNotFoundException ex) { }
@@ -303,6 +363,9 @@ public class JavaExistsShared
                 case Incorrect_NotFoundMethod:
                     kvs.put("error", "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', not found.");
                     break;
+                case Incorrect_NotFoundField:
+                    kvs.put("error", "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', not found.");
+                    break;
                 case Incorrect_Modifiers:
                     switch(cdata.getCriteriaType())
                     {
@@ -311,6 +374,9 @@ public class JavaExistsShared
                             break;
                         case Method:
                             kvs.put("error", "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', found with incorrect modifiers - expected: '"+Modifier.toString(cdata.getModifiers())+"'.");
+                            break;
+                        case Field:
+                            kvs.put("error", "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found with incorrect modifiers - expected: '"+Modifier.toString(cdata.getModifiers())+"'.");
                             break;
                     }
                     break;
@@ -321,7 +387,10 @@ public class JavaExistsShared
                             kvs.put("success", cdata.getModifiers() == -1 ? "Class '"+cdata.getClassName()+"' found." : "Class '"+cdata.getClassName()+"' found with correct modifiers.");
                             break;
                         case Method:
-                            kvs.put("success", cdata.getModifiers() == -1 ? "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', found." : "Method '"+cdata.getClassName()+"', in class '"+cdata.getClassName()+"', found with correct modifiers.");
+                            kvs.put("success", cdata.getModifiers() == -1 ? "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', found." : "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', found with correct modifiers.");
+                            break;
+                        case Field:
+                            kvs.put("success", cdata.getModifiers() == -1 ? "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found." : "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found with correct modifiers.");
                             break;
                     }
                     break;

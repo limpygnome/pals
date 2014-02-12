@@ -62,6 +62,30 @@
                 </td>
             </tr>
         </#if>
+        <#if crit_mode == 4>
+            <tr>
+                <th colspan="2">
+                    Field Specifics
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    Identifier:
+                </td>
+                <td>
+                    <input type="text" name="crit_field_name" value="<#if crit_field_name??>${crit_field_name}</#if>" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Type:
+                </td>
+                <td>
+                    <input type="text" name="crit_field_type" value="<#if crit_field_type??>${crit_field_type}</#if>" /><br />
+                    Note: if this is a class, you should specify the full-name.
+                </td>
+            </tr>
+        </#if>
         <tr>
             <th colspan="2">
                 Modifiers
@@ -84,19 +108,25 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="checkbox" name="crit_mod_abstract" value="1" <#if crit_mod_abstract>checked</#if> /> Abstract    <br />
-                <input type="checkbox" name="crit_mod_final" value="1" <#if crit_mod_final>checked</#if> /> Final       <br />
-                <input type="checkbox" name="crit_mod_native" value="1" <#if crit_mod_native>checked</#if> /> Native      <br />
                 <input type="checkbox" name="crit_mod_private" value="1" <#if crit_mod_private>checked</#if> /> Private     <br />
                 <input type="checkbox" name="crit_mod_protected" value="1" <#if crit_mod_protected>checked</#if> /> Protected   <br />
                 <input type="checkbox" name="crit_mod_public" value="1" <#if crit_mod_public>checked</#if> /> Public      <br />
                 <input type="checkbox" name="crit_mod_static" value="1" <#if crit_mod_static>checked</#if> /> Static      <br />
+                <input type="checkbox" name="crit_mod_final" value="1" <#if crit_mod_final>checked</#if> /> Final       <br />
+                 <#if crit_mode == 1 || crit_mode == 2>
+                    <input type="checkbox" name="crit_mod_abstract" value="1" <#if crit_mod_abstract>checked</#if> /> Abstract    <br />
+                    <input type="checkbox" name="crit_mod_native" value="1" <#if crit_mod_native>checked</#if> /> Native      <br />
+                </#if>
                 <#if crit_mode == 1>
                     <input type="checkbox" name="crit_mod_interface" value="1" <#if crit_mod_interface>checked</#if> /> Interface   <br />
                     <input type="checkbox" name="crit_mod_strict" value="1" <#if crit_mod_strict>checked</#if> /> Strict (strictfp)     <br />
                 </#if>
-                <#if crit_mode == 2>
+                <#if crit_mode == 2 || crit_mode == 4>
                     <input type="checkbox" name="crit_mod_sync" value="1" <#if crit_mod_sync>checked</#if> /> Synchronized      <br />
+                </#if>
+                <#if crit_mode == 4>
+                    <input type="checkbox" name="crit_mod_trans" value="1" <#if crit_mod_trans>checked</#if> /> Transient      <br />
+                    <input type="checkbox" name="crit_mod_vol" value="1" <#if crit_mod_vol>checked</#if> /> Volatile      <br />
                 </#if>
             </td>
         </tr>

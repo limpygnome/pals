@@ -428,6 +428,8 @@ public class DefaultAuth extends Plugin
                 data.setTemplateData("error", "Invalid username/password!");
             else if((user = User.load(data.getConnector(), username)) == null)
                 data.setTemplateData("error", "Invalid username/password!");
+            else if(!user.getGroup().isUserLogin())
+                data.setTemplateData("error", "The specified account has been disabled from logging-on.");
             else
             {
                 // Generate a hash using the user's salt, compare passwords

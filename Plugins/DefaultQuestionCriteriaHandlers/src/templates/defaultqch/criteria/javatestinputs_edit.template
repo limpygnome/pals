@@ -147,10 +147,10 @@
     </tr>
     <tr>
         <td>
-            public byte[] output(<b>String</b> text, <b>double</b> a, <b>double</b> b)
+            public byte[] output(<b>String</b> text, <b>double</b> a, <b>double</b> b, <b>int[]</b> c)
         </td>
         <td>
-            string,double,double
+            string,double,double,int[]
         </td>
     </tr>
 </table>
@@ -169,17 +169,18 @@
     <li>string / str</li>
 </ul>
 <p>
-    The input box should have the values for each corresponding input-type on each line, separated by commas. Each line
-    represents a different input test. An example for a method which takes <i>string,int,int</i>, which has five tests:
+    The input box should have the values for each corresponding input-type on each line, separated by semi-colons. Values can also support arrays,
+    with array values separated by commas. Each line represents a different input test. An example for a method which takes <i>string,int[]</i>,
+    which has five tests:
 </p>
 <p>
-    test #1,4,16<br />
-    test #2,5,25<br />
-    test #3,6,36<br />
-    test #4,7,49
+    test #1;4,16;<br />
+    test #2,5,25;<br />
+    test #3,6,36;<br />
+    test #4;7,49;
 </p>
 <p>
-    Instead of specifying a specific input value, you can also write <b>rand(<i>min</i>:<i>max</i>)</b> to generate
+    Instead of specifying an explicit input value, you can also write <b>rand(<i>min</i>:<i>max</i>)</b> to generate
     a pseudo-random value inclusively within a range.
 </p>
 <p>

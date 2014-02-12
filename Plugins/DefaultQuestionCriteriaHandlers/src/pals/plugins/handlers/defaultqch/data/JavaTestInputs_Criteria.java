@@ -64,9 +64,9 @@ public class JavaTestInputs_Criteria implements Serializable
                         !(
                             s.equals("byte") || s.equals("short") || s.equals("int") || s.equals("long") || s.equals("float") || s.equals("double") ||
                             s.equals("bool") || s.equals("boolean") || s.equals("char") || s.equals("string") || s.equals("str") ||
-                    
-                            s.equals("byte:arr") || s.equals("short:arr") || s.equals("int:arr") || s.equals("long:arr") || s.equals("float:arr") || s.equals("double:arr") ||
-                            s.equals("bool:arr") || s.equals("boolean:arr") || s.equals("char:arr") || s.equals("string:arr") || s.equals("str:arr")
+
+                            s.equals("byte[]") || s.equals("short[]") || s.equals("int[]") || s.equals("long[]") || s.equals("float[]") || s.equals("double[]") ||
+                            s.equals("bool[]") || s.equals("boolean[]") || s.equals("char[]") || s.equals("string[]") || s.equals("str[]")
                         )
                     )
                 return false;

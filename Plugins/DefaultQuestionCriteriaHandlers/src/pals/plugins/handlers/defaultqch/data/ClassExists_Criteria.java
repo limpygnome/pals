@@ -17,21 +17,27 @@ public class ClassExists_Criteria implements Serializable
     public enum MatchType
     {
         Class,
-        Method
-    }
-    // Fields ******************************************************************
-    private String                          className,
-                                            method;
-    private String[]                        parameters;
-    private String                          returnType;
+        Method,
+        Field
+    }                             
+    // Fields - Method *********************************************************
+    private String                          method;
+    private String[]                        methodParameters;
+    private String                          methodReturnType;
+    // Fields - Field **********************************************************
+    private String                          fieldName,
+                                            fieldType;
+    // Fields - General ********************************************************
+    private String                          className;
     private int                             modifiers;
     private int                             markClassOnly;
     private JavaExistsShared.CriteriaType   criteriaType;
     // Methods - Constructors **************************************************
     public ClassExists_Criteria()
     {
-        this.className = this.method = this.returnType = null;
-        this.parameters = new String[0];
+        this.className = this.method = this.methodReturnType = null;
+        this.methodParameters = new String[0];
+        this.fieldName = this.fieldType = null;
         this.modifiers = 0;
         this.markClassOnly = 50;
         this.criteriaType = JavaExistsShared.CriteriaType.Class;
@@ -77,16 +83,17 @@ public class ClassExists_Criteria implements Serializable
      * @param params Sets the parameters for the method being testedl this
      * should be classes separated by the new-line character.
      */
-    public void setParameters(String params)
+    public void setMethodParameters(String params)
     {
-        this.parameters = Misc.arrayStringNonEmpty(params.replace("\r", "").split("\n"));
+        this.methodParameters = Misc.arrayStringNonEmpty(params.replace("\r", "").split("\n"));
     }
     /**
-     * @param returnType The full class-name of the return-type.
+     * @param returnType The full class-name of the return-type; can be empty
+     * or null.
      */
-    public void setReturnType(String returnType)
+    public void setMethodReturnType(String returnType)
     {
-        this.returnType = returnType;
+        this.methodReturnType = returnType;
     }
     /**
      * @param matchType The type of entity being handled.
@@ -94,6 +101,28 @@ public class ClassExists_Criteria implements Serializable
     public void setCriteriaType(JavaExistsShared.CriteriaType matchType)
     {
         this.criteriaType = matchType;
+    }
+    /**
+     * @param fieldName The name of the field to be checked.
+     * @return Indicates if the operation succeeded.
+     */
+    public boolean setFieldName(String fieldName)
+    {
+        if(fieldName == null || fieldName.length() == 0)
+            return false;
+        this.fieldName = fieldName;
+        return true;
+    }
+    /**
+     * @param fieldType The type of the field.
+     * @return Indicates if the operation succeeded.
+     */
+    public boolean setFieldType(String fieldType)
+    {
+        if(fieldType == null || fieldType.length() == 0)
+            return false;
+        this.fieldType = fieldType;
+        return true;
     }
     // Methods - Accessors *****************************************************
     /**
@@ -128,17 +157,17 @@ public class ClassExists_Criteria implements Serializable
      * @return The full class-names of parameters, in-order, of the method
      * to match.
      */
-    public String[] getParameters()
+    public String[] getMethodParameters()
     {
-        return parameters;
+        return methodParameters;
     }
     /**
      * @return Similar to getParameters, but with values separated by new-line.
      */
-    public String getParametersWeb()
+    public String getMethodParametersWeb()
     {
         StringBuilder buffer = new StringBuilder();
-        for(String p : parameters)
+        for(String p : methodParameters)
             buffer.append(p).append('\n');
         if(buffer.length() > 0)
             buffer.deleteCharAt(buffer.length()-1);
@@ -147,9 +176,23 @@ public class ClassExists_Criteria implements Serializable
     /**
      * @return The return-type of the method.
      */
-    public String getReturnType()
+    public String getMethodReturnType()
     {
-        return returnType;
+        return methodReturnType;
+    }
+    /**
+     * @return The name fo the field to check.
+     */
+    public String getFieldName()
+    {
+        return fieldName;
+    }
+    /**
+     * @return The type or full class-name of the field.
+     */
+    public String getFieldType()
+    {
+        return fieldType;
     }
     /**
      * @return The type of entity being handled.

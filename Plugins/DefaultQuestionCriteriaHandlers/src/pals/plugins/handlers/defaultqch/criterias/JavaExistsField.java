@@ -10,25 +10,25 @@ import pals.base.database.Connector;
 import pals.base.web.WebRequestData;
 
 /**
- * Handles Java method existence criteria marking.
+ * Handles Java field existence criteria marking.
  */
-public class JavaMethodExists
+public class JavaExistsField
 {
     // Constants ***************************************************************
-    public static final UUID    UUID_CTYPE = UUID.parse("1746eb7b-eda5-45ee-8c45-699f7d0a6d0c");
-    public static final String  TITLE = "Java: Method Exists";
-    public static final String  DESCRIPTION = "Checks the existence and modifiers of a method.";
+    public static final UUID    UUID_CTYPE = UUID.parse("69078967-3604-4a6f-a4db-80453ad4c747");
+    public static final String  TITLE = "Java: Field Exists";
+    public static final String  DESCRIPTION = "Checks the existence and modifiers of a field.";
     // Methods *****************************************************************
     public static boolean pageCriteriaEdit(WebRequestData data, QuestionCriteria qc)
     {
-        return JavaExistsShared.pageCriteriaEdit(data, qc, JavaExistsShared.CriteriaType.Method);
+        return JavaExistsShared.pageCriteriaEdit(data, qc, JavaExistsShared.CriteriaType.Field);
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)
     {
-        return JavaExistsShared.criteriaMarking(conn, core, iac, JavaExistsShared.CriteriaType.Method);
+        return JavaExistsShared.criteriaMarking(conn, core, iac, JavaExistsShared.CriteriaType.Field);
     }
     public static boolean criteriaDisplay(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, InstanceAssignmentCriteria iac, StringBuilder html)
     {
-        return JavaExistsShared.criteriaDisplay(data, ia, iaq, iac, html, JavaExistsShared.CriteriaType.Method);
+        return JavaExistsShared.criteriaDisplay(data, ia, iaq, iac, html, JavaExistsShared.CriteriaType.Field);
     }
 }

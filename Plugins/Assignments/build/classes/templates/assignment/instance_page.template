@@ -22,6 +22,10 @@
                     Reopen
                 </a>
                 &nbsp;
+                <a href="/assignments/instance/${assignment_instance.getAIID()?c}/delete?edit=1" class="button">
+                    Delete
+                </a>
+                &nbsp;
                 <a href="/assignments/instance/${assignment_instance.getAIID()?c}/recompute?edit=1" class="button">
                     Recompute Grade
                 </a>

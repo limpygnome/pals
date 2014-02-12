@@ -166,7 +166,7 @@ public class Files
     {
         File[] fl = dir.listFiles();
         // Check if the current directory is empty
-        if(fl.length == 0)
+        if(fl.length == 0 && !topDir)
             dirs.add(dir);
         else
         {

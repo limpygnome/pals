@@ -13,7 +13,7 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="tac">
                 <input type="submit" value="Add" />
             </td>
         </tr>

@@ -1,0 +1,29 @@
+<form method="post" action="/assignments/instance/${assignment_instance.getAIID()?c}/delete?edit=1">
+    <table class="table2">
+        <tr>
+            <th>
+                Confirm Deletion
+            </th>
+        </tr>
+        <tr>
+            <td>
+                You are about to delete this instance of an assignment; all associated<br />
+                data will be permanently lost. Ensure you have any required data,<br />
+                for this instance, backed-up.
+            </td>
+        </tr>
+        <tr>
+            <td class="tac">
+                <input type="submit" value="Delete" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="confirm" value="1" />
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>

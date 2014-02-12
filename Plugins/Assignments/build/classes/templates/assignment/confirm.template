@@ -29,7 +29,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <input type="submit" value="Confirm" />
             </td>
         </tr>
