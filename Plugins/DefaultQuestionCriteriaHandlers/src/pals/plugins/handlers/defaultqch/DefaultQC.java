@@ -1,5 +1,6 @@
 package pals.plugins.handlers.defaultqch;
 
+import java.util.regex.Pattern;
 import pals.plugins.handlers.defaultqch.questions.*;
 import pals.plugins.handlers.defaultqch.criterias.*;
 import pals.base.Logging;
@@ -9,23 +10,38 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.Version;
+import pals.base.WebManager;
+import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.assessment.Module;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
+import pals.base.web.MultipartUrlParser;
+import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
+import pals.base.web.security.CSRF;
+import pals.base.web.security.Escaping;
+import pals.plugins.handlers.defaultqch.logging.ModelException;
+import pals.plugins.handlers.defaultqch.logging.ModelExceptionClass;
 
 /**
  * A plugin for the default questions and criteria types.
  */
 public class DefaultQC extends Plugin
 {
+    // Static ******************************************************************
+    public static final Pattern pattMatchNodeException;
+    static
+    {
+        pattMatchNodeException = Pattern.compile("Exception: (.+) - cause: (.+)");
+    }
     // Fields - Constants ******************************************************
     public static final String LOGGING_ALIAS = "Default QC";
     // Methods - Constructors **************************************************
@@ -183,6 +199,7 @@ public class DefaultQC extends Plugin
     {
         // Unload templates
         core.getTemplates().remove(this);
+        core.getWebManager().urlsUnregister(this);
     }
     @Override
     public boolean eventHandler_registerTemplates(NodeCore core, TemplateManager manager)
@@ -208,6 +225,50 @@ public class DefaultQC extends Plugin
                 return pageQuestionDisplay(args);
             case "criteria_type.display_feedback":
                 return criteriaFeedback(args);
+        }
+        return false;
+    }
+    @Override
+    public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
+    {
+        if(!web.urlsRegister(this, new String[]{
+            "admin/stats"
+        }))
+            return false;
+        return true;
+    }
+    @Override
+    public boolean eventHandler_webRequest(WebRequestData data)
+    {
+        MultipartUrlParser mup = new MultipartUrlParser(data);
+        String page;
+        switch(mup.getPart(0))
+        {
+            case "admin":
+                page = mup.getPart(1);
+                if(page == null || data.getUser() == null || !(data.getUser().getGroup().isAdmin() || data.getUser().getGroup().isMarkerGeneral()))
+                    return false;
+                switch(page)
+                {
+                    case "stats":
+                    {
+                        page = mup.getPart(2);
+                        if(page == null)
+                            return false;
+                        else
+                        {
+                            switch(page)
+                            {
+                                case "overview":
+                                    return pageStats_overview(data);
+                                case "view":
+                                    return pageStats_view(data);
+                            }
+                        }
+                        break;
+                    }
+                }
+                break;
         }
         return false;
     }
@@ -317,6 +378,101 @@ public class DefaultQC extends Plugin
         else if(qtype.equals(CodeJava.UUID_QTYPE))
             return CodeJava.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
         return false;
+    }
+    private boolean pageStats_overview(WebRequestData data)
+    {
+        RemoteRequest req = data.getRequestData();
+        // Load models
+        ModelExceptionClass[] models;
+        String type = req.getField("type");
+        String rawTid = req.getField("tid");
+        String clear = req.getField("clear");
+        // Parse filter
+        String rawFilter = req.getField("filter");
+        ModelExceptionClass.LoadRemoveFilter filter;
+        if(rawFilter != null)
+        {
+            switch(rawFilter)
+            {
+                case "0":
+                    filter = ModelExceptionClass.LoadRemoveFilter.FilterCompileTime;
+                    break;
+                case "1":
+                    filter = ModelExceptionClass.LoadRemoveFilter.FilterRuntime;
+                    break;
+                default:
+                    return false;
+            }
+        }
+        else
+            filter = ModelExceptionClass.LoadRemoveFilter.None;
+        // Parse/delete type
+        boolean doClear = clear != null && clear.equals("1") && CSRF.isSecure(data);
+        if(type == null || rawTid == null || type.length() == 0 || rawTid.length() == 0)
+        {
+            if(doClear)
+                ModelExceptionClass.delete(data.getConnector(), filter);
+            models = ModelExceptionClass.load(data.getConnector(), filter);
+        }
+        else
+        {
+            int tid;
+            try
+            {
+                tid = Integer.parseInt(rawTid);
+            }
+            catch(NumberFormatException ex)
+            {
+                return false;
+            }
+            switch(type)
+            {
+                case "m": // Module
+                    Module module = Module.load(data.getConnector(), tid);
+                    if(module == null)
+                        return false;
+                    ModelExceptionClass.delete(data.getConnector(), module, filter);
+                    models = ModelExceptionClass.load(data.getConnector(), module, filter);
+                    break;
+                case "a": // Assignment
+                    Assignment ass = Assignment.load(data.getConnector(), null, tid);
+                    if(ass == null)
+                        return false;
+                    ModelExceptionClass.delete(data.getConnector(), ass, filter);
+                    models = ModelExceptionClass.load(data.getConnector(), ass, filter);
+                    break;
+                case "q": // Question
+                    Question q = Question.load(data.getCore(), data.getConnector(), tid);
+                    if(q == null)
+                        return false;
+                    ModelExceptionClass.delete(data.getConnector(), q, filter);
+                    models = ModelExceptionClass.load(data.getConnector(), q, filter);
+                    break;
+                default:
+                    return false;
+            }
+        }
+        // Sum cum freq
+        long totalFreq = 0;
+        for(ModelExceptionClass m : models)
+            totalFreq += m.getFrequency();
+        // Setup the page
+        data.setTemplateData("pals_title", "Stats - Overview");
+        data.setTemplateData("pals_content", "defaultqch/stats/overview");
+        data.appendHeaderCSS("/content/css/defaultqch_stats.css");
+        // -- Fields
+        data.setTemplateData("models", models);
+        if(models.length > 0)
+            data.setTemplateData("total_freq", totalFreq);
+        data.setTemplateData("type", Escaping.htmlEncode(type));
+        data.setTemplateData("tid", Escaping.htmlEncode(rawTid));
+        data.setTemplateData("filter", rawFilter);
+        data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageStats_view(WebRequestData data)
+    {
+        return true;
     }
     // Methods - Criteria ******************************************************
     private boolean criteriaMarking(Object[] hookData)

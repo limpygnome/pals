@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.regex.Matcher;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Storage;
@@ -25,6 +26,7 @@ import pals.plugins.handlers.defaultqch.data.JavaTestInputs_Criteria;
 import pals.plugins.handlers.defaultqch.data.JavaTestInputs_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
+import pals.plugins.handlers.defaultqch.logging.ModelException;
 
 /**
  * Handles text inputs criteria marking.
@@ -166,6 +168,7 @@ public class JavaTestInputs
                 String valQC, valIAQ;
                 int correct = 0;
                 String[] formattedArgs;
+                boolean exceptionLogged = false;
                 for(int row = 0; row < inputs.length; row++)
                 {
                     formattedArgs = inputs[row];
@@ -187,8 +190,23 @@ public class JavaTestInputs
                         iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
                         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                     }
-                    else if(valQC.equals(valIAQ))
-                        correct++;
+                    else
+                    {
+                        // Check if the student and lecturer's solution match
+                        if(valQC.equals(valIAQ))
+                            correct++;
+                        else if(!exceptionLogged && valIAQ.contains("Exception: "))
+                        {
+                            // Check for exception
+                            Matcher m = DefaultQC.pattMatchNodeException.matcher(valIAQ);
+                            if(m.matches() && m.groupCount() >= 2)
+                            {
+                                ModelException e = new ModelException(m.group(1), m.group(2), iac.getIAQ(), true);
+                                e.persist(conn);
+                                exceptionLogged = true;
+                            }
+                        }
+                    }
                     // Update result model
                     icdata.setInput(row, inputsToStr(formattedArgs));
                     icdata.setOutputCorrect(row, valQC);

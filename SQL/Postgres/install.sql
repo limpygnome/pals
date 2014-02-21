@@ -259,3 +259,35 @@ CREATE TABLE pals_assignment_instance_question_criteria
 CREATE TABLE pals_node_locking
 (
 );
+-- Tables used for logging runtime exception messages from code.
+-- -- Used by DefaultQCH plugin.
+-- -- Exception full class-names.
+CREATE TABLE pals_exception_classes
+(
+	ecid				SERIAL				PRIMARY KEY,
+	-- The class-name of the exception.
+	class_name			VARCHAR(64)			NOT NULL,
+	-- Type ~ 1 indicates runtime, 0 indicates compiletime
+	runtime				VARCHAR(1)			NOT NULL,
+	UNIQUE(class_name, runtime)
+);
+-- Full exception messages.
+CREATE TABLE pals_exception_messages
+(
+	emid				SERIAL				PRIMARY KEY,
+	-- The message thrown by the exception.
+	message				TEXT				UNIQUE			NOT NULL
+);
+-- Instances of exceptions, which have occurred.
+CREATE TABLE pals_exceptions
+(
+	exid				SERIAL				PRIMARY KEY,
+	-- Exception class and message.
+	ecid				INT					REFERENCES pals_exception_classes(ecid) ON UPDATE CASCADE ON DELETE CASCADE,
+	emid				INT					REFERENCES pals_exception_messages(emid) ON UPDATE CASCADE ON DELETE CASCADE,
+	--  The instance of the assignment question.
+	aqid				INT					REFERENCES pals_assignment_questions(aqid) ON UPDATE CASCADE ON DELETE CASCADE,
+	aiid				INT					REFERENCES pals_assignment_instance(aiid) ON UPDATE CASCADE ON DELETE CASCADE,
+	-- The date of the occurrence.
+	exdate				TIMESTAMP			NOT NULL
+);

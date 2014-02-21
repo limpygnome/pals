@@ -41,7 +41,7 @@ public class Assignment
     private int                                             maxAttempts;
     private DateTime                                        due;
     private boolean                                         dueHandled;
-    private HashMap<Integer,ArrayList<AssignmentQuestion>>  questions;  // page,list<question>
+    private HashMap<Integer,ArrayList<AssignmentQuestion>>  questions;  // page,list
     // Methods - Constructors **************************************************
     /**
      * Creates a new unpersisted assignment.

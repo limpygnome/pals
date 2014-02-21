@@ -43,7 +43,7 @@
                         --
                     </#if>
                 </td>
-                <td title="${ass.getTimeEnd()?html}">
+                <td>
                     <#if ass.getTimeEnd()??>
                         ${ass.getTimeEnd().toString("YYYY/mm/dd HH:mm:ss")}
                     <#else>

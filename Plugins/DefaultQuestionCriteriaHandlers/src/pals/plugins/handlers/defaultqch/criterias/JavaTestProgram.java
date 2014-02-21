@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Storage;
@@ -26,6 +28,7 @@ import pals.plugins.handlers.defaultqch.data.JavaTestProgram_Criteria;
 import pals.plugins.handlers.defaultqch.data.JavaTestProgram_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
+import pals.plugins.handlers.defaultqch.logging.ModelException;
 
 /**
  * A criteria for testing a program.
@@ -182,6 +185,7 @@ public class JavaTestProgram
                 // -- Capture output
                 JavaTestProgram_InstanceCriteria cdata = new JavaTestProgram_InstanceCriteria();
                 boolean keepRunning = true;
+                boolean exceptionLogged = false; // Prevent multiple exceptions being logged
                 while(keepRunning)
                 {
                     try
@@ -226,6 +230,17 @@ public class JavaTestProgram
                                     total++;
                                     cdata.addLine(line, JavaTestProgram_InstanceCriteria.Status.Incorrect);
                                     errors++;
+                                    // Check if this is an exception line
+                                    if(!exceptionLogged && line.startsWith("Exception: "))
+                                    {
+                                        Matcher m = DefaultQC.pattMatchNodeException.matcher(line);
+                                        if(m.matches() && m.groupCount() >= 2)
+                                        {
+                                            ModelException e = new ModelException(m.group(1), m.group(2), iac.getIAQ(), true);
+                                            e.persist(conn);
+                                            exceptionLogged = true;
+                                        }
+                                    }
                                     // Check if the error threshold has been surpassed
                                     if(errors >= errorThreshold)
                                     {

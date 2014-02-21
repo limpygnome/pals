@@ -1,0 +1,71 @@
+/* Admin - Stats */
+.layout_body .content .dqch_stats
+{
+	margin: 0.5em;
+}
+.layout_body .content .dqch_stats .row
+{
+	border-bottom: dashed 0.1em #666;
+	margin-bottom: 0.25em;
+}
+.layout_body .content .dqch_stats .row.runtime .text
+{
+	background: #FF9;
+}
+.layout_body .content .dqch_stats .row.compiletime .text
+{
+	background: #FCC;
+}
+.layout_body .content .dqch_stats .row.header
+{
+	background: #CCC;
+	color: #333;
+	border-bottom: none;
+	text-align: center;
+}
+.layout_body .content .dqch_stats .row .text,
+.layout_body .content .dqch_stats .row .bar,
+.layout_body .content .dqch_stats .row .freq
+{
+	float: left;
+	height: 2em;
+	line-height: 2em;
+}
+.layout_body .content .dqch_stats .row .text
+{
+	width: 25em;
+	overflow: hidden;
+	margin-right: 0.5em;
+}
+.layout_body .content .dqch_stats .row .bar
+{
+	width: 25em;
+}
+.layout_body .content .dqch_stats .row:not(.header) .bar
+{
+	background: #DDD;
+}
+.layout_body .content .dqch_stats .row .bar .inner
+{
+	background: #0C0;
+}
+.layout_body .content .dqch_stats .row .bar .inner_text
+{
+	width: inherit;
+	text-align: center;
+	position: absolute;
+	color: #0C0;
+}
+.layout_body .content .dqch_stats .row .bar .inner_text .ittext
+{
+	background: rgba(30,30,30,0.3);
+	color: #FFF;
+	padding: 0.25em;
+}
+.layout_body .content .dqch_stats .row .freq
+{
+	width: 8em;
+	height: 1.75em;
+	line-height: 1.75em;
+	padding: 0.25em;
+}

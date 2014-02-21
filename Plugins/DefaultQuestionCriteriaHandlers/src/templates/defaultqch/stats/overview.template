@@ -1,0 +1,66 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a> - <a href="/admin/stats/overview">Overview</a></h2>
+
+<p>
+    Below you can see common exceptions experienced by students during runtime (yellow) and compile-time (red).
+</p>
+
+<p class="tac">
+    <a href="/admin/stats/overview?clear=1&amp;csrf=${csrf}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if><#if filter??>&amp;filter=${filter}</#if>" class="button">
+        Clear Data
+    </a>
+    &nbsp;
+    Filter:
+    <a href="/admin/stats/overview<#if type?? && tid??>?type=${type}&amp;tid=${tid}</#if>" class="button">
+        All
+    </a>
+    &nbsp;
+    <a href="/admin/stats/overview?filter=0<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>" class="button">
+        Compile-Time
+    </a>
+    &nbsp;
+    <a href="/admin/stats/overview?filter=1<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>" class="button">
+        Runtime
+    </a>
+</p>
+
+<#if models?has_content>
+    <div class="dqch_stats">
+        <div class="row header">
+            <div class="text">
+                Exception Name
+            </div>
+            <div class="bar">
+                %
+            </div>
+            <div class="freq">
+                Occurrences
+            </div>
+            <div class="clear"></div>
+        </div>
+        <#list models as m>
+            <div class="row <#if m.isRuntime()>runtime<#else>compiletime</#if>">
+                <div class="text">
+                    <a href="/admin/stats/view?ecid=${m.getECID()?string}">
+                        ${m.getClassName()?html}
+                    </a>
+                </div>
+                <div class="bar" title="${(m.getFrequency()/total_freq)*100.0}% of exceptions">
+                    <div class="inner_text">
+                        <span class="ittext">
+                            ${((m.getFrequency()/total_freq)*100.0)?string}%
+                        </span>
+                    </div>
+                    <div class="inner" style="width: ${(m.getFrequency()/total_freq)*100.0}%;">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="freq">
+                    ${m.getFrequency()?string}
+                </div>
+                <div class="clear"></div>
+            </div>
+        </#list>
+    </div>
+<#else>
+    <p class="tac">No information available.</p>
+</#if>

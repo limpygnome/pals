@@ -28,6 +28,7 @@ import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
+import pals.plugins.handlers.defaultqch.logging.ModelException;
 
 /**
  * Handles code-fragment questions.
@@ -283,8 +284,16 @@ public class CodeJava
                 switch(cr.getStatus())
                 {
                     case Failed:
+                        boolean exceptionLogged = false;
                         for(CodeError error : cr.getCodeErrors())
+                        {
+                            if(!exceptionLogged)
+                            {
+                                ModelException m = new ModelException(error.getMessage(), null, iaq, false);
+                                m.persist(data.getConnector());
+                            }
                             adata.errorsAdd(error);
+                        }
                         break;
                 }
                 // Attempt to persist model
@@ -380,8 +389,17 @@ public class CodeJava
                         switch(cr.getStatus())
                         {
                             case Failed:
+                                boolean exceptionLogged = false;
                                 for(CodeError error : cr.getCodeErrors())
+                                {
+                                    if(!exceptionLogged)
+                                    {
+                                        ModelException m = new ModelException(error.getMessage(), null, iaq, false);
+                                        m.persist(data.getConnector());
+                                        exceptionLogged = true;
+                                    }
                                     adata.errorsAdd(error);
+                                }
                                 break;
                         }
                     }

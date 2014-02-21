@@ -32,7 +32,7 @@ public class JavaSandbox
     public static Thread    threadWatcher = null;
     public static int       timeout = -1;
     // Methods - Entry-Point ***************************************************
-    public static void main(String[] args) throws InvocationTargetException
+    public static void main(String[] args) throws Throwable
     {
         if(args.length < 5)
         {
@@ -218,6 +218,27 @@ public class JavaSandbox
             System.err.println("Incorrect parameters for entry-point method.");
             printDebugData(ex);
             return;
+        }
+        catch(InvocationTargetException ex)
+        {
+            Throwable e = ex.getTargetException();
+            if(e != null)
+            {
+                // Print the exception
+                System.out.println("Exception: "+e.getClass().getName()+" - cause: "+e.getMessage().replace("\r", "").replace("\n", " "));
+                // Write stack-trace to stderr up until reflection part
+                // -- To avoid confusing the student/user and for security
+                System.err.println("Stack Trace:");
+                StackTraceElement[] sframes = e.getStackTrace();
+                int pos = 0;
+                while(pos != -1 && pos < sframes.length)
+                {
+                    if(sframes[pos].getMethodName().startsWith("invoke"))
+                        pos = -1;
+                    else
+                        System.err.println("at "+sframes[pos++]);
+                }
+            }
         }
         // Kill the JVM
         System.exit(0);
