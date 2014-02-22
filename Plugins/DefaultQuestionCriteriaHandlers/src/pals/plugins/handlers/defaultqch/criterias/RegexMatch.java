@@ -14,9 +14,11 @@ import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
 import pals.plugins.handlers.defaultqch.data.Regex_Criteria;
 import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
+import pals.plugins.handlers.defaultqch.questions.CodeJava;
 import pals.plugins.handlers.defaultqch.questions.MCQ;
 import pals.plugins.handlers.defaultqch.questions.WrittenResponse;
 
@@ -42,6 +44,9 @@ public class RegexMatch
         String critWeight = req.getField("crit_weight");
         String critRegex = req.getField("crit_regex");
         // -- Optional
+        String critHide = req.getField("crit_hide");
+        String critInvert = req.getField("crit_invert");
+        // -- Optional: modes
         String critMultiline = req.getField("crit_multiline");
         String critCase = req.getField("crit_case");
         String critDotall = req.getField("crit_dotall");
@@ -57,6 +62,8 @@ public class RegexMatch
                 cdata.setMode(
                                 (critMultiline != null && critMultiline.equals("1") ? Pattern.MULTILINE : 0) | (critCase != null && critCase.equals("1") ? Pattern.CASE_INSENSITIVE : 0) | (critDotall != null && critDotall.equals("1") ? Pattern.DOTALL : 0)
                         );
+                cdata.setHide(critHide != null && critHide.equals("1"));
+                cdata.setInvert(critInvert != null && critInvert.equals("1"));
                 // Handle entire process
                 CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
             }
@@ -75,7 +82,10 @@ public class RegexMatch
         data.setTemplateData("crit_regex", critRegex != null ? critRegex : cdata.getRegexPattern());
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
         data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
-        
+        if(critHide != null && critHide.equals("1") || (critRegex == null && cdata.getHide()))
+            data.setTemplateData("crit_hide", true);
+        if(critInvert != null && critInvert.equals("1") || (critRegex == null && cdata.getInvert()))
+            data.setTemplateData("crit_invert", true);
         // -- Note: critRegex is used to test for postback; if a box was previously selected, unselecting and posting-back may cause it to change state
         if( (critRegex == null && ((cdata.getMode() & Pattern.MULTILINE) == Pattern.MULTILINE)) || (critMultiline != null && critMultiline.equals("1")))
             data.setTemplateData("crit_multiline", data);
@@ -114,7 +124,7 @@ public class RegexMatch
                 String[] text = adata.getAnswers(qdata);
                 for(String t : text)
                 {
-                    if(p.matcher(t).matches())
+                    if(p.matcher(t).find())
                     {
                         matched = true;
                         break;
@@ -124,12 +134,33 @@ public class RegexMatch
             else if(qtype.equals(WrittenResponse.UUID_QTYPE))
             {
                 String text = (String)iac.getIAQ().getData();
-                matched = p.matcher(text).matches();
+                matched = p.matcher(text).find();
+            }
+            else if(qtype.equals(CodeJava.UUID_QTYPE))
+            {
+                CodeJava_Instance qidata = (CodeJava_Instance)iac.getIAQ().getData();
+                // Iterate each source file, apply until match
+                Object[][] data = qidata.getCode();
+                String code;
+                for(Object[] c : data)
+                {
+                    code = (String)c[2];
+                    if(p.matcher(code).find())
+                    {
+                        matched = true;
+                        break;
+                    }
+                    else
+                        System.out.println("no match for "+code);
+                }
             }
             else
                 return false;
             // Update and persist the mark
-            iac.setMark(matched ? 100 : 0);
+            if(cdata.getInvert())
+                iac.setMark(matched ? 0 : 100);
+            else
+                iac.setMark(matched ? 100 : 0);
             iac.setData(matched);
         }
         iac.setStatus(InstanceAssignmentCriteria.Status.Marked);
@@ -143,7 +174,10 @@ public class RegexMatch
         {
             boolean matched = (Boolean)fdata;
             HashMap<String,Object> kvs = new HashMap<>();
-            kvs.put(matched ? "success" : "error", matched ? "Correct answer." : "Your answer was not matched by the regular-expressions pattern '"+cdata.getRegexPattern()+"'.");
+            if(cdata.getInvert())
+                kvs.put(!matched ? "success" : "error", !matched ? "Correct answer." : cdata.getHide() ? "Your answer includes something (hidden) disallowed." : "Your answer was matched by the regular-expressions pattern '"+cdata.getRegexPattern()+"'.");
+            else
+                kvs.put(matched ? "success" : "error", matched ? "Correct answer." : cdata.getHide() ? "Your answer does not include something (hidden) required." : "Your answer was not matched by the regular-expressions pattern '"+cdata.getRegexPattern()+"'.");
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/feedback_display"));
             return true;
         }

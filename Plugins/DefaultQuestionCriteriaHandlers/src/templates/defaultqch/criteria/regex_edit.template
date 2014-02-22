@@ -37,6 +37,15 @@
             </td>
         </tr>
         <tr>
+            <td>
+                Options:
+            </td>
+            <td>
+                <input type="checkbox" value="1" name="crit_hide" <#if crit_hide??>checked</#if> />         Hide pattern from users<br />
+                <input type="checkbox" value="1" name="crit_invert" <#if crit_invert??>checked</#if> />     Give marks for no match
+            </td>
+        </tr>
+        <tr>
             <th colspan="2">
                 Modes
             </th>
@@ -66,7 +75,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                 <input type="submit" value="Update" />
             </td>
@@ -86,3 +95,9 @@
         ${success}
     </p>
 </#if>
+
+<h3>Notes</h3>
+<p>
+    The <i>Give marks for no match</i> option will only give marks if no regular-expression
+    match occurs; otherwise, the criteria will only receive marks if a match occurs.
+</p>

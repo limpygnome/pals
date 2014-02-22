@@ -7,6 +7,7 @@ import pals.base.assessment.Module;
 import pals.base.assessment.Question;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 
 /**
  * A model used for creating and retrieving information regarding instances of
@@ -72,15 +73,95 @@ public class ModelException
         }
         return true;
     }
-    public static ModelException[] load(Connector conn, Module module)
+    /**
+     * @param conn Database connector.
+     * @param ecid The identifier of the exception class.
+     * @param lf The load filter applied.
+     * @return Array of instances; can be empty.
+     */
+    public static ModelException[] load(Connector conn, int ecid, ModelExceptionClass.LoadRemoveFilter lf)
     {
-        return null;
+        try
+        {
+            if(lf == ModelExceptionClass.LoadRemoveFilter.None)
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exceptions AS e WHERE e.ecid=?;", ecid));
+            else
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exceptions AS e, pals_exception_classes AS ec WHERE ec.runtime=? AND ec.ecid=?;", lf == ModelExceptionClass.LoadRemoveFilter.FilterRuntime ? "1" : "0", ecid));
+        }
+        catch(DatabaseException ex)
+        {
+            return new ModelException[0];
+        }
     }
-    public static ModelException[] load(Connector conn, Assignment ass)
+    /**
+     * @param conn Database connector.
+     * @param ecid The identifier of the exception class.
+     * @param module The filter for a module.
+     * @param lf The load filter applied.
+     * @return Array of instances; can be empty.
+     */
+    public static ModelException[] load(Connector conn, int ecid, Module module, ModelExceptionClass.LoadRemoveFilter lf)
     {
-        return null;
+        try
+        {
+            if(lf == ModelExceptionClass.LoadRemoveFilter.None)
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_exception_messages AS em, pals_assignment_instance AS ai, pals_assignment AS a WHERE e.ecid=ec.ecid AND em.emid=e.emid AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? ORDER BY e.exdate DESC;", module.getModuleID()));
+            else
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_exception_messages AS em, pals_assignment_instance AS ai, pals_assignment AS a WHERE e.ecid=ec.ecid AND ec.runtime=? AND em.emid=e.emid AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? ORDER BY e.exdate DESC;", lf == ModelExceptionClass.LoadRemoveFilter.FilterRuntime ? "1" : "0", module.getModuleID()));
+        }
+        catch(DatabaseException ex)
+        {
+            return new ModelException[0];
+        }
     }
-    public static ModelException[] load(Connector conn, Question q)
+    /**
+     * @param conn Database connector.
+     * @param ecid The identifier of the exception class.
+     * @param ass The filter for an assignment.
+     * @param lf The load filter applied.
+     * @return 
+     */
+    public static ModelException[] load(Connector conn, int ecid, Assignment ass, ModelExceptionClass.LoadRemoveFilter lf)
+    {
+        try
+        {
+            if(lf == ModelExceptionClass.LoadRemoveFilter.None)
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai WHERE e.ecid=ec.ecid AND ai.aiid=e.aiid AND ai.assid=? ORDER BY e.exdate DESC;", ass.getAssID()));
+            else
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai WHERE e.ecid=ec.ecid AND ec.runtime=? AND ai.aiid=e.aiid AND ai.assid=? ORDER BY e.exdate DESC;", lf == ModelExceptionClass.LoadRemoveFilter.FilterRuntime ? "1" : "0", ass.getAssID()));
+        }
+        catch(DatabaseException ex)
+        {
+            return new ModelException[0];
+        }
+    }
+    /**
+     * @param conn Database connector.
+     * @param ecid The identifier of the exception class.
+     * @param q The filter for a question.
+     * @param lf The load filter applied.
+     * @return Array of instances; can be empty.
+     */
+    public static ModelException[] load(Connector conn, int ecid, Question q, ModelExceptionClass.LoadRemoveFilter lf)
+    {
+        try
+        {
+            if(lf == ModelExceptionClass.LoadRemoveFilter.None)
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_questions AS aq WHERE e.ecid=ec.ecid AND aq.aqid=e.aqid AND aq.qid=? ORDER BY e.exdate DESC;", q.getQID()));
+            else
+                return load(conn, conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_questions AS aq WHERE e.ecid=ec.ecid AND ec.runtime=? AND aq.aqid=e.aqid AND aq.qid=? ORDER BY e.exdate DESC;", lf == ModelExceptionClass.LoadRemoveFilter.FilterRuntime ? "1" : "0", q.getQID()));
+        }
+        catch(DatabaseException ex)
+        {
+            return new ModelException[0];
+        }
+    }
+    /**
+     * @param conn Database connector.
+     * @param res Result data; next() should not be invoked.
+     * @return Array of instances; can be empty.
+     */
+    public static ModelException[] load(Connector conn, Result res)
     {
         return null;
     }

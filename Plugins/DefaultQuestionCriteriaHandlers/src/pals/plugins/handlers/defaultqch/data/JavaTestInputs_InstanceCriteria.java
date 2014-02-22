@@ -17,7 +17,8 @@ public class JavaTestInputs_InstanceCriteria implements Serializable
     public JavaTestInputs_InstanceCriteria(int numberOfTests)
     {
         input = new String[numberOfTests];
-        outputCorrect = outputStudent = new String[numberOfTests];
+        outputCorrect = new String[numberOfTests];
+        outputStudent = new String[numberOfTests];
     }
     // Methods - Mutators ******************************************************
     /**

@@ -1,44 +1,46 @@
-<table class="table3 jtp">
-    <tr>
-        <th>#</th>
-        <th>Type</th>
-        <th>Line</th>
-        <th>Mark</th>
-    </tr>
-    <#list 0..result.getLines()-1 as i>
-        <#assign status=result.getStatus(i).getValue()>
-        <tr class="<#if status==0 || status==1>jtp_info<#elseif status==2>jtp_incorrect<#elseif status==4>jtp_correct</#if>">
-            <td>${(i+1)?string}</td>
-            <td>
-                <#if status==0>
-                    Info
-                <#elseif status==1>
-                    Input
-                <#elseif status==2>
-                    Incorrect
-                <#elseif status==4>
-                    Correct
-                </#if>
-            </td>
-            <td>
-                ${result.getLine(i)?html}
-            </td>
-            <td>
-                <#if status==0 || status==1>
-                    --
-                <#elseif status==2>
-                    0%
-                <#elseif status==4>
-                    ${result.getCorrectMark()?string}%
-                </#if>
-            </td>
+<#if result?? && (result.getLines() > 0)>
+    <table class="table3 jtp">
+        <tr>
+            <th>#</th>
+            <th>Type</th>
+            <th>Line</th>
+            <th>Mark</th>
         </tr>
-    </#list>
-</table>
+        <#list 0..result.getLines()-1 as i>
+            <#assign status=result.getStatus(i).getValue()>
+            <tr class="<#if status==0 || status==1>jtp_info<#elseif status==2>jtp_incorrect<#elseif status==4>jtp_correct</#if>">
+                <td>${(i+1)?string}</td>
+                <td>
+                    <#if status==0>
+                        Info
+                    <#elseif status==1>
+                        Input
+                    <#elseif status==2>
+                        Incorrect
+                    <#elseif status==4>
+                        Correct
+                    </#if>
+                </td>
+                <td>
+                    ${result.getLine(i)?html}
+                </td>
+                <td>
+                    <#if status==0 || status==1>
+                        --
+                    <#elseif status==2>
+                        0%
+                    <#elseif status==4>
+                        ${result.getCorrectMark()?string}%
+                    </#if>
+                </td>
+            </tr>
+        </#list>
+    </table>
+</#if>
 
 <#if solution??>
-    <h3 class="tac">Solution Script</h3>
-    <p>
-        <textarea rows="${result.getLines()?c}" class="jtp_solution" readonly>${solution?html}</textarea>
-    </p>
+        <h3 class="tac">Solution Script</h3>
+        <p>
+            <textarea rows="${solution_lines?c}" class="jtp_solution" readonly>${solution?html}</textarea>
+        </p>
 </#if>

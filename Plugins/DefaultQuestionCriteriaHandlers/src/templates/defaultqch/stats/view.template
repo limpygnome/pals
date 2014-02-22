@@ -1,0 +1,3 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a> - <a href="/admin/stats/view?ecid=${ecid}">View</a></h2>
+
+test

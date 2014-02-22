@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.TreeSet;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 import org.joda.time.Period;
 import pals.base.NodeCore;
 
@@ -229,5 +228,20 @@ public class Misc
                 return secs+" second"+(secs!=1?"s":"")+" ago";
         }
         return dt.toString("dd/MM/YYYY HH:mm:ss");
+    }
+    /**
+     * Counts the occurrences of a character in a string.
+     * 
+     * @param data The data to be checked.
+     * @param charMatch The character to match, inside the data.
+     * @return The number of times the charMatch occurs inside data.
+     */
+    public static int countOccurrences(String data, char charMatch)       
+    {
+        int counter = 0;
+        for(char c : data.toCharArray())
+            if(c == charMatch)
+                counter++;
+        return counter;
     }
 }

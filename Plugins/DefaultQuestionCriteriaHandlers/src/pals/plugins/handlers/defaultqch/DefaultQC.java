@@ -389,23 +389,7 @@ public class DefaultQC extends Plugin
         String clear = req.getField("clear");
         // Parse filter
         String rawFilter = req.getField("filter");
-        ModelExceptionClass.LoadRemoveFilter filter;
-        if(rawFilter != null)
-        {
-            switch(rawFilter)
-            {
-                case "0":
-                    filter = ModelExceptionClass.LoadRemoveFilter.FilterCompileTime;
-                    break;
-                case "1":
-                    filter = ModelExceptionClass.LoadRemoveFilter.FilterRuntime;
-                    break;
-                default:
-                    return false;
-            }
-        }
-        else
-            filter = ModelExceptionClass.LoadRemoveFilter.None;
+        ModelExceptionClass.LoadRemoveFilter filter = ModelExceptionClass.LoadRemoveFilter.parse(rawFilter);
         // Parse/delete type
         boolean doClear = clear != null && clear.equals("1") && CSRF.isSecure(data);
         if(type == null || rawTid == null || type.length() == 0 || rawTid.length() == 0)
@@ -472,6 +456,73 @@ public class DefaultQC extends Plugin
     }
     private boolean pageStats_view(WebRequestData data)
     {
+        RemoteRequest req = data.getRequestData();
+        String type = req.getField("type");
+        String rawTid = req.getField("tid");
+        String filter = req.getField("filter");
+        // Parse identifier of class
+        String rawEcid = req.getField("ecid");
+        int ecid;
+        try
+        {
+            ecid = Integer.parseInt(rawEcid);
+        }
+        catch(NumberFormatException ex)
+        {
+            return false;
+        }
+        // Fetch ecid data
+        ModelExceptionClass ec = ModelExceptionClass.loadSingle(data.getConnector(), ecid);
+        if(ec == null)
+            return false;
+        // Parse type
+        ModelException[] models;
+        if(type == null)
+            models = ModelException.load(data.getConnector(), ecid, ModelExceptionClass.LoadRemoveFilter.parse(filter));
+        else
+        {
+            int tid;
+            try
+            {
+                tid = Integer.parseInt(rawTid);
+            }
+            catch(NumberFormatException ex)
+            {
+                return false;
+            }
+            switch(type)
+            {
+                case "m": // Module
+                    Module module = Module.load(data.getConnector(), tid);
+                    if(module == null)
+                        return false;
+                    models = ModelException.load(data.getConnector(), ecid, module, ModelExceptionClass.LoadRemoveFilter.None);
+                    break;
+                case "a": // Assignment
+                    Assignment ass = Assignment.load(data.getConnector(), null, tid);
+                    if(ass == null)
+                        return false;
+                    
+                    break;
+                case "q": // Question
+                    Question q = Question.load(data.getCore(), data.getConnector(), tid);
+                    if(q == null)
+                        return false;
+                    
+                    break;
+                default:
+                    return false;
+            }
+        }
+        // Parse filter
+        
+        // Fetch exception models
+        
+        // Setup the page
+        data.setTemplateData("pals_title", "Stats - Overview");
+        data.setTemplateData("pals_content", "defaultqch/stats/view");
+        // -- Fields
+        data.setTemplateData("ecid", ecid);
         return true;
     }
     // Methods - Criteria ******************************************************

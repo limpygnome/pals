@@ -56,7 +56,7 @@ public class JavaTestProgram_InstanceCriteria implements Serializable
      */
     public Status getStatus(int index)
     {
-        return status.get(index);
+        return index < status.size() ? status.get(index) : Status.Incorrect;
     }
     /**
      * @return The total number of lines.

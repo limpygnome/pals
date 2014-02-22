@@ -17,6 +17,7 @@ import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.database.Connector;
+import pals.base.utils.Misc;
 import pals.base.utils.PalsProcess;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
@@ -282,7 +283,11 @@ public class JavaTestProgram
         {
             HashMap<String,Object> kvs = new HashMap<>();
             if(!qcdata.getHideSolution())
-                kvs.put("solution", qcdata.getIOWeb());
+            {
+                String solution = qcdata.getIOWeb();
+                kvs.put("solution", solution);
+                kvs.put("solution_lines", Misc.countOccurrences(solution, '\n'));
+            }
             kvs.put("result", idata);
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestprogram_display"));
             return true;

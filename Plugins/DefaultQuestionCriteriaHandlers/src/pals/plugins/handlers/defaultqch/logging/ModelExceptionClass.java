@@ -24,7 +24,22 @@ public class ModelExceptionClass
     {
         None,
         FilterCompileTime,
-        FilterRuntime
+        FilterRuntime;
+        
+        public static LoadRemoveFilter parse(String filter)
+        {
+            if(filter == null)
+                return ModelExceptionClass.LoadRemoveFilter.None;
+            switch(filter)
+            {
+                case "0":
+                    return ModelExceptionClass.LoadRemoveFilter.FilterCompileTime;
+                case "1":
+                    return ModelExceptionClass.LoadRemoveFilter.FilterRuntime;
+                default:
+                    return ModelExceptionClass.LoadRemoveFilter.None;
+            }
+        }
     }
     // Methods - Constructors **************************************************
     private ModelExceptionClass(int ecid, long frequency, String className, boolean runtime)
@@ -35,6 +50,11 @@ public class ModelExceptionClass
         this.runtime = runtime;
     }
     // Methods - Persistence - Loading *****************************************
+    /**
+     * @param conn Database connector.
+     * @param lf The load-filter applied.
+     * @return Array-list of models; can be empty.
+     */
     public static ModelExceptionClass[] load(Connector conn, LoadRemoveFilter lf)
     {
         try
@@ -52,6 +72,7 @@ public class ModelExceptionClass
     /**
      * @param conn Database connector.
      * @param module The module of errors, and their frequencies, to fetch.
+     * @param lf The load-filter applied.
      * @return Array-list of models; can be empty.
      */
     public static ModelExceptionClass[] load(Connector conn, Module module, LoadRemoveFilter lf)
@@ -71,6 +92,7 @@ public class ModelExceptionClass
     /**
      * @param conn Database connector.
      * @param ass The assignment of errors, and their frequencies, to fetch.
+     * @param lf The load-filter applied.
      * @return Array-list of models; can be empty.
      */
     public static ModelExceptionClass[] load(Connector conn, Assignment ass, LoadRemoveFilter lf)
@@ -90,6 +112,7 @@ public class ModelExceptionClass
     /**
      * @param conn Database connector.
      * @param q The question of errors, and their frequencies, to fetch.
+     * @param lf The load-filter applied.
      * @return Array-list of models; can be empty.
      */
     public static ModelExceptionClass[] load(Connector conn, Question q, LoadRemoveFilter lf)
@@ -121,6 +144,8 @@ public class ModelExceptionClass
             {
                 if((t = loadSingle(conn, res)) != null)
                     buff.add(t);
+                else
+                    System.err.println("null");
             }
             return buff.toArray(new ModelExceptionClass[buff.size()]);
         }
@@ -131,14 +156,33 @@ public class ModelExceptionClass
     }
     /**
      * @param conn Database connector.
-     * @param res Result from a query; next() should be invoked.
+     * @param res Result from a query; next() should be invoked; a frequency,
+     * to represent the number of items, can be optionally present in the query.
      * @return Instance of model or null.
      */
     public static ModelExceptionClass loadSingle(Connector conn, Result res)
     {
         try
         {
-            return new ModelExceptionClass((int)res.get("ecid"), (long)res.get("freq"), (String)res.get("class_name"), ((String)res.get("runtime")).equals("1"));
+            boolean containsFreq = res.contains("freq");
+            return new ModelExceptionClass((int)res.get("ecid"), containsFreq ? (long)res.get("freq") : 0, (String)res.get("class_name"), ((String)res.get("runtime")).equals("1"));
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
+    }
+    /**
+     * @param conn Database connector.
+     * @param ecid The identifier of the exception class.
+     * @return Instance of model or null; if an instance is returned,
+     * the frequency field will always be zero.
+     */
+    public static ModelExceptionClass loadSingle(Connector conn, int ecid)
+    {
+        try
+        {
+            return loadSingle(conn, conn.read("SELECT ecid, class_name, runtime FROM pals_exception_classes WHERE ecid=?;", ecid));
         }
         catch(DatabaseException ex)
         {
@@ -150,6 +194,7 @@ public class ModelExceptionClass
      * Removes all the exception data.
      * 
      * @param conn Database connector.
+     * @param lf Deletion filer.
      */
     public static void delete(Connector conn, LoadRemoveFilter lf)
     {
@@ -169,6 +214,7 @@ public class ModelExceptionClass
      * 
      * @param conn Database connector.
      * @param module The module.
+     * @param lf Deletion filer.
      */
     public static void delete(Connector conn, Module module, LoadRemoveFilter lf)
     {
@@ -187,6 +233,7 @@ public class ModelExceptionClass
      * Removes exception data for an assignment.
      * @param conn Database connector.
      * @param ass The assignment.
+     * @param lf Deletion filer.
      */
     public static void delete(Connector conn, Assignment ass, LoadRemoveFilter lf)
     {
@@ -206,6 +253,7 @@ public class ModelExceptionClass
      * 
      * @param conn Database connector.
      * @param q The question.
+     * @param lf Deletion filer.
      */
     public static void delete(Connector conn, Question q, LoadRemoveFilter lf)
     {

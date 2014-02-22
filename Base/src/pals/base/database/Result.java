@@ -2,6 +2,7 @@ package pals.base.database;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 /**
@@ -34,6 +35,29 @@ public class Result
         return this.ps;
     }
     // Methods *****************************************************************
+    /**
+     * Indicates if a column exists in the result.
+     * 
+     * @param column The column name to check.
+     * @return True = exists, false = does not exist.
+     */
+    public boolean contains(String column)
+    {
+        try
+        {
+            ResultSetMetaData md = rs.getMetaData();
+            for(int i = 1; i <= md.getColumnCount(); i++)
+            {
+                if(md.getColumnLabel(i).equals(column))
+                    return true;   
+            }
+            return false;
+        }
+        catch(SQLException ex)
+        {
+            return false;
+        }
+    }
     /**
      * @return Moves to the next tuple/row in the result.
      * @throws DatabaseException Thrown if a database error occurs.

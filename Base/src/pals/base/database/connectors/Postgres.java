@@ -45,7 +45,6 @@ public class Postgres extends Connector
             throw new DatabaseException(DatabaseException.Type.ConnectionFailure, ex);
         }
     }
-
     @Override
     public void tableLock(String table, boolean inTransaction) throws DatabaseException
     {
