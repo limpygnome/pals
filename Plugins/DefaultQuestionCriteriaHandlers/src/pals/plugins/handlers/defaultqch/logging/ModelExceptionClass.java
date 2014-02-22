@@ -182,7 +182,8 @@ public class ModelExceptionClass
     {
         try
         {
-            return loadSingle(conn, conn.read("SELECT ecid, class_name, runtime FROM pals_exception_classes WHERE ecid=?;", ecid));
+            Result res = conn.read("SELECT ecid, class_name, runtime FROM pals_exception_classes WHERE ecid=?;", ecid);
+            return res.next() ? loadSingle(conn, res) : null;
         }
         catch(DatabaseException ex)
         {

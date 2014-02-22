@@ -69,3 +69,19 @@
 	line-height: 1.75em;
 	padding: 0.25em;
 }
+.layout_body .content .dqch_view tr th:nth-child(1),
+.layout_body .content .dqch_view tr td:nth-child(1)
+{
+	width: 10em;
+}
+.layout_body .content .dqch_view tr th:nth-child(2),
+.layout_body .content .dqch_view tr td:nth-child(2)
+{
+	width: 30em;
+	overflow: hidden;
+}
+.layout_body .content .dqch_view tr th:nth-child(3),
+.layout_body .content .dqch_view tr td:nth-child(3)
+{
+	width: 4em;
+}

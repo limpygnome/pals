@@ -22,7 +22,7 @@
                     ${m.getIaUsername()?html}
                 </td>
                 <td>
-                    <a href="/assignments/instance/${m.getIaAIID()?c}?edit=1" target="_blank">
+                    <a href="/assignments/instance/${m.getIaAIID()?c}?edit=1" target="_blank" class="button">
                         Mark
                     </a>
                 </td>

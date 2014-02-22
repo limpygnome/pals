@@ -30,7 +30,7 @@
                 [${question.getInstanceQuestion().getAssignmentQuestion().getWeight()?c}]
             </div>
         </#if>
-        <h3>Question ${question.getNumber()?string}</h3>
+        <h3 <#if question.getInstanceQuestion()??>id="${question.getInstanceQuestion().getAssignmentQuestion().getAQID()?c}"</#if>>Question ${question.getNumber()?string}</h3>
         <#if !capture_mode>
             <div class="clear"></div>
         </#if>

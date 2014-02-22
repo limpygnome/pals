@@ -1,3 +1,52 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a> - <a href="/admin/stats/view?ecid=${ecid}">View</a></h2>
+<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a> - <a href="/admin/stats/view?ecid=${ec.getECID()?c}">View</a> - ${ec.getClassName()?html}</h2>
 
-test
+<p class="tac">
+    <a href="/admin/stats/view?ecid=${ec.getECID()?c}&amp;clear=1&amp;csrf=${csrf}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>" class="button">
+        Clear Data
+    </a>
+</p>
+
+<table class="table3 dqch_view">
+    <tr>
+        <th>Date</th>
+        <th>Message</th>
+        <th>Options</th>
+    </tr>
+    <#if models?has_content>
+        <#list models as m>
+            <tr>
+                <td>
+                    ${m.getDateTime().toString("YYYY/mm/dd HH:mm:ss")?html}
+                </td>
+                <td>
+                    ${m.getMessage()?string}
+                </td>
+                <td>
+                    <a class="button" href="/assignments/instance/${m.getAIID()?c}/${m.getAIIDPage()?c}#${m.getAQID()?c}">
+                        View
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="3">No data available.</td>
+        </tr>
+    </#if>
+</table>
+
+<p class="tac">
+    <#if page_prev??>
+        <a class="button fl" href="/admin/stats/view?ecid=${ec.getECID()?c}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
+            Prev
+        </a>
+    </#if>
+
+    Page ${page}
+
+    <#if page_next??>
+        <a class="button fr" href="/admin/stats/view?ecid=${ec.getECID()?c}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
+            Next
+        </a>
+    </#if>
+</p>

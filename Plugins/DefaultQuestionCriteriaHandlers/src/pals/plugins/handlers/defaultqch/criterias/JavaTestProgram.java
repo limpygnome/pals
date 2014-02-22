@@ -286,7 +286,7 @@ public class JavaTestProgram
             {
                 String solution = qcdata.getIOWeb();
                 kvs.put("solution", solution);
-                kvs.put("solution_lines", Misc.countOccurrences(solution, '\n'));
+                kvs.put("solution_lines", Misc.countOccurrences(solution, '\n')+1);
             }
             kvs.put("result", idata);
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestprogram_display"));

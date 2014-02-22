@@ -1,0 +1,28 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a></h2>
+
+<p>
+    Welcome to the statistics section; from here you can see the compilation and runtime
+    error data collected, collected from assignments.
+</p>
+<p class="tac">
+    <a class="button" href="/admin/stats/overview">
+        View All Data
+    </a>
+</p>
+<p>
+    You can also filter by questions and assignments by visiting their admin pages and
+    clicking the <i>Stats</i> button.
+</p>
+<h3>View by Module</h3>
+<p class="tac">
+    <#if modules??>
+        <#list modules as m>
+            <a class="button" href="/admin/stats/overview?type=m&amp;tid=${m.getModuleID()?c}">
+                ${m.getTitle()?html}
+            </a>
+            <br /><br />
+        </#list>
+    <#else>
+        No modules available.
+    </#if>
+</p>

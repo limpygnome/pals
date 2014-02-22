@@ -40,7 +40,7 @@
         <#list models as m>
             <div class="row <#if m.isRuntime()>runtime<#else>compiletime</#if>">
                 <div class="text">
-                    <a href="/admin/stats/view?ecid=${m.getECID()?string}">
+                    <a href="/admin/stats/view?ecid=${m.getECID()?string}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
                         ${m.getClassName()?html}
                     </a>
                 </div>

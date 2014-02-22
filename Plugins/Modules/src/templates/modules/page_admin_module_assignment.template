@@ -96,7 +96,7 @@
                     ${ass.getMark()?string}%
                 </td>
                 <td>
-                    <a class="button" href="/assignment/review/${ass.getAIID()?c}">
+                    <a class="button" href="/assignments/instance/${ass.getAIID()?c}?edit=1">
                         Review
                     </a>
                 </td>
