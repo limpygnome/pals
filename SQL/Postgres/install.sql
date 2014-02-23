@@ -94,7 +94,18 @@ CREATE TABLE pals_users
 CREATE UNIQUE INDEX index_pals_users_username ON pals_users (lower(username));
 CREATE UNIQUE INDEX index_pals_users_email ON pals_users (lower(email));
 
-
+-- The e-mail queue; used to avoid loss of possible e-mails from the system rebooting. Also
+-- allows multiple nodes to process emails.
+CREATE TABLE pals_email_queue
+(
+	emailid				SERIAL				PRIMARY KEY,
+	title				VARCHAR(128)		NOT NULL,
+	content				TEXT				NOT NULL,
+	-- The e-mail length is based on http://www.rfc-editor.org/errata_search.php?rfc=3696&eid=1690
+	destination			VARCHAR(254)		NOT NULL,
+	last_attempted		TIMESTAMP,
+	attempts			INT				DEFAULT 0						NOT NULL
+);
 
 -- Possible modules for student enrollment.
 CREATE TABLE pals_modules
@@ -291,3 +302,4 @@ CREATE TABLE pals_exceptions
 	-- The date of the occurrence.
 	exdate				TIMESTAMP			NOT NULL
 );
+
