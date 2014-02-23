@@ -59,4 +59,10 @@ public class EmailSender extends Plugin
         }
         core.getLogging().log(LOGGING_ALIAS, "Thread stopped.", Logging.EntryType.Info);
     }
+
+    @Override
+    public String getTitle()
+    {
+        return "PALS: E-mail Sender";
+    }
 }

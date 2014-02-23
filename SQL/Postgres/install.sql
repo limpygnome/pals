@@ -45,6 +45,9 @@ CREATE TABLE pals_http_session_data
 	data				BYTEA,
 	PRIMARY KEY(sessid, key)
 );
+
+
+
 -- Used to assign permissions to different classes of users.
 CREATE TABLE pals_users_group
 (
@@ -93,6 +96,15 @@ CREATE TABLE pals_users
 -- -- -- Index on usernames is also needed to speed-up account searches.
 CREATE UNIQUE INDEX index_pals_users_username ON pals_users (lower(username));
 CREATE UNIQUE INDEX index_pals_users_email ON pals_users (lower(email));
+-- Stores recovery codes, sent by e-mail.
+CREATE TABLE pals_user_recovery_codes
+(
+	code				VARCHAR(32)			PRIMARY KEY,
+	userid				INT					UNIQUE			REFERENCES pals_users(userid) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
+	sent				TIMESTAMP			NOT NULL
+);
+
+
 
 -- The e-mail queue; used to avoid loss of possible e-mails from the system rebooting. Also
 -- allows multiple nodes to process emails.

@@ -1,5 +1,6 @@
 package pals.base.web;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import org.joda.time.DateTime;
 import pals.base.database.Connector;
@@ -149,7 +150,7 @@ public class Email
         {
             Object t = res.get("last_attempted");
             Email e = new Email((String)res.get("title"), (String)res.get("content"), (String)res.get("destination"), t != null ? new DateTime(t) : null, (int)res.get("attempts"));
-            e.emailid = res.get("emailid");
+            e.emailid = (int)res.get("emailid");
             return e;
         }
         catch(DatabaseException ex)
@@ -210,9 +211,22 @@ public class Email
         try
         {
             if(emailid == -1)
-                emailid = (int)conn.executeScalar("INSERT INTO pals_email_queue (title, content, destination, last_attempted, attempts) VALUES(?,?,?,?,?) RETURNING emailid;", title, content, destination, lastAttempted, attempts);
+                emailid = (int)conn.executeScalar("INSERT INTO pals_email_queue (title, content, destination, last_attempted, attempts) VALUES(?,?,?,?,?) RETURNING emailid;",
+                        title,
+                        content,
+                        destination,
+                        lastAttempted == null ? null : new Timestamp(lastAttempted.toDate().getTime()),
+                        attempts
+                );
             else
-                conn.execute("UPDATE pals_email_queue SET title=?, content=?, destination=?, last_attempted=?, attempts=? WHERE emailid=?;", title, content, destination, lastAttempted, attempts, emailid);
+                conn.execute("UPDATE pals_email_queue SET title=?, content=?, destination=?, last_attempted=?, attempts=? WHERE emailid=?;",
+                        title,
+                        content,
+                        destination,
+                        lastAttempted == null ? null : new Timestamp(lastAttempted.toDate().getTime()),
+                        attempts,
+                        emailid
+                );
             return true;
         }
         catch(DatabaseException ex)

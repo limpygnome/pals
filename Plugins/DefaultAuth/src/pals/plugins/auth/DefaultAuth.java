@@ -22,6 +22,7 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.base.web.security.Escaping;
+import pals.plugins.auth.models.ModelRecovery;
 import pals.plugins.auth.models.ModelUser;
 import pals.plugins.web.Captcha;
 
@@ -105,6 +106,7 @@ public class DefaultAuth extends Plugin
             "account/register",
             "account/login",
             "account/logout",
+            "account/recover",
             "admin/users",
             "admin/groups"
         }))
@@ -155,13 +157,15 @@ public class DefaultAuth extends Plugin
                 switch(data.getRequestData().getRelativeUrl())
                 {
                     case "account/settings":
-                        return pageAccountSettings(data);
+                        return pageAccount_settings(data);
                     case "account/register":
-                        return pageAccountRegister(data);
+                        return pageAccount_register(data);
                     case "account/login":
-                        return pageAccountLogin(data);
+                        return pageAccount_login(data);
                     case "account/logout":
-                        return pageAccountLogout(data);
+                        return pageAccount_logout(data);
+                    case "account/recover":
+                        return pageAccount_recover(data);
                     default:
                         return false;
                 }
@@ -242,7 +246,7 @@ public class DefaultAuth extends Plugin
         return "PALS: Default Authentication";
     }
     // Methods - Pages *********************************************************
-    private boolean pageAccountSettings(WebRequestData data)
+    private boolean pageAccount_settings(WebRequestData data)
     {
         // Fetch the current user
         User user = data.getUser();
@@ -312,9 +316,13 @@ public class DefaultAuth extends Plugin
             data.setTemplateData("email", email);
         return true;
     }
-    private boolean pageAccountRegister(WebRequestData data)
+    private boolean pageAccount_register(WebRequestData data)
     {
+        // Check user is not logged-in
         if(data.getUser() != null)
+            return false;
+        // Check recovery is enabled
+        if(!getSettings().getBool("feature/register", false))
             return false;
         // Check form data
         RemoteRequest request = data.getRequestData();
@@ -405,8 +413,9 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    private boolean pageAccountLogin(WebRequestData data)
+    private boolean pageAccount_login(WebRequestData data)
     {
+        // Check user is not logged-in
         if(data.getUser() != null)
             return false;
         // Check form data
@@ -437,9 +446,7 @@ public class DefaultAuth extends Plugin
                 if(passHashed.equals(user.getPassword()))
                 {
                     // Correct! Setup the user and redirect to home
-                    data.getSession().setAttribute(SESSION_KEY__USERID, user.getUserID());
-                    data.setUser(user);
-                    data.getSession().setIsPrivate(sPrivate);
+                    setAuth(data, user, sPrivate);
                     data.getResponseData().setRedirectUrl("/");
                 }
                 else
@@ -455,7 +462,7 @@ public class DefaultAuth extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
-    private boolean pageAccountLogout(WebRequestData data)
+    private boolean pageAccount_logout(WebRequestData data)
     {
         // Fetch the current user
         User user = data.getUser();
@@ -468,6 +475,104 @@ public class DefaultAuth extends Plugin
         // Setup confirmation page
         data.setTemplateData("pals_title", "Account - Logout");
         data.setTemplateData("pals_content", "default_auth/page_logout");
+        return true;
+    }
+    private boolean pageAccount_recover(WebRequestData data)
+    {
+        // Check user is not logged-in
+        if(data.getUser() != null)
+            return false;
+        // Check recovery is enabled
+        if(!getSettings().getBool("feature/recover", false))
+            return false;
+        RemoteRequest req = data.getRequestData();
+        // Check if the user is recovering an account using a code
+        String email = req.getField("email");
+        String code = req.getField("code");
+        String newPassword = req.getField("password");
+        String newPasswordConfirm = req.getField("password_confirm");
+        
+        if(code != null && email != null)
+        {
+            // Fetch the recovery model
+            ModelRecovery m = ModelRecovery.load(data.getConnector(), code, email);
+            if(m == null)
+                data.setTemplateData("recover_mode", 3);
+            else
+            {
+                // Check if to change the password yet
+                if(newPassword != null && newPasswordConfirm != null)
+                {
+                    User u = m.getUser();
+
+                    if(!CSRF.isSecure(data))
+                        data.setTemplateData("error", "Invalid request; please try again or contact an administrator.");
+                    else if(!newPassword.equals(newPasswordConfirm))
+                        data.setTemplateData("error", "New passwords do not match.");
+                    else if(newPassword.length() > 0 && (newPassword.length() < u.getPasswordMin() || newPassword.length() > u.getPasswordMax()))
+                        data.setTemplateData("error", "New password must be "+u.getPasswordMin()+" to "+u.getPasswordMax()+" characters in length!");
+                    else
+                    {
+                        String salt = getNewSalt();
+                        String passwordHash = hash(newPassword, salt);
+                        u.setPassword(passwordHash);
+                        u.setPasswordSalt(salt);
+                        User.PersistStatus_User ps = u.persist(data.getCore(), data.getConnector());
+                        switch(ps)
+                        {
+                            default:
+                                data.setTemplateData("error", "An unknown error ('"+ps.name()+"') occurred changing your password; please try again or contact an administrator.");
+                                break;
+                            case Success:
+                                // Dispose model
+                                m.delete(data.getConnector());
+                                // Authenticate the user
+                                setAuth(data, u, false);
+                                // Redirect to home
+                                data.getResponseData().setRedirectUrl("/account/settings");
+                                break;
+                        }
+                    }
+                }
+                // Set the page mode
+                data.setTemplateData("recover_mode", 4);
+                data.setTemplateData("email", email);
+                data.setTemplateData("code", code);
+            }
+        }
+        else if(email != null)
+        {
+            // Attempt to deploy recovery e-mail
+            ModelRecovery.DeployEmail de = ModelRecovery.deployEmail(data, data.getConnector(), email);
+            switch(de)
+            {
+                case EmailNotExist:
+                    data.setTemplateData("error", "E-mail does not exist.");
+                    data.setTemplateData("recover_mode", 1);
+                    break;
+                case Failed:
+                    data.setTemplateData("error", "Failed due to an unknown reason; please try again or contact an administrator.");
+                    data.setTemplateData("recover_mode", 1);
+                    break;
+                case RecentlyDeployed:
+                    data.setTemplateData("error", "A recovery e-mail has already been recently sent, please check your inbox or try again later.");
+                    data.setTemplateData("recover_mode", 1);
+                    break;
+                case Success:
+                    data.setTemplateData("recover_mode", 2);
+                    break;
+            }
+        }
+        else
+        {
+            // Display normal form
+            data.setTemplateData("recover_mode", 1);
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Account - Recover");
+        data.setTemplateData("pals_content", "default_auth/page_recover");
+        data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("email", email);
         return true;
     }
     // Methods - Admin - Users *************************************************
@@ -895,5 +1000,11 @@ public class DefaultAuth extends Plugin
             getCore().getLogging().logEx(LOGGING_ALIAS, "SHA-512 algorithm not found.", ex, Logging.EntryType.Error);
             return null;
         }
+    }
+    private void setAuth(WebRequestData data, User user, boolean isPrivate)
+    {
+        data.getSession().setAttribute(SESSION_KEY__USERID, user.getUserID());
+        data.setUser(user);
+        data.getSession().setIsPrivate(isPrivate);
     }
 }

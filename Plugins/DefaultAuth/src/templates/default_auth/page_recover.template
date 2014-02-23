@@ -1,0 +1,76 @@
+<h2>Account - <a href="/account/recover">Recover</a></h2>
+
+<#if recover_mode == 1>
+    <form method="post" action="/account/recover">
+        <table class="table2">
+            <tr>
+                <td>
+                    E-mail of Account:
+                </td>
+                <td>
+                    <input type="text" name="email" value="<#if email??>${email}</#if>" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="tac">
+                    <input type="submit" value="Send Recovery E-mail" />
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="csrf" value="${csrf}" />
+    </form>
+<#elseif recover_mode == 2>
+    <h3>E-mail Deployed</h3>
+    <p>
+        A recovery e-mail has been deployed; check your inbox/spam and follow the link in
+        the message to reset your password.
+    </p>
+<#elseif recover_mode == 3>
+    <h3>Invalid Recovery Code</h3>
+    <p>
+        The provided recovery code does not exist, has become malformed or has expired.
+    </p>
+    <p class="tac">
+        <a class="button" href="/account/recover">
+            Try Again
+        </a>
+    </p>
+<#elseif recover_mode == 4>
+    <form method="post" action="/account/recover?email=${email}&amp;code=${code}">
+        <table class="table2">
+            <tr>
+                <th colspan="2">
+                    New Password
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    New Password:
+                </td>
+                <td>
+                    <input type="password" name="password" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Confirm Password:
+                </td>
+                <td>
+                    <input type="password" name="password_confirm" />
+                </td>
+            </tr>
+            <tr>
+                <td class="tac" colspan="2">
+                    <input type="submit" value="Change" />
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="csrf" value="${csrf}" />
+    </form>
+</#if>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>

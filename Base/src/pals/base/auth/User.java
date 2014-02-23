@@ -95,6 +95,25 @@ public class User
         }
     }
     /**
+     * Loads a user from an email.
+     * 
+     * @param conn Database connector.
+     * @param email The e-mail of the user.
+     * @return Instance of user or null.
+     */
+    public static User loadByEmail(Connector conn, String email)
+    {
+        try
+        {
+            Result res = conn.read("SELECT * FROM pals_users WHERE email=?;", email);
+            return res.next() ? load(conn, res) : null;
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
+    }
+    /**
      * Loads a user from a userid.
      * 
      * @param conn Database connector.

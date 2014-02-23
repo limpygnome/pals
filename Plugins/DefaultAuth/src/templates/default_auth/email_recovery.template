@@ -1,0 +1,25 @@
+<p>
+    Hello ${user.getUsername()?html},
+</p>
+<p>
+    A password reset has been requested for your account; click the link below to
+    reset your password:
+<p>
+<p>
+    <a href="${reset_url}">${reset_url}</a>
+</p>
+<p>
+    If you did not request a reset, please contact an administrator to report this
+    incident with the details below:
+</p>
+<p>
+    Reset by: ${data.getRequestData().getIpAddress()}<br />
+    Time: ${datetime.toString("YYYY-mm-dd HH:mm:ss")?html}
+</p>
+<p>
+    This is an automated e-mail, please do not reply, Your recovery code will expire within
+    an hour, for security.
+</p>
+<p>
+    Thank-you!
+</p>
