@@ -54,6 +54,14 @@ public class ThreadPool<T extends ExtendedThread>
             }
         }
     }
+    /**
+     * Interrupts all the threads held in the pool.
+     */
+    public synchronized void interruptAll()
+    {
+        for(T thread : threads)
+            thread.interrupt();
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The size of the collection.

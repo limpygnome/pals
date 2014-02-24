@@ -160,7 +160,7 @@ public class PalsProcess
                 default:
                     return null;
             }
-            printDebug(cmd);
+            //printDebug(cmd);
             pb.directory(fWD);
             pb.command(cmd);
         }

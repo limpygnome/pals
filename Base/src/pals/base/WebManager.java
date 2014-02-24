@@ -81,10 +81,8 @@ public class WebManager
         if(data == null)
             throw new IllegalStateException("Failed to prepare web-request, cannot continue (most likely an issue with loading session data)...");
         // Invoke webrequest start plugins
-        Plugin[] plugins = core.getPlugins().getPlugins("base.web.request_start");
         Object[] args = new Object[]{data};
-        for(Plugin plugin : plugins)
-            plugin.eventHandler_handleHook("base.web.request_start", args);
+        core.getPlugins().globalHookInvokeAll("base.web.request_start", args);
         try
         {
             // Fetch plugins capable of serving the request, else fetch pagenotfound handlers
@@ -109,19 +107,10 @@ public class WebManager
             {
                 // Set response code to 404 - page not found
                 response.setResponseCode(404);
-                // Fetch 404 handlers
-                plugins = core.getPlugins().getPlugins("base.web.request_404");
-                for(Plugin p : plugins)
+                // Attempt to get a plugin to handle the 404 event
+                if(!core.getPlugins().globalHookInvoke("base.web.request_404", args))
                 {
-                    if(p.eventHandler_handleHook("base.web.request_404", args))
-                    {
-                        handled = true;
-                        break;
-                    }
-                }
-                if(!handled)
-                {
-                    // Set default 404 page
+                    // No plugin handled the event - set the default 404 page
                     data.setTemplateData("pals_content", "pals/404");
                 }
             }
@@ -131,9 +120,7 @@ public class WebManager
             core.getLogging().logEx(LOGGING_ALIAS, "Failed to serve web-request.", ex, Logging.EntryType.Warning);
         }
         // Invoke webrequest end plugins
-        plugins = core.getPlugins().getPlugins("base.web.request_end");
-        for(Plugin plugin : plugins)
-            plugin.eventHandler_handleHook("base.web.request_end", args);
+        core.getPlugins().globalHookInvokeAll("base.web.request_end", args);
         // Setup node and time variables
         data.setTemplateData("pals_node", core.getNodeUUID().getHexHyphens());
         data.setTemplateData("pals_time", System.currentTimeMillis()-timeStart);

@@ -3,6 +3,7 @@ package pals.plugins;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
+import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.UUID;
 import pals.base.Version;
@@ -58,8 +59,27 @@ public class EmailSender extends Plugin
         {
         }
         core.getLogging().log(LOGGING_ALIAS, "Thread stopped.", Logging.EntryType.Info);
+        // Dispose hook
+        core.getPlugins().globalHookUnregister(this);
     }
-
+    @Override
+    public boolean eventHandler_registerHooks(NodeCore core, PluginManager plugins)
+    {
+        if(!plugins.globalHookRegister(this, "base.web.email.wake"))
+            return false;
+        return true;
+    }
+    @Override
+    public boolean eventHandler_handleHook(String event, Object[] args)
+    {
+        switch(event)
+        {
+            case "base.web.email.wake":
+                thQueue.interrupt();
+                return true;
+        }
+        return false;
+    }
     @Override
     public String getTitle()
     {

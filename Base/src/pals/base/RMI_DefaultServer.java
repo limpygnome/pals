@@ -37,7 +37,16 @@ public class RMI_DefaultServer extends UnicastRemoteObject  implements RMI_Inter
         if(p != null)
             core.getPlugins().unload(p);
     }
-
+    @Override
+    public boolean invokeGlobalHook(String event, Object[] data) throws RemoteException
+    {
+        return core.getPlugins().globalHookInvoke(event, data);
+    }
+    @Override
+    public void invokeGlobalHookAll(String event, Object[] data) throws RemoteException
+    {
+        core.getPlugins().globalHookInvokeAll(event, data);
+    }
     @Override
     public void restart() throws RemoteException
     {

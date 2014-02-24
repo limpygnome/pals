@@ -3,6 +3,7 @@ package pals.plugins.marking;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
+import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.UUID;
 import pals.base.Version;
@@ -33,6 +34,24 @@ public class AssignmentMarker extends Plugin
     public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         return true;
+    }
+    @Override
+    public boolean eventHandler_registerHooks(NodeCore core, PluginManager plugins)
+    {
+        if(!plugins.globalHookRegister(this, "base.assessment.wake"))
+            return false;
+        return true;
+    }
+    @Override
+    public boolean eventHandler_handleHook(String event, Object[] args)
+    {
+        switch(event)
+        {
+            case "base.assessment.wake":
+                threads.interruptAll();
+                return true;
+        }
+        return false;
     }
     @Override
     public boolean eventHandler_pluginLoad(NodeCore core)

@@ -322,7 +322,7 @@ public class NodeCore
         int rmiPort = settings.getInt("rmi/port", 1099);
         try
         {
-            comms = new RMI(rmiPort, new RMI_DefaultServer(this));
+            comms = new RMI(conn, rmiPort, new RMI_DefaultServer(this));
             if(!comms.start())
                 throw new Exception("Could not setup RMI socket.");
         }
@@ -568,6 +568,14 @@ public class NodeCore
     public Random getRNG()
     {
         return rng;
+    }
+    /**
+     * @return The current instance of the core responsible for handling
+     * inter-node communication using RMI.
+     */
+    public RMI getRMI()
+    {
+        return comms;
     }
     /**
      * @return The UUID used to identify this node.

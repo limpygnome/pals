@@ -150,8 +150,6 @@ public class RegexMatch
                         matched = true;
                         break;
                     }
-                    else
-                        System.out.println("no match for "+code);
                 }
             }
             else

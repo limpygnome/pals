@@ -560,6 +560,8 @@ public class DefaultAuth extends Plugin
                     break;
                 case Success:
                     data.setTemplateData("recover_mode", 2);
+                    // Inform all nodes an e-mail is available
+                    data.getCore().getRMI().nodesGlobalEventAll("base.web.email.wake", new Object[]{});
                     break;
             }
         }

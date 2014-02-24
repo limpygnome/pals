@@ -59,35 +59,33 @@ public class MarkerThread extends ExtendedThread
         }
         int interval        = marker.getSettings().getInt("marking/poll_interval", 10000);
         int timeout         = marker.getSettings().getInt("marking/work_timeout", 120000);
-        long lastRan        = System.currentTimeMillis()-interval;
         boolean flagWorked  = false;
         
         marker.getCore().getLogging().log("Ass. Marker", "Thread "+number+" started.", Logging.EntryType.Info);
         
         while(!extended_isStopped())
         {
-            // Fail-safe against waking from sleep
-            // -- If not the database would be attacked with the equivalent of a denial of service attack
-            if(flagWorked || System.currentTimeMillis()-lastRan >=interval)
+            // Attempt to fetch and process the next available piece of work...
+            try
+            {
+                flagWorked = processWork(conn, timeout);
+            }
+            catch(Exception ex)
+            {
+                marker.getCore().getLogging().logEx("Ass. Marker", "Failed to process work ~ thread "+number+".", ex, Logging.EntryType.Error);
+                // Cool-down...
+                flagWorked = false;
+            }
+            // No work occurred; sleep...
+            if(!flagWorked)
             {
                 try
                 {
-                    flagWorked = processWork(conn, timeout);
+                    Thread.sleep(interval);
                 }
-                catch(Exception ex)
+                catch(InterruptedException ex)
                 {
-                    marker.getCore().getLogging().logEx("Ass. Marker", "Failed to process work ~ thread "+number+".", ex, Logging.EntryType.Error);
-                    // Cool-down...
-                    flagWorked = false;
                 }
-            }
-            // Sleep...
-            try
-            {
-                Thread.sleep(interval);
-            }
-            catch(InterruptedException ex)
-            {
             }
         }
         // Dispose connector
@@ -113,6 +111,7 @@ public class MarkerThread extends ExtendedThread
                 // Update active assignments to submitted
                 conn.execute("UPDATE pals_assignment_instance SET status=?, time_end=current_timestamp WHERE status=? AND assid=?;", InstanceAssignment.Status.Submitted.getStatus(), InstanceAssignment.Status.Active.getStatus(), assid);
             }
+            conn.tableUnlock(true);
             conn.execute("COMMIT;");
         }
         catch(DatabaseException ex)

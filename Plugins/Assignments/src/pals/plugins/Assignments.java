@@ -382,6 +382,8 @@ public class Assignments extends Plugin
                         data.setTemplateData("error", "Failed to submit assignment ('"+iaps.name()+"'); please try again or contact an administrator!");
                         break;
                     case Success:
+                        // Inform all nodes we have new work for marking
+                        data.getCore().getRMI().nodesGlobalEventAll("base.assessment.wake", new Object[]{});
                         // Redirect to review page...
                         data.getResponseData().setRedirectUrl("/assignments/instance/"+ia.getAIID());
                         break;
@@ -445,6 +447,9 @@ public class Assignments extends Plugin
                     switch(cis)
                     {
                         case Success:
+                            // Inform all nodes we have new work for marking
+                            data.getCore().getRMI().nodesGlobalEventAll("base.assessment.wake", new Object[]{});
+                            // Inform user of success
                             data.setTemplateData("success", "Successfully set for reprocessing.");
                             break;
                     }

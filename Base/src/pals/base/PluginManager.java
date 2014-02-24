@@ -128,7 +128,7 @@ public class PluginManager
         this.registerGlobalEvents = new HashMap<>();
         this.plugins = new HashMap<>();
     }
-    // Methods *****************************************************************
+    // Methods - Hooks *********************************************************
     /**
      * Re-registers all the global events.
      * 
@@ -211,6 +211,44 @@ public class PluginManager
                 it.remove();
         }
     }
+    /**
+     * @param event The name of the global event.
+     * @return All of the plugins registered to an event or an empty array.
+     */
+    public synchronized Plugin[] globalHookFetch(String event)
+    {
+        ArrayList<Plugin> result = registerGlobalEvents.get(event);
+        return result == null ? new Plugin[0] : result.toArray(new Plugin[result.size()]);
+    }
+    /**
+     * Invokes all hooks registered to an event until a hook returns true.
+     * 
+     * @param event The name of the global event.
+     * @param data The data to be passed to plugins.
+     * @return True = a plugin handled the event, false = no plugins,
+     * subscribed, have handled the event.
+     */
+    public synchronized boolean globalHookInvoke(String event, Object[] data)
+    {
+        Plugin[] plugins = globalHookFetch(event);
+        for(Plugin p : plugins)
+            if(p.eventHandler_handleHook(event, data))
+                return true;
+        return false;
+    }
+    /**
+     * Invokes all hooks registered to an event.
+     * 
+     * @param event The name of the global event.
+     * @param data The data to be passed to plugins.
+     */
+    public synchronized void globalHookInvokeAll(String event, Object[] data)
+    {
+        Plugin[] plugins = globalHookFetch(event);
+        for(Plugin p : plugins)
+            p.eventHandler_handleHook(event, data);
+    }
+    // Methods - Reloading *****************************************************
     /**
      * Reloads all of the plugins from the path specified in the current instance
      * of the NodeCore.
@@ -607,14 +645,5 @@ public class PluginManager
     public synchronized Plugin[] getPlugins()
     {
         return plugins.values().toArray(new Plugin[plugins.size()]);
-    }
-    /**
-     * @param event The name of the global event.
-     * @return All of the plugins registered to an event or an empty array.
-     */
-    public synchronized Plugin[] getPlugins(String event)
-    {
-        ArrayList<Plugin> result = registerGlobalEvents.get(event);
-        return result == null ? new Plugin[0] : result.toArray(new Plugin[result.size()]);
     }
 }

@@ -52,6 +52,8 @@ public class NodeActiveThread extends ExtendedThread
                 {
                     na.getCore().getLogging().logEx("NodeActive", "Failed to update database.", ex, Logging.EntryType.Error);
                 }
+                // Update local cache of hosts
+                na.getCore().getRMI().hostsUpdate(conn);
                 // Disconnect from the database
                 conn.disconnect();
             }
