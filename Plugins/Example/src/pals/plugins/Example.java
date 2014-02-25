@@ -108,9 +108,6 @@ public class Example extends pals.base.Plugin
         // Load templates from our jar
         if(!manager.load(this, "templates"))
             return false;
-        // Register example function
-        if(!manager.registerFunction("hello", new ExampleTemplateFunction(this)))
-            return false;
         return true;
     }
     @Override
@@ -151,6 +148,6 @@ public class Example extends pals.base.Plugin
     @Override
     public String getTitle()
     {
-        return "Example Plugin";
+        return "Example Plugin / Static Pages";
     }
 }

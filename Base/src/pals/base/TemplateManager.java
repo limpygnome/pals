@@ -58,9 +58,6 @@ public class TemplateManager
     private static final String                     LOGGING_ALIAS = "PALS Templates";
     // Fields ******************************************************************
     private final NodeCore                          core;               // The current instance of the core.
-    private final HashMap<String, TemplateFunction> functions;          // The template functions used for rendering; function-name,function.
-    // Fields - Regex **********************************************************
-    private final Pattern                           pattFunctions;      // Used to match function calls.
     // Fields - FreeMarker Template Engine *************************************
     private TemplateLoader                          fmLoader;           // Used to load and cache templates.
     private Configuration                           fmConfig;           // General configuration.
@@ -68,9 +65,6 @@ public class TemplateManager
     protected TemplateManager(NodeCore core)
     {
         this.core = core;
-        this.functions = new HashMap<>();
-        // Compile regex pattern(s)
-        pattFunctions = Pattern.compile("<!--([a-zA-Z0-9_]+)\\(([^\\(\\)]*)\\)-->");
         // Setup FreeMarker template engine
         setupFreeMarker();
     }
@@ -236,27 +230,6 @@ public class TemplateManager
         }
     }
     /**
-     * Registers a template function.
-     * 
-     * @param functionName The name of the function; can be alpha-numeric,
-     * contain hyphens, under-scrolls, forward slashes and dot. Backslash
-     * is automatically translated to forward slash.
-     * @param function
-     * @return True if registered, false if failed (invalid format, path
-     * already taken).
-     */
-    public synchronized boolean registerFunction(String functionName, TemplateFunction function)
-    {
-        functionName = functionName.replace("\\", "/");
-        // Check the function format is correct and does not already exist
-        if(!functionName.matches("^([a-zA-Z0-9\\.\\_\\-\\/]+)$") || functions.containsKey(functionName))
-            return false;
-        // Add the function to the collection
-        functions.put(functionName, function);
-        core.getLogging().log(LOGGING_ALIAS, "Registered template function '" + functionName + "' (" + function.getClass().getName() + ") ~ plugin [" + function.getPlugin().getHexHyphens() + "].", Logging.EntryType.Info);
-        return true;
-    }
-    /**
      * Registers a template.
      * 
      * Note: if the template already exists within the collection, it will be
@@ -318,21 +291,7 @@ public class TemplateManager
             // Process template for the current context
             StringWriter sw = new StringWriter();
             t.process(kvs, sw);
-            // Process function calls
-            StringBuilder buffer = new StringBuilder(sw.toString());
-            Matcher m = pattFunctions.matcher(buffer);
-            String str;
-            String funcOut;
-            int index;
-            // Locate matches and replace them
-            while(m.find())
-            {
-                str = m.group(0);
-                index = buffer.indexOf(str);
-                funcOut = functions.containsKey(m.group(1)) ? functions.get(m.group(1)).processCall(data, m.group(2)) : ("No function called '"+m.group(1)+"' exists!");
-                buffer.replace(index, index+str.length(), funcOut);
-            }
-            return buffer.toString();
+            return sw.toString();
         }
         catch(IOException | TemplateException ex)
         {
@@ -348,7 +307,6 @@ public class TemplateManager
     {
         fmLoader.clear();                   // Clear templates
         fmConfig.clearTemplateCache();      // Clear cache
-        functions.clear();                  // Clear functions
     }
     public synchronized void remove(String path)
     {
@@ -377,20 +335,6 @@ public class TemplateManager
         UUID pluginUuid = plugin.getUUID();
         // Remove templates
         fmLoader.remove(plugin);
-        // Remove template functions
-        Iterator<Map.Entry<String,TemplateFunction>> it = functions.entrySet().iterator();
-        Map.Entry<String,TemplateFunction> func;
-        UUID uuid;
-        while(it.hasNext())
-        {
-            func = it.next();
-            uuid = func.getValue().getPlugin();
-            if(uuid == pluginUuid || (uuid != null && uuid.equals(pluginUuid)))
-            {
-                // Remove function from collection
-                it.remove();
-            }
-        }
         // Clear cache
         fmConfig.clearTemplateCache();
     }
@@ -410,12 +354,5 @@ public class TemplateManager
     public TemplateItem getTemplate(String path)
     {
         return fmLoader.getItem(path);
-    }
-    /**
-     * @return The map used to store template functions.
-     */
-    public HashMap<String, TemplateFunction> getFunctionsMap()
-    {
-        return functions;
     }
 }
