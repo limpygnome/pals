@@ -194,7 +194,7 @@ public class TypeCriteria
      * @param conn Database connector.
      * @return True = removed, false = failed.
      */
-    public boolean remove(Connector conn)
+    public boolean delete(Connector conn)
     {
         if(uuidCType == null || !persisted)
             return false;

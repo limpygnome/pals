@@ -304,7 +304,7 @@ body
 .layout_body .content .table4 td
 {
 	padding: 0.5em;
-	vertical-align: middle;
+	vertical-align: top;
 }
 .layout_body .content table th.vat,
 .layout_body .content table td.vat
@@ -387,6 +387,10 @@ body
 {
 	margin: 0.5em !important;
 	padding: 0.5em;
+}
+.layout_body .success li, .layout_body .error li, .layout_body .warning li, .layout_body .info li
+{
+	margin-left: 1em;
 }
 .layout_body .success
 {

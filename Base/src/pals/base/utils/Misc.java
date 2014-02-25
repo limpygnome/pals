@@ -271,4 +271,23 @@ public class Misc
                 counter++;
         return counter;
     }
+    /**
+     * Parses an integer and uses the alternate value provided if the data
+     * cannot be parsed.
+     * 
+     * @param data The data to be parsed.
+     * @param alternate The alternate value.
+     * @return The parsed, or alternate, integer.
+     */
+    public static int parseInt(String data, int alternate)
+    {
+        try
+        {
+            return Integer.parseInt(data);
+        }
+        catch(NumberFormatException ex)
+        {
+            return alternate;
+        }
+    }
 }

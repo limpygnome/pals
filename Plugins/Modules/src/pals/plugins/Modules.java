@@ -354,7 +354,7 @@ public class Modules extends Plugin
                 // Update the model
                 module.setTitle(moduleTitle);
                 // Attempt to persist
-                Module.ModulePersistStatus mps = module.persist(data.getConnector());
+                Module.PersistStatus mps = module.persist(data.getConnector());
                 switch(mps)
                 {
                     case Failed:
@@ -495,6 +495,7 @@ public class Modules extends Plugin
         data.setTemplateData("csrf", CSRF.set(data));
         return true;
     }
+    // Methods - Pages - Admin - Assignments ***********************************
     private boolean pageAdminModule_assignmentsView(WebRequestData data, Module module)
     {
         // Setup the page

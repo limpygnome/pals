@@ -188,13 +188,13 @@ public class DefaultQC extends Plugin
     {
         TypeQuestion tq = TypeQuestion.load(conn, uuid);
         if(tq != null)
-            tq.remove(conn);
+            tq.delete(conn);
     }
     private void unregisterTypeCriteria(Connector conn, UUID uuid)
     {
         TypeCriteria tc = TypeCriteria.load(conn, uuid);
         if(tc != null)
-            tc.remove(conn);
+            tc.delete(conn);
     }
     @Override
     public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)

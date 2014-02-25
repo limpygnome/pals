@@ -1,0 +1,149 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/mass_enrollment">Mass-Enrollment</a></h2>
+<form method="post" action="/admin/mass_enrollment" enctype="multipart/form-data">
+    <table class="table2">        
+        <tr>
+            <td>
+                File:
+            </td>
+            <td>
+                <input type="file" name="enroll_data" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Format:
+            </td>
+            <td>
+                <select name="enroll_format">
+                    <option value="1" <#if enroll_format?? && enroll_format==1>selected</#if>>CSV</option>
+                    <option value="2" <#if enroll_format?? && enroll_format==2>selected</#if>>Tab-Separated</option>
+                </select>
+                <br />
+                Refer to notes on format expected.
+            </td>
+        </tr>
+        <#include "../captcha_form" />
+        <tr>
+            <th colspan="2">
+                Options
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Action:
+            </td>
+            <td>
+                <select name="enroll_action">
+                    <option value="1" <#if enroll_action?? && enroll_action==1>selected</#if>>Add Users</option>
+                    <option value="2" <#if enroll_action?? && enroll_action==2>selected</#if>>Disenroll from Module</option>
+                    <option value="3" <#if enroll_action?? && enroll_action==3>selected</#if>>Remove Users</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Enroll on Module:
+            </td>
+            <td>
+                <select name="enroll_module">
+                    <option value="-1">- none -</option>
+                    <#list modules as module>
+                        <option value="${module.getModuleID()?c}" <#if enroll_module?? && enroll_module==module.getModuleID()>selected</#if>>${module.getTitle()?html}</option>
+                    </#list>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                User Group:
+            </td>
+            <td>
+                <select name="enroll_group">
+                    <#list groups as group>
+                        <option value="${group.getGroupID()?c}" <#if enroll_group?? && enroll_group==group.getGroupID()>selected</#if>>${group.getTitle()?html}</option>
+                    </#list>
+                </select>
+                <br />
+                Any new users created will be added to this user-group.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <input type="submit" value="Upload" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+    <input type="hidden" name="postback" value="1" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<#if errors?? && errors?has_content>
+    <h3>Parsing Errors</h3>
+    <ul class="error">
+        <#list errors as e>
+            <li>${e?html}</li>
+        </#list>
+    </ul>
+</#if>
+
+<#if messages?? && messages?has_content>
+    <h3>Messages</h3>
+    <ul class="info">
+        <#list messages as m>
+            <li>${m?html}</li>
+        </#list>
+    </ul>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    The first row of the file should contain the following headings, with unrecognized
+    columns ignored:
+</p>
+
+<table class="table2">
+    <tr>
+        <th>Header Alias</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>username</td>
+        <td>
+            The username of the user being added; if the username is not found on the system,<br />
+            a new account is generated. This cannot be left blank.
+        </td>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td>
+            The e-mail of the user; this must be a valid e-mail and cannot be left blank.<br />
+            If a user already exists and their e-mail is different, their e-mail will be<br />
+            updated.
+        </td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>
+            The password assigned to the user if one does not exist. If no password column<br />
+            exists, or a password has not been specified, a new random password will be<br />
+            generated and e-mailed to the user. If the user already exists, their password
+            will not be changed.
+        </td>
+    </tr>
+</table>
+
+<p>
+    The order of the columns does not matter.
+</p>

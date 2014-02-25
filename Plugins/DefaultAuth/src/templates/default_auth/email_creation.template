@@ -1,0 +1,23 @@
+<p>
+    Hello ${user.getUsername()?html},
+</p>
+<p>
+    An account has been generated for you:
+<p>
+<p>
+    Username: ${user.getUsername()?html}<br />
+    Password: ${password?html}
+    Time: ${datetime.toString("YYYY-mm-dd HH:mm:ss")?html}
+</p>
+<p>
+    You can login to the system with your new account using the link below:
+</p>
+<p>
+    <a href="${login_url}">${login_url}</a>
+</p>
+<p>
+    This is an automated e-mail, please do not reply.
+</p>
+<p>
+    Thank-you!
+</p>

@@ -134,6 +134,8 @@ public class ModelRecovery
         String inst = data.getCore().getSettings().getStr("templates/institution");
         Email m = new Email("PALS - "+(inst != null ? inst + " - " : "")+"Account Recovery", content, email);
         m.persist(conn);
+        // Wake e-mail service
+        data.getCore().getRMI().nodesGlobalEventAll("base.web.email.wake", new Object[]{});
         return DeployEmail.Success;
     }
     /**

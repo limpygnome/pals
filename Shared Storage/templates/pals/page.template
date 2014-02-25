@@ -73,6 +73,9 @@
 						<li>
 							<a href="/admin/groups">Groups</a>
 						</li>
+						<li>
+							<a href="/admin/mass_enrollment">Mass-Enrollment</a>
+						</li>
 						</#if>
 						<#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>
 						<li>
@@ -113,7 +116,7 @@
 		<div class="footer">
 			Programming Assessment and Learning System
 			<br />
-			<a href="http://creativecommons.org/licenses/by/4.0/legalcode">Creative Commons Attribution 4.0 (CC-BY)</a>
+			<a href="http://opensource.org/licenses/MIT">MIT License - &copy; PALS 2014</a>
 		</div>
 	</div>
 </body>

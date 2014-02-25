@@ -34,6 +34,9 @@
     <li>
             <a href="/admin/groups">Groups</a> - manage user-groups.
     </li>
+    <li>
+            <a href="/admin/mass_enrollment">Mass-Enrollment</a> - mass-enroll/disenroll and add/delete users.
+    </li>
     </#if>
     <#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>
     <li>

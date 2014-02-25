@@ -196,7 +196,7 @@ public class CodeJava
             if(!kvs.containsKey("error") && file != null)
             {
                 // Fetch the path of the file
-                File fZip = new File(Storage.getPath_tempWeb(data.getCore().getPathShared())+"/"+file.getTempName());
+                File fZip = new File(Storage.getPath_tempWebFile(data.getCore().getPathShared(), file));
                 if(!fZip.exists())
                     kvs.put("error", "Temporary file upload missing; please try again or contact an administrator.");
                 // Create dir for unzipping

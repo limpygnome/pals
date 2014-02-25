@@ -32,6 +32,7 @@ import java.util.Random;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
+import pals.base.web.UploadedFile;
 
 /**
  * A static class responsible for delegating the storage of general files.
@@ -188,6 +189,17 @@ public class Storage
     public static String getPath_tempWebFile(String pathShared, String ip)
     {
         return getPath_tempWebDir(pathShared, ip)+".part";
+    }
+    /**
+     * Gets the path of an uploaded-file.
+     * 
+     * @param pathShared The path of the shared directory/storage.
+     * @param file The file used to generate the path.
+     * @return The path of the specified file.
+     */
+    public static String getPath_tempWebFile(String pathShared, UploadedFile file)
+    {
+        return getPath_tempWeb(pathShared)+"/"+file.getTempName();
     }
     /**
      * @param pathShared The path of the shared directory/storage.

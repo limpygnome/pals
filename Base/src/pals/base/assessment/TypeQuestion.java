@@ -269,7 +269,7 @@ public class TypeQuestion
      * @param conn Database connector.
      * @return True = removed, false = failed.
      */
-    public boolean remove(Connector conn)
+    public boolean delete(Connector conn)
     {
         if(uuidQType == null || !persisted)
             return false;

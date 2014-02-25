@@ -218,7 +218,7 @@ public class Question
      * @param conn Database connector.
      * @return True = removed, false = failed.
      */
-    public boolean remove(Connector conn)
+    public boolean delete(Connector conn)
     {
         try
         {

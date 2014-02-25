@@ -45,7 +45,7 @@ public class Module
     /**
      * The status from persisting the module.
      */
-    public enum ModulePersistStatus
+    public enum PersistStatus
     {
         Success,
         Failed,
@@ -176,11 +176,11 @@ public class Module
      * @param conn Database connector.
      * @return Status of persisting the model.
      */
-    public ModulePersistStatus persist(Connector conn)
+    public PersistStatus persist(Connector conn)
     {
         // Validate data
         if(title.length() < getTitleMin() || title.length() > getTitleMax())
-            return ModulePersistStatus.Failed_title_length;
+            return PersistStatus.Failed_title_length;
         // Persist data
         try
         {
@@ -192,14 +192,14 @@ public class Module
             {
                 conn.execute("UPDATE pals_modules SET title=? WHERE moduleid=?;", title, moduleid);
             }
-            return ModulePersistStatus.Success;
+            return PersistStatus.Success;
         }
         catch(DatabaseException ex)
         {
             NodeCore core;
             if((core = NodeCore.getInstance())!=null)
                 core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
-            return ModulePersistStatus.Failed;
+            return PersistStatus.Failed;
         }
     }
     /**

@@ -296,7 +296,7 @@ public class Questions extends Plugin
             else
             {
                 // Delete the question
-                if(q.remove(data.getConnector()))
+                if(q.delete(data.getConnector()))
                     data.getResponseData().setRedirectUrl("/admin/questions");
                 else
                     data.setTemplateData("error", "Could not delete the question, an unknown error occurred!");
@@ -475,7 +475,7 @@ public class Questions extends Plugin
             else if(!Captcha.isCaptchaCorrect(data))
                 data.setTemplateData("error", "Invalid captcha verification code!");
             // Delete the model
-            else if(!qc.remove(data.getConnector()))
+            else if(!qc.delete(data.getConnector()))
                 data.setTemplateData("error", "Could not remove model, an unknown error occurred; if this continues, contact an administrator!");
             else
                 data.getResponseData().setRedirectUrl("/admin/questions/"+q.getQID());

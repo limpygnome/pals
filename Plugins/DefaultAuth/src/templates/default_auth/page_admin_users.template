@@ -35,6 +35,10 @@
                     <a class="button" href="/admin/users/${m.getUserID()?c}/edit">
                         Edit
                     </a>
+                    &nbsp;
+                    <a class="button" href="/admin/users/${m.getUserID()?c}/delete">
+                        Delete
+                    </a>
                 </td>
             </tr>
         </#list>

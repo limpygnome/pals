@@ -93,7 +93,6 @@ public class AssignmentQuestion
         this.page = page;
         this.pageOrder = pageOrder;
     }
-
     // Methods - Persistence ***************************************************
     /**
      * Loads all of the models associated with an assignment.

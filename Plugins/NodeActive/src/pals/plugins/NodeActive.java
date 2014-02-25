@@ -34,6 +34,7 @@ import java.rmi.registry.Registry;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
+import pals.base.PluginManager;
 import pals.base.RMI_Interface;
 import pals.base.Settings;
 import pals.base.TemplateManager;
