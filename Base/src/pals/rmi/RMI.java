@@ -67,6 +67,9 @@ public class RMI
         {
             System.setProperty("javax.net.ssl.keyStore", keystorePath);
             System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
+            
+            System.setProperty("javax.net.ssl.trustStore", keystorePath);
+            System.setProperty("javax.net.ssl.trustStorePassword", keystorePassword);
         }
     }
     // Methods - Hosts *********************************************************
@@ -106,14 +109,12 @@ public class RMI
      */
     public synchronized boolean nodesGlobalEvent(String event, Object[] data)
     {        
-        Registry r;
         RMI_Interface ri;
         for(RMI_Host h : hosts.values())
         {
             try
             {
-                r = LocateRegistry.getRegistry(h.getHost(), h.getPort(), new SslRMIClientSocketFactory());
-                ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
+                ri = fetchRMIConnection(h.getHost(), h.getPort());
                 return ri.invokeGlobalHook(event, data);
             }
             catch(NotBoundException | RemoteException ex)
@@ -130,14 +131,12 @@ public class RMI
      */
     public synchronized void nodesGlobalEventAll(String event, Object[] data)
     {
-        Registry r;
         RMI_Interface ri;
         for(RMI_Host h : hosts.values())
         {
             try
             {
-                r = LocateRegistry.getRegistry(h.getHost(), h.getPort(), new SslRMIClientSocketFactory());
-                ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
+                ri = fetchRMIConnection(h.getHost(), h.getPort());
                 ri.invokeGlobalHookAll(event, data);
             }
             catch(NotBoundException | RemoteException ex)
@@ -151,6 +150,21 @@ public class RMI
     public synchronized RMI_Host[] getNodes()
     {
         return hosts.values().toArray(new RMI_Host[hosts.size()]);
+    }
+    /**
+     * Fetches an instance of an RMI_Interface for inter-node communication.
+     * 
+     * @param host The hostname/IP of the node.
+     * @param port The port of the RMI registry of the node.
+     * @return An instance of an interface to communicate with a remote node.
+     * @throws NotBoundException Thrown if a remote interface is not compatible.
+     * @throws RemoteException Thrown if a connection cannot be established
+     * with the node.
+     */
+    public synchronized RMI_Interface fetchRMIConnection(String host, int port) throws NotBoundException, RemoteException
+    {
+        Registry r = LocateRegistry.getRegistry(host, port, new SslRMIClientSocketFactory());
+        return (RMI_Interface)r.lookup(RMI_Interface.class.getName());
     }
     // Methods *****************************************************************
     /**

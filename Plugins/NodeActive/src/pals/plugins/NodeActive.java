@@ -165,8 +165,7 @@ public class NodeActive extends Plugin
                         {
                             try
                             {
-                                Registry r = LocateRegistry.getRegistry(node.getRmiIP(), node.getRmiPort());
-                                RMI_Interface ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
+                                RMI_Interface ri = data.getCore().getRMI().fetchRMIConnection(node.getRmiIP(), node.getRmiPort());
                                 if(action.equals("shutdown"))
                                     ri.shutdown();
                                 else
@@ -175,6 +174,7 @@ public class NodeActive extends Plugin
                             }
                             catch(NotBoundException | RemoteException ex)
                             {
+                                data.getCore().getLogging().logEx("test", ex, Logging.EntryType.Error);
                                 data.setTemplateData("warning", "Could not contact node; possibly already shutdown/restarting.");
                             }
                         }

@@ -47,6 +47,7 @@ public abstract class Plugin
     protected final Settings    settings;       // The plugin's settings (read-only).
     private final String        jarLocation;    // The location of where the plugin was loaded.
     private final Version       version;        // The version of the plugin.
+    protected String            newJarLocation; // The new location of the temp jar.
     // Methods - Constructors **************************************************
     public Plugin(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarLocation)
     {
@@ -56,6 +57,7 @@ public abstract class Plugin
         this.version = version;
         this.settings = settings;
         this.jarLocation = jarLocation;
+        this.newJarLocation = null;
     }
     // Methods - Mandatory *****************************************************
     /**
@@ -189,6 +191,13 @@ public abstract class Plugin
     public String getJarLocation()
     {
         return jarLocation;
+    }
+    /**
+     * @return The new, temporary, full-path of this plugin's JAR. Can be null.
+     */
+    public String getJarNewLocation()
+    {
+        return newJarLocation;
     }
     /**
      * @return Indicates if the plugin is a system plugin; this means the

@@ -456,6 +456,7 @@ public class PluginManager
             Class c = jar.fetchClassType(classPath);
             // -- Create a new instance
             Plugin p = (Plugin)c.getDeclaredConstructor(NodeCore.class, UUID.class, JarIO.class, Version.class, Settings.class, String.class).newInstance(core, uuid, jar, version, ps, jarPath);
+            p.newJarLocation = pathNew + "/plugin.jar";
             // Check the state of the plugin
             try
             {
