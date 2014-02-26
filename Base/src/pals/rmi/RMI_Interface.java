@@ -25,9 +25,10 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base;
+package pals.rmi;
 
 import java.rmi.*;
+import pals.base.UUID;
 import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
 

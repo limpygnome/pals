@@ -27,6 +27,8 @@
 */
 package pals.base;
 
+import pals.rmi.RMI_DefaultServer;
+import pals.rmi.RMI;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -349,7 +351,7 @@ public class NodeCore
         int rmiPort = settings.getInt("rmi/port", 1099);
         try
         {
-            comms = new RMI(conn, rmiPort, new RMI_DefaultServer(this));
+            comms = new RMI(this, conn, rmiPort, new RMI_DefaultServer(this));
             if(!comms.start())
                 throw new Exception("Could not setup RMI socket.");
         }

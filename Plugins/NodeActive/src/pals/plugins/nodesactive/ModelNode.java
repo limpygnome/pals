@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import org.joda.time.DateTime;
 import pals.base.Logging;
 import pals.base.NodeCore;
-import pals.base.RMI_Interface;
+import pals.rmi.RMI_Interface;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;

@@ -25,10 +25,13 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base;
+package pals.rmi;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import pals.base.NodeCore;
+import pals.base.Plugin;
+import pals.base.UUID;
 import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
 

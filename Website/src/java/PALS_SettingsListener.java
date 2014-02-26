@@ -37,7 +37,7 @@ import pals.base.Storage;
 public class PALS_SettingsListener implements ServletContextListener
 {
     // Fields ******************************************************************
-    private static Settings settings = null;
+    private static Settings     settings = null;
     // Methods *****************************************************************
     @Override
     public void contextInitialized(ServletContextEvent sce)
@@ -61,6 +61,15 @@ public class PALS_SettingsListener implements ServletContextListener
                 default:
                     System.out.println("PALS: successfully loaded settings and checked shared storage path.");
                     break;
+            }
+            // Setup SSL factory, if settings defined
+            String  keystorePath = settings.getStr("rmi/keystore/path"),
+                    keystorePassword = settings.getStr("rmi/keystore/password");
+
+            if(keystorePath != null && keystorePassword != null)
+            {
+                System.setProperty("javax.net.ssl.trustStore", keystorePath);
+                System.setProperty("javax.net.ssl.trustStorePassword", keystorePassword);
             }
         }
         catch(SettingsException ex)

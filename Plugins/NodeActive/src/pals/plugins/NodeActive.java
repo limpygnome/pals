@@ -35,7 +35,7 @@ import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.PluginManager;
-import pals.base.RMI_Interface;
+import pals.rmi.RMI_Interface;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;

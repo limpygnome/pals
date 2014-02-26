@@ -35,6 +35,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Map;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -46,7 +47,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
-import pals.base.RMI_Interface;
+import pals.rmi.RMI_Interface;
 import pals.base.Settings;
 import pals.base.SettingsException;
 import pals.base.Storage;
@@ -153,7 +154,7 @@ public class PALS_Servlet extends HttpServlet
             }
 
             // Communicate to node using RMI
-            Registry r = LocateRegistry.getRegistry(settings.getStr("rmi/ip"), settings.getInt("rmi/port"));
+            Registry r = LocateRegistry.getRegistry(settings.getStr("rmi/ip"), settings.getInt("rmi/port"), new SslRMIClientSocketFactory());
             RMI_Interface ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
             RemoteResponse dataResponse = ri.handleWebRequest(dataRequest);
             

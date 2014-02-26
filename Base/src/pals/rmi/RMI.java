@@ -25,13 +25,17 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base;
+package pals.rmi;
 
 import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
+import pals.base.NodeCore;
+import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -49,13 +53,21 @@ public class RMI
     private final RMI_Interface     serverInstance;
     private HashMap<UUID,RMI_Host>  hosts;
     // Methods - Constructors **************************************************
-    public RMI(Connector conn, int port, RMI_Interface serverInstance)
+    public RMI(NodeCore core, Connector conn, int port, RMI_Interface serverInstance)
     {
         this.port = port;
         this.registry = null;
         this.serverInstance = serverInstance;
         this.hosts = new HashMap<>();
         hostsUpdate(conn);
+        // Setup custom SSL factory if keystore settings are defined
+        String  keystorePath = core.getSettings().getStr("rmi/keystore/path"),
+                keystorePassword = core.getSettings().getStr("rmi/keystore/password");
+        if(keystorePath != null && keystorePassword != null)
+        {
+            System.setProperty("javax.net.ssl.keyStore", keystorePath);
+            System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
+        }
     }
     // Methods - Hosts *********************************************************
     /**
@@ -100,7 +112,7 @@ public class RMI
         {
             try
             {
-                r = LocateRegistry.getRegistry(h.getHost(), h.getPort());
+                r = LocateRegistry.getRegistry(h.getHost(), h.getPort(), new SslRMIClientSocketFactory());
                 ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
                 return ri.invokeGlobalHook(event, data);
             }
@@ -124,7 +136,7 @@ public class RMI
         {
             try
             {
-                r = LocateRegistry.getRegistry(h.getHost(), h.getPort());
+                r = LocateRegistry.getRegistry(h.getHost(), h.getPort(), new SslRMIClientSocketFactory());
                 ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
                 ri.invokeGlobalHookAll(event, data);
             }
@@ -151,7 +163,7 @@ public class RMI
             return false;
         try
         {
-            registry = LocateRegistry.createRegistry(port);
+            registry = LocateRegistry.createRegistry(port, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());;//LocateRegistry.createRegistry(port);
             registry.bind(RMI_Interface.class.getName(), serverInstance);
             return true;
         }

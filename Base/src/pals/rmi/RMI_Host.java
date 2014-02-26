@@ -25,7 +25,9 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base;
+package pals.rmi;
+
+import pals.base.UUID;
 
 /**
  * A model for holding RMI information for a node.
