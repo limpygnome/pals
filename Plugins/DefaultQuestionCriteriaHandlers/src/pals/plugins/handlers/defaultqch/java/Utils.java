@@ -244,9 +244,9 @@ public class Utils
      */
     public static String[] buildJavaSandboxArgs(NodeCore core, String javaSandboxPath, String directory, String className, String method, String[] whiteListedClasses, boolean outputValue, String[] inputsArgs)
     {
-        final int BASE_ARGS = 8;
+        final int BASE_ARGS = 9;
         String[] buffer = new String[BASE_ARGS+inputsArgs.length];
-        // Setup base args
+        // Setup base args - refer to Java Sandbox project for information on args
         buffer[0] = "-jar";
         buffer[1] = PalsProcess.formatPath(javaSandboxPath);
         buffer[2] = PalsProcess.formatPath(directory);
@@ -255,6 +255,7 @@ public class Utils
         buffer[5] = buildJavaSandboxArgs_whiteList(whiteListedClasses);
         buffer[6] = outputValue ? "1" : "0";
         buffer[7] = Integer.toString(core.getSettings().getInt("tools/javasandbox/timeout_ms", 10000));
+        buffer[8] = "0";
         // Setup input args
         for(int i = 0; i < inputsArgs.length; i++)
             buffer[BASE_ARGS+i] = inputsArgs[i];

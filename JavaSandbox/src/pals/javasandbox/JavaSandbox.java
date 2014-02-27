@@ -47,24 +47,96 @@ import java.net.URL;
  * -- 3:    List of white-listed classes, or 0 for no white-listing.
  * -- 4:    Output mode (1 or 0) - outputs the value from the method.
  * -- 5:    Timeout before self-terminating.
- * -- 6-n:  The arguments for the method; this is automatically parsed.
+ * -- 6:    Indicates if this is a sub-process.
+ * -- 7-n:  The arguments for the method; this is automatically parsed.
  *              Each argument should be with <type>=<value>
  *              Accepted types: refer to ParsedArgument class.
  */
 public class JavaSandbox
 {
     // Fields - Static *********************************************************
-    public static boolean   modeDebug = false,
+    public static boolean   modeDebug = false,       // Has to be changed and compiled
                             modeOutput = false;
     public static Thread    threadWatcher = null;
     public static int       timeout = -1;
     // Methods - Entry-Point ***************************************************
     public static void main(String[] args) throws Throwable
     {
-        if(args.length < 5)
+        if(args.length < 6)
         {
             System.err.println("Invalid arguments.");
             return;
+        }
+        // Check we're in the correct working dir, but only if we're not a sub-process
+        File cf = new File(args[0]);
+        if(!args[6].equals("1"))
+        {
+            if(modeDebug)
+                System.out.println("[DEBUG] Checking working directory...");
+            if(!cf.exists())
+            {
+                System.out.println("[DEBUG] Directory does not exist.");
+                return;
+            }
+            String  cfPath = cf.getCanonicalPath().replace("\\", "/"),
+                    wdPath = new File("").getCanonicalPath().replace("\\", "/");
+            
+            if(modeDebug)
+                System.out.println("[DEBUG] Working directory is '"+wdPath+"'.");
+            
+            if(!cfPath.equals(wdPath))
+            {
+                if(modeDebug)
+                    System.out.println("[DEBUG] Working directory is incorrect, spawning sub-process...");
+                // Fetch path of this JAR
+                String jarPath = JavaSandbox.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+                if(modeDebug)
+                    System.out.println("[DEBUG] JAR path is '"+jarPath+"'.");
+                // Prepare child process with changed working directory
+                ProcessBuilder pb = new ProcessBuilder();
+                int argOffset = 3;
+                String[] args2 = new String[args.length+argOffset];
+                args2[0] = "java";
+                args2[1] = "-jar";
+                args2[2] = jarPath;
+                for(int i = 0; i < args.length; i++)
+                    args2[i+argOffset] = args[i];
+                args2[6+argOffset] = "1"; // Set flag as child process to avoid infinite creation, worst-case.
+                pb.command(args2);
+                pb.directory(cf);
+                // Redirect I/O
+                pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+                pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+                pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+                // Start the process and wait for it to terminate
+                Process proc = pb.start();
+                if(modeDebug)
+                    System.out.println("[DEBUG] Started sub-process.");
+                boolean running;
+                do
+                {
+                    // Check if the process has exited
+                    try
+                    {
+                        proc.exitValue();
+                        running = false;
+                    }
+                    catch(IllegalThreadStateException ex)
+                    {
+                        running = true;
+                    }
+                    // Sleep...
+                    try
+                    {
+                        Thread.sleep(5);
+                    }
+                    catch(InterruptedException ex)
+                    {
+                    }
+                }
+                while(running);
+                return;
+            }
         }
         // Setup outut-mode
         modeOutput = args[4].equals("1");
@@ -106,8 +178,8 @@ public class JavaSandbox
         try
         {
             if(modeDebug)
-                System.out.println("[DEBUG] Loading classes at '"+new File(args[0]).getCanonicalPath()+"'.");
-            urls = new URL[]{new File(args[0]).toURI().toURL()};
+                System.out.println("[DEBUG] Loading classes at '"+cf.getCanonicalPath()+"'.");
+            urls = new URL[]{cf.toURI().toURL()};
         }
         catch(IOException ex)
         {
@@ -179,7 +251,7 @@ public class JavaSandbox
             if(ex instanceof WhitelistException)
                 System.err.println("The class '"+((WhitelistException)ex).getClassName()+"' is prohibited!");
             else
-                System.err.println("Could not find entry-point class '"+args[1]+"'.");
+                System.err.println("Could not find class '"+args[1]+"'.");
             printDebugData(ex);
             return;
         }
@@ -188,10 +260,12 @@ public class JavaSandbox
         Class[] classes;
         try
         {
-            final int argsStartIndex = 6;
+            final int argsStartIndex = 7;
             objs = new Object[args.length - argsStartIndex];
             classes = new Class[args.length - argsStartIndex];
             ParsedArgument pa;
+            if(modeDebug)
+                System.out.println("[DEBUG] Parsing arguments...");
             for(int i = argsStartIndex; i < args.length; i++)
             {
                 pa = ParsedArgument.parse(args[i]);

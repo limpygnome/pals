@@ -146,7 +146,8 @@ public abstract class Parser
         // Clean input
         username = username.trim();
         email = email.trim();
-        password = password.trim();
+        if(password != null)
+            password = password.trim();
         // Check if the user exists
         User u = User.load(data.getConnector(), username);
         boolean needsPersisting, needsEmail = false;

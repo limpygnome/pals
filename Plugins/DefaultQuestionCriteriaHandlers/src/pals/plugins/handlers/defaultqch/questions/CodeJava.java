@@ -290,6 +290,7 @@ public class CodeJava
                 // Update the model's status
                 adata.setCompileStatus(cr.getStatus());
                 // Handle the compile result
+                adata.errorClear();
                 switch(cr.getStatus())
                 {
                     case Failed:

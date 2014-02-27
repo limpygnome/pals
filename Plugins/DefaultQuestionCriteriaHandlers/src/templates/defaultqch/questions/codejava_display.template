@@ -1,7 +1,7 @@
 <p>
     ${text?html}
 </p>
-<h3 class="tac">Code</h3>
+<h3 class="tac">Code Submitted</h3>
 <#if code?has_content>
     <#list code as c>
         <table class="table4">

@@ -28,6 +28,7 @@
 package pals.javasandbox;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.security.Permission;
 
@@ -55,16 +56,25 @@ public class SandboxSecurityManager extends SecurityManager
     @Override
     public void checkRead(String path)
     {
+        if(JavaSandbox.modeDebug)
+            System.out.println("[DEBUG] Checking read at '"+path+"'.");
         checkPathSafe(path);
     }
     @Override
     public void checkWrite(String path)
     {
+        if(JavaSandbox.modeDebug)
+            System.out.println("[DEBUG] Checking write at '"+path+"'.");
         checkPathSafe(path);
     }
+
+    @Override
+    public void checkWrite(FileDescriptor fd)
+    {
+    }
+    
     private void checkPathSafe(String path)
     {
-        if(path != null)return;
         try
         {
             // Build path data
@@ -76,10 +86,11 @@ public class SandboxSecurityManager extends SecurityManager
             if(!fPath.startsWith(basePath+"/") && !fPath.equals(basePath))
             {
                 // Check the path is not a lib in the jre
-                if(!fPath.startsWith(System.getProperty("java.home").replace("\\", "/")+"/lib"))
+                String baseLibrary = System.getProperty("java.home").replace("\\", "/");
+                if(!fPath.startsWith(baseLibrary+"/lib") && !fPath.startsWith(baseLibrary+"/classes") && !fPath.startsWith(baseLibrary+"/meta-index"))
                 {
                     System.out.println("[DEBUG] Path disallowed ~ '"+path+"'.");
-                    System.out.println("'"+fPath+"' ~ '"+System.getProperty("java.home")+"/lib"+"'");
+                    System.out.println("'"+fPath+"' ~ '"+baseLibrary+"'");
                     throw new SecurityException("Restricted path '"+path+"'.");
                 }
             }
@@ -151,6 +162,7 @@ public class SandboxSecurityManager extends SecurityManager
             // -- Potentially dangerous:
             // -- -- suppressAccessChecks ~ http://docs.oracle.com/javase/6/docs/api/java/lang/reflect/ReflectPermission.html
             // -- -- specifyStreamHandler - http://download.java.net/jdk7/archive/b123/docs/api/java/net/NetPermission.html
+            // -- -- loadLibrary.* - http://docs.oracle.com/javase/7/docs/api/java/lang/RuntimePermission.html
             // -- This is not recommended by the API, but it's required.
             case "java.net.NetPermission":
             {
@@ -165,6 +177,9 @@ public class SandboxSecurityManager extends SecurityManager
                 switch(p.getName())
                 {
                     case "accessClassInPackage.sun.text.resources":
+                        return;
+                    case "loadLibrary.net": // This looks potentially quite serious...
+                    case "loadLibrary.nio":
                         return;
                 }
             }

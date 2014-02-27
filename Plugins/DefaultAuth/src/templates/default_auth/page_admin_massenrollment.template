@@ -91,11 +91,13 @@
 
 <#if errors?? && errors?has_content>
     <h3>Parsing Errors</h3>
-    <ul class="error">
-        <#list errors as e>
-            <li>${e?html}</li>
-        </#list>
-    </ul>
+    <div class="error">
+        <ul>
+            <#list errors as e>
+                <li>${e?html}</li>
+            </#list>
+        </ul>
+    </div>
 </#if>
 
 <#if messages?? && messages?has_content>

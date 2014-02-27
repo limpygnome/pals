@@ -27,8 +27,11 @@
 */
 package pals.plugins.handlers.defaultqch.data;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -146,10 +149,11 @@ public class CodeJava_Shared implements Serializable
         if(!dest.exists() && !dest.mkdir())
             return ProcessFileResult.Failed_Dest_Dir;
         // Check if the file is a zip
+        String fileName = file.getName();
         String contentType = file.getContentType();
         if(contentType.equals("application/zip") || contentType.equals("application/x-zip-compressed") || contentType.equals("application/x-zip") ||
-                contentType.equals("application/octet-stream") || contentType.equals("application/x-compress") || contentType.equals("application/x-compressed") ||
-                contentType.equals("multipart/x-zip"))
+                contentType.equals("application/x-compress") || contentType.equals("application/x-compressed") ||
+                contentType.equals("multipart/x-zip") || fileName.toLowerCase().endsWith(".zip"))
         {
             // Create temp dir for extraction
             File fOut = new File(Storage.getPath_tempWebDir(data.getCore().getPathShared(), data.getRequestData().getIpAddress()));
@@ -222,6 +226,33 @@ public class CodeJava_Shared implements Serializable
             catch(IOException ex)
             {
                 data.getCore().getLogging().logEx("[CodeJava]", ex, Logging.EntryType.Warning);
+                return ProcessFileResult.Error;
+            }
+        }
+        else if(fileName.toLowerCase().endsWith(".java") && fileName.length() > 5)
+        {
+            try
+            {
+                // Read file
+                String code;
+                {
+                    StringBuilder buffer = new StringBuilder();
+                    BufferedReader br = new BufferedReader(new FileReader(src));
+                    char[] chunk = new char[4096];
+                    int len;
+                    while((len = br.read(chunk)) != -1)
+                        buffer.append(chunk, 0, len);
+                    code = buffer.toString();
+                }
+                // Add code to collection
+                codeAdd(Utils.parseFullClassName(code), code);
+            }
+            catch(FileNotFoundException ex)
+            {
+                return ProcessFileResult.Temp_Missing;
+            }
+            catch(IOException ex)
+            {
                 return ProcessFileResult.Error;
             }
         }
