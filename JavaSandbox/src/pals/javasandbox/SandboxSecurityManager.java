@@ -64,6 +64,7 @@ public class SandboxSecurityManager extends SecurityManager
     }
     private void checkPathSafe(String path)
     {
+        if(path != null)return;
         try
         {
             // Build path data
@@ -74,8 +75,13 @@ public class SandboxSecurityManager extends SecurityManager
             // Perform check
             if(!fPath.startsWith(basePath+"/") && !fPath.equals(basePath))
             {
-                System.out.println("[DEBUG] Path disallowed ~ '"+path+"'.");
-                throw new SecurityException("Restricted path '"+path+"'.");
+                // Check the path is not a lib in the jre
+                if(!fPath.startsWith(System.getProperty("java.home").replace("\\", "/")+"/lib"))
+                {
+                    System.out.println("[DEBUG] Path disallowed ~ '"+path+"'.");
+                    System.out.println("'"+fPath+"' ~ '"+System.getProperty("java.home")+"/lib"+"'");
+                    throw new SecurityException("Restricted path '"+path+"'.");
+                }
             }
             else if(JavaSandbox.modeDebug)
                 System.out.println("[DEBUG] Path allowed ~ '"+path+"'.");
@@ -93,7 +99,6 @@ public class SandboxSecurityManager extends SecurityManager
         // Allow class-loaders
         // -- Our own class-loader will be needed.
     }
-
     @Override
     public void checkExit(int i)
     {
@@ -133,8 +138,43 @@ public class SandboxSecurityManager extends SecurityManager
                         // Working-directory - safe
                         // -- http://docs.oracle.com/javase/tutorial/essential/environment/sysprop.html
                         return;
+                    case "user.language.format":
+                    case "user.script.format":
+                    case "user.country.format":
+                    case "user.variant.format":
+                    case "java.home": // Home directory ~ sketchy allowance, but required by /libs
+                        return;
                 }
                 break;
+            }
+            // All of these below are required for Scanner
+            // -- Potentially dangerous:
+            // -- -- suppressAccessChecks ~ http://docs.oracle.com/javase/6/docs/api/java/lang/reflect/ReflectPermission.html
+            // -- -- specifyStreamHandler - http://download.java.net/jdk7/archive/b123/docs/api/java/net/NetPermission.html
+            // -- This is not recommended by the API, but it's required.
+            case "java.net.NetPermission":
+            {
+                switch(p.getName())
+                {
+                    case "specifyStreamHandler":
+                        return;
+                }
+            }
+            case "java.lang.RuntimePermission":
+            {
+                switch(p.getName())
+                {
+                    case "accessClassInPackage.sun.text.resources":
+                        return;
+                }
+            }
+            case "java.lang.reflect.ReflectPermission":
+            {
+                switch(p.getName())
+                {
+                    case "suppressAccessChecks":
+                        return;
+                }
             }
         }
         throw new SecurityException("Attempted disallowed operation; permission: "+p.getClass().getName()+"/"+p.getName());

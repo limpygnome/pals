@@ -252,7 +252,7 @@ public class JavaSandbox
             if(e != null)
             {
                 // Print the exception
-                System.out.println("Exception: "+e.getClass().getName()+" - cause: "+e.getMessage().replace("\r", "").replace("\n", " "));
+                System.out.println("Exception: "+e.getClass().getName()+" - cause: "+(e.getMessage() != null ? e.getMessage().replace("\r", "").replace("\n", " ") : "null"));
                 // Write stack-trace to stderr up until reflection part
                 // -- To avoid confusing the student/user and for security
                 System.err.println("Stack Trace:");

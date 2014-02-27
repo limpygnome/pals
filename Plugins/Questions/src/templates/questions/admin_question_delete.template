@@ -40,7 +40,7 @@
             <#include "../captcha_form">
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                 <input type="submit" value="Delete" />
             </td>
