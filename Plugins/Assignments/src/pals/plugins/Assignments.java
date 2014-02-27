@@ -244,6 +244,8 @@ public class Assignments extends Plugin
                 return pageAssignments_instanceReprocess(data, ia, pages, editMode, captureMode);
             case "reopen":
                 return pageAssignments_instanceReopen(data, ia, pages, editMode, captureMode);
+            case "reopen_student":
+                return pageAssignments_instanceReopenStudent(data, ia, pages, editMode, captureMode);
             case "delete":
                 return pageAssignments_instanceDelete(data, ia, pages, editMode, captureMode);
             default:
@@ -488,6 +490,30 @@ public class Assignments extends Plugin
         // Setup the page
         data.setTemplateData("instance_page", "assignment/instance_page_reprocess");
         data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAssignments_instanceReopenStudent(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)
+    {
+        // Check the assignment has been marked and we're not in edit-mode
+        if(ia.getStatus() != InstanceAssignment.Status.Marked || editMode)
+            return false;
+        // Check the assignment has unlimited attempts
+        if(ia.getAss().getMaxAttempts() != -1)
+            return false;
+        // Drop criteria
+        if(!InstanceAssignmentCriteria.delete(data.getConnector(), ia))
+            return false;
+        // Reset status to active
+        ia.setStatus(InstanceAssignment.Status.Active);
+        InstanceAssignment.PersistStatus iaps = ia.persist(data.getConnector());
+        switch(iaps)
+        {
+            case Success:
+                data.getResponseData().setRedirectUrl("/assignments/instance/"+ia.getAIID());
+                break;
+            default:
+                return false;
+        }
         return true;
     }
     private boolean pageAssignments_instanceReopen(WebRequestData data, InstanceAssignment ia, Integer[] pages, boolean editMode, boolean captureMode)

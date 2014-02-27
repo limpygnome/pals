@@ -35,13 +35,19 @@
                 </a>
                 &nbsp;
             </#if>
-            <#if !edit_mode && !capture_mode && can_mark>
+            <#if assignment.getMaxAttempts()==-1 && marked_mode && !edit_mode>
+                <a href="/assignments/instance/${assignment_instance.getAIID()?c}/reopen_student" class="button">
+                    Reopen
+                </a>
+                &nbsp;
+            </#if>
+            <#if !edit_mode && !capture_mode && can_mark?? && can_mark>
                 <a href="/assignments/instance/${assignment_instance.getAIID()?c}?edit=1" class="button">
                     Edit
                 </a>
                 &nbsp;
             </#if>
-            <a href="<#if edit_mode>/manual_marking/${assignment.getAssID()?c}<#else>/modules/${module.getModuleID()?c}/history/${assignment.getAssID()?c}</#if>" class="button">
+            <a href="<#if edit_mode>/marking/${assignment.getAssID()?c}<#else>/modules/${module.getModuleID()?c}/history/${assignment.getAssID()?c}</#if>" class="button">
                 Back
             </a>
             <br />
@@ -63,4 +69,6 @@
     </p>
 </#if>
 
-<#include "../"+instance_page>
+<#if instance_page??>
+    <#include "../"+instance_page>
+</#if>
