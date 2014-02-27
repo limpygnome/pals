@@ -233,7 +233,16 @@ public class Storage
      */
     public static String getPath_tempIAQ(String pathShared, InstanceAssignmentQuestion iaq)
     {
-        return pathShared + "/temp_iaq/"+iaq.getAIQID();
+        return getPath_tempIAQ(pathShared, iaq.getAIQID());
+    }
+    /**
+     * @param pathShared The path of the shared directory/storage.
+     * @param aiqid  The identifier of the instance.
+     * @return The path of the temporary directory for the instance of an IAQ.
+     */
+    public static String getPath_tempIAQ(String pathShared, int aiqid)
+    {
+        return pathShared + "/temp_iaq/"+aiqid;
     }
     /**
      * @param pathShared The path of the shared directory/storage.
@@ -242,7 +251,16 @@ public class Storage
      */
     public static String getPath_tempQuestion(String pathShared, Question q)
     {
-        return pathShared + "/temp_q/" + q.getQID();
+        return getPath_tempQuestion(pathShared, q.getQID());
+    }
+    /**
+     * @param pathShared The path of the shared directory/storage.
+     * @param qid The identifier of the instance.
+     * @return The temporary path for the instance of the question.
+     */
+    public static String getPath_tempQuestion(String pathShared, int qid)
+    {
+        return pathShared + "/temp_q/" + qid;
     }
     /**
      * @param pathShared The path of the shared directory/storage.
@@ -251,6 +269,15 @@ public class Storage
      */
     public static String getPath_tempQC(String pathShared, QuestionCriteria qc)
     {
-        return pathShared+"/temp_qc/"+qc.getQCID();
+        return getPath_tempQC(pathShared, qc.getQCID());
+    }
+    /**
+     * @param pathShared The path of the shared directory/storage.
+     * @param qcid The identifier of the instance.
+     * @return The temporary path for the instance of the question-criteria.
+     */
+    public static String getPath_tempQC(String pathShared, int qcid)
+    {
+        return pathShared+"/temp_qc/"+qcid;
     }
 }

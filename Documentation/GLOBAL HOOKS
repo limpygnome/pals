@@ -24,6 +24,11 @@ Event:	base.web.email.wake
 Args:	(none)
 Desc:	Informs any background services that e-mail is ready for sending.
 ----------------------------------------------------------------------------------------------------
+Event:	base.cleaner.wake
+Args:	(none)
+Desc:	Informs any background services that data is pending a clean-up from the pals_cleanup
+		table.
+----------------------------------------------------------------------------------------------------
 Event:	question_type.web_edit
 Args:	WebRequestData
 		Question

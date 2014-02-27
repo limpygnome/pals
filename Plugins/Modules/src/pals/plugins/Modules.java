@@ -395,6 +395,8 @@ public class Modules extends Plugin
             {
                 // Delete the module...
                 module.delete(data.getConnector());
+                // Inform nodes
+                data.getCore().getRMI().nodesGlobalEventAll("base.cleaner.wake", new Object[]{});
                 // Redirect to modules page
                 data.getResponseData().setRedirectUrl("/admin/modules");
             }
@@ -712,7 +714,12 @@ public class Modules extends Plugin
                 if(!ass.delete(data.getConnector()))
                     data.setTemplateData("error", "Failed to delete assignment for an unknown reason; please try again or contact an administrator!");
                 else
+                {
+                    // Inform nodes
+                    data.getCore().getRMI().nodesGlobalEventAll("base.cleaner.wake", new Object[]{});
+                    // Redirect
                     data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments");
+                }
             }
         }
         // Setup the page
@@ -1102,7 +1109,12 @@ public class Modules extends Plugin
             {
                 // Unpersist the model
                 if(aq.delete(data.getConnector()))
+                {
+                    // Inform nodes
+                    data.getCore().getRMI().nodesGlobalEventAll("base.cleaner.wake", new Object[]{});
+                    // Redirect
                     data.getResponseData().setRedirectUrl("/admin/modules/"+module.getModuleID()+"/assignments/"+ass.getAssID()+"/questions");
+                }
                 else
                     data.setTemplateData("error", "Failed to unpersist model for an unknown reason!");
             }

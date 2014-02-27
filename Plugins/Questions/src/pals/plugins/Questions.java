@@ -297,7 +297,12 @@ public class Questions extends Plugin
             {
                 // Delete the question
                 if(q.delete(data.getConnector()))
+                {
+                    // Inform nodes
+                    data.getCore().getRMI().nodesGlobalEventAll("base.cleaner.wake", new Object[]{});
+                    // Redirect
                     data.getResponseData().setRedirectUrl("/admin/questions");
+                }
                 else
                     data.setTemplateData("error", "Could not delete the question, an unknown error occurred!");
             }
@@ -478,7 +483,12 @@ public class Questions extends Plugin
             else if(!qc.delete(data.getConnector()))
                 data.setTemplateData("error", "Could not remove model, an unknown error occurred; if this continues, contact an administrator!");
             else
+            {
+                // Inform nodes
+                data.getCore().getRMI().nodesGlobalEventAll("base.cleaner.wake", new Object[]{});
+                // Redirect
                 data.getResponseData().setRedirectUrl("/admin/questions/"+q.getQID());
+            }
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Criteria - Delete");

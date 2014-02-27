@@ -30,6 +30,7 @@ package pals.plugins;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
+import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.UUID;
 import pals.base.Version;
@@ -44,12 +45,14 @@ public class SessionCleaner extends Plugin
     // Constants ***************************************************************
     static final String    LOGGING_ALIAS = "Session Cleaner";
     // Fields ******************************************************************
-    private SessionCleanerThread thread;
+    private SessionCleanerThread threadSession;
+    private DataCleanerThread   threadData;
     // Methods - Constructors **************************************************
     public SessionCleaner(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
         super(core, uuid, jario, version, settings, jarPath);
-        thread = new SessionCleanerThread(this);
+        threadSession = new SessionCleanerThread(this);
+        threadData = new DataCleanerThread(this);
     }
     // Methods - Event Handlers ************************************************
     @Override
@@ -63,11 +66,30 @@ public class SessionCleaner extends Plugin
         return true;
     }
     @Override
+    public boolean eventHandler_registerHooks(NodeCore core, PluginManager plugins)
+    {
+        if(!plugins.globalHookRegister(this, "base.cleaner.wake"))
+            return false;
+        return true;
+    }
+    @Override
+    public boolean eventHandler_handleHook(String event, Object[] args)
+    {
+        switch(event)
+        {
+            case "base.cleaner.wake":
+                threadData.interrupt();
+                return true;
+        }
+        return false;
+    }
+    @Override
     public boolean eventHandler_pluginLoad(NodeCore core)
     {
         // Start thread
-        thread.start();
-        core.getLogging().log(LOGGING_ALIAS, "Started cleaner thread.", Logging.EntryType.Info);
+        threadSession.start();
+        threadData.start();
+        core.getLogging().log(LOGGING_ALIAS, "Started cleaner and data threads.", Logging.EntryType.Info);
         return true;
     }
     @Override
@@ -76,10 +98,12 @@ public class SessionCleaner extends Plugin
         // Stop thread
         try
         {
-            core.getLogging().log(LOGGING_ALIAS, "Stopping cleaner thread...", Logging.EntryType.Info);
-            thread.extended_stop();
-            thread.join();
-            core.getLogging().log(LOGGING_ALIAS, "Stopped cleaner thread.", Logging.EntryType.Info);
+            core.getLogging().log(LOGGING_ALIAS, "Stopping cleaner and data threads...", Logging.EntryType.Info);
+            threadSession.extended_stop();
+            threadSession.join();
+            threadData.extended_stop();
+            threadData.join();
+            core.getLogging().log(LOGGING_ALIAS, "Stopped cleaner and data threads.", Logging.EntryType.Info);
         }
         catch(InterruptedException ex)
         {

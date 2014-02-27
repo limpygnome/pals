@@ -1,3 +1,6 @@
+-- Setup language for functions
+CREATE LANGUAGE plpgsql;
+
 -- The nodes used for the assessment of work and other tasks.
 CREATE TABLE pals_nodes
 (
@@ -175,7 +178,7 @@ CREATE TABLE pals_question_criteria
 (
 	qcid				SERIAL				PRIMARY KEY,
 	qid					INT					REFERENCES pals_question(qid) 				ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
-	uuid_ctype			BYTEA				REFERENCES pals_criteria_types(uuid_ctype) 	ON UPDATE CASCADE ON DELETE CASCADE		NOT NULL,
+	uuid_ctype			BYTEA				REFERENCES pals_criteria_types(uuid_ctype) 	ON UPDATE CASCADE ON DELETE RESTRICT	NOT NULL,
 	title				VARCHAR(64)			DEFAULT 'Untitled Criteria'					NOT NULL,
 	data				BYTEA,
 	weight				INT					NOT NULL
@@ -207,7 +210,7 @@ CREATE TABLE pals_assignment_questions
 	aqid				SERIAL				PRIMARY KEY,
 	assid				INT					REFERENCES pals_assignment(assid) 	ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
 	-- The identifier of the question being used for the assignment question; allows multiple of the same questions.
-	qid					INT					REFERENCES pals_question(qid) 		ON UPDATE CASCADE ON DELETE RESTRICT			NOT NULL,
+	qid					INT					REFERENCES pals_question(qid) 		ON UPDATE CASCADE ON DELETE CASCADE				NOT NULL,
 	-- The weight of the question in the assignment; the total weight is summed for all questions to form the maximum available mark. Therefore the percent of this
 	-- question is weight/total_weight.
 	weight				INT																										NOT NULL,
@@ -314,4 +317,64 @@ CREATE TABLE pals_exceptions
 	-- The date of the occurrence.
 	exdate				TIMESTAMP			NOT NULL
 );
+
+-- Clean-up table; registers directories to be inspected and possibly deleted.
+-- -- id1 and id2 are generic identifier-holders for either an iaq, q or c
+-- id_type: 1 for IAQ, 2 for Q, 3 for QC
+CREATE TABLE pals_cleanup
+(
+	cid					SERIAL				PRIMARY KEY,
+	id_type				VARCHAR(1)			NOT NULL,
+	id					INT					NOT NULL
+);
+
+-- Create trigger functions for cleanup jobs
+CREATE OR REPLACE FUNCTION func_cleanup_iaq()
+	RETURNS TRIGGER AS
+$$
+BEGIN
+	IF(TG_OP = 'DELETE') THEN
+		INSERT INTO pals_cleanup (id_type, id) VALUES('1', OLD.aiqid);
+		RETURN OLD;
+	END IF;
+END;
+$$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION func_cleanup_q()
+	RETURNS TRIGGER AS
+$$
+BEGIN
+	IF(TG_OP = 'DELETE') THEN
+		INSERT INTO pals_cleanup (id_type, id) VALUES('2', OLD.qid);
+		RETURN OLD;
+	END IF;
+END;
+$$
+LANGUAGE PLPGSQL;
+
+CREATE OR REPLACE FUNCTION func_cleanup_qc()
+	RETURNS TRIGGER AS
+$$
+BEGIN
+	IF(TG_OP = 'DELETE') THEN
+		INSERT INTO pals_cleanup (id_type, id) VALUES('2', OLD.qcid);
+		RETURN OLD;
+	END IF;
+END;
+$$
+LANGUAGE PLPGSQL;
+
+-- Create triggers
+CREATE TRIGGER trigger_cleanup_iaq AFTER DELETE ON pals_assignment_instance_question
+	FOR EACH ROW
+		EXECUTE PROCEDURE func_cleanup_iaq();
+
+CREATE TRIGGER trigger_cleanup_q AFTER DELETE ON pals_question
+	FOR EACH ROW
+		EXECUTE PROCEDURE func_cleanup_q();
+		
+CREATE TRIGGER trigger_cleanup_qc AFTER DELETE ON pals_question_criteria
+	FOR EACH ROW
+		EXECUTE PROCEDURE func_cleanup_qc();
 

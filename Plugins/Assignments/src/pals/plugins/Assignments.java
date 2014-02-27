@@ -562,6 +562,9 @@ public class Assignments extends Plugin
             else
             {
                 ia.delete(data.getConnector());
+                // Inform nodes
+                data.getCore().getRMI().nodesGlobalEventAll("base.cleaner.wake", new Object[]{});
+                // Redirect
                 data.getResponseData().setRedirectUrl("/admin/modules/"+ia.getAss().getModule().getModuleID()+"/assignments/"+ia.getAss().getAssID());
             }
         }
