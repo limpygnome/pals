@@ -27,12 +27,15 @@
 */
 package pals.plugins.handlers.defaultqch.data;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import org.apache.commons.io.FileUtils;
+import pals.base.NodeCore;
+import pals.base.Storage;
+import pals.base.assessment.InstanceAssignmentQuestion;
+import pals.base.database.Connector;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 
 /**
@@ -44,84 +47,55 @@ import pals.plugins.handlers.defaultqch.java.CompilerResult;
  * The names of files uploaded are also stored, which reduces I/O latency and
  * calls (since files can be within sub-directories which requires recursion).
  */
-public class CodeJava_Instance implements Serializable
+public class CodeJava_Instance extends CodeJava_Shared implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
-    private         TreeMap<String,String>          code;
-    private         TreeSet<String>                 files;
+    private         boolean                         prepared;
     private final   ArrayList<CodeError>            errors;
     private         CompilerResult.CompileStatus    status;
     // Methods - Constructors **************************************************
     public CodeJava_Instance()
     {
-        this.code = null;
-        this.files = null;
+        this.prepared = false;
         this.errors = new ArrayList<>();
         this.status = CompilerResult.CompileStatus.Unknown;
     }
-    // Methods - File Collection ***********************************************
-    public void filesClear()
-    {
-        if(files != null)
-            files.clear();
-    }
-    public void filesAdd(String fileName)
-    {
-        if(files == null)
-            files = new TreeSet<>();
-        files.add(fileName);
-    }
-    public int filesCount()
-    {
-        return files == null ? 0 : files.size();
-    }
-    // Methods - Code Collection ***********************************************
+    // Methods *****************************************************************
     /**
-     * Removes all of the added classes.
+     * Prepares the instance for assessment; this should be invoked by all
+     * criteria before marking.
+     * 
+     * @param core The current instance of the core.
+     * @param conn Database connector.
+     * @param iaq Instance of question, to which this model belongs.
+     * @return Indicates if the operation succeeded, else failed.
      */
-    public void codeClear()
+    public boolean prepare(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq)
     {
-        if(code != null)
-            code.clear();
-    }
-    /**
-     * @param className The full class-name of the code being added.
-     * @param code The code to be added.
-     */
-    public void codeAdd(String className, String code)
-    {
-        if(this.code == null)
-            this.code = new TreeMap<>();
-        this.code.put(className, code);
-    }
-    /**
-     * @param className The full class-name of the source-code to fetch.
-     * @return The source-code of the specified class-name, or null.
-     */
-    public String codeGet(String className)
-    {
-        return code.get(className);
-    }
-    /**
-     * @param className The full name of the class to remove.
-     */
-    public void codeRemove(String className)
-    {
-        if(code != null)
-            code.remove(className);
-    }
-    
-    public String codeGetFirst()
-    {
-        return code == null || code.isEmpty() ? null : code.entrySet().iterator().next().getValue();
-    }
-    /**
-     * @return The number of classes provided by the user.
-     */
-    public int codeSize()
-    {
-        return code == null ? 0 : code.size();
+        // Check if we've already been prepared
+        if(prepared)
+            return true;
+        // Fetch dirs
+        String shared = core.getPathShared();
+        File fSrc = new File(Storage.getPath_tempQuestion(shared, iaq.getAssignmentQuestion().getQuestion()));
+        File fDest = new File(Storage.getPath_tempIAQ(shared, iaq));
+        // Copy physical files
+        if(fSrc.exists() && fDest.exists())
+        {
+            try
+            {
+                FileUtils.copyDirectory(fSrc, fDest);
+            }
+            catch(IOException ex)
+            {
+                return false;
+            }
+        }
+        // Re-persist this model due to being prepared
+        prepared = true;
+        iaq.setData(this);
+        return iaq.persist(conn) == InstanceAssignmentQuestion.PersistStatus.Success;
     }
     // Methods - Mutators ******************************************************
     /**
@@ -146,6 +120,13 @@ public class CodeJava_Instance implements Serializable
     {
         this.status = status;
     }
+    /**
+     * @param prepared Sets if this instance is prepared for assessment.
+     */
+    public void setPrepared(boolean prepared)
+    {
+        this.prepared = prepared;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return Errors from a compilation attempt; can be null or empty.
@@ -163,52 +144,10 @@ public class CodeJava_Instance implements Serializable
         return status;
     }
     /**
-     * @return A double dimension array, where each row contains the following:
-     * 0 - the index of the code (int).
-     * 1 - the name of the code.
-     * 2 - the code.
+     * @return Indicates if this instance has been prepared.
      */
-    public Object[][] getCode()
+    public boolean isPrepared()
     {
-        Object[][] buffer = new Object[code.size()][];
-        int offset = 0;
-        for(Map.Entry<String,String> i : code.entrySet())
-            buffer[offset++] = new Object[]{offset, i.getKey(), i.getValue()};
-        return buffer;
-    }
-    /**
-     * @return The underlying data-structure used to hold code provided by
-     * users; can be null.
-     */
-    public TreeMap<String,String> getCodeMap()
-    {
-        return code;
-    }
-    /**
-     * @return An array of the names of code files submitted,
-     * ordered. Can be empty.
-     */
-    public String[] getCodeNames()
-    {
-        if(code == null)
-            return new String[0];
-        Set<String> names = code.keySet();
-        return names.toArray(new String[names.size()]);
-    }
-    /**
-     * @return The underlying data-structure used to hold a list of files;
-     * can be null.
-     */
-    public TreeSet<String> getFilesMap()
-    {
-        return files;
-    }
-    /**
-     * @return An array of the relative paths of files submitted,
-     * ordered. Can be empty.
-     */
-    public String[] getFileNames()
-    {
-        return files == null ? new String[0] : files.toArray(new String[files.size()]);
+        return prepared;
     }
 }

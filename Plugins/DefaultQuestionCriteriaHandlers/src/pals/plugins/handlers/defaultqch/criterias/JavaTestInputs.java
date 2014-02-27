@@ -163,7 +163,15 @@ public class JavaTestInputs
             if(idata == null || idata.getStatus() != CompilerResult.CompileStatus.Success)
                 iac.setMark(0);     // No answer data; no need to mark.
             else if(qdata == null || cdata == null || cdata.getInputs().length == 0)
+            {
+                core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Invalid/null question or criteria data for IAC '"+iac.getIAQ().getAIQID()+","+iac.getQC().getQCID()+"' (aqid,qcid).", Logging.EntryType.Error);
                 return false;       // Question or criteria has not been setup properly.
+            }
+            else if(!idata.prepare(core, conn, iac.getIAQ()))
+            {
+                core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Failed to prepare instance for assessment - IAC '"+iac.getIAQ().getAIQID()+","+iac.getQC().getQCID()+"' (aqid,qcid).", Logging.EntryType.Warning);
+                return false;
+            }
             else
             {
                 // Fetch path of compiled classes

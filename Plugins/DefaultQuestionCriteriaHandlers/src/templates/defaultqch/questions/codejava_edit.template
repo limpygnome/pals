@@ -1,6 +1,6 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/edit">Edit</a></h2>
 
-<form method="post" action="/admin/questions/${question.getQID()?c}/edit">
+<form method="post" action="/admin/questions/${question.getQID()?c}/edit" enctype="multipart/form-data">
     <table class="table2 questions_form">
         <tr>
             <td>
@@ -38,6 +38,59 @@
             </td>
         </tr>
         <tr>
+            <th colspan="2">
+                Test Files
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Upload:
+            </td>
+            <td>
+                <input type="file" name="mc_upload" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Options:
+            </td>
+            <td>
+                <input type="checkbox" name="mc_reset" value="1" /> Reset existing files.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Code:
+            </td>
+            <td>
+                <#if code_names?? && code_names?has_content>
+                    <ul>
+                        <#list code_names as cn>
+                            <li>${cn?html}</li>
+                        </#list>
+                    </ul>
+                <#else>
+                    No files uploaded.
+                </#if>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Other:
+            </td>
+            <td>
+                <#if file_names?? && file_names?has_content>
+                    <ul>
+                        <#list file_names as fn>
+                            <li>${fn?html}</li>
+                        </#list>
+                    </ul>
+                <#else>
+                    No files uploaded.
+                </#if>
+            </td>
+        </tr>
+        <tr>
             <td colspan="2" class="tac">
                 <a class="button" href="/admin/questions/${question.getQID()}">Back</a>
                 <input type="submit" value="Update" />
@@ -55,22 +108,37 @@
     });
 </script>
 
+<h3>Notes</h3>
 <p>
-    Note: when code fragment mode is enabled, only single classes can be
+    When code fragment mode is enabled, only single classes can be
     provided. For multiple classes, use code-upload; this will allow students
     to upload zip files with code.
 </p>
 
 <p>
-    Note 2: the white-list can be left to be disabled; this will not affect
+    The white-list can be left to be disabled; this will not affect
     security. The white-list is intended to restrict students to a set of
     classes.
+</p>
+
+<p>
+    Test files are copied to instances of questions; if a file exists, it will be
+    overwritten. These files will not be revealed to the students.
 </p>
 
 <#if error??>
     <p class="error">
         ${error}
     </p>
+</#if>
+
+<#if error_messages?? && error_messages?has_content>
+    <h3>Compile Errors</h3>
+    <#list error_messages as msg>
+        <p class="error">
+            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
+        </p>
+    </#list>
 </#if>
 
 <#if success??>

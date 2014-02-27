@@ -159,7 +159,15 @@ public class JavaTestProgram
             if(idata == null || idata.getStatus() != CompilerResult.CompileStatus.Success)
                 iac.setMark(0);
             else if(qcdata == null || qdata == null)
+            {
+                core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Invalid/null question or criteria data for IAC '"+iac.getIAQ().getAIQID()+","+iac.getQC().getQCID()+"' (aqid,qcid).", Logging.EntryType.Error);
+                return false;       // Question or criteria has not been setup properly.
+            }
+            else if(!idata.prepare(core, conn, iac.getIAQ()))
+            {
+                core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Failed to prepare instance for assessment - IAC '"+iac.getIAQ().getAIQID()+","+iac.getQC().getQCID()+"' (aqid,qcid).", Logging.EntryType.Warning);
                 return false;
+            }
             else
             {
                 // Fetch script to follow

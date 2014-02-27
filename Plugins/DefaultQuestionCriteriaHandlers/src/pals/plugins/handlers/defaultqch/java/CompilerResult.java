@@ -45,8 +45,9 @@ public class CompilerResult
         Unknown(0, "This question has not been compiled."),
         Success(1, "Compiled."),
         Failed(2, "Failed to compile."),
-        Failed_CompilerNotFound(4, "Compiler not found; please try again or contact an administrator."),
-        Failed_TempDirectory(8, "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
+        Failed_NoCode(4, "No code provided."),
+        Failed_CompilerNotFound(8, "Compiler not found; please try again or contact an administrator."),
+        Failed_TempDirectory(16, "Could not establish temporary shared folder for instance of question; please try again or contact an administrator.");
         
         private final int     formValue;
         private final String  text;

@@ -169,6 +169,8 @@ public class Utils
      */
     public static CompilerResult compile(NodeCore core, String pathTemp, Map<String,String> code)
     {
+        if(code == null || code.isEmpty())
+            return new CompilerResult(CompilerResult.CompileStatus.Failed_NoCode, null);
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         // Fetch compiler
         if(jc == null)

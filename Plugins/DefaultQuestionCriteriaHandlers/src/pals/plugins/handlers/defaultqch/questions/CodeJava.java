@@ -28,18 +28,7 @@
 package pals.plugins.handlers.defaultqch.questions;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import pals.base.Logging;
 import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
@@ -52,6 +41,7 @@ import pals.base.web.security.CSRF;
 import pals.plugins.handlers.defaultqch.data.CodeError;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
+import pals.plugins.handlers.defaultqch.data.CodeJava_Shared;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
 import pals.plugins.handlers.defaultqch.logging.ModelException;
@@ -79,6 +69,9 @@ public class CodeJava
         String mcType = req.getField("mc_type");
         String mcSkeleton = req.getField("mc_skeleton");
         String mcWhitelist = req.getField("mc_whitelist");
+        // -- Optional
+        String mcReset = req.getField("mc_reset");
+        UploadedFile mcUpload = req.getFile("mc_upload");
         if(mcText != null && mcType != null && mcWhitelist != null)
         {
             // Validate request
@@ -91,6 +84,9 @@ public class CodeJava
                 qdata.setType(CodeJava_Question.QuestionType.parse(mcType));
                 qdata.setSkeleton(mcSkeleton);
                 qdata.setWhitelist(mcWhitelist.replace("\r", "").split("\n"));
+                // Check if to reset files
+                if(mcReset != null && mcReset.equals("1"))
+                    qdata.reset(new File(Storage.getPath_tempQuestion(data.getCore().getPathShared(), q)));
                 // Persist the model
                 q.setData(qdata);
                 Question.PersistStatus psq = q.persist(data.getConnector());
@@ -98,8 +94,65 @@ public class CodeJava
                 {
                     default:
                         data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
+                        break;
                     case Success:
                         data.setTemplateData("success", "Successfully updated question.");
+                        break;
+                }
+            }
+            // Check for upload
+            if(!data.containsTemplateData("error") && mcUpload != null && mcUpload.getSize() > 0)
+            {
+                // Fetch Q path
+                String qPath = Storage.getPath_tempQuestion(data.getCore().getPathShared(), q);
+                File qDest = new File(qPath);
+                CodeJava_Shared.ProcessFileResult res = qdata.processFile(data, mcUpload, qDest);
+                switch(res)
+                {
+                    case Error:
+                        data.setTemplateData("error", "An unknown error occurred handling the upload.");
+                        break;
+                    case Failed_Dest_Dir:
+                        data.setTemplateData("error", "Unable to create destination directory.");
+                        break;
+                    case Failed_Temp_Dir:
+                        data.setTemplateData("error", "Unable to create temporary directory.");
+                        break;
+                    case Invalid_Zip:
+                        data.setTemplateData("error", "Invalid ZIP archive uploaded.");
+                        break;
+                    case Maximum_Files:
+                        data.setTemplateData("error", "Maximum files ("+FILEUPLOAD_FILES_LIMIT+") exceeded.");
+                        break;
+                    case Temp_Missing:
+                        data.setTemplateData("error", "Temporary web upload missing.");
+                        break;
+                    case Success:
+                        // Check if we need to compile any code
+                        if(qdata.codeSize() > 0)
+                        {
+                            CompilerResult cr = Utils.compile(data.getCore(), qPath, qdata.getCodeMap());
+                            CompilerResult.CompileStatus cs = cr.getStatus();
+                            if(cs != CompilerResult.CompileStatus.Success)
+                            {
+                                data.setTemplateData("error", cs.getText());
+                                data.setTemplateData("error_messages", cr.getCodeErrors());
+                            }
+                        }
+                        // Re-persist the question
+                        if(!data.containsTemplateData("error"))
+                        {
+                            q.setData(qdata);
+                            Question.PersistStatus psq = q.persist(data.getConnector());
+                            switch(psq)
+                            {
+                                default:
+                                    data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
+                                case Success:
+                                    data.setTemplateData("success", "Successfully updated question.");
+                            }
+                        }
+                        break;
                 }
             }
         }
@@ -114,6 +167,8 @@ public class CodeJava
         data.setTemplateData("mc_skeleton", mcSkeleton != null ? mcSkeleton : qdata.getSkeleton());
         data.setTemplateData("mc_whitelist", qdata.getWhitelistWeb());
         data.setTemplateData("csrf", CSRF.set(data));
+        data.setTemplateData("code_names", qdata.getCodeNames());
+        data.setTemplateData("file_names", qdata.getFileNames());
         return true;
     }
     public static boolean pageQuestionCapture(WebRequestData data, InstanceAssignment ia, InstanceAssignmentQuestion iaq, StringBuilder html, boolean secure)
@@ -160,144 +215,72 @@ public class CodeJava
             // Check if to reset existing files
             if(reset)
             {
-                try
+                // Reset files
+                adata.reset(new File(Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq)));
+                adata.setCompileStatus(CompilerResult.CompileStatus.Unknown);
+                adata.errorClear();
+                adata.setPrepared(false);
+                // Attempt to persist model (in-case the uploading phase fails)
+                iaq.setData(adata);
+                InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
+                switch(iaqps)
                 {
-                    // Reset model
-                    adata.filesClear();
-                    adata.codeClear();
-                    adata.setCompileStatus(CompilerResult.CompileStatus.Unknown);
-                    adata.errorClear();
-                    // Reset directory for IAQ
-                    File fIaq = new File(Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq));
-                    if(fIaq.exists())
-                        FileUtils.deleteDirectory(fIaq);
-                    // Attempt to persist model (in-case the uploading phase fails)
-                    iaq.setData(adata);
-                    InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
-                    switch(iaqps)
-                    {
-                        case Failed:
-                        case Failed_Serialize:
-                        case Invalid_AssignmentQuestion:
-                        case Invalid_InstanceAssignment:
-                            kvs.put("error", "Failed to update question ('"+iaqps.name()+"'), during reset!");
-                            break;
-                        case Success:
-                            kvs.put("success", "Saved answer.");
-                            break;
-                    }
-                }
-                catch(IOException ex)
-                {
-                    kvs.put("error", "Failed to delete instance data directory; please try again or contact an administrator.");
+                    case Failed:
+                    case Failed_Serialize:
+                    case Invalid_AssignmentQuestion:
+                    case Invalid_InstanceAssignment:
+                        kvs.put("error", "Failed to update question ('"+iaqps.name()+"'), during reset!");
+                        break;
+                    case Success:
+                        kvs.put("success", "Saved answer.");
+                        break;
                 }
             }
             // Check no error has occurred thus-far, before handling file-upload
             if(!kvs.containsKey("error") && file != null)
             {
-                // Fetch the path of the file
-                File fZip = new File(Storage.getPath_tempWebFile(data.getCore().getPathShared(), file));
-                if(!fZip.exists())
-                    kvs.put("error", "Temporary file upload missing; please try again or contact an administrator.");
-                // Create dir for unzipping
-                else
+                // Fetch the output directory
+                File fIAQ = new File(Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq));
+                // Process the file
+                CodeJava_Shared.ProcessFileResult res = adata.processFile(data, file, fIAQ);
+                switch(res)
                 {
-                    // Create temp dir
-                    File fOut = new File(Storage.getPath_tempWebDir(data.getCore().getPathShared(), data.getRequestData().getIpAddress()));
-                    if(!fOut.mkdir())
-                        kvs.put("error", "Failed to setup temporary directory; please try again or contact an administrator.");
-                    else
-                    {
-                        try
+                    case Error:
+                        kvs.put("error", "An unknown error occurred; please try again or contact an administrator.");
+                        break;
+                    case Failed_Dest_Dir:
+                        kvs.put("error", "Failed to create destination directory; please try again or contact an administrator.");
+                        break;
+                    case Failed_Temp_Dir:
+                        kvs.put("error", "Failed to create temporary directory; please try again or contact an administrator.");
+                        break;
+                    case Invalid_Zip:
+                        kvs.put("error", "Invalid zip archive; please try again or contact an administrator.");
+                        break;
+                    case Maximum_Files:
+                        kvs.put("error", "Maximum files ("+FILEUPLOAD_FILES_LIMIT+") exceeded; please try again or contact an administrator.");
+                        break;
+                    case Temp_Missing:
+                        kvs.put("error", "Temporary web file missing; please try again or contact an administrator.");
+                        break;
+                    case Success:
+                        // Update the iaq model
+                        iaq.setData(adata);
+                        // Attempt to persist
+                        InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
+                        switch(iaqps)
                         {
-                            // Iterate the zip archive
-                            ZipFile zip = new ZipFile(fZip);
-                            Enumeration<? extends ZipEntry> ents = zip.entries();
-                            ZipEntry ent;
-                            InputStream is;
-                            // -- Setup IAQ dir
-                            String dirIAQ = Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq);
-                            File fIAQ = new File(dirIAQ);
-                            if(!fIAQ.exists())
-                                fIAQ.mkdir();
-                            // -- Setup buffers
-                            StringBuilder       codeBuffer;
-                            InputStreamReader   isr;
-                            char[]              buffer = new char[4096];
-                            int                 bufferlen;
-                            String              code;
-                            int                 files = 0;
-                            File                f;
-                            FileOutputStream    fos;
-                            while(ents.hasMoreElements())
-                            {
-                                ent = ents.nextElement();
-                                if(files >= FILEUPLOAD_FILES_LIMIT)
-                                    kvs.put("error", "Maximum number of files, "+FILEUPLOAD_FILES_LIMIT+", reached.");
-                                // Place java files into model, other files into model dir
-                                else if(!ent.isDirectory())
-                                {
-                                    is = zip.getInputStream(ent);
-                                    // Read source-files into model
-                                    if(ent.getName().endsWith(".java"))
-                                    {
-                                        codeBuffer = new StringBuilder();
-                                        isr = new InputStreamReader(is);
-                                        while((bufferlen = isr.read(buffer, 0, 4096)) != -1)
-                                            codeBuffer.append(buffer, 0, bufferlen);
-                                        code = codeBuffer.toString();
-                                        adata.codeAdd(Utils.parseFullClassName(code), code);
-                                    }
-                                    // Read files into IAQ/model dir
-                                    // -- Ignore .class files, most likely a student/user forgetting to delete their build files
-                                    // -- -- Remove them to avoid conflict with our own compile process.
-                                    else if(!ent.getName().endsWith(".class"))
-                                    {
-                                        f = new File(fIAQ, ent.getName());
-                                        // Ensure all dirs have been created, in-case the file is within a new sub-dir
-                                        f.getParentFile().mkdirs();
-                                        // Create new file
-                                        f.createNewFile();
-                                        // Open up a stream to the file destination, copy source to dest stream, dispose
-                                        fos = new FileOutputStream(f);
-                                        IOUtils.copy(is, fos);
-                                        fos.flush();
-                                        fos.close();
-                                        // Add to model
-                                        adata.filesAdd(ent.getName());
-                                    }
-                                    files++;
-                                }
-                            }
-                            // Delete directory
-                            fOut.delete();
-                            // Update the iaq model
-                            iaq.setData(adata);
-                            // Attempt to persist
-                            InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
-                            switch(iaqps)
-                            {
-                                case Failed:
-                                case Failed_Serialize:
-                                case Invalid_AssignmentQuestion:
-                                case Invalid_InstanceAssignment:
-                                    kvs.put("error", "Failed to update question ('"+iaqps.name()+"'), during upload!");
-                                    break;
-                                case Success:
-                                    kvs.put("success", "Saved answer.");
-                                    break;
-                            }
+                            case Failed:
+                            case Failed_Serialize:
+                            case Invalid_AssignmentQuestion:
+                            case Invalid_InstanceAssignment:
+                                kvs.put("error", "Failed to update question ('"+iaqps.name()+"'), during upload!");
+                                break;
+                            case Success:
+                                kvs.put("success", "Saved answer.");
+                                break;
                         }
-                        catch(ZipException ex)
-                        {
-                            kvs.put("error", "Unable to read file; corrupt or not a zip archive.");
-                        }
-                        catch(IOException ex)
-                        {
-                            kvs.put("error", "Exception occurred reading zip.");
-                            data.getCore().getLogging().logEx("[CodeJava]", ex, Logging.EntryType.Warning);
-                        }
-                    }
+                        break;
                 }
             }
             // Check an error has not occurred...
@@ -323,6 +306,7 @@ public class CodeJava
                         break;
                 }
                 // Attempt to persist model
+                adata.setPrepared(false);
                 iaq.setData(adata);
                 iaq.setAnswered(true);
                 InstanceAssignmentQuestion.PersistStatus iaqps = iaq.persist(data.getConnector());
@@ -364,6 +348,9 @@ public class CodeJava
             case Unknown:
                 kvs.put("warning", cs.getText());
                 break;
+            case Failed_NoCode:
+                kvs.put("error", "You have not uploaded any code which can be compiled.");
+                break;
             case Failed_CompilerNotFound:
             case Failed_TempDirectory:
             case Failed:
@@ -400,6 +387,7 @@ public class CodeJava
                 adata.codeClear();
                 adata.errorClear();
                 adata.setCompileStatus(CompilerResult.CompileStatus.Unknown);
+                adata.setPrepared(false);
                 // Check we're not in reset-mode
                 if(!resetMode)
                 {

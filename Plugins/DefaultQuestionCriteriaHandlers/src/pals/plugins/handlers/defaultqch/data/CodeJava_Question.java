@@ -33,7 +33,7 @@ import pals.base.utils.Misc;
 /**
  * Stores the data for a code-java question.
  */
-public class CodeJava_Question implements Serializable
+public class CodeJava_Question extends CodeJava_Shared implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Enums *******************************************************************
@@ -81,7 +81,6 @@ public class CodeJava_Question implements Serializable
         this.whitelist = new String[0];
         this.type = QuestionType.Fragment;
     }
-
     // Methods - Mutators ******************************************************
     /**
      * @param text Sets the question text.
