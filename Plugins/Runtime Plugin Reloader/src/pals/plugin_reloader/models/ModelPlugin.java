@@ -33,7 +33,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import pals.base.PluginManager;
-import pals.rmi.RMI_Interface;
+import pals.base.rmi.RMI_Interface;
 import pals.base.UUID;
 import pals.base.Version;
 import pals.base.database.Connector;

@@ -28,6 +28,7 @@
 package pals.plugins;
 
 import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.utils.ExtendedThread;
@@ -48,21 +49,21 @@ public class NodeActiveThread extends ExtendedThread
     @Override
     public void run()
     {
+        // Wait for the core to start...
+        while(!extended_isStopped() && na.getCore().getState() != NodeCore.State.Started)
+        {
+            try
+            {
+                Thread.sleep(5);
+            }
+            catch(InterruptedException ex) {}
+        }
+        // Begin updating the status
         long interval = (long)na.getSettings().getInt("interval_ms");
-        long lastUpdated = System.currentTimeMillis();
+        long lastUpdated = 0;
         Connector conn;
         while(!extended_isStopped())
         {
-            // Sleep for a while to avoid excessive CPU usage
-            try
-            {
-                Thread.sleep(interval);
-            }
-            catch(InterruptedException ex)
-            {
-                if(!extended_isStopped())
-                    na.getCore().getLogging().logEx("NodeActive", "Unexpectedly woken.", ex, Logging.EntryType.Warning);
-            }
             // Check if we need to update yet
             if(System.currentTimeMillis()-lastUpdated >= interval-100) // Allow 100 m/s early
             {
@@ -83,6 +84,16 @@ public class NodeActiveThread extends ExtendedThread
                 na.getCore().getRMI().hostsUpdate(conn);
                 // Disconnect from the database
                 conn.disconnect();
+            }
+            // Sleep for a while to avoid excessive CPU usage
+            try
+            {
+                Thread.sleep(interval);
+            }
+            catch(InterruptedException ex)
+            {
+                if(!extended_isStopped())
+                    na.getCore().getLogging().logEx("NodeActive", "Unexpectedly woken.", ex, Logging.EntryType.Warning);
             }
         }
     }

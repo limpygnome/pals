@@ -8,44 +8,45 @@
 </p>
 <ul>
     <#if user.getGroup().isAdminSystem()>
-    <li>
-            <a href="/admin/nodes">Nodes</a> - manage the nodes running PALS.
-    </li>
-    </#if>
-    <#if user.getGroup().isAdminSystem()>
-    <li>
-            <a href="/admin/plugins">Plugins</a> - manage the plugins running on nodes.
-    </li>
+        <li>
+                <a href="/admin/nodes">Nodes</a> - manage the nodes running PALS.
+        </li>
+        <li>
+                <a href="/admin/plugins">Plugins</a> - manage the plugins running on nodes.
+        </li>
+        <li>
+                <a href="/admin/email">E-mail Queue</a> - manage the e-mail queue for the entire system.
+        </li>
     </#if>
     <#if user.getGroup().isAdminModules()>
-    <li>
-            <a href="/admin/modules">Modules</a> - manage modules.
-    </li>
+        <li>
+                <a href="/admin/modules">Modules</a> - manage modules.
+        </li>
     </#if>
     <#if user.getGroup().isAdminQuestions()>
-    <li>
-            <a href="/admin/questions">Questions</a> - manage the questions pool.
-    </li>
+        <li>
+                <a href="/admin/questions">Questions</a> - manage the questions pool.
+        </li>
     </#if>
     <#if user.getGroup().isAdminUsers()>
-    <li>
-            <a href="/admin/users">Users</a> - manage users.
-    </li>
-    <li>
-            <a href="/admin/groups">Groups</a> - manage user-groups.
-    </li>
-    <li>
-            <a href="/admin/mass_enrollment">Mass-Enrollment</a> - mass-enroll/disenroll and add/delete users.
-    </li>
+        <li>
+                <a href="/admin/users">Users</a> - manage users.
+        </li>
+        <li>
+                <a href="/admin/groups">Groups</a> - manage user-groups.
+        </li>
+        <li>
+                <a href="/admin/mass_enrollment">Mass-Enrollment</a> - mass-enroll/disenroll and add/delete users.
+        </li>
     </#if>
     <#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>
-    <li>
-            <a href="/marking">Marking</a> - manually mark work.
-    </li>
+        <li>
+                <a href="/marking">Marking</a> - manually mark work.
+        </li>
     </#if>
     <#if user.getGroup().isAdminModules()>
-    <li>
-            <a href="/admin/stats">Stats</a> - view statistical data.
-    </li>
+        <li>
+                <a href="/admin/stats">Stats</a> - view statistical data.
+        </li>
     </#if>
 </ul>

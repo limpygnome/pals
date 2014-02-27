@@ -1,0 +1,78 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/email">E-mail</a></h2>
+
+<p>
+    Below are all the e-mails pending in the queue for sending.
+</p>
+
+<p class="tac">
+    <a class="button" href="/admin/email?delete_all=1&amp;csrf=${csrf}">
+        Delete All
+    </a>
+</p>
+
+<table class="table2">
+    <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Destination</th>
+        <th>Last Attempted</th>
+        <th>Attempts</th>
+        <th>Options</th>
+    </tr>
+    <#if emails?has_content>
+        <#list emails as email>
+            <tr>
+                <td>
+                    ${email.getEmailID()?c}
+                </td>
+                <td>
+                    ${email.getTitle()?html}
+                </td>
+                <td>
+                    ${email.getDestination()?html}
+                </td>
+                <td>
+                    <#if email.getLastAttempted()??>
+                        ${email.getLastAttempted().toString("YYYY-mm-dd HH:mm:ss")?html}
+                    <#else>
+                        --
+                    </#if>
+                </td>
+                <td>
+                    ${email.getAttempts()?string}
+                </td>
+                <td>
+                    <a class="button" href="/admin/email?delete=${email.getEmailID()?c}&amp;csrf=${csrf}">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        </#list>
+    <#else>
+        <tr>
+            <td colspan="6">
+                No pending e-mails.
+            </td>
+        </tr>
+    </#if>
+</table>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<div class="p tac">
+    <#if email_prev??>
+        <a class="button fl" href="/admin/email?page=${email_prev?c}">
+            Previous
+        </a>
+    </#if>
+    Page ${email_page}
+    <#if email_next??>
+        <a class="button fr" href="/admin/email?page=${email_next?c}">
+            Next
+        </a>
+    </#if>
+</div>

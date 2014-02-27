@@ -96,7 +96,8 @@ public class Email
     {
         try
         {
-            return load(conn.read("SELECT * FROM pals_email_queue WHERE emailid=?;", emailid));
+            Result res = conn.read("SELECT * FROM pals_email_queue WHERE emailid=?;", emailid);
+            return res.next() ? load(res) : null;
         }
         catch(DatabaseException ex)
         {
@@ -115,7 +116,7 @@ public class Email
     {
         try
         {
-            return loadArr(conn.read("SELECT * FROM pals_email_queue ORDER BY emailid DESC LIIT ? OFFSET ?;", limit, offset));
+            return loadArr(conn.read("SELECT * FROM pals_email_queue ORDER BY emailid ASC LIMIT ? OFFSET ?;", limit, offset));
         }
         catch(DatabaseException ex)
         {
@@ -220,6 +221,24 @@ public class Email
                 conn.execute("DELETE FROM pals_email_queue WHERE emailid=?;", emailid);
                 emailid = -1;
             }
+            return true;
+        }
+        catch(DatabaseException ex)
+        {
+            return false;
+        }
+    }
+    /**
+     * Deletes all of the e-mails pending in the queue.
+     * 
+     * @param conn Database connector.
+     * @return True = successful, false = failed.
+     */
+    public static boolean deleteAll(Connector conn)
+    {
+        try
+        {
+            conn.execute("DELETE FROM pals_email_queue;");
             return true;
         }
         catch(DatabaseException ex)

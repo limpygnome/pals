@@ -35,7 +35,7 @@
         </tr>
         <#include "../captcha_form">
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments">Back</a>
                 <input type="submit" value="Delete" />
             </td>

@@ -35,7 +35,7 @@ import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.PluginManager;
-import pals.rmi.RMI_Interface;
+import pals.base.rmi.RMI_Interface;
 import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
@@ -49,6 +49,8 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.plugins.nodesactive.ModelNode;
+import pals.base.rmi.RMI;
+import pals.base.rmi.RMI_Host;
 
 /**
  * A very simple plugin to update the active-time, periodically, of a node in
@@ -188,18 +190,28 @@ public class NodeActive extends Plugin
         {
             if(!CSRF.isSecure(data))
                 data.setTemplateData("error", "Invalid request; please try again.");
-            else
+            else if(action.equals("shutdown") || action.equals("restart"))
             {
-                switch(action)
+                RMI rmi = data.getCore().getRMI();
+                RMI_Interface ri;
+                for(RMI_Host h : rmi.getNodes())
                 {
-                    case "shutdown":
-                        ModelNode.nodeAllShutdown(data.getConnector());
-                        break;
-                    case "restart":
-                        ModelNode.nodeAllRestart(data.getConnector());
-                        break;
-                    default:
-                        return false;
+                    try
+                    {
+                        ri = rmi.fetchRMIConnection(h.getHost(), h.getPort());
+                        switch(action)
+                        {
+                            case "shutdown":
+                                ri.shutdown();
+                                break;
+                            case "restart":
+                                ri.restart();
+                                break;
+                        }
+                    }
+                    catch(NotBoundException | RemoteException ex)
+                    {
+                    }
                 }
             }
         }

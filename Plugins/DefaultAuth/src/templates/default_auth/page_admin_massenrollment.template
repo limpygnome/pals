@@ -100,11 +100,13 @@
 
 <#if messages?? && messages?has_content>
     <h3>Messages</h3>
-    <ul class="info">
-        <#list messages as m>
-            <li>${m?html}</li>
-        </#list>
-    </ul>
+    <div class="info">
+        <ul>
+            <#list messages as m>
+                <li>${m?html}</li>
+            </#list>
+        </ul>
+    </div>
 </#if>
 
 <h3>Notes</h3>

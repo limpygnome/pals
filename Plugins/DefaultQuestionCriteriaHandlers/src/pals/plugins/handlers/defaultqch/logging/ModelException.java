@@ -123,7 +123,12 @@ public class ModelException
     {
         try
         {
-            return load(conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page FROM pals_exceptions AS e, pals_exception_messages AS em, pals_assignment_questions AS aq WHERE e.ecid=? AND em.emid=e.emid AND aq.aqid=e.aqid ORDER BY e.exdate DESC LIMIT ? OFFSET ?;", ecid, limit, offset));
+            return load(conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page "+
+                    "FROM pals_exceptions AS e "+
+                    "LEFT OUTER JOIN pals_assignment_questions AS aq ON aq.aqid=e.aqid "+
+                    "LEFT OUTER JOIN pals_exception_messages AS em ON em.emid=e.emid "+
+                    "WHERE e.ecid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;",
+                    ecid, limit, offset));
         }
         catch(DatabaseException ex)
         {
@@ -142,7 +147,16 @@ public class ModelException
     {
         try
         {
-            return load(conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_exception_messages AS em, pals_assignment_instance AS ai, pals_assignment AS a, pals_assignment_questions AS aq WHERE ec.ecid=? AND e.ecid=ec.ecid AND aq.aqid=e.aqid AND em.emid=e.emid AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;", ecid, module.getModuleID(), limit, offset));
+            return load(conn.read(
+                    "SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page "+
+                    "FROM pals_exceptions AS e "+
+                    "LEFT OUTER JOIN pals_exception_classes AS ec ON e.ecid=ec.ecid "+
+                    "LEFT OUTER JOIN pals_exception_messages AS em ON em.emid=e.emid "+
+                    "LEFT OUTER JOIN pals_assignment_instance AS ai ON ai.aiid=e.aiid "+
+                    "LEFT OUTER JOIN pals_assignment AS a ON a.assid=ai.assid "+
+                    "LEFT OUTER JOIN pals_assignment_questions AS aq ON aq.aqid=e.aqid "+
+                    "WHERE e.ecid=ec.ecid AND ec.ecid=? AND a.moduleid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;",
+                    ecid, module.getModuleID(), limit, offset));
         }
         catch(DatabaseException ex)
         {
@@ -161,7 +175,15 @@ public class ModelException
     {
         try
         {
-            return load(conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai, pals_exception_messages AS em, pals_assignment_questions AS aq WHERE ec.ecid=? AND e.ecid=ec.ecid AND aq.aqid=e.aqid AND em.emid=e.emid AND ai.aiid=e.aiid AND ai.assid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;", ecid, ass.getAssID(), limit, offset));
+            return load(conn.read(
+                    "SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page "+
+                    "FROM pals_exceptions AS e "+
+                    "LEFT OUTER JOIN pals_exception_classes AS ec ON e.ecid=ec.ecid "+
+                    "LEFT OUTER JOIN pals_exception_messages AS em ON em.emid=e.emid "+
+                    "LEFT OUTER JOIN pals_assignment_instance AS ai ON ai.aiid=e.aiid "+
+                    "LEFT OUTER JOIN pals_assignment_questions AS aq ON aq.aqid=e.aqid "+
+                    "WHERE e.ecid=ec.ecid AND ec.ecid=? AND ai.assid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;",
+                    ecid, ass.getAssID(), limit, offset));
         }
         catch(DatabaseException ex)
         {
@@ -180,7 +202,14 @@ public class ModelException
     {
         try
         {
-            return load(conn.read("SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_exception_messages AS em, pals_assignment_questions AS aq WHERE ec.ecid=? AND em.emid=e.emid AND e.ecid=ec.ecid AND aq.aqid=e.aqid AND aq.qid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;", ecid, q.getQID(), limit, offset));
+            return load(conn.read(
+                    "SELECT e.exdate, e.aqid, e.aiid, em.message, aq.page "+
+                    "FROM pals_exceptions AS e "+
+                    "LEFT OUTER JOIN pals_exception_classes AS ec ON e.ecid=ec.ecid "+
+                    "LEFT OUTER JOIN pals_exception_messages AS em ON em.emid=e.emid "+
+                    "LEFT OUTER JOIN pals_assignment_questions AS aq ON aq.aqid=e.aqid "+
+                    "WHERE e.ecid=ec.ecid AND ec.ecid=? AND aq.qid=? ORDER BY e.exdate DESC LIMIT ? OFFSET ?;",
+                    ecid, q.getQID(), limit, offset));
         }
         catch(DatabaseException ex)
         {

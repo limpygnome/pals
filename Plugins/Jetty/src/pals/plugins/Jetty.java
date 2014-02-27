@@ -27,11 +27,13 @@
 */
 package pals.plugins;
 
+import java.io.File;
 import java.io.IOException;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.Settings;
+import pals.base.SettingsException;
 import pals.base.UUID;
 import pals.base.Version;
 import pals.base.database.Connector;
@@ -45,8 +47,8 @@ public class Jetty extends Plugin
     // Constants ***************************************************************
     private final String LOGGING_ALIAS = "[PALS] Web Serv.";
     // Fields ******************************************************************
-    private static  Process proc = null;
-    private         Thread threadShutdown;
+    private static  Process     proc = null;
+    private         Thread      threadShutdown;
     // Methods - Constructors **************************************************
     public Jetty(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
@@ -94,19 +96,37 @@ public class Jetty extends Plugin
     {
         try
         {
+            int port = getCore().getSettings().get2("jetty/port");
+            String path = getCore().getSettings().get2("jetty/path");
+            
             if(newJarLocation != null)
-                proc = Runtime.getRuntime().exec("java -jar \""+newJarLocation+"\" \"8084\" \"../Website/build/web\"");
+            {
+                String jarFullPath = new File(newJarLocation).getCanonicalPath();
+                String fullPath = new File(path).getCanonicalPath();
+                ProcessBuilder pb = new ProcessBuilder("java", "-jar", jarFullPath, String.valueOf(port), fullPath);
+                proc = pb.start();
+                getCore().getLogging().log(LOGGING_ALIAS, "Starting website at '"+fullPath+"' on port "+port+".", Logging.EntryType.Info);
+            }
             else
                 getCore().getLogging().log(LOGGING_ALIAS, "Unable to start Jetty; new JAR location undefined.", Logging.EntryType.Error);
         }
-        catch(IOException ex)
+        catch(IOException | SettingsException ex)
         {
             getCore().getLogging().logEx(LOGGING_ALIAS, "Unable to start Jetty server.", ex, Logging.EntryType.Error);
         }
     }
     public synchronized void jettyStop()
     {
-        proc.destroy();
-        proc = null;
+        try
+        {
+            if(proc != null)
+            {
+                proc.destroy();
+                proc = null;
+            }
+        }
+        catch(Exception ex)
+        {
+        }
     }
 }

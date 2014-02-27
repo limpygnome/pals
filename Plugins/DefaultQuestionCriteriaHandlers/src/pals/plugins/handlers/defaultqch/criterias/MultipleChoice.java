@@ -99,7 +99,7 @@ public class MultipleChoice
             // Update the data model
             cdata.setIndexesCorrect(buffer.toArray(new Integer[buffer.size()]));
             // Handle entire process
-            CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, null);
+            CriteriaHelper.handle_criteriaEditPostback(data, qc, critTitle, critWeight, cdata);
         }
         else
         {

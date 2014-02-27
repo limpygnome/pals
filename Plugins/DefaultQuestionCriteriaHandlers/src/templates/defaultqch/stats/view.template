@@ -19,7 +19,11 @@
                     ${m.getDateTime().toString("YYYY/mm/dd HH:mm:ss")?html}
                 </td>
                 <td>
-                    ${m.getMessage()?string}
+                    <#if m.getMessage()??>
+                        ${m.getMessage()?string}
+                    <#else>
+                        (Null error message)
+                    </#if>
                 </td>
                 <td>
                     <a class="button" href="/assignments/instance/${m.getAIID()?c}/${m.getAIIDPage()?c}#${m.getAQID()?c}">

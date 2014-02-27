@@ -1,7 +1,13 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">Questions</a></h2>
 
+<#if !assignment.isActive()>
+    <p class="warning tac">
+        This assignment is inactive, therefore students will not be able to attempt it. Click <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">here</a> to edit the assignment and set it to active.
+    </p>
+</#if>
+
 <p class="tac">
-    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">
         Back
     </a>
     &nbsp;

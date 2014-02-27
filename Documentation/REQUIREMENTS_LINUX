@@ -1,0 +1,25 @@
+The following packages are required:
+- fontconfig
+- xorg-server
+- ttf-dejavu
+- sshpass
+
+You will also need both the JRE and JDK installed:
+- jre-openjdk
+- jdk-openjdk
+
+Refer to your package manager for name specifics.
+
+This has been tested on 32-bit and 64-bit distributions of Arch; if the system is not running within a GUI environment,
+the node base will need to be launched with headless mode for graphics rendering (as used by the captcha plugin):
+http://www.oracle.com/technetwork/articles/javase/headless-136834.html
+
+Simply append '-Djava.awt.headless=true' as a parameter when launching the JVM.
+
+Also make sure the separate, low-privileged, user account has a home directory; this is not used by the sandbox, but
+SSH will generate an error which will appear in any sandbox output.
+
+To create a low-privileged user:
+useradd <username>
+passwd <username>
+- enter password

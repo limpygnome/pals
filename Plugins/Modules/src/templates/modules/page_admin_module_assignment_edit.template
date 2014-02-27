@@ -68,15 +68,15 @@
                 <br />
                 <select name="ass_due_hour">
                     <option>HH</option>
-                    <#list 1..23 as i>
-                        <option value="${i?c}" <#if ass_due_hour?? && ass_due_hour==i>selected</#if>>${i?c}</option>
+                    <#list 0..23 as i>
+                        <option value="${i?c}" <#if ass_due_hour?? && ass_due_hour==i>selected</#if>>${i?left_pad(2, "0")}</option>
                     </#list>
                 </select>
                 :
                 <select name="ass_due_minute">
                     <option>MM</option>
-                    <#list 1..59 as i>
-                        <option value="${i?c}" <#if ass_due_minute?? && ass_due_minute?number==i>selected</#if>>${i?c}</option>
+                    <#list 0..59 as i>
+                        <option value="${i?c}" <#if ass_due_minute?? && ass_due_minute?number==i>selected</#if>>${i?left_pad(2, "0")}</option>
                     </#list>
                 </select>
             </td>

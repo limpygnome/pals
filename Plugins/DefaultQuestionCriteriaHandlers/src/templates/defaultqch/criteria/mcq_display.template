@@ -6,8 +6,7 @@
 
 <#if error_correct??>
     <div class="error">
-        Incorrect answer; the correct answer(s):<br />
-        <br />
+        Incorrect answer; the correct answer(s):
         <ul>
             <#list error_correct as answer>
                 <li>

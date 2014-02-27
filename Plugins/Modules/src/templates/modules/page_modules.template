@@ -35,14 +35,14 @@
                     ${module.getIncomplete()?string}
                 </td>
                 <td>
-                    <a href="/modules/${module.getModuleID()?c}">
+                    <a class="button" href="/modules/${module.getModuleID()?c}">
                         View
                     </a>
                     <#if user.getGroup().isAdminModules()>
-                    &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?c}">
-                        Manage
-                    </a>
+                        &nbsp;
+                        <a class="button" href="/admin/modules/${module.getModuleID()?c}">
+                            Manage
+                        </a>
                     </#if>
                 </td>
             </tr>

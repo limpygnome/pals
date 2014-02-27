@@ -31,8 +31,10 @@ import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
 import pals.base.UUID;
+import pals.base.assessment.Assignment;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
+import pals.base.assessment.Module;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
@@ -127,16 +129,32 @@ public class MarkerThread extends ExtendedThread
             conn.execute("BEGIN;");
             conn.tableLock(LOCK_TABLE, true);
             // Fetch any unhandled surpassed assignments
-            Result res = conn.read("SELECT assid FROM pals_assignment WHERE due_handled='0' AND due IS NOT NULL AND due < current_timestamp;");
-            int assid;
+            Result res = conn.read("SELECT * FROM pals_assignment WHERE due_handled='0' AND due IS NOT NULL AND due < current_timestamp;");
+            Result res2;
+            Module m;
+            Assignment ass;
             while(res.next())
             {
-                assid = (int)res.get("assid");
-                marker.getCore().getLogging().log("Ass. Marker", "Assignment '"+assid+"' has surpassed due-date; handling.", Logging.EntryType.Info);
+                // Load assignment model
+                ass = Assignment.load(conn, null, res);
+                marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Assignment '"+ass.getAssID()+"' has surpassed due-date; auto-submitting.", Logging.EntryType.Info);
                 // Update the assignment to handled
-                conn.execute("UPDATE pals_assignment SET due_handled='1' WHERE assid=?;", assid);
-                // Update active assignments to submitted
-                conn.execute("UPDATE pals_assignment_instance SET status=?, time_end=current_timestamp WHERE status=? AND assid=?;", InstanceAssignment.Status.Submitted.getStatus(), InstanceAssignment.Status.Active.getStatus(), assid);
+                conn.execute("UPDATE pals_assignment SET due_handled='1' WHERE assid=?;", ass.getAssID());
+                // Iterate each assignment, create criteria and submit
+                InstanceAssignment ia;
+                res2 = conn.read("SELECT * FROM pals_assignment_instance WHERE status=? AND assid=?;", InstanceAssignment.Status.Active.getStatus(), ass.getAssID());
+                while(res2.next())
+                {
+                    ia = InstanceAssignment.load(conn, ass, null, res2);
+                    if(ia != null)
+                    {
+                        // Update status to submitted
+                        ia.setStatus(InstanceAssignment.Status.Submitted);
+                        ia.persist(conn);
+                        // Create criteria
+                        InstanceAssignmentCriteria.createForInstanceAssignment(conn, ia, InstanceAssignmentCriteria.Status.AwaitingMarking);
+                    }
+                }
             }
             conn.tableUnlock(true);
             conn.execute("COMMIT;");
@@ -150,7 +168,7 @@ public class MarkerThread extends ExtendedThread
             catch(DatabaseException ex2)
             {
             }
-            marker.getCore().getLogging().logEx("Ass. Marker", "Failed to handle due assignments.", ex, Logging.EntryType.Error);
+            marker.getCore().getLogging().logEx("Ass. Marker", "#"+number+": Failed to handle due assignments.", ex, Logging.EntryType.Error);
         }
         // Fetch work to do
         InstanceAssignmentCriteria iac = null;
@@ -185,14 +203,14 @@ public class MarkerThread extends ExtendedThread
                 iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
                 iac.persist(conn);
                 if(p == null)
-                    marker.getCore().getLogging().log("Ass. Marker", "Criteria-type plugin, "+plugin.getHexHyphens()+", is not loaded in the run-time.", Logging.EntryType.Warning);
+                    marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Criteria-type plugin, "+plugin.getHexHyphens()+", is not loaded in the run-time.", Logging.EntryType.Warning);
                 else
-                    marker.getCore().getLogging().log("Ass. Marker", "Plugin, "+plugin.getHexHyphens()+", did not handle criteria-type, "+iac.getQC().getCriteria().getUuidCType().getHexHyphens()+".", Logging.EntryType.Warning);
+                    marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Plugin, "+plugin.getHexHyphens()+", did not handle criteria-type, "+iac.getQC().getCriteria().getUuidCType().getHexHyphens()+".", Logging.EntryType.Warning);
                 return false;
             }
             else
             {
-                marker.getCore().getLogging().log("Ass. Marker", "Marked criteria '"+iac.getIAQ().getAIQID()+"','"+iac.getQC().getQCID()+"' ~ "+iac.getMark()+"%.", Logging.EntryType.Info);
+                marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Marked criteria '"+iac.getIAQ().getAIQID()+"','"+iac.getQC().getQCID()+"' ~ "+iac.getMark()+"%.", Logging.EntryType.Info);
                 // Check if the assignment needs the overall mark computed
                 try
                 {
@@ -201,11 +219,11 @@ public class MarkerThread extends ExtendedThread
                     conn.tableLock(LOCK_TABLE, false);
                     if(ia.isMarkComputationNeeded(conn))
                     {
-                        // Set the assignment to 'Marking'
+                        // Set the assignment to 'Marking' - allows us to free the lock-table whilst computing the mark
                         ia.setStatus(InstanceAssignment.Status.Marking);
                         if(ia.persist(conn) != InstanceAssignment.PersistStatus.Success)
                         {
-                            marker.getCore().getLogging().log("Ass. Marker", "Failed to set instance-assignment to marked.", Logging.EntryType.Error);
+                            marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Failed to set instance-assignment to marked.", Logging.EntryType.Error);
                             return true;
                         }
                         else
@@ -217,13 +235,13 @@ public class MarkerThread extends ExtendedThread
                     {
                         // Compute the grade for the assignment
                         if(!ia.computeMark(conn))
-                            marker.getCore().getLogging().log("Ass. Marker", "Failed to compute marks for assignment instance '"+ia.getAIID()+"'.", Logging.EntryType.Warning);
+                            marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Failed to compute marks for assignment instance '"+ia.getAIID()+"'.", Logging.EntryType.Warning);
                         else
                         {
                             // Update the status
                             ia.setStatus(InstanceAssignment.Status.Marked);
                             ia.persist(conn);
-                            marker.getCore().getLogging().log("Ass. Marker", "Computed marks for assignment instance '"+ia.getAIID()+"' ~ "+ia.getMark()+"%.", Logging.EntryType.Info);
+                            marker.getCore().getLogging().log("Ass. Marker", "#"+number+": Computed marks for assignment instance '"+ia.getAIID()+"' ~ "+ia.getMark()+"%.", Logging.EntryType.Info);
                         }
                     }
                 }

@@ -133,7 +133,7 @@ public class WrittenResponse
         // Render the template
         HashMap<String,Object> kvs = new HashMap<>();
         kvs.put("text", qdata.getText());
-        kvs.put("answer", adata != null ? adata : "");
+        kvs.put("answer", adata);
         html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/questions/written_response_display"));
         return true;
     }

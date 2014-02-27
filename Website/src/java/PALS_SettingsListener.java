@@ -25,11 +25,14 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
+import java.io.File;
+import java.io.IOException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import pals.base.Settings;
 import pals.base.SettingsException;
 import pals.base.Storage;
+import pals.base.rmi.SSL_Factory;
 
 /**
  * Loads required settings when the context/web-app is started.
@@ -38,10 +41,18 @@ public class PALS_SettingsListener implements ServletContextListener
 {
     // Fields ******************************************************************
     private static Settings     settings = null;
+    private static SSL_Factory  sfact = null;
     // Methods *****************************************************************
     @Override
     public void contextInitialized(ServletContextEvent sce)
     {
+        try
+        {
+            System.out.println("Local path: '"+new File("").getCanonicalPath()+"'.");
+        }
+        catch(IOException ex)
+        {
+        }
         try
         {
             settings = Settings.load(sce.getServletContext().getRealPath("WEB-INF/web.config"), true);
@@ -65,12 +76,8 @@ public class PALS_SettingsListener implements ServletContextListener
             // Setup SSL factory, if settings defined
             String  keystorePath = settings.getStr("rmi/keystore/path"),
                     keystorePassword = settings.getStr("rmi/keystore/password");
-
-            if(keystorePath != null && keystorePassword != null)
-            {
-                System.setProperty("javax.net.ssl.trustStore", keystorePath);
-                System.setProperty("javax.net.ssl.trustStorePassword", keystorePassword);
-            }
+            
+            sfact = new SSL_Factory(keystorePath, keystorePassword);
         }
         catch(SettingsException ex)
         {
@@ -90,5 +97,13 @@ public class PALS_SettingsListener implements ServletContextListener
     public static Settings getSettings()
     {
         return settings;
+    }
+    /**
+     * @return The socket factory used for securely connecting with a node;
+     * can be null if the default factory should be used.
+     */
+    public static SSL_Factory getRMISockFactory()
+    {
+        return sfact;
     }
 }

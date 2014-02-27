@@ -47,45 +47,46 @@
 					<a href="/admin">Admin</a>
 					<ul>
 						<#if user.getGroup().isAdminSystem()>
-						<li>
-							<a href="/admin/nodes">Nodes</a>
-						</li>
-						</#if>
-						<#if user.getGroup().isAdminSystem()>
-						<li>
-							<a href="/admin/plugins">Plugins</a>
-						</li>
+							<li>
+								<a href="/admin/nodes">Nodes</a>
+							</li>
+							<li>
+								<a href="/admin/plugins">Plugins</a>
+							</li>
+							<li>
+								<a href="/admin/email">E-mail Queue</a>
+							</li>
 						</#if>
 						<#if user.getGroup().isAdminModules()>
-						<li>
-							<a href="/admin/modules">Modules</a>
-						</li>
+							<li>
+								<a href="/admin/modules">Modules</a>
+							</li>
 						</#if>
 						<#if user.getGroup().isAdminQuestions()>
-						<li>
-							<a href="/admin/questions">Questions</a>
-						</li>
+							<li>
+								<a href="/admin/questions">Questions</a>
+							</li>
 						</#if>
 						<#if user.getGroup().isAdminUsers()>
-						<li>
-							<a href="/admin/users">Users</a>
-						</li>
-						<li>
-							<a href="/admin/groups">Groups</a>
-						</li>
-						<li>
-							<a href="/admin/mass_enrollment">Mass-Enrollment</a>
-						</li>
+							<li>
+								<a href="/admin/users">Users</a>
+							</li>
+							<li>
+								<a href="/admin/groups">Groups</a>
+							</li>
+							<li>
+								<a href="/admin/mass_enrollment">Mass-Enrollment</a>
+							</li>
 						</#if>
 						<#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>
-						<li>
-							<a href="/marking">Marking</a>
-						</li>
+							<li>
+								<a href="/marking">Marking</a>
+							</li>
 						</#if>
 						<#if user.getGroup().isAdminModules()>
-						<li>
-							<a href="/admin/stats">Stats</a>
-						</li>
+							<li>
+								<a href="/admin/stats">Stats</a>
+							</li>
 						</#if>
 					</ul>
 				</li>

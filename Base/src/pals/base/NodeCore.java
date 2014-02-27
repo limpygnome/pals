@@ -27,8 +27,8 @@
 */
 package pals.base;
 
-import pals.rmi.RMI_DefaultServer;
-import pals.rmi.RMI;
+import pals.base.rmi.RMI_DefaultServer;
+import pals.base.rmi.RMI;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;

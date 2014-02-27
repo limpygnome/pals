@@ -25,7 +25,7 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.rmi;
+package pals.base.rmi;
 
 import java.rmi.*;
 import pals.base.UUID;

@@ -47,13 +47,14 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.fileupload.util.Streams;
-import pals.rmi.RMI_Interface;
+import pals.base.rmi.RMI_Interface;
 import pals.base.Settings;
 import pals.base.SettingsException;
 import pals.base.Storage;
 import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
 import pals.base.web.UploadedFile;
+import pals.base.rmi.SSL_Factory;
 
 /**
  * The servlet for handling web-requests to the PALS system.
@@ -154,7 +155,14 @@ public class PALS_Servlet extends HttpServlet
             }
 
             // Communicate to node using RMI
-            Registry r = LocateRegistry.getRegistry(settings.getStr("rmi/ip"), settings.getInt("rmi/port"), new SslRMIClientSocketFactory());
+            // -- Setup the socket and connect
+            SSL_Factory sfact = PALS_SettingsListener.getRMISockFactory();
+            Registry r;
+            if(sfact != null)
+                r = LocateRegistry.getRegistry(settings.getStr("rmi/ip"), settings.getInt("rmi/port"), sfact);
+            else
+                r = LocateRegistry.getRegistry(settings.getStr("rmi/ip"), settings.getInt("rmi/port"));
+            // -- Bind to our version of the interface
             RMI_Interface ri = (RMI_Interface)r.lookup(RMI_Interface.class.getName());
             RemoteResponse dataResponse = ri.handleWebRequest(dataRequest);
             

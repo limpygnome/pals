@@ -388,32 +388,44 @@ body
 	margin: 0.5em !important;
 	padding: 0.5em;
 }
-.layout_body .success li, .layout_body .error li, .layout_body .warning li, .layout_body .info li
+.layout_body .success ul, .layout_body .error ul, .layout_body .warning ul, .layout_body .info ul
 {
-	margin-left: 1em;
+	margin: 0em;
 }
 .layout_body .success
 {
 	border: solid 0.2em #060;
 	background: #9F9;
+}
+.layout_body .success, .layout_body .success a
+{
 	color: #060;
 }
 .layout_body .warning
 {
 	background: #FF9;
-	color: #C90;
 	border: solid 0.2em #C90;
+}
+.layout_body .warning, .layout_body .warning a
+{
+	color: #C90;
 }
 .layout_body .info
 {
 	background: #9CF;
-	color: #06C;
 	border: solid 0.2em #06C;
+}
+.layout_body .info, .layout_body .info a
+{
+	color: #06C;
 }
 .layout_body .error
 {
 	border: solid 0.2em #F00;
 	background: #FCC;
+}
+.layout_body .error, .layout_body .error a
+{
 	color: #F00;
 }
 /* Modules */
@@ -430,7 +442,7 @@ body
 .layout_body .content .table3.modules tr th:nth-child(6),
 .layout_body .content .table3.modules tr td:nth-child(6)
 {
-	width: 8em;
+	width: 10em;
 }
 .layout_body .content .modules tr td:nth-child(1),
 .layout_body .content .modules_admin tr td:nth-child(1),
@@ -454,7 +466,7 @@ body
 .layout_body .content .table3.modules_admin tr th:nth-child(4),
 .layout_body .content .table3.modules_admin tr td:nth-child(4)
 {
-	width: 24em;
+	width: 26em;
 }
 /* Admin ~ Questions */
 .layout_body .table3.questions tr th:nth-child(1),

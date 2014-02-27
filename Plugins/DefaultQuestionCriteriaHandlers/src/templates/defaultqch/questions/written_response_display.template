@@ -1,10 +1,8 @@
 <p>
     ${text?html}
 </p>
-<#if answer?has_content && answer.length() > 0>
-    <p class="tac">
-        <b>Answer:</b>
-    </p>
+<#if answer??>
+    <h3 class="tac">Answer</h3>
     <p>
         ${answer?html}
     </p>

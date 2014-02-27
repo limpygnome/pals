@@ -25,15 +25,13 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.rmi;
+package pals.base.rmi;
 
 import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
-import javax.rmi.ssl.SslRMIServerSocketFactory;
 import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
@@ -52,6 +50,7 @@ public class RMI
     private Registry                registry;
     private final RMI_Interface     serverInstance;
     private HashMap<UUID,RMI_Host>  hosts;
+    private SSL_Factory             sockFactory;
     // Methods - Constructors **************************************************
     public RMI(NodeCore core, Connector conn, int port, RMI_Interface serverInstance)
     {
@@ -64,13 +63,10 @@ public class RMI
         String  keystorePath = core.getSettings().getStr("rmi/keystore/path"),
                 keystorePassword = core.getSettings().getStr("rmi/keystore/password");
         if(keystorePath != null && keystorePassword != null)
-        {
-            System.setProperty("javax.net.ssl.keyStore", keystorePath);
-            System.setProperty("javax.net.ssl.keyStorePassword", keystorePassword);
-            
-            System.setProperty("javax.net.ssl.trustStore", keystorePath);
-            System.setProperty("javax.net.ssl.trustStorePassword", keystorePassword);
-        }
+            sockFactory = new SSL_Factory(keystorePath, keystorePassword);
+        else
+            sockFactory = null;
+        
     }
     // Methods - Hosts *********************************************************
     /**
@@ -151,6 +147,7 @@ public class RMI
     {
         return hosts.values().toArray(new RMI_Host[hosts.size()]);
     }
+    // Methods - RMI Connections ***********************************************
     /**
      * Fetches an instance of an RMI_Interface for inter-node communication.
      * 
@@ -163,8 +160,27 @@ public class RMI
      */
     public synchronized RMI_Interface fetchRMIConnection(String host, int port) throws NotBoundException, RemoteException
     {
-        Registry r = LocateRegistry.getRegistry(host, port, new SslRMIClientSocketFactory());
+        Registry r = sockFactory != null ? LocateRegistry.getRegistry(host, port, sockFactory) : LocateRegistry.getRegistry(host, port); //new SslRMIClientSocketFactory());
         return (RMI_Interface)r.lookup(RMI_Interface.class.getName());
+    }
+    /**
+     * Creates an RMI registry / server connection.
+     * 
+     * @param port The port on which the registry will listen.
+     * @return An instance of a registry or null.
+     */
+    public synchronized Registry fetchRMIServerConnection(int port)
+    {
+        try
+        {
+            Registry r = sockFactory != null ? LocateRegistry.createRegistry(port, sockFactory, sockFactory) : LocateRegistry.createRegistry(port);;
+            r.bind(RMI_Interface.class.getName(), serverInstance);
+            return r;
+        }
+        catch(RemoteException | AlreadyBoundException ex)
+        {
+            return null;
+        }
     }
     // Methods *****************************************************************
     /**
@@ -175,18 +191,9 @@ public class RMI
     {
         if(registry != null)
             return false;
-        try
-        {
-            registry = LocateRegistry.createRegistry(port, new SslRMIClientSocketFactory(), new SslRMIServerSocketFactory());;//LocateRegistry.createRegistry(port);
-            registry.bind(RMI_Interface.class.getName(), serverInstance);
-            return true;
-        }
-        catch(RemoteException | AlreadyBoundException ex)
-        {
-            if(registry != null)
-                disposeRegistry();
+        if((registry = fetchRMIServerConnection(port)) == null)
             return false;
-        }
+        return true;
     }
     /**
      * Stops and disposes the RMI service.
@@ -195,15 +202,20 @@ public class RMI
     {
         if(registry == null)
             return;
-        disposeRegistry();
+        disposeRegistry(registry);
+        registry = null;
     }
-    private void disposeRegistry()
+    /**
+     * Disposes a registry / RMI server connection.
+     * 
+     * @param r The registry to be disposed.
+     */
+    public void disposeRegistry(Registry r)
     {
         try
         {
-            UnicastRemoteObject.unexportObject(registry, true);
+            UnicastRemoteObject.unexportObject(r, true);
         }
         catch(NoSuchObjectException ex) {}
-        registry = null;
     }
 }
