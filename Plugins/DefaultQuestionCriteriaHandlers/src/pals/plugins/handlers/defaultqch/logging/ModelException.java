@@ -41,6 +41,8 @@ import pals.base.database.Result;
 /**
  * A model used for creating and retrieving information regarding instances of
  * exceptions, from assignment-questions.
+ * 
+ * Used by the stats system.
  */
 public class ModelException
 {

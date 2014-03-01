@@ -29,6 +29,7 @@ package pals.plugins.handlers.defaultqch.questions;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.TreeMap;
 import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
@@ -128,31 +129,18 @@ public class CodeJava
                         data.setTemplateData("error", "Temporary web upload missing.");
                         break;
                     case Success:
-                        // Check if we need to compile any code
-                        if(qdata.codeSize() > 0)
+                        // Persist the model
+                        q.setData(qdata);
+                        Question.PersistStatus psq = q.persist(data.getConnector());
+                        switch(psq)
                         {
-                            CompilerResult cr = Utils.compile(data.getCore(), qPath, qdata.getCodeMap());
-                            CompilerResult.CompileStatus cs = cr.getStatus();
-                            if(cs != CompilerResult.CompileStatus.Success)
-                            {
-                                data.setTemplateData("error", cs.getText());
-                                data.setTemplateData("error_messages", cr.getCodeErrors());
-                            }
+                            default:
+                                data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
+                                break;
+                            case Success:
+                                data.setTemplateData("success", "Successfully updated question.");
+                                break;
                         }
-                        // Re-persist the question
-                        if(!data.containsTemplateData("error"))
-                        {
-                            q.setData(qdata);
-                            Question.PersistStatus psq = q.persist(data.getConnector());
-                            switch(psq)
-                            {
-                                default:
-                                    data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
-                                case Success:
-                                    data.setTemplateData("success", "Successfully updated question.");
-                            }
-                        }
-                        break;
                 }
             }
         }
@@ -286,7 +274,10 @@ public class CodeJava
             // Check an error has not occurred...
             if(!kvs.containsKey("error") && compile)
             {
-                CompilerResult cr = Utils.compile(data.getCore(), Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq), adata.getCodeMap());
+                // Copy question code, if available
+                TreeMap<String,String> compileCode = CodeJava_Shared.copyCode(qdata, adata);
+                // Compile the code
+                CompilerResult cr = Utils.compile(data.getCore(), Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq), compileCode);
                 // Update the model's status
                 adata.setCompileStatus(cr.getStatus());
                 // Handle the compile result
@@ -396,8 +387,10 @@ public class CodeJava
                     // Check if to compile
                     if(compile != null && compile.equals("1"))
                     {
+                        // Copy question code, if available
+                        TreeMap<String,String> compileCode = CodeJava_Shared.copyCode(qdata, adata);
                         // -- If fails, set answered to false.
-                        CompilerResult cr = Utils.compile(data.getCore(), Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq), adata.getCodeMap());
+                        CompilerResult cr = Utils.compile(data.getCore(), Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq), compileCode);
                         // Update the model's status
                         adata.setCompileStatus(cr.getStatus());
                         // Handle the compile result

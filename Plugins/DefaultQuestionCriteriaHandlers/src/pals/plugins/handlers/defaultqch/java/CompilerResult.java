@@ -119,7 +119,7 @@ public class CompilerResult
         for(int i = 0; i < arr.size(); i++)
         {
             d = arr.get(i);
-            buffer[i] = new CodeError(d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
+            buffer[i] = new CodeError(((CompilerObjectMemory)d.getSource()).getClassNameFull(), d.getMessage(Locale.getDefault()), (int)d.getLineNumber(), (int)d.getColumnNumber());
         }
         return buffer;
     }

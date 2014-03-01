@@ -67,7 +67,7 @@
     <h3>Compile Errors</h3>
     <#list error_messages as msg>
         <p class="error">
-            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
+            ${msg.getClassName()?html} : line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
         </p>
     </#list>
 </#if>

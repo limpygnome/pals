@@ -126,7 +126,7 @@ public class PALS_Servlet extends HttpServlet
                         {
                             file = new File(
                                     Storage.getPath_tempWebFile(settings.getStr("storage/path"), request.getRemoteAddr())
-                            );
+                            ).getCanonicalFile();
                             // Write data to disk
                             size = 0;
                             fos = new FileOutputStream(file);

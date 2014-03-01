@@ -112,33 +112,29 @@
 <p>
     When code fragment mode is enabled, only single classes can be
     provided. For multiple classes, use code-upload; this will allow students
-    to upload zip files with code.
+    to upload files with code, including zip archives.
 </p>
-
 <p>
     The white-list can be left to be disabled; this will not affect
     security. The white-list is intended to restrict students to a set of
     classes.
 </p>
-
 <p>
     Test files are copied to instances of questions; if a file exists, it will be
-    overwritten. These files will not be revealed to the students.
+    overwritten. These files will not be revealed to the students. Code will also be
+    inserted into the compilation of their code, with existing classes overwritten. You
+    should therefore ensure your code is error-free, or students may be unable to compile
+    their code.
+</p>
+<p>
+    You can therefore test your own test-code, which may be useful for testing student code
+    in a way not covered by this system.
 </p>
 
 <#if error??>
     <p class="error">
         ${error}
     </p>
-</#if>
-
-<#if error_messages?? && error_messages?has_content>
-    <h3>Compile Errors</h3>
-    <#list error_messages as msg>
-        <p class="error">
-            Line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
-        </p>
-    </#list>
 </#if>
 
 <#if success??>

@@ -424,4 +424,22 @@ public class CodeJava_Shared implements Serializable
         }
         return true;
     }
+    /**
+     * Copies code from a src to dest class inheriting this class.
+     * 
+     * @param src The source class with code.
+     * @param dest The destination class to which src code will be copied.
+     * @return The new collection of code, for compilation.
+     */
+    public static TreeMap<String,String> copyCode(CodeJava_Shared src, CodeJava_Shared dest)
+    {
+        TreeMap<String,String> map = new TreeMap<>();
+        // Copy dest code
+        for(Map.Entry<String,String> kv : dest.code.entrySet())
+            map.put(kv.getKey(), kv.getValue());
+        // Copy src code
+        for(Map.Entry<String,String> kv : src.code.entrySet())
+            map.put(kv.getKey(), kv.getValue());
+        return map;
+    }
 }

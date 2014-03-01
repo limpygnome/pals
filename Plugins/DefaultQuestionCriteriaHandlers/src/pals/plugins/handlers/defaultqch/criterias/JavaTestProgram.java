@@ -34,7 +34,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Storage;
