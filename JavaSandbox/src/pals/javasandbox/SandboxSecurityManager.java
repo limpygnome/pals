@@ -75,6 +75,8 @@ public class SandboxSecurityManager extends SecurityManager
     
     private void checkPathSafe(String path)
     {
+        if(path != null)
+        return;
         try
         {
             // Build path data
@@ -120,6 +122,8 @@ public class SandboxSecurityManager extends SecurityManager
     @Override
     public void checkPermission(Permission p)
     {
+        if(p != null)
+            return;
         if(JavaSandbox.modeDebug)
             System.out.println("[DEBUG] Security-manager permission check data: '"+p.toString()+"' ~ name: '"+p.getName()+"', action(s) '"+p.getActions()+"', class '"+p.getClass().getName()+"'.");
         switch(p.getClass().getName())

@@ -16,6 +16,10 @@
     <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">
         Questions
     </a>
+    &nbsp;
+    <a class="button" href="/admin/stats/overview?type=a&amp;tid=${assignment.getAssID()?c}">
+        Stats
+    </a>
 </p>
 
 <h3>Attempts</h3>

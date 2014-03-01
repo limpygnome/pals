@@ -34,6 +34,8 @@ import pals.base.NodeCore;
 import pals.base.assessment.Module;
 import pals.base.auth.User;
 import pals.base.auth.UserGroup;
+import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
 import pals.base.utils.Misc;
 import pals.base.web.Email;
 import pals.base.web.UploadedFile;
@@ -120,11 +122,34 @@ public abstract class Parser
      * Parses a file to apply an action to a set of users.
      * 
      * @param action The action to be applied.
-     * @param conn Database connector.
+     * @param data The data for the current web-request.
      * @param file The file of user data.
      * @return Indicates the general success of the operation.
      */
     public abstract Result parse(Action action, WebRequestData data, UploadedFile file);
+    /**
+     * Constructs a file, which can be later parsed.
+     * 
+     * @param conn Database connector.
+     * @return The string data constructed.
+     */
+    public abstract String construct(Connector conn, int moduleid, int groupid);
+    protected pals.base.database.Result constructFetchData(Connector conn, int moduleid, int groupid)
+    {
+        try
+        {
+            if(moduleid < 0 && groupid < 0)
+                return conn.read("SELECT u.username, u.email FROM pals_users AS u ORDER BY u.username ASC;");
+            else if(moduleid >= 0)
+                return conn.read("SELECT u.username, u.email FROM pals_users AS u WHERE u.userid IN (SELECT userid FROM pals_modules_enrollment WHERE moduleid=?) ORDER BY u.username ASC;", moduleid);
+            else
+                return conn.read("SELECT u.username, u.email FROM pals_users AS u WHERE u.groupid=? ORDER BY u.username ASC;", groupid);
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
+    }
     // Methods *****************************************************************
     protected void applyAction(Action action, WebRequestData data, String username, String email, String password)
     {

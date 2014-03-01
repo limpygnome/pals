@@ -41,12 +41,14 @@ public class ModelUser
 {
     // Fields ******************************************************************
     private int     userid;
-    private String  username;
+    private String  username,
+                    email;
     // Methods - Constructors **************************************************
-    public ModelUser(int userid, String username)
+    public ModelUser(int userid, String username, String email)
     {
         this.userid = userid;
         this.username = username;
+        this.email = email;
     }
     // Methods - Persistence ***************************************************
     /**
@@ -62,9 +64,9 @@ public class ModelUser
         {
             Result res;
             if(filter != null && filter.length() > 0)
-                res = conn.read("SELECT userid, username FROM pals_users WHERE username ORDER BY username ASC LIKE ? LIMIT ? OFFSET ?;", "%"+filter.replace("%", "")+"%", amount, offset);
+                res = conn.read("SELECT userid, username, email FROM pals_users WHERE username LIKE ? OR email LIKE ? ORDER BY username ASC LIMIT ? OFFSET ?;", "%"+filter.replace("%", "")+"%", "%"+filter.replace("%", "")+"%", amount, offset);
             else
-                res = conn.read("SELECT userid, username FROM pals_users ORDER BY username ASC LIMIT ? OFFSET ?;", amount, offset);
+                res = conn.read("SELECT userid, username, email FROM pals_users ORDER BY username ASC LIMIT ? OFFSET ?;", amount, offset);
             ArrayList<ModelUser> buffer = new ArrayList<>();
             ModelUser t;
             while(res.next())
@@ -109,7 +111,7 @@ public class ModelUser
     {
         try
         {
-            return new ModelUser((int)res.get("userid"), (String)res.get("username"));
+            return new ModelUser((int)res.get("userid"), (String)res.get("username"), (String)res.get("email"));
         }
         catch(DatabaseException ex)
         {
@@ -130,5 +132,12 @@ public class ModelUser
     public String getUsername()
     {
         return username;
+    }
+    /**
+     * @return The user's e-mail.
+     */
+    public String getEmail()
+    {
+        return email;
     }
 }

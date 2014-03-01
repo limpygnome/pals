@@ -46,6 +46,7 @@ import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
+import pals.base.web.RemoteResponse;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.base.web.security.Escaping;
@@ -674,12 +675,14 @@ public class Modules extends Plugin
         ModelAssHighest[] models = ModelAssHighest.load(data.getConnector(), ass);
         // Setup the page based on display type
         String type = data.getRequestData().getField("type");
+        RemoteResponse resp = data.getResponseData();
         switch(page)
         {
             case "print_off.csv":
                 data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Highest Marks");
                 data.setTemplateData("pals_page", "modules/page_admin_module_assignment_csv");
-                data.getResponseData().setResponseType("text/csv");
+                resp.setResponseType("text/csv");
+                resp.setHeader("Content-Disposition", "attachment; filename=marks.csv");
                 break;
             case "print_off.print":
                 data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle())+" - Assignments - " + Escaping.htmlEncode(ass.getTitle()) + " - Highest Marks");

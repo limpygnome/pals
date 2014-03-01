@@ -43,6 +43,7 @@ import java.util.Map;
  */
 public class RemoteRequest implements Serializable
 {
+    static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String                              ipaddr;         // The user's IP address.
     private String                              sessionID;      // The user's session identifier.

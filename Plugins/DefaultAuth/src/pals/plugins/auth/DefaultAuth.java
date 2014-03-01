@@ -43,10 +43,13 @@ import pals.base.assessment.Module;
 import pals.base.auth.User;
 import pals.base.auth.UserGroup;
 import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 import pals.base.utils.JarIO;
 import pals.base.utils.Misc;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
+import pals.base.web.RemoteResponse;
 import pals.base.web.UploadedFile;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
@@ -615,86 +618,121 @@ public class DefaultAuth extends Plugin
     private boolean pageAdmin_massEnrollment(WebRequestData data)
     {
         RemoteRequest req = data.getRequestData();
+        // -- Shared
         UploadedFile file = req.getFile("enroll_data");
-        String postback = req.getField("postback");
+        String rawEnrollAType = req.getField("enroll_atype");
         String rawEnrollFormat = req.getField("enroll_format");
-        String rawEnrollAction = req.getField("enroll_action");
         String rawEnrollModule = req.getField("enroll_module");
         String rawEnrollGroup = req.getField("enroll_group");
-        // Check for file postback
-        if(postback != null && postback.equals("1"))
+        // -- Enrollment
+        String rawEnrollAction = req.getField("enroll_action");
+        // -- Download
+        String rawEnrollSrc = req.getField("enroll_src");
+        // Check for postback
+        if(rawEnrollAType != null)
         {
-            // Parse data
-            int     enrollFormat = Misc.parseInt(rawEnrollFormat, -1),
-                    enrollModule = Misc.parseInt(rawEnrollModule, -1),
-                    enrollGroup = Misc.parseInt(rawEnrollGroup, -1);
-            Parser.Action enrollAction = Parser.Action.parse(rawEnrollAction);
-            // Validate data
-            if(!CSRF.isSecure(data))
-                data.setTemplateData("error", "Invalid request; please try again or contact an administrator.");
-            else if(!Captcha.isCaptchaCorrect(data))
-                data.setTemplateData("error", "Incorrect capcha verification code.");
-            else if(file == null || file.getSize() <= 0)
-                data.setTemplateData("error", "No file uploaded.");
-            else if(enrollFormat < 1 || enrollFormat > 2)
-                data.setTemplateData("error", "Invalid format.");
-            else if(enrollAction == null)
-                data.setTemplateData("error", "Invalid action.");
-            else if(enrollGroup == -1)
-                data.setTemplateData("error", "Invalid user-group specified.");
-            else
+            // Parse delimiter
+            int enrollFormat = Misc.parseInt(rawEnrollFormat, -1);
+            String delimiter, contentType, extension;
+            switch(enrollFormat)
             {
-                Module m = null;
-                UserGroup ug;
-                // Load required models
-                if(enrollModule != -1 && (m = Module.load(data.getConnector(), enrollModule)) == null)
-                    data.setTemplateData("error", "Invalid module; could not be found or loaded.");
-                else if((ug = UserGroup.load(data.getConnector(), enrollGroup)) == null)
-                    data.setTemplateData("error", "Invalid user-group; could not be found or loaded.");
+                case 1:
+                    delimiter = ",";
+                    contentType = "text/csv";
+                    extension = "csv";
+                    break;
+                case 2:
+                    delimiter = "\t";
+                    contentType = "text/tab-separated-values"; // http://www.rfc-editor.org/rfc/rfc4180.txt
+                    extension = "txt";
+                    break;
+                default:
+                    return false;
+            }
+            // Handle type
+            if(rawEnrollAType.equals("1"))
+            {
+                // Parse data
+                int     enrollModule = Misc.parseInt(rawEnrollModule, -1),
+                        enrollGroup = Misc.parseInt(rawEnrollGroup, -1);
+                Parser.Action enrollAction = Parser.Action.parse(rawEnrollAction);
+                // Validate data
+                if(!CSRF.isSecure(data))
+                    data.setTemplateData("error", "Invalid request; please try again or contact an administrator.");
+                else if(!Captcha.isCaptchaCorrect(data))
+                    data.setTemplateData("error", "Incorrect capcha verification code.");
+                else if(file == null || file.getSize() <= 0)
+                    data.setTemplateData("error", "No file uploaded.");
+                else if(enrollFormat < 1 || enrollFormat > 2)
+                    data.setTemplateData("error", "Invalid format.");
+                else if(enrollAction == null)
+                    data.setTemplateData("error", "Invalid action.");
+                else if(enrollGroup == -1)
+                    data.setTemplateData("error", "Invalid user-group specified.");
                 else
                 {
-                    String delimiter;
-                    switch(enrollFormat)
+                    Module m = null;
+                    UserGroup ug;
+                    // Load required models
+                    if(enrollModule != -1 && (m = Module.load(data.getConnector(), enrollModule)) == null)
+                        data.setTemplateData("error", "Invalid module; could not be found or loaded.");
+                    else if((ug = UserGroup.load(data.getConnector(), enrollGroup)) == null)
+                        data.setTemplateData("error", "Invalid user-group; could not be found or loaded.");
+                    else
                     {
-                        case 1:
-                            delimiter = ",";
-                            break;
-                        case 2:
-                            delimiter = "\t";
-                            break;
-                        default:
-                            return false;
+                        // Create and parse data
+                        Parser p = new DelimiterParser(delimiter, data.getCore(), this, m, ug);
+                        Parser.Result res = p.parse(enrollAction, data, file);
+                        switch(res)
+                        {
+                            case Error:
+                                data.setTemplateData("error", "An error occurred parsing the data; please try again or contact an administrator.");
+                                break;
+                            case Header_Missing_Email:
+                                data.setTemplateData("error", "Missing e-mail header.");
+                                break;
+                            case Header_Missing_Username:
+                                data.setTemplateData("error", "Missing username header.");
+                                break;
+                            case Invalid_Data:
+                                data.setTemplateData("error", "File is invalid/malformed and cannot be parsed.");
+                                break;
+                            case Success:
+                                data.setTemplateData("success", "Successfully parsed file and applied action.");
+                                break;
+                        }
+                        data.setTemplateData("errors", p.getErrors());
+                        data.setTemplateData("messages", p.getMessages());
                     }
-                    // Create and parse data
-                    Parser p = new DelimiterParser(delimiter, data.getCore(), this, m, ug);
-                    Parser.Result res = p.parse(enrollAction, data, file);
-                    switch(res)
-                    {
-                        case Error:
-                            data.setTemplateData("error", "An error occurred parsing the data; please try again or contact an administrator.");
-                            break;
-                        case Header_Missing_Email:
-                            data.setTemplateData("error", "Missing e-mail header.");
-                            break;
-                        case Header_Missing_Username:
-                            data.setTemplateData("error", "Missing username header.");
-                            break;
-                        case Invalid_Data:
-                            data.setTemplateData("error", "File is invalid/malformed and cannot be parsed.");
-                            break;
-                        case Success:
-                            data.setTemplateData("success", "Successfully parsed file and applied action.");
-                            break;
-                    }
-                    data.setTemplateData("errors", p.getErrors());
-                    data.setTemplateData("messages", p.getMessages());
                 }
+                data.setTemplateData("enroll_format", enrollFormat);
+                data.setTemplateData("enroll_group", enrollGroup);
+                data.setTemplateData("enroll_module", enrollModule);
+                if(enrollAction != null)
+                    data.setTemplateData("enroll_action", enrollAction.getFormVal());
             }
-            data.setTemplateData("enroll_format", enrollFormat);
-            data.setTemplateData("enroll_group", enrollGroup);
-            data.setTemplateData("enroll_module", enrollModule);
-            if(enrollAction != null)
-                data.setTemplateData("enroll_action", enrollAction.getFormVal());
+            else if(rawEnrollAType.equals("2"))
+            {
+                // Download data
+                Result res = null;
+                if(rawEnrollSrc != null)
+                {
+                    int     src = Misc.parseInt(rawEnrollSrc, -1),
+                            module = src == 2 ? Misc.parseInt(rawEnrollModule, -1) : -1,
+                            group = src == 3 ? Misc.parseInt(rawEnrollGroup, -1) : -1;
+                    // Construct data
+                    Parser p = new DelimiterParser(delimiter, data.getCore(), this, null, null);
+                    String output = p.construct(data.getConnector(), module, group);
+                    // Setup the page
+                    RemoteResponse resp = data.getResponseData();
+                    resp.setBuffer(output);
+                    resp.setResponseType(contentType);
+                    resp.setHeader("Content-Disposition", "attachment; filename=download."+extension);
+                    return true;
+                }
+                if(res == null)
+                    return false;
+            }
         }
         // Fetch modules
         Module[] modules = Module.loadAll(data.getConnector());

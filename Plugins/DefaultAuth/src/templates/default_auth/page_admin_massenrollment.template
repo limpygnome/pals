@@ -1,4 +1,9 @@
 <h2><a href="/admin">Admin</a> - <a href="/admin/mass_enrollment">Mass-Enrollment</a></h2>
+<h3>Upload</h3>
+<p>
+    Below you can upload user data to the system to apply actions to create, enroll, disenroll
+    and delete users. Refer to <a href="#notes">notes</a> section for detailed information.
+</p>
 <form method="post" action="/admin/mass_enrollment" enctype="multipart/form-data">
     <table class="table2">        
         <tr>
@@ -74,7 +79,7 @@
         </tr>
     </table>
     <input type="hidden" name="csrf" value="${csrf}" />
-    <input type="hidden" name="postback" value="1" />
+    <input type="hidden" name="enroll_atype" value="1" />
 </form>
 
 <#if error??>
@@ -111,7 +116,74 @@
     </div>
 </#if>
 
-<h3>Notes</h3>
+<h3>Download</h3>
+<p>
+    Below you can download user information from the system; this odes not include passwords,
+    since they are irreversibly stored for security.
+</p>
+<form method="post" action="/admin/mass_enrollment">
+    <table class="table2">
+        <tr>
+            <td>
+                Format:
+            </td>
+            <td>
+                <select name="enroll_format">
+                    <option value="1" <#if enroll_format?? && enroll_format==1>selected</#if>>CSV</option>
+                    <option value="2" <#if enroll_format?? && enroll_format==2>selected</#if>>Tab-Separated</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Source:
+            </td>
+            <td>
+                <select name="enroll_src">
+                    <option value="1">All</option>
+                    <option value="2">Module</option>
+                    <option value="3">User Group</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">Options</th>
+        </tr>
+        <tr>
+            <td>
+                Source Module:
+            </td>
+            <td>
+                <select name="enroll_module">
+                    <#list modules as module>
+                        <option value="${module.getModuleID()?c}" <#if enroll_module?? && enroll_module==module.getModuleID()>selected</#if>>${module.getTitle()?html}</option>
+                    </#list>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Source Group:
+            </td>
+            <td>
+                <select name="enroll_group">
+                    <#list groups as group>
+                        <option value="${group.getGroupID()?c}" <#if enroll_group?? && enroll_group==group.getGroupID()>selected</#if>>${group.getTitle()?html}</option>
+                    </#list>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <input type="submit" value="Download" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+    <input type="hidden" name="enroll_atype" value="2" />
+</form>
+
+<h3 id="notes">Notes - Enrollment</h3>
 <p>
     The first row of the file should contain the following headings, with unrecognized
     columns ignored:

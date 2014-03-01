@@ -35,7 +35,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Map;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -87,6 +86,7 @@ public class PALS_Servlet extends HttpServlet
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         ResponseType rt = ResponseType.Success;
+        Exception caughtException = null;
         try
         {
             // Check the settings have been loaded
@@ -167,6 +167,12 @@ public class PALS_Servlet extends HttpServlet
             RemoteResponse dataResponse = ri.handleWebRequest(dataRequest);
             
             // Handle response
+            // -- Transfer header data
+            if(dataResponse.isHeadersAvailable())
+            {
+                for(Map.Entry<String,String> kv : dataResponse.getHeaders().entrySet())
+                    response.setHeader(kv.getKey(), kv.getValue());
+            }
             // -- Update the session ID cookie
             Cookie cookieSess = new Cookie(SESSION_COOKIE_NAME, dataResponse.getSessionID());
             cookieSess.setPath("/");
@@ -216,16 +222,19 @@ public class PALS_Servlet extends HttpServlet
         {
             System.err.println("RMI RemoteException ~ " + ex.getMessage() + "!");
             rt = ResponseType.Error_RMI;
+            caughtException = ex;
         }
         catch(NotBoundException ex)
         {
             System.err.println("RMI NotBoundException ~ " + ex.getMessage() + "!");
             rt = ResponseType.Error_RMI;
+            caughtException = ex;
         }
         catch(SettingsException ex)
         {
             System.err.println("Settings exception ~ " + ex.getMessage() + "!");
             rt = ResponseType.Error_Settings;
+            caughtException = ex;
         }
         // Check if we have handled the response correctly, else output a message to the user
         if(rt == ResponseType.Success)
@@ -235,6 +244,7 @@ public class PALS_Servlet extends HttpServlet
         PrintWriter pw = response.getWriter();
         pw.println("<!DOCTYPE html><html><head><title>PALS - Communication Issue</title></head><body>");
         pw.println("<h1>Error</h1>");
+        // Output humam message
         switch(rt)
         {
             case Error_RMI:
@@ -253,6 +263,15 @@ public class PALS_Servlet extends HttpServlet
                 pw.println("<p>Ensure the file at WEB-INF/web.config as been correctly configured.</p>");
                 break;
         }
+        // Output debug information
+        if(caughtException != null && PALS_SettingsListener.getSettings().getBool("debug", false))
+        {
+            pw.println("<h2>Debug Data</h2>");
+            pw.println("<p>");
+            caughtException.printStackTrace(pw);
+            pw.println("</p>");
+        }
+        // Dispose and end
         pw.println("</body></html>");
         pw.flush();
         pw.close();

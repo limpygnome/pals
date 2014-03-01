@@ -12,6 +12,10 @@
     <a class="button" href="/admin/questions/${question.getQID()?c}/criteria/add">
         Add New Criteria
     </a>
+    &nbsp;
+    <a class="button" href="/admin/stats/overview?type=q&amp;tid=${question.getQID()?c}">
+        Stats
+    </a>
 </p>
 
 <h2>Criteria</h2>

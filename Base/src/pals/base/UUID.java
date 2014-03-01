@@ -38,6 +38,7 @@ import java.util.Random;
  */
 public class UUID implements Serializable
 {
+    static final long serialVersionUID = 1L;
     // Fields - Static *********************************************************
     private static  Random  rand = null;
     // Fields ******************************************************************

@@ -34,6 +34,7 @@ import java.io.Serializable;
  */
 public class UploadedFile implements Serializable
 {
+    static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private String  name;           // The original name of the file.
     private String  contentType;    // The content-type of the file.

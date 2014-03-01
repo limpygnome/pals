@@ -34,6 +34,8 @@ import pals.base.NodeCore;
 import pals.base.Storage;
 import pals.base.assessment.Module;
 import pals.base.auth.UserGroup;
+import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
 import pals.base.web.UploadedFile;
 import pals.base.web.WebRequestData;
 import pals.plugins.auth.DefaultAuth;
@@ -118,5 +120,27 @@ public class DelimiterParser extends Parser
         {
             return Result.Error;
         }
+    }
+    @Override
+    public String construct(Connector conn, int moduleid, int groupid)
+    {
+        StringBuilder sb = new StringBuilder();
+        // Fetch data
+        pals.base.database.Result res = constructFetchData(conn, moduleid, groupid);
+        if(res == null)
+            return "";
+        // Construct into parsable output
+        // -- Headers
+        sb.append("username,email\n");
+        // -- Data
+        try
+        {
+            while(res.next())
+                sb.append((String)res.get("username")).append(delimiter).append((String)res.get("email")).append("\n");
+        }
+        catch(DatabaseException ex)
+        {
+        }
+        return sb.toString();
     }
 }

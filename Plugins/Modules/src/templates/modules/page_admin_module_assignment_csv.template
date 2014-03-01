@@ -1,4 +1,5 @@
 <#if models?has_content>
+userid,username,mark,aiid
 <#list models as m>
 "${m.getUserID()?c}","${m.getUsername()?html}","${m.getMark()?string}","<#if m.getAIID()??>${m.getAIID()?c}"<#else>-1</#if>
 </#list>

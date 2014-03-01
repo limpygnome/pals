@@ -1,6 +1,3 @@
--- Setup language for functions
-CREATE LANGUAGE plpgsql;
-
 -- The nodes used for the assessment of work and other tasks.
 CREATE TABLE pals_nodes
 (

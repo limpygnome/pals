@@ -20,6 +20,7 @@
     <tr>
         <th>ID</th>
         <th>Username</th>
+        <th>E-mail</th>
         <th>Options</th>
     </tr>
     <#if models?has_content>
@@ -30,6 +31,9 @@
                 </td>
                 <td>
                     ${m.getUsername()?html}
+                </td>
+                <td>
+                    ${m.getEmail()?html}
                 </td>
                 <td>
                     <a class="button" href="/admin/users/${m.getUserID()?c}/edit">

@@ -29,6 +29,7 @@ package pals.base.web;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 
 /**
  * A wrapper used to represent the response data for a web-request, which can be
@@ -43,18 +44,20 @@ import java.nio.charset.Charset;
  */
 public class RemoteResponse implements Serializable
 {
+    static final long serialVersionUID = 1L;
     // Fields - Constants ******************************************************
     /**
      * The default MIME response type.
      */
     public static final String DEFAULT_MIME_TYPE = "text/html;charset=UTF-8";
     // Fields ******************************************************************
-    private String  sessionID;      // Session identifier.
-    private boolean sessionPrivate; // Indicates if the user session is private, and thus should expire after a longer duration.
-    private byte[]  buffer;         // Response data to be written to the user.
-    private String  responseType;   // The MIME response type of the data.
-    private String  urlRedirect;    // Used for redirecting to a new URL.
-    private int     responseCode;   // The response status/code.
+    private String                  sessionID;      // Session identifier.
+    private boolean                 sessionPrivate; // Indicates if the user session is private, and thus should expire after a longer duration.
+    private byte[]                  buffer;         // Response data to be written to the user.
+    private String                  responseType;   // The MIME response type of the data.
+    private String                  urlRedirect;    // Used for redirecting to a new URL.
+    private int                     responseCode;   // The response status/code.
+    private HashMap<String,String>  headers;        // Any header data to be appended.
     // Methods - Constructors **************************************************
     public RemoteResponse()
     {
@@ -64,6 +67,7 @@ public class RemoteResponse implements Serializable
         this.responseType = DEFAULT_MIME_TYPE;
         this.urlRedirect = null;
         this.responseCode = 200;
+        this.headers = null;
     }
     // Methods - Mutators ******************************************************
     /**
@@ -120,6 +124,32 @@ public class RemoteResponse implements Serializable
     {
         this.responseCode = responseCode;
     }
+    /**
+     * Sets a HTTP header.
+     * 
+     * @param k The key of the header.
+     * @param v The value of the header.
+     */
+    public void setHeader(String k, String v)
+    {
+        if(headers == null)
+            headers = new HashMap<>();
+        headers.put(k, v);
+    }
+    /**
+     * Removes a header from the HTTP headers collection.
+     * 
+     * @param k The key of the header to remove.
+     */
+    public void removeHeader(String k)
+    {
+        if(headers != null)
+        {
+            headers.remove(k);
+            if(headers.isEmpty())
+                headers = null;
+        }
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The buffer of data to write to the end-user.
@@ -164,5 +194,20 @@ public class RemoteResponse implements Serializable
     public int getResponseCode()
     {
         return responseCode;
+    }
+    /**
+     * @return The HTTP headers to be set for the response; this should not be
+     * used to set data.
+     */
+    public HashMap<String,String> getHeaders()
+    {
+        return headers == null ? new HashMap<String, String>() : headers;
+    }
+    /**
+     * @return Indicates if header-data is available.
+     */
+    public boolean isHeadersAvailable()
+    {
+        return headers != null && !headers.isEmpty();
     }
 }
