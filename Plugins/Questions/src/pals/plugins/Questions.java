@@ -197,8 +197,9 @@ public class Questions extends Plugin
         TypeQuestion[] types = TypeQuestion.loadAll(data.getConnector());
         // Check postback
         RemoteRequest req = data.getRequestData();
-        String questionTitle = req.getField("question_title");
-        String questionType = req.getField("question_type");
+        String  questionTitle = req.getField("question_title"),
+                questionDesc = req.getField("question_desc"),
+                questionType = req.getField("question_type");
         if(questionTitle != null && questionType != null)
         {
             if(!CSRF.isSecure(data))
@@ -206,7 +207,7 @@ public class Questions extends Plugin
             else
             {
                 // Attempt to persist the data
-                Question q = new Question(TypeQuestion.load(data.getConnector(), UUID.parse(questionType)), questionTitle, null);
+                Question q = new Question(TypeQuestion.load(data.getConnector(), UUID.parse(questionType)), questionTitle, questionDesc, null);
                 Question.PersistStatus ps = q.persist(data.getConnector());
                 switch(ps)
                 {

@@ -11,6 +11,27 @@
             </td>
         </tr>
         <tr>
+            <th colspan="2">
+                Settings
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="q_title" value="<#if q_title??>${q_title}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Description:
+            </td>
+            <td>
+                <textarea name="q_desc" rows="3"><#if q_desc??>${q_desc}</#if></textarea>
+            </td>
+        </tr>
+        <tr>
             <td colspan="2" class="tac">
                 <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
                 <input type="submit" value="Update" />

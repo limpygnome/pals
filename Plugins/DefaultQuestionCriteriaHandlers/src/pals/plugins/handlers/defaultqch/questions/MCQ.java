@@ -37,6 +37,7 @@ import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
 import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
+import static pals.plugins.handlers.defaultqch.questions.QuestionHelper.handle_questionEditPostback;
 
 /**
  * Handles multiple-choice questions.
@@ -56,37 +57,27 @@ public class MCQ
             qdata = new MultipleChoice_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();
-        String mcText = req.getField("mc_text");
-        String mcSingleAnswer = req.getField("mc_single_answer");
-        String mcAnswers = req.getField("mc_answers");
+        String  qTitle = req.getField("q_title"),
+                qDesc = req.getField("q_desc");
+        String  mcText = req.getField("mc_text"),
+                mcSingleAnswer = req.getField("mc_single_answer"),
+                mcAnswers = req.getField("mc_answers");
         if(mcText != null && mcAnswers != null)
         {
-            // Validate request
-            if(!CSRF.isSecure(data))
-                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
-            else
-            {
-                // Update question data
-                qdata.setText(mcText);
-                qdata.setSingleAnswer(mcSingleAnswer != null && mcSingleAnswer.equals("1"));
-                qdata.setAnswers(mcAnswers.replace("\r", "").split("\n"));
-                // Persist the model
-                q.setData(qdata);
-                Question.PersistStatus psq = q.persist(data.getConnector());
-                switch(psq)
-                {
-                    default:
-                        data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
-                    case Success:
-                        data.setTemplateData("success", "Successfully updated question.");
-                }
-            }
+            // Update question data
+            qdata.setText(mcText);
+            qdata.setSingleAnswer(mcSingleAnswer != null && mcSingleAnswer.equals("1"));
+            qdata.setAnswers(mcAnswers.replace("\r", "").split("\n"));
+            // Handle the rest of the request
+            handle_questionEditPostback(data, q, qTitle, qDesc, qdata);
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit");
         data.setTemplateData("pals_content", "defaultqch/questions/multiplechoice_edit");
         // -- Fields
         data.setTemplateData("question", q);
+        data.setTemplateData("q_title", qTitle != null ? qTitle : q.getTitle());
+        data.setTemplateData("q_desc", qDesc != null ? qDesc : q.getDescription());
         data.setTemplateData("mc_text", qdata.getText());
         if((mcSingleAnswer != null && mcSingleAnswer.equals("1")) || (mcText == null && qdata.isSingleAnswer()))
             data.setTemplateData("mc_single_answer", true);

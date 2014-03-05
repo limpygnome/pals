@@ -36,6 +36,7 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.plugins.handlers.defaultqch.data.Written_Question;
+import static pals.plugins.handlers.defaultqch.questions.QuestionHelper.handle_questionEditPostback;
 
 /**
  * Handles multiple-choice questions.
@@ -50,40 +51,28 @@ public class WrittenResponse
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
         // Load question data
-        Written_Question qdata;
-        if(q.getData() != null)
-            qdata = q.getData();
-        else
+        Written_Question qdata = (Written_Question)q.getData();
+        if(qdata == null)
             qdata = new Written_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();
-        String questionText = req.getField("question_text");
+        String  qTitle = req.getField("q_title"),
+                qDesc = req.getField("q_desc");
+        String  questionText = req.getField("question_text");
         if(questionText != null)
         {
-            // Validate request
-            if(!CSRF.isSecure(data))
-                data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
-            else
-            {
-                // Update data model
-                qdata.setText(questionText);
-                // Persist the model
-                q.setData(qdata);
-                Question.PersistStatus psq = q.persist(data.getConnector());
-                switch(psq)
-                {
-                    default:
-                        data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
-                    case Success:
-                        data.setTemplateData("success", "Successfully updated question.");
-                }
-            }
+            // Update data model
+            qdata.setText(questionText);
+            // Handle the rest of the request
+            handle_questionEditPostback(data, q, qTitle, qDesc, qdata);
         }
         // Setup the page
         data.setTemplateData("pals_title", "Admin - Questions - Edit");
         data.setTemplateData("pals_content", "defaultqch/questions/written_response_edit");
         // -- Fields
         data.setTemplateData("question", q);
+        data.setTemplateData("q_title", qTitle != null ? qTitle : q.getTitle());
+        data.setTemplateData("q_desc", qDesc != null ? qDesc : q.getDescription());
         data.setTemplateData("question_text", questionText != null ? questionText : qdata.getText());
         data.setTemplateData("csrf", CSRF.set(data));
         return true;

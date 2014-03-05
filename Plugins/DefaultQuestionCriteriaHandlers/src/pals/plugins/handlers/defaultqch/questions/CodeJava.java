@@ -50,7 +50,7 @@ import pals.plugins.handlers.defaultqch.logging.ModelException;
 /**
  * Handles code-fragment questions.
  */
-public class CodeJava
+public class CodeJava extends QuestionHelper
 {
     // Constants ***************************************************************
     public static final UUID    UUID_QTYPE = UUID.parse("3b452432-d939-4e39-a450-3867655412a3");
@@ -66,10 +66,12 @@ public class CodeJava
             qdata = new CodeJava_Question();
         // Check for postback
         RemoteRequest req = data.getRequestData();
-        String mcText = req.getField("mc_text");
-        String mcType = req.getField("mc_type");
-        String mcSkeleton = req.getField("mc_skeleton");
-        String mcWhitelist = req.getField("mc_whitelist");
+        String  qTitle = req.getField("q_title"),
+                qDesc = req.getField("q_desc");
+        String  mcText = req.getField("mc_text"),
+                mcType = req.getField("mc_type"),
+                mcSkeleton = req.getField("mc_skeleton"),
+                mcWhitelist = req.getField("mc_whitelist");
         // -- Optional
         String mcReset = req.getField("mc_reset");
         UploadedFile mcUpload = req.getFile("mc_upload");
@@ -88,18 +90,8 @@ public class CodeJava
                 // Check if to reset files
                 if(mcReset != null && mcReset.equals("1"))
                     qdata.reset(new File(Storage.getPath_tempQuestion(data.getCore().getPathShared(), q)));
-                // Persist the model
-                q.setData(qdata);
-                Question.PersistStatus psq = q.persist(data.getConnector());
-                switch(psq)
-                {
-                    default:
-                        data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
-                        break;
-                    case Success:
-                        data.setTemplateData("success", "Successfully updated question.");
-                        break;
-                }
+                // Handle the rest of the request
+                handle_questionEditPostback(data, q, qTitle, qDesc, qdata);
             }
             // Check for upload
             if(!data.containsTemplateData("error") && mcUpload != null && mcUpload.getSize() > 0)
@@ -150,6 +142,8 @@ public class CodeJava
         Utils.pageHookCodeMirror_Java(data);
         // -- Fields
         data.setTemplateData("question", q);
+        data.setTemplateData("q_title", qTitle != null ? qTitle : q.getTitle());
+        data.setTemplateData("q_desc", qDesc != null ? qDesc : q.getDescription());
         data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
         data.setTemplateData("mc_type", qdata.getType().getFormValue());
         data.setTemplateData("mc_skeleton", mcSkeleton != null ? mcSkeleton : qdata.getSkeleton());

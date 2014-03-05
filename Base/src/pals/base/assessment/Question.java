@@ -50,12 +50,31 @@ public class Question
         Failed_Serialize,
         Success,
         Invalid_QuestionType,
-        Invalid_Title
+        Invalid_Title;
+        
+        public String getText(Question q)
+        {
+            switch(this)
+            {
+                default:
+                case Failed:
+                     return "Failed due to an unknown error; pelase try again or contact an administrator!";
+                case Failed_Serialize:
+                    return "Failed to serialize model; please try again or contact an administrator!";
+                case Invalid_QuestionType:
+                    return "Invalid question-type.";
+                case Invalid_Title:
+                    return "Title must be "+q.getTitleMin()+" to "+q.getTitleMax()+" characters in length!";
+                case Success:
+                    return "Updated question successfully.";
+            }
+        }
     }
     // Fields ******************************************************************
     private int             qid;
     private TypeQuestion    qtype;
-    private String          title;
+    private String          title,
+                            description;
     private Object          data;
     // Methods - Constructors **************************************************
     /**
@@ -63,20 +82,22 @@ public class Question
      */
     public Question()
     {
-        this(null, null, null);
+        this(null, null, null, null);
     }
     /**
      * Creates a new unpersisted model.
      * 
      * @param qtype Type of question.
      * @param title Title of the question.
+     * @param description The description of the question.
      * @param data The question's data.
      */
-    public Question(TypeQuestion qtype, String title, Object data)
+    public Question(TypeQuestion qtype, String title, String description, Object data)
     {
         this.qid = -1;
         this.qtype = qtype;
         this.title = title;
+        this.description = description;
         this.data = data;
     }
     // Methods - Persistence ***************************************************
@@ -154,7 +175,7 @@ public class Question
             // Read serialized object
             Object obj = Utils.loadData(core, result, "data");
             // Create and return instance
-            Question q = new Question(tq, (String)result.get("title"), obj);
+            Question q = new Question(tq, (String)result.get("title"), (String)result.get("description"), obj);
             q.qid = (int)result.get("qid");
             return q;
         }
@@ -195,11 +216,11 @@ public class Question
                 // Persist data
                 if(qid == -1)
                 {
-                    qid = (int)conn.executeScalar("INSERT INTO pals_question (uuid_qtype, title, data) VALUES(?,?,?) RETURNING qid;", qtype.getUuidQType().getBytes(), title, bdata);
+                    qid = (int)conn.executeScalar("INSERT INTO pals_question (uuid_qtype, title, description, data) VALUES(?,?,?,?) RETURNING qid;", qtype.getUuidQType().getBytes(), title, description, bdata);
                 }
                 else   
                 {
-                    conn.execute("UPDATE pals_question SET uuid_qtype=?, title=?, data=? WHERE qid=?;", qtype.getUuidQType().getBytes(), title, bdata, qid);
+                    conn.execute("UPDATE pals_question SET uuid_qtype=?, title=?, description=?, data=? WHERE qid=?;", qtype.getUuidQType().getBytes(), title, description, bdata, qid);
                 }
                 return PersistStatus.Success;
             }
@@ -249,6 +270,13 @@ public class Question
         this.title = title;
     }
     /**
+     * @param description Sets the description of this question.
+     */
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+    /**
      * @param data Serializable data, which can be used by a question-type to
      * render/handle the question.
      * @param <T> The type of data must be serializable.
@@ -285,6 +313,13 @@ public class Question
     public String getTitle()
     {
         return title;
+    }
+    /**
+     * @return A description of the question.
+     */
+    public String getDescription()
+    {
+        return description;
     }
     /**
      * @return Data used by the question-type.

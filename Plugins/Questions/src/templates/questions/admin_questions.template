@@ -15,7 +15,7 @@
 <table class="table3 questions">
     <tr>
         <th>
-            Title
+            Info
         </th>
         <th>
             Type
@@ -31,6 +31,10 @@
                     <a href="/admin/questions/${question.getQID()}">
                         ${question.getTitle()?html}
                     </a>
+                    <#if question.getDescription()??>
+                        <br />
+                        ${question.getDescription()?html}
+                    </#if>
                 </td>
                 <td>
                     ${question.getQtype().getTitle()?html}

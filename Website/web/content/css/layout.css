@@ -463,11 +463,6 @@ body
 {
 	width: 4em;
 }
-.layout_body .content .table3.modules_admin tr th:nth-child(4),
-.layout_body .content .table3.modules_admin tr td:nth-child(4)
-{
-	width: 26em;
-}
 /* Admin ~ Questions */
 .layout_body .table3.questions tr th:nth-child(1),
 .layout_body .table3.qcriteria tr th:nth-child(1)

@@ -168,6 +168,7 @@ CREATE TABLE pals_question
 	qid					SERIAL				PRIMARY KEY,
 	uuid_qtype			BYTEA				REFERENCES pals_question_types(uuid_qtype) ON UPDATE CASCADE ON DELETE RESTRICT		NOT NULL,
 	title				VARCHAR(64)			DEFAULT 'Untitled Question'		NOT NULL,
+	description			TEXT,
 	data				BYTEA
 );
 -- Criteria for assessing a question; this will be responsible for assigning marks. Any criteria parameters are stored and handled by the criteria-type.
