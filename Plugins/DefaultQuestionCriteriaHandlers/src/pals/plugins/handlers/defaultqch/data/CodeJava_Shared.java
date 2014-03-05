@@ -435,11 +435,17 @@ public class CodeJava_Shared implements Serializable
     {
         TreeMap<String,String> map = new TreeMap<>();
         // Copy dest code
-        for(Map.Entry<String,String> kv : dest.code.entrySet())
-            map.put(kv.getKey(), kv.getValue());
+        if(dest != null && dest.code != null)
+        {
+            for(Map.Entry<String,String> kv : dest.code.entrySet())
+                map.put(kv.getKey(), kv.getValue());
+        }
         // Copy src code
-        for(Map.Entry<String,String> kv : src.code.entrySet())
-            map.put(kv.getKey(), kv.getValue());
+        if(src != null && src.code != null)
+        {
+            for(Map.Entry<String,String> kv : src.code.entrySet())
+                map.put(kv.getKey(), kv.getValue());
+        }
         return map;
     }
 }

@@ -12,7 +12,7 @@
     </div>
     <div class="right">
         <#if capture_mode>
-            <a class="button" href="/assignments/instance/${assignment_instance.getAIID()?c}/submit">
+            <a onclick="return assLeave();" class="button" href="/assignments/instance/${assignment_instance.getAIID()?c}/submit">
                 Submit
             </a>
         </#if>

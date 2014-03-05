@@ -46,3 +46,9 @@
     </#if>
     <input type="hidden" name="csrf" value="${csrf}" />
 </form>
+
+<#if capture_mode>
+    <script>
+        assLoad();
+    </script>
+</#if>

@@ -14,7 +14,7 @@
             Options:
         </td>
         <td>
-            <input type="checkbox" name="codejava_${aqid?c}_compile" value="1" /> Compile on save.    <br />
+            <input type="checkbox" name="codejava_${aqid?c}_compile" value="1" checked /> Compile on save.    <br />
             <input type="checkbox" name="codejava_${aqid?c}_reset" value="1" /> Reset to skeleton.    <br />
         </td>
     </tr>

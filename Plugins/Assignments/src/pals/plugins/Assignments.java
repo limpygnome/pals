@@ -366,6 +366,8 @@ public class Assignments extends Plugin
             data.setTemplateData("questions", qdata);
             data.setTemplateData("current_page", page);
             data.setTemplateData("can_mark", data.getUser().getGroup().isMarkerGeneral() || data.getUser().getGroup().isAdminModules());
+            // -- Hook JS
+            data.appendHeaderJS("/content/js/assignment.js");
         }
         return true;
     }

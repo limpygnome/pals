@@ -280,6 +280,7 @@ public class JavaTestInputs
         // Wait for the process to terminate
         long timeoutL = System.currentTimeMillis()+(long)timeout;
         char[] cbuffer = new char[1024];
+        String line;
         int cbufferRead;
         while(!proc.hasExited())
         {
@@ -294,14 +295,27 @@ public class JavaTestInputs
                 // Read more output
                 try
                 {
-                    while((cbufferRead = br.read(cbuffer)) != -1)
-                        buffer.append(cbuffer, 0, cbufferRead);
+                    while((line = br.readLine()) != null)
+                    {
+                        if(line.equals("javasandbox-end-of-program"))
+                        {
+                            // Inform the sandbox we're happy for it to end - this can be anything
+                            proc.getProcess().getOutputStream().write(0);
+                            // As a fail-safe...we no longer need the process...
+                            proc.getProcess().destroy();
+                            break;
+                        }
+                        else
+                            buffer.append(line).append('\n');
+                    }
+//                    while((cbufferRead = br.read(cbuffer)) != -1)
+//                        buffer.append(cbuffer, 0, cbufferRead);
                 }
                 catch(IOException ex)
                 {
                 }
                 // Sleep...
-                Thread.sleep(10);
+                Thread.sleep(1);
             }
             catch(InterruptedException ex) {}
         }
