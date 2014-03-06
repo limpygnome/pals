@@ -30,6 +30,12 @@
     </p>
 </#if>
 
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
 <table class="table3 dqch_view">
     <tr>
         <th>Date</th>
@@ -65,7 +71,7 @@
 
 <p class="tac">
     <#if page_prev??>
-        <a class="button fl" href="/admin/stats/view?ecid=${ec.getECID()?c}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
+        <a class="button fl" href="/admin/stats/view?ecid=${ec.getECID()?c}&amp;page=${page_prev}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
             Prev
         </a>
     </#if>
@@ -73,7 +79,7 @@
     Page ${page}
 
     <#if page_next??>
-        <a class="button fr" href="/admin/stats/view?ecid=${ec.getECID()?c}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
+        <a class="button fr" href="/admin/stats/view?ecid=${ec.getECID()?c}&amp;page=${page_next}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
             Next
         </a>
     </#if>

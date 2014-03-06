@@ -247,6 +247,8 @@ public class Stats extends Plugin
         {
             if(!ModelExceptionClass.persistHint(data.getConnector(), hint, ecid))
                 data.setTemplateData("error", "Unable to update hint.");
+            else
+                data.setTemplateData("success", "Updated hint.");
         }
         // -- Check if to clear data
         boolean doClear = clear != null && clear.equals("1") && csrf;
