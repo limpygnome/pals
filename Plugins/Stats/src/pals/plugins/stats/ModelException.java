@@ -25,7 +25,7 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.plugins.handlers.defaultqch.logging;
+package pals.plugins.stats;
 
 import java.util.ArrayList;
 import java.util.Date;

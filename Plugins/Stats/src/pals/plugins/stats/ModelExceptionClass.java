@@ -25,7 +25,7 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.plugins.handlers.defaultqch.logging;
+package pals.plugins.stats;
 
 import java.util.ArrayList;
 import pals.base.assessment.Assignment;
@@ -44,7 +44,8 @@ public class ModelExceptionClass
     // Fields ******************************************************************
     private int     ecid;
     private long    frequency;
-    private String  className;
+    private String  className,
+                    hint;
     private boolean runtime;
     // Enums *******************************************************************
     public enum LoadRemoveFilter
@@ -69,11 +70,19 @@ public class ModelExceptionClass
         }
     }
     // Methods - Constructors **************************************************
-    private ModelExceptionClass(int ecid, long frequency, String className, boolean runtime)
+    /**
+     * Used to create an empty model for static calls from template system.
+     */
+    public ModelExceptionClass()
+    {
+        this(-1, -1, null, null, false);
+    }
+    private ModelExceptionClass(int ecid, long frequency, String className, String hint, boolean runtime)
     {
         this.ecid = ecid;
         this.frequency = frequency;
         this.className = className;
+        this.hint = hint;
         this.runtime = runtime;
     }
     // Methods - Persistence - Loading *****************************************
@@ -87,9 +96,9 @@ public class ModelExceptionClass
         try
         {
             if(lf == LoadRemoveFilter.None)
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e WHERE ec.ecid=e.ecid GROUP BY ec.ecid ORDER BY freq DESC;"));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e WHERE ec.ecid=e.ecid GROUP BY ec.ecid ORDER BY freq DESC;"));
             else
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e WHERE ec.ecid=e.ecid AND ec.runtime=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0"));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e WHERE ec.ecid=e.ecid AND ec.runtime=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0"));
         }
         catch(DatabaseException ex)
         {
@@ -107,9 +116,9 @@ public class ModelExceptionClass
         try
         {
             if(lf == LoadRemoveFilter.None)
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai, pals_assignment AS a WHERE e.ecid=ec.ecid AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? GROUP BY ec.ecid ORDER BY freq DESC;", module.getModuleID()));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai, pals_assignment AS a WHERE e.ecid=ec.ecid AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? GROUP BY ec.ecid ORDER BY freq DESC;", module.getModuleID()));
             else
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai, pals_assignment AS a WHERE e.ecid=ec.ecid AND ec.runtime=? AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0", module.getModuleID()));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai, pals_assignment AS a WHERE e.ecid=ec.ecid AND ec.runtime=? AND ai.aiid=e.aiid AND a.assid=ai.assid AND a.moduleid=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0", module.getModuleID()));
         }
         catch(DatabaseException ex)
         {
@@ -127,9 +136,9 @@ public class ModelExceptionClass
         try
         {
             if(lf == LoadRemoveFilter.None)
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai WHERE e.ecid=ec.ecid AND ai.aiid=e.aiid AND ai.assid=? GROUP BY ec.ecid ORDER BY freq DESC;", ass.getAssID()));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai WHERE e.ecid=ec.ecid AND ai.aiid=e.aiid AND ai.assid=? GROUP BY ec.ecid ORDER BY freq DESC;", ass.getAssID()));
             else
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai WHERE e.ecid=ec.ecid AND ec.runtime=? AND ai.aiid=e.aiid AND ai.assid=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0", ass.getAssID()));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_instance AS ai WHERE e.ecid=ec.ecid AND ec.runtime=? AND ai.aiid=e.aiid AND ai.assid=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0", ass.getAssID()));
         }
         catch(DatabaseException ex)
         {
@@ -147,9 +156,9 @@ public class ModelExceptionClass
         try
         {
             if(lf == LoadRemoveFilter.None)
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_questions AS aq WHERE e.ecid=ec.ecid AND aq.aqid=e.aqid AND aq.qid=? GROUP BY ec.ecid ORDER BY freq DESC;", q.getQID()));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_questions AS aq WHERE e.ecid=ec.ecid AND aq.aqid=e.aqid AND aq.qid=? GROUP BY ec.ecid ORDER BY freq DESC;", q.getQID()));
             else
-                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_questions AS aq WHERE e.ecid=ec.ecid AND ec.runtime=? AND aq.aqid=e.aqid AND aq.qid=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0", q.getQID()));
+                return load(conn, conn.read("SELECT ec.ecid, ec.class_name, ec.hint, ec.runtime, COUNT(e.ecid) AS freq FROM pals_exception_classes AS ec, pals_exceptions AS e, pals_assignment_questions AS aq WHERE e.ecid=ec.ecid AND ec.runtime=? AND aq.aqid=e.aqid AND aq.qid=? GROUP BY ec.ecid ORDER BY freq DESC;", lf == LoadRemoveFilter.FilterRuntime ? "1" : "0", q.getQID()));
         }
         catch(DatabaseException ex)
         {
@@ -192,7 +201,7 @@ public class ModelExceptionClass
         try
         {
             boolean containsFreq = res.contains("freq");
-            return new ModelExceptionClass((int)res.get("ecid"), containsFreq ? (long)res.get("freq") : 0, (String)res.get("class_name"), ((String)res.get("runtime")).equals("1"));
+            return new ModelExceptionClass((int)res.get("ecid"), containsFreq ? (long)res.get("freq") : 0, (String)res.get("class_name"), (String)res.get("hint"), ((String)res.get("runtime")).equals("1"));
         }
         catch(DatabaseException ex)
         {
@@ -209,8 +218,45 @@ public class ModelExceptionClass
     {
         try
         {
-            Result res = conn.read("SELECT ecid, class_name, runtime FROM pals_exception_classes WHERE ecid=?;", ecid);
+            Result res = conn.read("SELECT ecid, class_name, hint, runtime FROM pals_exception_classes WHERE ecid=?;", ecid);
             return res.next() ? loadSingle(conn, res) : null;
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
+    }
+    /**
+     * Persists a hint for an exception-class.
+     * 
+     * @param conn Database connector.
+     * @param hint The hint data; can be null or empty.
+     * @param ecid The identifier of the exception class.
+     * @return True = successful, false = failed.
+     */
+    public static boolean persistHint(Connector conn, String hint, int ecid)
+    {
+        try
+        {
+            conn.execute("UPDATE pals_exception_classes SET hint=? WHERE ecid=?;", hint == null || hint.length() == 0 ? null : hint, ecid);
+            return true;
+        }
+        catch(DatabaseException ex)
+        {
+            return false;
+        }
+    }
+    /**
+     * @param conn Database connector.
+     * @param className The class-name of the exception.
+     * @param runtime Indicates if the exception occurred at runtime.
+     * @return The hint associated with the class-name.
+     */
+    public static String fetchHint(Connector conn, String className, boolean runtime)
+    {
+        try
+        {
+            return (String)conn.executeScalar("SELECT hint FROM pals_exception_classes WHERE class_name=? AND runtime=?;", className, runtime ? "1" : "0");
         }
         catch(DatabaseException ex)
         {
@@ -317,6 +363,13 @@ public class ModelExceptionClass
     public String getClassName()
     {
         return className;
+    }
+    /**
+     * @return The hint associated with this exception; can be null.
+     */
+    public String getHint()
+    {
+        return hint;
     }
     /**
      * @return Indicates if this is a run-time exception.

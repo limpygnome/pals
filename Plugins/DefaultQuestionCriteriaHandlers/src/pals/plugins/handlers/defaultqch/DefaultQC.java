@@ -27,6 +27,7 @@
 */
 package pals.plugins.handlers.defaultqch;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import pals.plugins.handlers.defaultqch.questions.*;
 import pals.plugins.handlers.defaultqch.criterias.*;
@@ -37,26 +38,17 @@ import pals.base.Settings;
 import pals.base.TemplateManager;
 import pals.base.UUID;
 import pals.base.Version;
-import pals.base.WebManager;
-import pals.base.assessment.Assignment;
 import pals.base.assessment.AssignmentQuestion;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.assessment.InstanceAssignmentQuestion;
-import pals.base.assessment.Module;
 import pals.base.assessment.Question;
 import pals.base.assessment.QuestionCriteria;
 import pals.base.assessment.TypeCriteria;
 import pals.base.assessment.TypeQuestion;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
-import pals.base.web.MultipartUrlParser;
-import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
-import pals.base.web.security.CSRF;
-import pals.base.web.security.Escaping;
-import pals.plugins.handlers.defaultqch.logging.ModelException;
-import pals.plugins.handlers.defaultqch.logging.ModelExceptionClass;
 
 /**
  * A plugin for the default questions and criteria types.
@@ -256,50 +248,6 @@ public class DefaultQC extends Plugin
         return false;
     }
     @Override
-    public boolean eventHandler_registerUrls(NodeCore core, WebManager web)
-    {
-        if(!web.urlsRegister(this, new String[]{
-            "admin/stats"
-        }))
-            return false;
-        return true;
-    }
-    @Override
-    public boolean eventHandler_webRequest(WebRequestData data)
-    {
-        MultipartUrlParser mup = new MultipartUrlParser(data);
-        String page;
-        switch(mup.getPart(0))
-        {
-            case "admin":
-                page = mup.getPart(1);
-                if(page == null || data.getUser() == null || !(data.getUser().getGroup().isAdmin() || data.getUser().getGroup().isMarkerGeneral()))
-                    return false;
-                switch(page)
-                {
-                    case "stats":
-                    {
-                        page = mup.getPart(2);
-                        if(page == null)
-                            return pageStats_home(data);
-                        else
-                        {
-                            switch(page)
-                            {
-                                case "overview":
-                                    return pageStats_overview(data);
-                                case "view":
-                                    return pageStats_view(data);
-                            }
-                        }
-                        break;
-                    }
-                }
-                break;
-        }
-        return false;
-    }
-    @Override
     public String getTitle()
     {
         return "PALS: Default Question-Criteria Handler";
@@ -406,199 +354,6 @@ public class DefaultQC extends Plugin
             return CodeJava.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
         return false;
     }
-    private boolean pageStats_home(WebRequestData data)
-    {
-        // Fetch modules
-        Module[] modules = Module.loadAll(data.getConnector());
-        // Setup the page
-        data.setTemplateData("pals_title", "Admin - Stats");
-        data.setTemplateData("pals_content", "defaultqch/stats/home");
-        data.appendHeaderCSS("/content/css/defaultqch_stats.css");
-        // -- Fields
-        data.setTemplateData("modules", modules);
-        return true;
-    }
-    private boolean pageStats_overview(WebRequestData data)
-    {
-        RemoteRequest req = data.getRequestData();
-        // Load models
-        ModelExceptionClass[] models;
-        String type = req.getField("type");
-        String rawTid = req.getField("tid");
-        String clear = req.getField("clear");
-        // Parse filter
-        String rawFilter = req.getField("filter");
-        ModelExceptionClass.LoadRemoveFilter filter = ModelExceptionClass.LoadRemoveFilter.parse(rawFilter);
-        // Parse/delete type
-        boolean doClear = clear != null && clear.equals("1") && CSRF.isSecure(data);
-        if(type == null || rawTid == null || type.length() == 0 || rawTid.length() == 0)
-        {
-            if(doClear)
-                ModelExceptionClass.delete(data.getConnector(), filter);
-            models = ModelExceptionClass.load(data.getConnector(), filter);
-        }
-        else
-        {
-            int tid;
-            try
-            {
-                tid = Integer.parseInt(rawTid);
-            }
-            catch(NumberFormatException ex)
-            {
-                return false;
-            }
-            switch(type)
-            {
-                case "m": // Module
-                    Module module = Module.load(data.getConnector(), tid);
-                    if(module == null)
-                        return false;
-                    if(doClear)
-                        ModelExceptionClass.delete(data.getConnector(), module, filter);
-                    models = ModelExceptionClass.load(data.getConnector(), module, filter);
-                    break;
-                case "a": // Assignment
-                    Assignment ass = Assignment.load(data.getConnector(), null, tid);
-                    if(ass == null)
-                        return false;
-                    if(doClear)
-                        ModelExceptionClass.delete(data.getConnector(), ass, filter);
-                    models = ModelExceptionClass.load(data.getConnector(), ass, filter);
-                    break;
-                case "q": // Question
-                    Question q = Question.load(data.getCore(), data.getConnector(), tid);
-                    if(q == null)
-                        return false;
-                    if(doClear)
-                        ModelExceptionClass.delete(data.getConnector(), q, filter);
-                    models = ModelExceptionClass.load(data.getConnector(), q, filter);
-                    break;
-                default:
-                    return false;
-            }
-        }
-        // Sum cum freq
-        long totalFreq = 0;
-        for(ModelExceptionClass m : models)
-            totalFreq += m.getFrequency();
-        // Setup the page
-        data.setTemplateData("pals_title", "Admin - Stats - Overview");
-        data.setTemplateData("pals_content", "defaultqch/stats/overview");
-        data.appendHeaderCSS("/content/css/defaultqch_stats.css");
-        // -- Fields
-        data.setTemplateData("models", models);
-        if(models.length > 0)
-            data.setTemplateData("total_freq", totalFreq);
-        data.setTemplateData("type", Escaping.htmlEncode(type));
-        data.setTemplateData("tid", Escaping.htmlEncode(rawTid));
-        data.setTemplateData("filter", rawFilter);
-        data.setTemplateData("csrf", CSRF.set(data));
-        return true;
-    }
-    private boolean pageStats_view(WebRequestData data)
-    {
-        final int ITEMS_PER_PAGE = 15;
-        
-        RemoteRequest req = data.getRequestData();
-        String type = req.getField("type");
-        String rawTid = req.getField("tid");
-        String clear = req.getField("clear");
-        String rawPage = req.getField("page");
-        // Parse identifier of class
-        String rawEcid = req.getField("ecid");
-        int ecid;
-        try
-        {
-            ecid = Integer.parseInt(rawEcid);
-        }
-        catch(NumberFormatException ex)
-        {
-            return false;
-        }
-        // Fetch ecid data
-        ModelExceptionClass ec = ModelExceptionClass.loadSingle(data.getConnector(), ecid);
-        if(ec == null)
-            return false;
-        // Parse page
-        int page;
-        try
-        {
-            if((page = Integer.parseInt(rawPage)) < 1)
-                page = 1;
-        }
-        catch(NumberFormatException ex)
-        {
-            page = 1;
-        }
-        int offset = (page * ITEMS_PER_PAGE)-ITEMS_PER_PAGE;
-        int limit = ITEMS_PER_PAGE+1;
-        // Check if to clear data
-        boolean doClear = clear != null && clear.equals("1") && CSRF.isSecure(data);
-        // Parse type
-        ModelException[] models;
-        if(type == null || type.length() == 0)
-        {
-            models = ModelException.load(data.getConnector(), ecid, limit, offset);
-            if(doClear)
-                ModelException.delete(data.getConnector(), ecid);
-        }
-        else
-        {
-            int tid;
-            try
-            {
-                tid = Integer.parseInt(rawTid);
-            }
-            catch(NumberFormatException ex)
-            {
-                return false;
-            }
-            switch(type)
-            {
-                case "m": // Module
-                    Module module = Module.load(data.getConnector(), tid);
-                    if(module == null)
-                        return false;
-                    if(doClear)
-                        ModelException.delete(data.getConnector(), ecid, module);
-                    models = ModelException.load(data.getConnector(), ecid, module, limit, offset);
-                    break;
-                case "a": // Assignment
-                    Assignment ass = Assignment.load(data.getConnector(), null, tid);
-                    if(ass == null)
-                        return false;
-                    if(doClear)
-                        ModelException.delete(data.getConnector(), ecid, ass);
-                    models = ModelException.load(data.getConnector(), ecid, ass, limit, offset);
-                    break;
-                case "q": // Question
-                    Question q = Question.load(data.getCore(), data.getConnector(), tid);
-                    if(q == null)
-                        return false;
-                    if(doClear)
-                        ModelException.delete(data.getConnector(), ecid, q);
-                    models = ModelException.load(data.getConnector(), ecid, q, limit, offset);
-                    break;
-                default:
-                    return false;
-            }
-        }
-        // Setup the page
-        data.setTemplateData("pals_title", "Admin - Stats - Overview");
-        data.setTemplateData("pals_content", "defaultqch/stats/view");
-        data.appendHeaderCSS("/content/css/defaultqch_stats.css");
-        // -- Fields
-        data.setTemplateData("ec", ec);
-        data.setTemplateData("models", models);
-        data.setTemplateData("csrf", CSRF.set(data));
-        data.setTemplateData("page", page);
-        if(page > 1)
-            data.setTemplateData("page_prev", page-1);
-        if(page < Integer.MAX_VALUE && models.length > ITEMS_PER_PAGE)
-            data.setTemplateData("page_next", page+1);
-        return true;
-    }
     // Methods - Criteria ******************************************************
     private boolean criteriaMarking(Object[] hookData)
     {
@@ -668,5 +423,20 @@ public class DefaultQC extends Plugin
             return JavaTestProgram.criteriaDisplay(data, ia, iaq, iac, html);
         
         return false;
+    }
+    // Methods *****************************************************************
+    /**
+     * Matches an exception from program output.
+     * 
+     * @param output The program output.
+     * @return Array with exception-name,message or null.
+     */
+    public static String[] matchException(String output)
+    {
+        if(output == null)
+            return null;
+        // Check for exception
+        Matcher m = pattMatchNodeException.matcher(output);
+        return m.find() && m.groupCount() >= 2 ? new String[]{m.group(1), m.group(2)} : null;
     }
 }

@@ -324,6 +324,16 @@ public class PluginManager
         try
         {
             File filePath = new File(jarPath);
+            // Check the file is not within a dir called lib - this could be a library plugin, so ignore...
+            try
+            {
+                if(filePath.getParentFile().getCanonicalPath().replace("\\", "/").endsWith("/lib"))
+                    return PluginLoad.FailedIrrelevant;
+            }
+            catch(IOException ex)
+            {
+                return PluginLoad.Failed;
+            }
             // Load the original JAR
             JarIO jar = JarIO.open(jarPath, null);
             // Read configuration file

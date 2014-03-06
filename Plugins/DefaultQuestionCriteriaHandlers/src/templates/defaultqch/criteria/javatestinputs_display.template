@@ -47,6 +47,14 @@
     </tr>
 </table>
 
+<#if hints?has_content>
+    <#list hints as hint>
+        <p class="info">
+            ${hint?html}
+        </p>
+    </#list>
+</#if>
+
 <#if mark == 100>
     <p class="success">
         All inputs produced correct output.

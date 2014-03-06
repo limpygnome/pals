@@ -6,6 +6,30 @@
     </a>
 </p>
 
+<form method="post" action="/admin/stats/view?ecid=${ec.getECID()?c}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>">
+    <table class="table2">
+        <tr>
+            <td>
+                Hint:
+            </td>
+            <td>
+                <textarea name="hint" rows="3" cols="80"><#if hint??>${hint?html}</#if></textarea><br />
+                This will be displayed as a hint, to a user during assessment, when this type of error occurs.
+            </td>
+            <td>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
 <table class="table3 dqch_view">
     <tr>
         <th>Date</th>

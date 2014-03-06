@@ -32,6 +32,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import pals.base.Logging;
 import pals.base.NodeCore;
@@ -53,7 +55,8 @@ import pals.plugins.handlers.defaultqch.data.JavaTestInputs_Criteria;
 import pals.plugins.handlers.defaultqch.data.JavaTestInputs_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
-import pals.plugins.handlers.defaultqch.logging.ModelException;
+import pals.plugins.stats.ModelException;
+import pals.plugins.stats.ModelExceptionClass;
 
 /**
  * Handles text inputs criteria marking.
@@ -233,11 +236,11 @@ public class JavaTestInputs
                         else if(!exceptionLogged && valIAQ.contains("Exception: "))
                         {
                             // Check for exception
-                            Matcher m = DefaultQC.pattMatchNodeException.matcher(valIAQ);
-                            if(m.matches() && m.groupCount() >= 2)
+                            String[] e = DefaultQC.matchException(valIAQ);
+                            if(e != null)
                             {
-                                ModelException e = new ModelException(m.group(1), m.group(2), iac.getIAQ(), true);
-                                e.persist(conn);
+                                ModelException ex = new ModelException(e[0], e[1], iac.getIAQ(), true);
+                                ex.persist(conn);
                                 exceptionLogged = true;
                             }
                         }
@@ -308,8 +311,6 @@ public class JavaTestInputs
                         else
                             buffer.append(line).append('\n');
                     }
-//                    while((cbufferRead = br.read(cbuffer)) != -1)
-//                        buffer.append(cbuffer, 0, cbufferRead);
                 }
                 catch(IOException ex)
                 {
@@ -334,6 +335,17 @@ public class JavaTestInputs
             kvs.put("mark", iac.getMark());
             kvs.put("input_mark", (1.0/icdata.getTests())*100.0);
             kvs.put("hide_solution", cdata.getHideSolution());
+            // Find runtime errors and build feedback
+            String[] e;
+            String t;
+            HashSet<String> hints = new HashSet<>();
+            for(int i = 0; i < icdata.getTests(); i++)
+            {
+                if((e = DefaultQC.matchException(icdata.getOutputStudent(i))) != null && (t = ModelExceptionClass.fetchHint(data.getConnector(), e[0], true)) != null)
+                    hints.add(t);
+            }
+            kvs.put("hints", hints.toArray(new String[hints.size()]));
+            // Render template
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestinputs_display"));
             return true;
         }

@@ -5,14 +5,16 @@
                 ${text?html}
             </td>
         </tr>
-        <tr>
-            <th colspan="2">Code Skeleton (Read-Only)</th>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="12" readonly><#if code??>${code?html}<#elseif skeleton??>${skeleton?html}</#if></textarea>
-            </td>
-        </tr>
+        <#if skeleton?has_content>
+            <tr>
+                <th colspan="2">Code Skeleton (Read-Only)</th>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <textarea id="codejava_${aqid}_code" name="codejava_${aqid}_code" rows="12" readonly><#if skeleton??>${skeleton?html}</#if></textarea>
+                </td>
+            </tr>
+        </#if>
         <tr>
             <th colspan="2">Upload</th>
         </tr>
@@ -29,7 +31,7 @@
                 Options:
             </td>
             <td>
-                <input type="checkbox" name="codejava_${aqid}_compile" value="1" /> Compile code files.
+                <input type="checkbox" name="codejava_${aqid}_compile" value="1" checked /> Compile code files.
                 <input type="checkbox" name="codejava_${aqid}_reset" value="1" /> Reset existing files.
             </td>
         </tr>
@@ -166,5 +168,11 @@
         <p class="error">
             ${msg.getClassName()?html} : line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
         </p>
+        <#assign hint=error_class.fetchHint(data.getConnector(), msg.getMessage(), false)!>
+        <#if hint?? && hint?has_content>
+            <p class="info">
+                ${hint?html}
+            </p>
+        </#if>
     </#list>
 </#if>

@@ -291,8 +291,10 @@ CREATE TABLE pals_exception_classes
 	ecid				SERIAL				PRIMARY KEY,
 	-- The class-name of the exception.
 	class_name			VARCHAR(64)			NOT NULL,
-	-- Type ~ 1 indicates runtime, 0 indicates compiletime
+	-- Type ~ 1 indicates runtime, 0 indicates compiletime.
 	runtime				VARCHAR(1)			NOT NULL,
+	-- Feedback/hint message.
+	hint				TEXT,
 	UNIQUE(class_name, runtime)
 );
 -- Full exception messages.

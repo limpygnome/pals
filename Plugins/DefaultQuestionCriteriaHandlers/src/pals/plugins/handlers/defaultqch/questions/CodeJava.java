@@ -45,7 +45,8 @@ import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Shared;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
-import pals.plugins.handlers.defaultqch.logging.ModelException;
+import pals.plugins.stats.ModelException;
+import pals.plugins.stats.ModelExceptionClass;
 
 /**
  * Handles code-fragment questions.
@@ -72,6 +73,7 @@ public class CodeJava extends QuestionHelper
                 mcType = req.getField("mc_type"),
                 mcSkeleton = req.getField("mc_skeleton"),
                 mcWhitelist = req.getField("mc_whitelist");
+        CodeJava_Question.QuestionType qt = CodeJava_Question.QuestionType.parse(mcType);
         // -- Optional
         String mcReset = req.getField("mc_reset");
         UploadedFile mcUpload = req.getFile("mc_upload");
@@ -84,7 +86,7 @@ public class CodeJava extends QuestionHelper
             {
                 // Update question data
                 qdata.setText(mcText);
-                qdata.setType(CodeJava_Question.QuestionType.parse(mcType));
+                qdata.setType(qt);
                 qdata.setSkeleton(mcSkeleton);
                 qdata.setWhitelist(mcWhitelist.replace("\r", "").split("\n"));
                 // Check if to reset files
@@ -145,7 +147,7 @@ public class CodeJava extends QuestionHelper
         data.setTemplateData("q_title", qTitle != null ? qTitle : q.getTitle());
         data.setTemplateData("q_desc", qDesc != null ? qDesc : q.getDescription());
         data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
-        data.setTemplateData("mc_type", qdata.getType().getFormValue());
+        data.setTemplateData("mc_type", mcType != null ? qt.getFormValue() : qdata.getType().getFormValue());
         data.setTemplateData("mc_skeleton", mcSkeleton != null ? mcSkeleton : qdata.getSkeleton());
         data.setTemplateData("mc_whitelist", qdata.getWhitelistWeb());
         data.setTemplateData("csrf", CSRF.set(data));
@@ -311,6 +313,7 @@ public class CodeJava extends QuestionHelper
             }
         }
         // Set fields
+        kvs.put("data", data);
         kvs.put("aqid", aqid);
         kvs.put("text", qdata.getText());
         if(!viewCode)
@@ -321,6 +324,7 @@ public class CodeJava extends QuestionHelper
             kvs.put("error_messages", adata.getErrors());
             kvs.put("code_names", adata.getCodeNames());
             kvs.put("file_names", adata.getFileNames());
+            kvs.put("error_class", new ModelExceptionClass()); // Fetches hints through static calls
         }
         else
         {
@@ -426,6 +430,7 @@ public class CodeJava extends QuestionHelper
             }
         }
         // Set fields
+        kvs.put("data", data);
         kvs.put("aqid", aqid);
         kvs.put("text", qdata.getText());
         kvs.put("whitelist", qdata.getWhitelist());
@@ -433,6 +438,7 @@ public class CodeJava extends QuestionHelper
             kvs.put("code", code != null ? code : (adata.codeSize() == 1 ? adata.codeGetFirst() : null));
         kvs.put("skeleton", qdata.getSkeleton());
         kvs.put("error_messages", adata.getErrors());
+        kvs.put("error_class", new ModelExceptionClass()); // Fetches hints through static calls
         // -- Compiler status
         CompilerResult.CompileStatus cs = adata.getStatus();
         switch(cs)

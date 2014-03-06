@@ -38,6 +38,14 @@
     </table>
 </#if>
 
+<#if hints?has_content>
+    <#list hints as hint>
+        <p class="info">
+            ${hint?html}
+        </p>
+    </#list>
+</#if>
+
 <#if solution??>
         <h3 class="tac">Solution Script</h3>
         <p>

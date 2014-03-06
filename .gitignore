@@ -62,3 +62,6 @@ Todo.txt
 /Plugins/Email/nbproject/private/
 /Plugins/Email/dist/
 /Plugins/Email/build/
+/Plugins/Stats/nbproject/private/
+/Plugins/Stats/build/
+/Plugins/Stats/dist/

@@ -69,5 +69,11 @@
         <p class="error">
             ${msg.getClassName()?html} : line ${msg.getLine()?string}, column ${msg.getCol()?string}: ${msg.getMessage()?string}
         </p>
+        <#assign hint=error_class.fetchHint(data.getConnector(), msg.getMessage(), false)!>
+        <#if hint?? && hint?has_content>
+            <p class="info">
+                ${hint?html}
+            </p>
+        </#if>
     </#list>
 </#if>

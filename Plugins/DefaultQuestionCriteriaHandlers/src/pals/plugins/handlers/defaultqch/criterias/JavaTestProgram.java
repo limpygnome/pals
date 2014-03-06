@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import pals.base.Logging;
 import pals.base.NodeCore;
@@ -55,7 +56,8 @@ import pals.plugins.handlers.defaultqch.data.JavaTestProgram_Criteria;
 import pals.plugins.handlers.defaultqch.data.JavaTestProgram_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
 import pals.plugins.handlers.defaultqch.java.Utils;
-import pals.plugins.handlers.defaultqch.logging.ModelException;
+import pals.plugins.stats.ModelException;
+import pals.plugins.stats.ModelExceptionClass;
 
 /**
  * A criteria for testing a program.
@@ -252,6 +254,16 @@ public class JavaTestProgram
                                     if(proc.hasExited())
                                         keepRunning = false;
                                 }
+                                // Check if this is an exit line
+                                else if(line.equals("javasandbox-end-of-program"))
+                                {
+                                    // Inform sandbox it can terminate
+                                    pw.println("0"); // Input does not matter
+                                    pw.flush();
+                                    // Kill the process and end
+                                    proc.getProcess().destroy();
+                                    keepRunning = false;
+                                }
                                 // Check if the line is correct
                                 else if(l != null && line.equals(l.line))
                                 {
@@ -323,6 +335,17 @@ public class JavaTestProgram
                 kvs.put("solution_lines", Misc.countOccurrences(solution, '\n')+1);
             }
             kvs.put("result", idata);
+            // Find runtime errors and build feedback
+            String[] e;
+            String t;
+            HashSet<String> hints = new HashSet<>();
+            for(int i = 0; i < idata.getLines(); i++)
+            {
+                if((e = DefaultQC.matchException(idata.getLine(i))) != null && (t = ModelExceptionClass.fetchHint(data.getConnector(), e[0], true)) != null)
+                    hints.add(t);
+            }
+            kvs.put("hints", hints.toArray(new String[hints.size()]));
+            // Render template
             html.append(data.getCore().getTemplates().render(data, kvs, "defaultqch/criteria/javatestprogram_display"));
             return true;
         }
