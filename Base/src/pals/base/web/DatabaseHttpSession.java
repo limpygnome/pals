@@ -34,11 +34,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import pals.base.database.Connector;
 import org.apache.commons.codec.binary.Base64;
+import pals.base.Logging;
+import pals.base.NodeCore;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
 
@@ -133,8 +137,8 @@ public class DatabaseHttpSession
         if(base64id != null)
         {
             session.sessid = Base64.decodeBase64(base64id);
-            // Check the session ID is of a valid length
-            if(session.sessid.length != ID_SIZE)
+            // Check the session ID is of a valid length - 32 due to usage of SHA-256 - 256 bits ~ 32 bytes
+            if(session.sessid.length != 32)
                 session.sessid = null;
         }
         // Validate session ID
@@ -256,7 +260,19 @@ public class DatabaseHttpSession
         byte[] result = new byte[ID_SIZE];
         for(int i = 0; i < ID_SIZE; i++)
             result[i] = (byte)ran.nextInt(256); // n is exclusive; 0-255
-        return result;
+        // Hash bytes
+        try
+        {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            return md.digest(result);
+        }
+        catch(NoSuchAlgorithmException ex)
+        {
+            NodeCore core = NodeCore.getInstance();
+            if(core != null)
+                core.getLogging().logEx("Http Session", ex, Logging.EntryType.Error);
+            return null;
+        }
     }
     // Methods - Mutators ******************************************************
     /**
