@@ -36,11 +36,6 @@ DROP TABLE IF EXISTS pals_exceptions							CASCADE;
 DROP TABLE IF EXISTS pals_cleanup								CASCADE;
 
 -- Functions
-DROP FUNCTION func_cleanup_iaq()								CASCADE;
-DROP FUNCTION func_cleanup_q()									CASCADE;
-DROP FUNCTION func_cleanup_qc()									CASCADE;
-
--- Triggers
-DROP TRIGGER trigger_cleanup_iaq ON pals_assignment_instance_question	CASCADE;
-DROP TRIGGER trigger_cleanup_q ON pals_question							CASCADE;
-DROP TRIGGER trigger_cleanup_qc ON pals_question_criteria				CASCADE;
+DROP FUNCTION IF EXISTS	func_cleanup_iaq()									CASCADE;
+DROP FUNCTION IF EXISTS	func_cleanup_q()									CASCADE;
+DROP FUNCTION IF EXISTS	func_cleanup_qc()									CASCADE;

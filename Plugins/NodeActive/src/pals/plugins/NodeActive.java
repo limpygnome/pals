@@ -29,12 +29,9 @@ package pals.plugins;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
-import pals.base.PluginManager;
 import pals.base.rmi.RMI_Interface;
 import pals.base.Settings;
 import pals.base.TemplateManager;

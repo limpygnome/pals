@@ -30,6 +30,7 @@ package pals.base;
 import pals.base.rmi.RMI_DefaultServer;
 import pals.base.rmi.RMI;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -40,6 +41,7 @@ import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
 import pals.base.database.connectors.*;
+import pals.base.utils.Misc;
 
 /**
  * A class used for an instance of a node; this is responsible for node features
@@ -274,8 +276,18 @@ public class NodeCore
         // Perform node SQL operations
         try
         {
-            String nodeTitle = settings.getStr("node/title", "Untitled Node");
+            // Check if the initial database setup is needed
+            // -- DBMS dependent SQL here!
+            if(!((boolean)conn.executeScalar("SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name='pals_nodes');")))
+            {
+                logging.log(LOGGING_ALIAS_START, "Setting up initial database...", Logging.EntryType.Info);
+                // Fetch SQL for initial database setup
+                Misc.executeSqlFile(new File("_sql/install.sql"), conn);
+                logging.log(LOGGING_ALIAS_START, "Successfully setup initial database.", Logging.EntryType.Info);
+            }
             // Check this node exists in the database, else create the record
+            // -- Important for other nodes to contact us
+            String nodeTitle = settings.getStr("node/title", "Untitled Node");
             Result res = conn.read("SELECT title FROM pals_nodes WHERE uuid_node=?;", uuidNode.getBytes());
             if(!res.next())
             {
@@ -291,6 +303,12 @@ public class NodeCore
             {
                 logging.logEx(LOGGING_ALIAS_START, "Could not update RMI information - address could not be found for the local host!", ex, Logging.EntryType.Warning);
             }
+        }
+        catch(IOException ex)
+        {
+            logging.logEx(LOGGING_ALIAS_START, "Failed to setup initial database.", ex, Logging.EntryType.Error);
+            stop(StopType.Failure);
+            return false;
         }
         catch(DatabaseException ex)
         {
@@ -386,7 +404,7 @@ public class NodeCore
      */
     public synchronized boolean stop(StopType type)
     {
-        if(state != State.Started)
+        if(state != State.Started && state != State.Starting)
             return false;
         state = State.Stopping;
         logging.log(LOGGING_ALIAS_STOP, "Stopping core...", Logging.EntryType.Info);

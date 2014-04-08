@@ -29,6 +29,9 @@ package pals.base.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -39,6 +42,8 @@ import java.util.TreeSet;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import pals.base.NodeCore;
+import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
 
 /**
  * Miscellaneous utility methods.
@@ -289,5 +294,21 @@ public class Misc
         {
             return alternate;
         }
+    }
+    /**
+     * Executes SQL from a file.
+     * 
+     * @param file The file with the SQL, in plain-text.
+     * @param conn Database connector.
+     * @throws FileNotFoundException Thrown if the file is not found.
+     * @throws IOException Thrown if an issue occurs reading the file.
+     * @throws DatabaseException Thrown if an issue occurs executing the SQL.
+     */
+    public static void executeSqlFile(File file, Connector conn) throws FileNotFoundException, IOException, DatabaseException
+    {
+        // Fetch SQL
+        String sql = Files.fileRead(new FileInputStream(file));
+        // Execute SQL
+        conn.execute(sql);
     }
 }
