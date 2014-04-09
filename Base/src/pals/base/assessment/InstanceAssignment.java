@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -40,18 +39,55 @@ import pals.base.database.Result;
 
 /**
  * A model which represents the instance of an assignment for a user.
+ * 
+ * @version 1.0
  */
 public class InstanceAssignment
 {
     // Enums *******************************************************************
+    /**
+     * The status from persisting the model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist to exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Invalid assignment.
+         * 
+         * @since 1.0
+         */
         Invalid_Assignment,
+        /**
+         * Invalid user.
+         * 
+         * @since 1.0
+         */
         Invalid_User,
+        /**
+         * Invalid mark.
+         * 
+         * @since 1.0
+         */
         Invalid_Mark
     }
+    /**
+     * The status of an instance of an assignment.
+     * 
+     * @since 1.0
+     */
     public enum Status
     {
         Active(0, "Active"),
@@ -68,6 +104,7 @@ public class InstanceAssignment
         }
         /**
          * @return The status of the assignment.
+         * @since 1.0
          */
         public int getStatus()
         {
@@ -75,15 +112,18 @@ public class InstanceAssignment
         }
         /**
          * @return The text representation of the status.
+         * @since 1.0
          */
         public String getText()
         {
             return text;
         }
         /**
+         * Parses an integer value into the equivalent enum representation.
+         * 
          * @param value The value to parse.
-         * @return Parses an integer value, returning the Status enum-type;
-         * if a type is not matched, 'BeingTaken' is returned.
+         * @return Parsed type, or 'BeingTaken'.
+         * @since 1.0
          */
         public static Status parse(int value)
         {
@@ -112,6 +152,8 @@ public class InstanceAssignment
     // Methods - Constructors **************************************************
     /**
      * Creates a new instance of an unpersisted instance of an assignment.
+     * 
+     * @since 1.0
      */
     public InstanceAssignment()
     {
@@ -126,6 +168,7 @@ public class InstanceAssignment
      * @param timeStart The time at which the assignment started.
      * @param timeEnd The time at which the assignment ended.
      * @param mark The mark of the instance.
+     * @since 1.0
      */
     public InstanceAssignment(User user, Assignment ass, Status status, DateTime timeStart, DateTime timeEnd, double mark)
     {
@@ -147,6 +190,7 @@ public class InstanceAssignment
      * @param amount Number of models to retrieve.
      * @param offset Offset of rows.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static InstanceAssignment[] load(Connector conn, Assignment ass, User user, int amount, int offset)
     {
@@ -190,6 +234,7 @@ public class InstanceAssignment
      * null.
      * @param aiid The identifier of the assignment instance model.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignment load(Connector conn, Assignment assignment, User user, int aiid)
     {
@@ -217,6 +262,7 @@ public class InstanceAssignment
      * null.
      * @param res The result from a query; next() should be pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignment load(Connector conn, Assignment ass, User user, Result res)
     {
@@ -261,6 +307,7 @@ public class InstanceAssignment
      * 
      * @param conn Database connector.
      * @return The status of the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -312,6 +359,7 @@ public class InstanceAssignment
      * 
      * @param conn Database connector.
      * @return True = removed, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -336,6 +384,7 @@ public class InstanceAssignment
      * 
      * @param conn Database connector.
      * @return True = successfully marked, false = failed.
+     * @since 1.0
      */
     public boolean computeMark(Connector conn)
     {
@@ -378,43 +427,61 @@ public class InstanceAssignment
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the user taking the assignment.
+     * 
      * @param user Sets the user who is answering this instance of the
      * assignment.
+     * @since 1.0
      */
     public void setUser(User user)
     {
         this.user = user;
     }
     /**
+     * Sets the assignment being taken.
+     * 
      * @param ass Sets the current assignment being instantiated.
+     * @since 1.0
      */
     public void setAss(Assignment ass)
     {
         this.ass = ass;
     }
     /**
+     * Sets the status of the assignment.
+     * 
      * @param status Sets the status of this instance.
+     * @since 1.0
      */
     public void setStatus(Status status)
     {
         this.status = status;
     }
     /**
+     * Sets the mark of this instance.
+     * 
      * @param mark Sets the mark of this assignment.
+     * @since 1.0
      */
     public void setMark(double mark)
     {
         this.mark = mark;
     }
     /**
+     * Sets the date-time at which the assignment started.
+     * 
      * @param timeStart The time this instance started.
+     * @since 1.0
      */
     public void setTimeStart(DateTime timeStart)
     {
         this.timeStart = timeStart;
     }
     /**
+     * Sets the date-time at which the assignment ended.
+     * 
      * @param timeEnd The time this instance was submitted.
+     * @since 1.0
      */
     public void setTimeEnd(DateTime timeEnd)
     {
@@ -422,64 +489,91 @@ public class InstanceAssignment
     }
     // Methods - Accessors *****************************************************
     /**
+     * Indicates if the model has been persisted.
+     * 
      * @return Indicates if the model has been persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return aiid != -1;
     }
     /**
+     * The identifier of this instance.
+     * 
      * @return The identifier of this model.
+     * @since 1.0
      */
     public int getAIID()
     {
         return aiid;
     }
     /**
+     * The user taking this instance.
+     * 
      * @return The user who is answering this instance of the assignment.
+     * @since 1.0
      */
     public User getUser()
     {
         return user;
     }
     /**
+     * The underlying assignment.
+     * 
      * @return The assignment instantiated.
+     * @since 1.0
      */
     public Assignment getAss()
     {
         return ass;
     }
     /**
+     * The status of this instance.
+     * 
      * @return The status of this instance.
+     * @since 1.0
      */
     public Status getStatus()
     {
         return status;
     }
     /**
+     * The mark of this instance.
+     * 
      * @return The mark of the instance.
+     * @since 1.0
      */
     public double getMark()
     {
         return mark;
     }
     /**
+     * The date-time at which this instance started.
+     * 
      * @return The time at which the assignment started; can be null.
+     * @since 1.0
      */
     public DateTime getTimeStart()
     {
         return timeStart;
     }
     /**
+     * The date-time at which this instance ended.
+     * 
      * @return The time at which the assignment was submitted; can be null.
+     * @since 1.0
      */
     public DateTime getTimeEnd()
     {
         return timeEnd;
     }
     /**
+     * Builds a string which represents the duration of the instance.
+     * 
      * @return The method getTimeDuration, represented as a string; can be null
-     * if the conditions of getTimeDuration meet null.
+     * if the assignment has not been started or finished.
+     * @since 1.0
      */
     public String getTimeDurationStr()
     {
@@ -487,9 +581,12 @@ public class InstanceAssignment
         return p == null ? null : p.getDays()+"d "+p.getHours()+"h "+p.getMinutes()+"m "+p.getSeconds()+"s";
     }
     /**
+     * Indicates if this instance needs the marks computed.
+     * 
      * @param conn Database connector.
      * @return Indicates if the assignment requires marking; this also checks
      * the status of the assignment, since this model may be outdated.
+     * @since 1.0
      */
     public boolean isMarkComputationNeeded(Connector conn)
     {
@@ -511,10 +608,13 @@ public class InstanceAssignment
     }
     // Methods - Accessors - Static ********************************************
     /**
+     * Fetches the last instance taken for an assignment.
+     * 
      * @param conn Database connector.
      * @param assignment The assignment being taken; cannot be null.
      * @param user The user taking the assignment; cannot be null.
      * @return Instance of a model or null.
+     * @since 1.0
      */
     public static InstanceAssignment getLastAssignment(Connector conn, Assignment assignment, User user)
     {
@@ -532,10 +632,13 @@ public class InstanceAssignment
         }
     }
     /**
+     * Fetches the number of times a user has attempted an assignment.
+     * 
      * @param conn Database connector.
      * @param ass The assignment.
      * @param user The user.
      * @return The number of times a user has attempted an assignment.
+     * @since 1.0
      */
     public static int getAttempts(Connector conn, Assignment ass, User user)
     {

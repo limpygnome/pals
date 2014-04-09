@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -40,16 +39,48 @@ import pals.base.utils.Misc;
 
 /**
  * A model which represents a question, of an assignment.
+ * 
+ * @version 1.0
  */
 public class Question
 {
     // Enums *******************************************************************
+    /**
+     * The status from attempting to persist the model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Failed to persist due to an exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Failed to serialize the question data.
+         * 
+         * @since 1.0
+         */
         Failed_Serialize,
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Invalid question type.
+         * 
+         * @since 1.0
+         */
         Invalid_QuestionType,
+        /**
+         * Invalid title.
+         * 
+         * @since 1.0
+         */
         Invalid_Title;
         
         public String getText(Question q)
@@ -79,6 +110,8 @@ public class Question
     // Methods - Constructors **************************************************
     /**
      * Creates a new nullified unpersisted model.
+     * 
+     * @since 1.0
      */
     public Question()
     {
@@ -91,6 +124,7 @@ public class Question
      * @param title Title of the question.
      * @param description The description of the question.
      * @param data The question's data.
+     * @since 1.0
      */
     public Question(TypeQuestion qtype, String title, String description, Object data)
     {
@@ -110,6 +144,7 @@ public class Question
      * @param amount The number of models to retrieve at a time.
      * @param offset The number of models skipped.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static Question[] load(NodeCore core, Connector conn, String filter, int amount, int offset)
     {
@@ -142,6 +177,7 @@ public class Question
      * @param conn Database connector.
      * @param qid Question identifier.
      * @return Instance of model or null.
+     * @since 1.0
      */
     public static Question load(NodeCore core, Connector conn, int qid)
     {
@@ -163,6 +199,7 @@ public class Question
      * @param conn Database connector.
      * @param result Database result.
      * @return Instance of model or null.
+     * @since 1.0
      */
     public static Question load(NodeCore core, Connector conn, Result result)
     {
@@ -191,6 +228,7 @@ public class Question
      * 
      * @param conn Database connector.
      * @return The status of the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -238,6 +276,7 @@ public class Question
      * 
      * @param conn Database connector.
      * @return True = removed, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -256,30 +295,42 @@ public class Question
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the type of question.
+     * 
      * @param qtype The type of question.
+     * @since 1.0
      */
     public void setQtype(TypeQuestion qtype)
     {
         this.qtype = qtype;
     }
     /**
+     * Sets the title.
+     * 
      * @param title The title of the question.
+     * @since 1.0
      */
     public void setTitle(String title)
     {
         this.title = title;
     }
     /**
+     * Sets the description.
+     * 
      * @param description Sets the description of this question.
+     * @since 1.0
      */
     public void setDescription(String description)
     {
         this.description = description;
     }
     /**
+     * Sets the data.
+     * 
      * @param data Serializable data, which can be used by a question-type to
      * render/handle the question.
      * @param <T> The type of data must be serializable.
+     * @since 1.0
      */
     public <T extends Serializable> void setData(T data)
     {
@@ -287,51 +338,71 @@ public class Question
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the model has been persisted.
+     * Indicates if the model has been persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return qid != -1;
     }
     /**
-     * @return The identifier of this question.
+     * Retrieves the identifier of this question.
+     * 
+     * @return The identifier.
+     * @since 1.0
      */
     public int getQID()
     {
         return qid;
     }
     /**
+     * Retrieves the type of question.
+     * 
      * @return The type of question.
+     * @since 1.0
      */
     public TypeQuestion getQtype()
     {
         return qtype;
     }
     /**
-     * @return The question's title.
+     * Retrieves the title of the question.
+     * 
+     * @return The title.
+     * @since 1.0
      */
     public String getTitle()
     {
         return title;
     }
     /**
-     * @return A description of the question.
+     * Retrieves the description of the question.
+     * 
+     * @return A description of the question; can be null or empty.
      */
     public String getDescription()
     {
         return description;
     }
     /**
+     * The serialized data.
+     * 
      * @return Data used by the question-type.
-     * @param <T> The data-type of the object is serializable. 
+     * @param <T> The data-type of the object is serializable.
+     * @since 1.0
      */
     public <T extends Serializable> T getData()
     {
         return (T)data;
     }
     /**
+     * Fetches the number of assignment questions dependent on this question.
+     * 
      * @param conn Database connector.
      * @return The number of assignments reliant on this question.
+     * @since 1.0
      */
     public int getDependentAssignments(Connector conn)
     {
@@ -349,14 +420,20 @@ public class Question
     }
     // Methods - Accessors - Limits ********************************************
     /**
+     * The minimum length of a title.
+     * 
      * @return The minimum length of a question's title.
+     * @since 1.0
      */
     public int getTitleMin()
     {
         return 1;
     }
     /**
+     * The maximum length of a title.
+     * 
      * @return The maximum length of a question's title.
+     * @since 1.0
      */
     public int getTitleMax()
     {

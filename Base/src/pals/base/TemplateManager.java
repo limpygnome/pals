@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -36,10 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import pals.base.utils.Files;
 import pals.base.utils.JarIO;
 import pals.base.utils.JarIOException;
@@ -51,6 +46,8 @@ import pals.base.web.WebRequestData;
  * e-mail messages.
  * 
  * Thread-safe.
+ * 
+ * @version 1.0
  */
 public class TemplateManager
 {
@@ -80,7 +77,9 @@ public class TemplateManager
     /**
      * Reloads all the templates by calling every active plugin to re-register
      * all their functions and templates.
+     * 
      * @return True if successful, false if failed.
+     * @since 1.0
      */
     public synchronized boolean reload()
     {
@@ -108,7 +107,8 @@ public class TemplateManager
      * @param plugin The plugin which owns the template.
      * @param physicalPath The physical path of the template.
      * @param path
-     * @return 
+     * @return True if successful, false if failed.
+     * @since 1.0
      */
     public synchronized boolean loadFile(Plugin plugin, String physicalPath, String path)
     {
@@ -133,6 +133,7 @@ public class TemplateManager
      * @param plugin The plugin which owns the templates.
      * @param directory The path of the directory.
      * @return True = success, false = failed.
+     * @since 1.0
      */
     public synchronized boolean loadDir(Plugin plugin, String directory)
     {
@@ -181,6 +182,7 @@ public class TemplateManager
      * name of the package, but with the dots replaced by forward-slash. This
      * can be null/empty for the entire JAR.
      * @return True = loaded, false = could not load.
+     * @since 1.0
      */
     public synchronized boolean load(Plugin plugin, String directory)
     {
@@ -199,6 +201,7 @@ public class TemplateManager
      * name of the package, but with the dots replaced by forward-slash. This
      * can be null/empty for the entire JAR.
      * @return True = loaded, false = could not load.
+     * @since 1.0
      */
     public synchronized boolean load(Plugin plugin, JarIO jio, String directory)
     {
@@ -237,11 +240,12 @@ public class TemplateManager
      * 
      * @param plugin The plugin which owns the template; can be null.
      * @param path The path of the template; can contain alpha-numeric chars,
-     * hyphen,underscroll, dot and forward-slash. Back-slash is automatically
+     * hyphen, underscroll, dot and forward-slash. Back-slash is automatically
      * translated to forward slash.
      * @param content The content of the template.
      * @return True if registered, false if failed (invalid format, path
      * already taken).
+     * @since 1.0
      */
     public synchronized boolean registerTemplate(Plugin plugin, String path, String content)
     {
@@ -264,6 +268,7 @@ public class TemplateManager
      * @param path The path of the template to be rendered.
      * @return The rendered data. Returns null if the specified template
      * cannot be found.
+     * @since 1.0
      */
     public synchronized String render(WebRequestData data, String path)
     {
@@ -277,6 +282,7 @@ public class TemplateManager
      * @param path The path of the template to be rendered.
      * @return The rendered data. Returns null if the specified template
      * cannot be found.
+     * @since 1.0
      */
     public synchronized String render(WebRequestData data, HashMap<String,Object> kvs, String path)
     {
@@ -300,14 +306,22 @@ public class TemplateManager
         }
     }
     // Methods - Mutators ******************************************************
-        /**
+    /**
      * Unloads all the templates and registered template functions.
+     * 
+     * @since 1.0
      */
     public synchronized void clear()
     {
         fmLoader.clear();                   // Clear templates
         fmConfig.clearTemplateCache();      // Clear cache
     }
+    /**
+     * Removes a template.
+     * 
+     * @param path The path of the template.
+     * @since 1.0
+     */
     public synchronized void remove(String path)
     {
         // Remove from collection
@@ -329,6 +343,7 @@ public class TemplateManager
      * cache; therefore use infrequently.
      * 
      * @param plugin The identifier of the plugin.
+     * @since 1.0
      */
     public synchronized void remove(Plugin plugin)
     {
@@ -340,16 +355,22 @@ public class TemplateManager
     }
     // Methods - Accessors *****************************************************
     /**
+     * Indicates if the collection contains a template.
+     * 
      * @param path The path of a template.
      * @return True = template exists, false = does not exist.
+     * @since 1.0
      */
     public boolean containsTemplate(String path)
     {
         return fmLoader.contains(path);
     }
     /**
+     * Fetches a template item at the specified path.
+     * 
      * @param path The path of the template.
-     * @return The instance representing the template or null.
+     * @return The instance representing the template, or null if non-existent.
+     * @since 1.0
      */
     public TemplateItem getTemplate(String path)
     {

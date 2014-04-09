@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -29,58 +28,93 @@ package pals.base;
 
 /**
  * An exception thrown by the Settings class for any errors.
+ * 
+ * @version 1.0
  */
 public class SettingsException extends Exception
 {
-    // Enums
+    // Enums *******************************************************************
+    /**
+     * The type of exception.
+     * 
+     * @since 1.0
+     */
     public enum Type
     {
         /**
          * Indicates the XML from the specified path for the configuration could
          * not be loaded.
+         * 
+         * @since 1.0
          */
         FailedToLoad,
         /**
          * Indicates the XML could not be parsed.
+         * 
+         * @since 1.0
          */
         FailedToParse,
         /**
-         * Indicates a setting could not be loaded because of an invalid setting.
+         * Indicates a setting could not be loaded because of an invalid
+         * setting.
+         * 
+         * @since 1.0
          */
         FailedToParse_InvalidSetting,
         /**
          * Indicates a setting with the same path existed.
+         * 
+         * @since 1.0
          */
         FailedToParse_DuplicateSetting,
         /**
-         * Indicates a problem occurred building the XML for saving the settings.
+         * Indicates a problem occurred building the XML for saving the
+         * settings.
+         * 
+         * @since 1.0
          */
         FailedToSave_Build,
         /**
          * Indicates a problem occurred saving the XML, of settings, to file.
+         * 
+         * @since 1.0
          */
         FailedToSave_File,
         /**
          * Indicates the collection is read-only.
+         * 
+         * @since 1.0
          */
         CollectionReadOnly,
         /**
          * Indicates the node attempted to be retrieved is missing/not in the
          * collection.
+         * 
+         * @since 1.0
          */
         MissingNode
     }
-    // Fields
+    // Fields ******************************************************************
     private final Type type;
-    // Methods - Constructors
+    // Methods - Constructors **************************************************
+    /**
+     * Constructs a new settings exception.
+     * 
+     * @param type The type of exception.
+     * @param rootCause The root exception; can be null.
+     * @since 1.0
+     */
     public SettingsException(Type type, Throwable rootCause)
     {
         super(rootCause);
         this.type = type;
     }
-    // Methods - Accessors
+    // Methods - Accessors *****************************************************
     /**
-     * @return The type of exception.
+     * The type of exception.
+     * 
+     * @return Refer to {@link Type}
+     * @since 1.0
      */
     public Type getExceptionType()
     {

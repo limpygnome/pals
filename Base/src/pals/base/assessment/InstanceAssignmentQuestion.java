@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -39,16 +38,48 @@ import pals.base.utils.Misc;
 
 /**
  * A model which represents an instance of an assignment question, by a user.
+ * 
+ * @version 1.0
  */
 public class InstanceAssignmentQuestion
 {
     // Enums *******************************************************************
+    /**
+     * The status from persisting the model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted model.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist due to an exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Failed to serialize the data.
+         * 
+         * @since 1.0
+         */
         Failed_Serialize,
+        /**
+         * Invalid assignment question.
+         * 
+         * @since 1.0
+         */
         Invalid_AssignmentQuestion,
+        /**
+         * Invalid instance of assignment.
+         * 
+         * @since 1.0
+         */
         Invalid_InstanceAssignment
     }
     // Fields ******************************************************************
@@ -63,6 +94,8 @@ public class InstanceAssignmentQuestion
     // Methods - Constructors **************************************************
     /**
      * Constructs a new instance of an assignment-instance question.
+     * 
+     * @since 1.0
      */
     public InstanceAssignmentQuestion()
     {
@@ -76,6 +109,7 @@ public class InstanceAssignmentQuestion
      * @param data The data for the question, provided by a question-type.
      * @param answered Indicates if the question has been answered.
      * @param mark The mark of the question, between 0 to 100.
+     * @since 1.0
      */
     public InstanceAssignmentQuestion(AssignmentQuestion aq, InstanceAssignment ia, Object data, boolean answered, double mark)
     {
@@ -94,6 +128,7 @@ public class InstanceAssignmentQuestion
      * @param conn Database connector.
      * @param ia Instance of the assignment; cannot be null.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static InstanceAssignmentQuestion[] loadAll(NodeCore core, Connector conn, InstanceAssignment ia)
     {
@@ -123,6 +158,7 @@ public class InstanceAssignmentQuestion
      * @param ia Instance of the assignment; cannot be null.
      * @param aq Assignment-question; cannot be null.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, AssignmentQuestion aq)
     {
@@ -146,6 +182,7 @@ public class InstanceAssignmentQuestion
      * loaded automatically (possibly expensive).
      * @param aiqid The identifier of the model to load.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, int aiqid)
     {
@@ -174,6 +211,7 @@ public class InstanceAssignmentQuestion
      * @param res The result from a query of data, with the method next()
      * pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentQuestion load(NodeCore core, Connector conn, InstanceAssignment ia, Result res)
     {
@@ -207,6 +245,7 @@ public class InstanceAssignmentQuestion
      * 
      * @param conn Database connector.
      * @return The status of the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -267,6 +306,7 @@ public class InstanceAssignmentQuestion
      * 
      * @param conn Database connector.
      * @return True = removed, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -285,36 +325,51 @@ public class InstanceAssignmentQuestion
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the assignment question.
+     * 
      * @param aq Sets the assignment-question being instantiated.
+     * @since 1.0
      */
     public void setAssignmentQuestion(AssignmentQuestion aq)
     {
         this.aq = aq;
     }
     /**
+     * Sets the instance of assignment.
+     * 
      * @param ia Sets the assignment instantiation.
+     * @since 1.0
      */
     public void setInstanceAssignment(InstanceAssignment ia)
     {
         this.ia = ia;
     }
     /**
+     * Sets the data for this instance of assignment question.
+     * 
      * @param <T> The type must be serializable.
      * @param data Sets the data for this instance of the assignment-question.
+     * @since 1.0
      */
     public <T extends Serializable> void setData(T data)
     {
         this.data = data;
     }
     /**
+     * Sets if this instance has been answered.
+     * 
      * @param answered Sets if this question has been answered.
+     * @since 1.0
      */
     public void setAnswered(boolean answered)
     {
         this.answered = answered;
     }
     /**
+     * Sets the mark for the question; must be 0 to 100.
+     * 
      * @param mark The mark of the question, between (inclusively) 0 to 100.
+     * @since 1.0
      */
     public void setMark(double mark)
     {
@@ -323,59 +378,85 @@ public class InstanceAssignmentQuestion
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the current model is persisted.
+     * Indicates if the current model is persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return aiqid != -1;
     }
     /**
-     * @return The unique identifier of this model.
+     * The unique identifier of this model.
+     * 
+     * @return The identifier.
+     * @since 1.0
      */
     public int getAIQID()
     {
         return aiqid;
     }
     /**
-     * @return The assignment-question being instantiated.
+     * The assignment-question being instantiated.
+     * 
+     * @return The assignment-question model.
+     * @since 1.0
      */
     public AssignmentQuestion getAssignmentQuestion()
     {
         return aq;
     }
     /**
-     * @return The assignment instantiation.
+     * The assignment being instantiation.
+     * 
+     * @return The assignment model.
+     * @since 1.0
      */
     public InstanceAssignment getInstanceAssignment()
     {
         return ia;
     }
     /**
-     * @return Data for this instance of the assignment-question.
+     * The data for this instance of assignment question.
+     * 
+     * @return Data; serializable.
+     * @since 1.0
      */
     public Object getData()
     {
         return data;
     }
     /**
-     * @return Indicates if the question has been answered.
+     * Indicates if the question has been answered. Useful for speeding-up
+     * the marking process and indicating unanswered questions before
+     * a user submits an instance of an assignment.
+     * 
+     * @return True = answered, false = not answered.
+     * @since 1.0
      */
     public boolean isAnswered()
     {
         return answered;
     }
     /**
-     * @return The mark for this question.
+     * The mark for this question.
+     * 
+     * @return The mark, between 0 to 100.
+     * @since 1.0
      */
     public double getMark()
     {
         return mark;
     }
     /**
+     * Retrieves the instances of criteria belonging to a question.
+     * 
      * @param core Current instance of core.
      * @param conn Database connector.
-     * @return Array of instances of criteria moddels; can be empty. This is
+     * @return Array of instances of criteria models; can be empty. This is
      * cached, since it's an expensive operation.
+     * @since 1.0
      */
     public InstanceAssignmentCriteria[] getInstanceCriteria(NodeCore core, Connector conn)
     {

@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -40,24 +39,61 @@ import pals.base.database.Result;
 
 /**
  * A model which represents an assignment.
+ * 
+ * @version 1.0
  */
 public class Assignment
 {
     // Enums *******************************************************************
+    /**
+     * The status of persisting the model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed due to an unknown state or exception.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Invalid module.
+         * 
+         * @since 1.0
+         */
         Invalid_Module,
+        /**
+         * Invalid title.
+         * 
+         * @since 1.0
+         */
         Invalid_Title,
+        /**
+         * Invalid weight.
+         * 
+         * @since 1.0
+         */
         Invalid_Weight,
+        /**
+         * Invalid max-attempts.
+         * 
+         * @since 1.0
+         */
         Invalid_MaxAttempts,
+        /**
+         * Invalid due date-time.
+         * 
+         * @since 1.0
+         */
         Invalid_Due
-    }
-    public enum QuestionsPersistStatus
-    {
-        Success,
-        Failed
     }
     // Fields ******************************************************************
     private int                                             assid;
@@ -72,6 +108,8 @@ public class Assignment
     // Methods - Constructors **************************************************
     /**
      * Creates a new unpersisted assignment.
+     * 
+     * @since 1.0
      */
     public Assignment()
     {
@@ -87,6 +125,7 @@ public class Assignment
      * @param maxAttempts The maximum attempts; can be -1 for unlimited.
      * @param due  The date at which the assignment is due.
      * @param dueHandled Indicates if the due-date, once surpassed, has been handled.
+     * @since 1.0
      */
     public Assignment(Module module, String title, int weight, boolean active, int maxAttempts, DateTime due, boolean dueHandled)
     {
@@ -109,6 +148,7 @@ public class Assignment
      * @param active If true, the active assignments are returned, else the
      * inactive assignments are returned.
      * @return Array of assignments for the specified module; possibly empty.
+     * @since 1.0
      */
     public static Assignment[] loadActive(Connector conn, Module module, boolean active)
     {
@@ -143,6 +183,7 @@ public class Assignment
      * @param filterActive Indicates if to filter the assignments by those
      * which are active.
      * @return Array of assignments for the specified module; possibly empty.
+     * @since 1.0
      */
     public static Assignment[] load(Connector conn, Module module, boolean filterActive)
     {
@@ -177,6 +218,7 @@ public class Assignment
      * loaded (possibly expensive).
      * @param assid The identifier of the assignment.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static Assignment load(Connector conn, Module module, int assid)
     {
@@ -205,6 +247,7 @@ public class Assignment
      * loaded (possibly expensive).
      * @param result The result of a query; next() should be pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static Assignment load(Connector conn, Module module, Result result)
     {
@@ -237,6 +280,7 @@ public class Assignment
      * 
      * @param conn Database connector.
      * @return The status of the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -297,6 +341,7 @@ public class Assignment
      * 
      * @param conn Database connector.
      * @return True = removed, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -317,50 +362,72 @@ public class Assignment
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the module, to which the assignment belongs.
+     * 
      * @param module The module of which this assignment belongs.
+     * @since 1.0
      */
     public void setModule(Module module)
     {
         this.module = module;
     }
     /**
+     * Sets the title of the assignment.
+     * 
      * @param title The title of the assignment; cannot be null or empty.
+     * @since 1.0
      */
     public void setTitle(String title)
     {
         this.title = title;
     }
     /**
+     * Sets the weight of the assignment, relative to the module.
+     * 
      * @param weight The weight of the assignment; must be greater than zero.
+     * @since 1.0
      */
     public void setWeight(int weight)
     {
         this.weight = weight;
     }
     /**
+     * Sets if the assignment is active.
+     * 
      * @param active Sets if the assignment can be taken by students.
+     * @since 1.0
      */
     public void setActive(boolean active)
     {
         this.active = active;
     }
     /**
+     * Sets the maximum attempts, which is the number of times this assignment
+     * can be taken by a user.
+     * 
      * @param maxAttempts Sets the maximum attempts for the assignment; can be
      * -1 for unlimited or greater than zero.
+     * @since 1.0
      */
     public void setMaxAttempts(int maxAttempts)
     {
         this.maxAttempts = maxAttempts;
     }
     /**
+     * Sets the due-date of the assignment.
+     * 
      * @param due The date-time of when the assignment is due; can be null.
+     * @since 1.0
      */
     public void setDue(DateTime due)
     {
         this.due = due;
     }
     /**
+     * Sets if the due-date has been handled.
+     * 
      * @param dueHandled Sets if the due-date has been handled.
+     * @since 1.0
      */
     public void setDueHandled(boolean dueHandled)
     {
@@ -368,71 +435,103 @@ public class Assignment
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the model has been persisted.
+     * Indicates if this model has been persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return assid != -1;
     }
     /**
+     * The identifier of the assignment.
+     * 
      * @return The identifier of the assignment.
+     * @since 1.0
      */
     public int getAssID()
     {
         return assid;
     }
     /**
+     * The module to which the assignment belongs.
+     * 
      * @return The module to which the assignment belongs.
+     * @since 1.0
      */
     public Module getModule()
     {
         return module;
     }
     /**
+     * The title of the assignment.
+     * 
      * @return The title of the assignment.
+     * @since 1.0
      */
     public String getTitle()
     {
         return title;
     }
     /**
+     * The weight of the assignment.
+     * 
      * @return The weight of the assignment.
+     * @since 1.0
      */
     public int getWeight()
     {
         return weight;
     }
     /**
+     * Indicates if the assignment is active.
+     * 
      * @return Indicates if the assignment can be taken by students.
+     * @since 1.0
      */
     public boolean isActive()
     {
         return active;
     }
     /**
+     * The maximum number of times this assignment can be taken by users.
+     * 
      * @return The maximum number of attempts; -1 for unlimited.
+     * @since 1.0
      */
     public int getMaxAttempts()
     {
         return maxAttempts;
     }
     /**
+     * The date at which the assignment can no longer be taken.
+     * 
      * @return The date-time of when the assignment is due; can be null.
+     * @since 1.0
      */
     public DateTime getDue()
     {
         return due;
     }
     /**
+     * A flag which is used to indicate if a node is handling a due-date being
+     * surpassed. Once surpassed and false, all instances of this assignment
+     * are set to true.
+     * 
      * @return Indicates if the due-date, once surpassed, has been handled.
+     * @since 1.0
      */
     public boolean isDueHandled()
     {
         return dueHandled;
     }
     /**
+     * Indicates if the due-date has been surpassed.
+     * 
      * @return Indicates if the due-date for the assignment has been surpassed
      * by the present time and it is now in the past.
+     * @since 1.0
      */
     public boolean isDueSurpassed()
     {
@@ -440,16 +539,22 @@ public class Assignment
     }
     // Methods - Accessors/Mutators - Questions ********************************
     /**
+     * The underlying data-structure used to hold the assignment questions.
+     * 
      * @return The map of the questions; the key is the page and the value is
      * the list of questions for that page, ordered by zindex.
+     * @since 1.0
      */
     public HashMap<Integer, ArrayList<AssignmentQuestion>> questionsMap()
     {
         return questions;
     }
     /**
+     * Fetches questions for a page.
+     * 
      * @param page The page of questions to retrieve.
      * @return All of the questions for the specified page.
+     * @since 1.0
      */
     public AssignmentQuestion[] questions(int page)
     {
@@ -457,17 +562,26 @@ public class Assignment
         return buffer == null ? new AssignmentQuestion[0] : buffer.toArray(new AssignmentQuestion[buffer.size()]);
     }
     /**
+     * Fetches the numbers of all the available question pages for this
+     * assignment.
+     * 
      * @return Fetches an array of pages based on the questions loaded in the
      * collection; questionsPagesDb should be invoked if only a certain page
      * of questions have been loaded.
+     * @since 1.0
      */
     public Integer[] questionsPages()
     {
         return questions.keySet().toArray(new Integer[questions.size()]);
     }
     /**
+     * Fetches the numbers of all the available question pages for this
+     * assignment. This is retrieved from the database, when the models
+     * of questions have not been loaded.
+     * 
      * @param conn Database connector.
      * @return Array of question pages available.
+     * @since 1.0
      */
     public Integer[] questionsPagesDb(Connector conn)
     {
@@ -494,6 +608,7 @@ public class Assignment
      * 
      * @param conn Database connector.
      * @return True = all removed, false = failed.
+     * @since 1.0
      */
     public boolean questionsRemoveAll(Connector conn)
     {
@@ -518,6 +633,7 @@ public class Assignment
      * @param page The page; if greater than zero, questions are filtered by
      * their page.
      * @return True = loaded, false = failed.
+     * @since 1.0
      */
     public boolean questionsLoad(NodeCore core, Connector conn, int page)
     {
@@ -558,14 +674,20 @@ public class Assignment
     }
     // Methods - Accessors - Limits ********************************************
     /**
+     * The minimum length of a title.
+     * 
      * @return The minimum length of an assignment title.
+     * @since 1.0
      */
     public int getTitleMin()
     {
         return 1;
     }
     /**
+     * The maximum length of a title.
+     * 
      * @return The maximum length of an assignment title.
+     * @since 1.0
      */
     public int getTitleMax()
     {

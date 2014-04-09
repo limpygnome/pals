@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -29,12 +28,16 @@ package pals.base;
 
 /**
  * Represents a setting, in a Settings collection.
+ * 
+ * @version 1.0
  */
 public class SettingsNode
 {
     // Enums *******************************************************************
     /**
      * The data-type of the setting.
+     * 
+     * @since 1.0
      */
     public enum DataType
     {
@@ -50,15 +53,22 @@ public class SettingsNode
             this.dataType = dataType;
         }
         /**
+         * The number representing the data-type.
+         * 
          * @return The data-type's value.
+         * @since 1.0
          */
         public int getDataType()
         {
             return dataType;
         }
         /**
+         * Fetches the enum equivalent based on either the number or string
+         * represented name.
+         * 
          * @param type The type to retrieve.
          * @return The enum of the data-type.
+         * @since 1.0
          */
         public static DataType getType(String type)
         {
@@ -104,9 +114,11 @@ public class SettingsNode
     /**
      * Parses raw-data as the specified data-type; this does not throw errors,
      * however invalid data will result in a null reference.
+     * 
      * @param rawData The raw-data to be transformed.
      * @param type The data-type of the raw-data.
      * @return The raw-data transformed into the specified type.
+     * @since 1.0
      */
     public static Object parseDataType(String rawData, DataType type)
     {
@@ -145,8 +157,10 @@ public class SettingsNode
      * Examples:
      * hello/world
      * __hello_/world
+     * 
      * @param path The path to be tested.
      * @return True if valid, false if invalid.
+     * @since 1.0
      */
     public static boolean validNodePath(String path)
     {
@@ -162,29 +176,40 @@ public class SettingsNode
      * 
      * @param <T> The type of the data.
      * @return The data as the specified type.
+     * @since 1.0
      */
     public <T> T get()
     {
         return (T)getData();
     }
     /**
+     * The path of this node.
+     * 
      * @return The path of this node.
+     * @since 1.0
      */
     public String getPath()
     {
         return path;
     }
     /**
-     * @return Gets the raw data.
+     * The data of this node.
+     * 
+     * @return Gets the raw data; can be null.
+     * @since 1.0
      */
     public Object getData()
     {
         return data;
     }
     /**
+     * Sets the value of a node.
+     * 
      * Note: if the collection is read-only, this will have no effect.
+     * 
      * @param data Sets the raw data.
      * @param type Sets the type of the raw-data.
+     * @since 1.0
      */
     public void setData(Object data, DataType type)
     {
@@ -192,7 +217,10 @@ public class SettingsNode
         this.type = type;
     }
     /**
+     * The data-type of this node.
+     * 
      * @return Gets the data-type.
+     * @since 1.0
      */
     public DataType getType()
     {

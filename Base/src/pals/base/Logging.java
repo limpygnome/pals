@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -44,6 +43,8 @@ import org.joda.time.DateTime;
  * entry.
  * 
  * Thread-safe.
+ * 
+ * @version  1.0
  */
 public class Logging 
 {
@@ -51,19 +52,27 @@ public class Logging
     /**
      * The type of log entry being made; allows different priorities of
      * messages regarding the system.
+     * 
+     * @since 1.0
      */
     public enum EntryType
     {
         /**
          * A log entry which is general information.
+         * 
+         * @since 1.0
          */
         Info,
         /**
          * A log entry which is a warning.
+         * 
+         * @since 1.0
          */
         Warning,
         /**
          * A log entry about a critical error.
+         * 
+         * @since 1.0
          */
         Error;
         /**
@@ -74,6 +83,7 @@ public class Logging
          * "All" for all types.
          * @return Representation of that list as an EnumSet; returns null if
          * parsing error.
+         * @since 1.0
          */
         public static EnumSet<EntryType> getSet(String data)
         {
@@ -106,6 +116,8 @@ public class Logging
     /**
      * Maximum length of a logging alias, used to identify the source of a
      * logging entry.
+     * 
+     * @since 1.0
      */
     private final static int    ALIAS_MAX_LENGTH    = 16;
     // Fields ******************************************************************
@@ -124,6 +136,7 @@ public class Logging
      * @param stackTraces Indicates if to log stack-traces.
      * @param typesLogged The type of events to log; use bit-wise OR for multiple
      * types.
+     * @since 1.0
      */
     private Logging(NodeCore core, String alias, boolean stackTraces, EnumSet<EntryType> typesLogged)
     {
@@ -141,6 +154,7 @@ public class Logging
      * @param alias The name of the component producing the message.
      * @param ex The exception which has occurred.
      * @param et The log entry type.
+     * @since 1.0
      */
     public synchronized void logEx(String alias, Throwable ex, EntryType et)
     {
@@ -153,6 +167,7 @@ public class Logging
      * @param message The message to append with the exception, can be null.
      * @param ex The exception which has occurred.
      * @param et The log entry type.
+     * @since 1.0
      */
     public synchronized void logEx(String alias, String message, Throwable ex, EntryType et)
     {
@@ -184,6 +199,7 @@ public class Logging
      * @param alias The name of the component producing the message.
      * @param message The message to be logged.
      * @param et The log entry type.
+     * @since 1.0
      */
     public synchronized void log(String alias, String message, EntryType et)
     {
@@ -282,6 +298,8 @@ public class Logging
     /**
      * Disposes this instance of logging; important to release the file used for
      * logging.
+     * 
+     * @since 1.0
      */
     public synchronized void dispose()
     {
@@ -306,6 +324,7 @@ public class Logging
      * @param typesLogged The type of events logged.
      * 
      * @return Instance or null if an error occurred.
+     * @since 1.0
      */
     public static Logging createInstance(NodeCore core, String alias, boolean stackTraces, EnumSet<EntryType> typesLogged)
     {
@@ -320,7 +339,10 @@ public class Logging
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets if stack-traces should be logged.
+     * 
      * @param enabled Sets if stack-traces are logged with exceptions.
+     * @since 1.0
      */
     public void setStackTraces(boolean enabled)
     {

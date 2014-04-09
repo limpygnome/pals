@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -47,6 +46,8 @@ import pals.base.web.WebRequestData;
  * root can be owned by different plugins.
  * 
  * Thread-safe.
+ * 
+ * @version 1.0
  */
 public class WebManager
 {
@@ -72,6 +73,7 @@ public class WebManager
      * Reloads all of the URL hooks.
      * 
      * @return True = successful, false = failed.
+     * @since 1.0
      */
     public synchronized boolean reload()
     {
@@ -94,6 +96,7 @@ public class WebManager
      * 
      * @param request The request data.
      * @param response The response data.
+     * @since 1.0
      */
     public void handleWebRequest(RemoteRequest request, RemoteResponse response)
     {
@@ -184,7 +187,10 @@ public class WebManager
     }
     // Methods - Accessors *****************************************************
     /**
+     * Fetches the underlying URL-tree data-structure for storing URLs.
+     * 
      * @return The URL tree used to store the plugins used to handle paths/URLs.
+     * @since 1.0
      */
     public synchronized UrlTree getUrlTree()
     {
@@ -192,13 +198,14 @@ public class WebManager
     }
     // Methods - Mutators ******************************************************
     /**
-     * Used to register paths for forwarding web-requests to a plugin.
+     * Used to register paths for forwarding web-requests to a {@link Plugin}.
      * 
      * @param plugin The plugin of where requests should be dispatched for the
      * specified paths.
      * @param paths The paths to be associated with the specified plugin.
      * @return True = added successfully, false = an error occurred (most likely
      * a conflicting plugin or possibly a malformed path).
+     * @since 1.0
      */
     public synchronized boolean urlsRegister(Plugin plugin, String[] paths)
     {
@@ -217,9 +224,10 @@ public class WebManager
         return true;
     }
     /**
-     * Removes all paths associated with a plugin.
+     * Removes all paths associated with a {@link Plugin}.
      * 
      * @param plugin The plugin associated with the paths to be removed.
+     * @since 1.0
      */
     public synchronized void urlsUnregister(Plugin plugin)
     {

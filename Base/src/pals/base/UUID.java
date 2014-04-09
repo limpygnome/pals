@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -35,6 +34,8 @@ import java.util.Random;
  * 
  * Using specification RFC4122, available at:
  * http://www.ietf.org/rfc/rfc4122.txt
+ * 
+ * @version 1.0
  */
 public class UUID implements Serializable
 {
@@ -55,13 +56,22 @@ public class UUID implements Serializable
     // Methods - Static ********************************************************
     /**
      * Attempts to parse a UUID from data.
+     * 
      * @param data UUID as a hexadecimal string with or without hyphens.
      * @return UUID, if valid, or null.
+     * @since 1.0
      */
     public static UUID parse(String data)
     {
         return isValid(data) ? new UUID(data) : null;
     }
+    /**
+     * Parses an identifier from byte-data.
+     * 
+     * @param data The data to parse.
+     * @return An instance of a parsed identifier, or null if unparsable.
+     * @since 1.0
+     */
     public static UUID parse(byte[] data)
     {
         // Check byte array is valid
@@ -84,9 +94,11 @@ public class UUID implements Serializable
     }
     /**
      * Indicates if the data is a valid UUID.
+     * 
      * @param data A hexadecimal string representation of a UUID; can have
      * hyphens.
      * @return True if valid, false if invalid.
+     * @since 1.0
      */
     public static boolean isValid(String data)
     {
@@ -98,7 +110,9 @@ public class UUID implements Serializable
     /**
      * Generates a version 4 UUID, which is generated using pseudo-random
      * numbers (Java's Random class, seeded with System.currentTimeMillis()).
+     * 
      * @return Version 4 UUID.
+     * @since 1.0
      */
     public static UUID generateVersion4()
     {
@@ -127,7 +141,9 @@ public class UUID implements Serializable
     // Methods - Accessors *****************************************************
     /**
      * Gets the string hexadecimal representation of the UUID.
+     * 
      * @return UUID as string, upper-case.
+     * @since 1.0
      */
     public String getHex()
     {
@@ -135,7 +151,9 @@ public class UUID implements Serializable
     }
     /**
      * Gets the string hexadecimal representation of the UUID, with hyphens.
+     * 
      * @return UUID as string, with hyphens and upper-case.
+     * @since 1.0
      */
     public String getHexHyphens()
     {
@@ -144,7 +162,9 @@ public class UUID implements Serializable
     /**
      * Gets the UUID as a series of bytes; note: this is recompiled each time,
      * therefore it should be cached when used multiple times (expensive).
+     * 
      * @return Byte-array of the UUID, consisting of sixteen bytes.
+     * @since 1.0
      */
     public byte[] getBytes()
     {
@@ -178,11 +198,23 @@ public class UUID implements Serializable
         return (char)(intChar > 9 ? intChar+55 : intChar+48);
     }
     // Methods - Overrides *****************************************************
+    /**
+     * Compares two identifiers for similarity.
+     * 
+     * @param o The other instance to be compared.
+     * @return True = same, false = not the same.
+     * @since 1.0
+     */
     @Override
     public boolean equals(Object o)
     {
         return o instanceof UUID && o != null && ((UUID)o).data.equals(data);
     }
+    /**
+     * @see Object#hashCode()
+     * 
+     * @since 1.0
+     */
     @Override
     public int hashCode()
     {
@@ -193,5 +225,4 @@ public class UUID implements Serializable
             hashval += c;
         return hashval;
     }
-    
 }

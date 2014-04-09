@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -39,30 +38,42 @@ import pals.base.utils.Misc;
 
 /**
  * An instance of an assignment question's criteria.
+ * 
+ * @version 1.0
  */
 public class InstanceAssignmentCriteria
 {
     // Enums *******************************************************************
     /**
      * The status of the criteria being marked.
+     * 
+     * @since 1.0
      */
     public enum Status
     {
         /**
          * The criteria is awaiting manual-marking from a human.
+         * 
+         * @since 1.0
          */
         AwaitingManualMarking(0),
         /**
          * The criteria is being answered by a user; this means the criteria
          * is active and should not be marked.
+         * 
+         * @since 1.0
          */
         BeingAnswered(1),
         /**
          * The criteria is queued for marking.
+         * 
+         * @since 1.0
          */
         AwaitingMarking(2),
         /**
          * The criteria has been marked.
+         * 
+         * @since 1.0
          */
         Marked(4);
         
@@ -77,6 +88,7 @@ public class InstanceAssignmentCriteria
          * @param dbValue The database value (integer).
          * @return The status type; set to 'AwaitingManualMarking' if the data
          * cannot be parsed.
+         * @since 1.0
          */
         public static Status getStatus(int dbValue)
         {
@@ -94,38 +106,82 @@ public class InstanceAssignmentCriteria
         }
         /**
          * @return The db-value of this instance of a criteria.
+         * @since 1.0
          */
         public int getStatus()
         {
             return dbValue;
         }
     }
+    /**
+     * The status from persisting the model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted model.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist model due to exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Failed to serialize data.
+         * 
+         * @since 1.0
+         */
         Failed_Serialize,
+        /**
+         * Invalid instance of assignment question.
+         * 
+         * @since 1.0
+         */
         Invalid_InstanceAssignmentQuestion,
+        /**
+         * Invalid question criteria.
+         * 
+         * @since 1.0
+         */
         Invalid_QuestionCriteria,
+        /**
+         * Invalid mark.
+         * 
+         * @since 1.0
+         */
         Invalid_Mark
     }
     /**
      * Indicates the status of creating criteria for an instance of an
      * assignment.
+     * 
+     * @since 1.0
      */
     public enum CreateInstanceStatus
     {
         /**
          * Operation failed due to an error.
+         * 
+         * @since 1.0
          */
         Failed,
         /**
          * No instance question data exists, therefore no criteria were
          * created.
+         * 
+         * @since 1.0
          */
         Failed_NoInstanceQuestions,
         /**
          * Successfully created.
+         * 
+         * @since 1.0
          */
         Success
     }
@@ -139,6 +195,8 @@ public class InstanceAssignmentCriteria
     // Methods - Constructors **************************************************
     /**
      * Constructs a new model.
+     * 
+     * @since 1.0
      */
     public InstanceAssignmentCriteria()
     {
@@ -152,6 +210,7 @@ public class InstanceAssignmentCriteria
      * @param status The status of the criteria.
      * @param mark The mark assigned to the criteria (0 to 100).
      * @param data Serialized data; can be null.
+     * @since 1.0
      */
     public InstanceAssignmentCriteria(InstanceAssignmentQuestion iaq, QuestionCriteria qc, Status status, int mark, Object data)
     {
@@ -172,6 +231,7 @@ public class InstanceAssignmentCriteria
      * @param status The status to give each model.
      * @return The status from creating instances of criteria for the instances
      * of questions for the instance of an assignment.
+     * @since 1.0
      */
     public static CreateInstanceStatus createForInstanceAssignment(Connector conn, InstanceAssignment ia, Status status)
     {
@@ -230,6 +290,7 @@ public class InstanceAssignmentCriteria
      * @param conn Database connector.
      * @param timeoutMs The timeout period for the last_processed column.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentCriteria loadNextWork(NodeCore core, Connector conn, int timeoutMs)
     {
@@ -258,6 +319,7 @@ public class InstanceAssignmentCriteria
      * @param iaq Instance of the assignment question; cannot be null.
      * @param qc Question criteria; cannot be null.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentCriteria load(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq, QuestionCriteria qc)
     {
@@ -283,6 +345,7 @@ public class InstanceAssignmentCriteria
      * automatically loaded.
      * @param res The result from a query, with next() pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentCriteria loadAuto(NodeCore core, Connector conn, InstanceAssignment ia, Question q, Result res)
     {
@@ -314,6 +377,7 @@ public class InstanceAssignmentCriteria
      * @param qc The instance of the question criteria; cannot be null.
      * @param res The result from a query, with next() pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static InstanceAssignmentCriteria load(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq, QuestionCriteria qc, Result res)
     {
@@ -337,6 +401,7 @@ public class InstanceAssignmentCriteria
      * @param conn Database connector.
      * @param iaq An instance of an assignment question.
      * @return Array of criterias; can be empty.
+     * @since 1.0
      */
     public static InstanceAssignmentCriteria[] loadAll(NodeCore core, Connector conn, InstanceAssignmentQuestion iaq)
     {
@@ -364,6 +429,7 @@ public class InstanceAssignmentCriteria
      * 
      * @param conn Database connector.
      * @return The status from the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -420,6 +486,7 @@ public class InstanceAssignmentCriteria
      * 
      * @param conn Database connector.
      * @return True = unpersisted, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -442,6 +509,7 @@ public class InstanceAssignmentCriteria
      * @param conn Database connector.
      * @param ia The instance of an assignment.
      * @return True = success, false = failed.
+     * @since 1.0
      */
     public static boolean delete(Connector conn, InstanceAssignment ia)
     {
@@ -460,8 +528,11 @@ public class InstanceAssignmentCriteria
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the instance of the assignment question.
+     * 
      * @param iaq Sets the instance of the assignment question; this has no
      * effect if the model has been persisted.
+     * @since 1.0
      */
     public void setIAQ(InstanceAssignmentQuestion iaq)
     {
@@ -469,8 +540,11 @@ public class InstanceAssignmentCriteria
             this.iaq = iaq;
     }
     /**
+     * Sets the question criteria.
+     * 
      * @param qc Sets the question criteria; this has no effect if the model
      * has been persisted.
+     * @since 1.0
      */
     public void setQC(QuestionCriteria qc)
     {
@@ -478,22 +552,31 @@ public class InstanceAssignmentCriteria
             this.qc = qc;
     }
     /**
+     * Sets the status.
+     * 
      * @param status Sets the status of this model.
+     * @since 1.0
      */
     public void setStatus(Status status)
     {
         this.status = status;
     }
     /**
+     * Sets the mark, relative to the assignment question.
+     * 
      * @param mark Sets the mark of this model.
+     * @since 1.0
      */
     public void setMark(int mark)
     {
         this.mark = mark;
     }
     /**
+     * Sets the instance criteria data.
+     * 
      * @param <T> The type must be serializable.
      * @param data The unique data to be set for this instance; can be null.
+     * @since 1.0
      */
     public <T extends Serializable> void setData(T data)
     {
@@ -501,42 +584,58 @@ public class InstanceAssignmentCriteria
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the model has been persisted.
+     * Indicates if the model has been persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return persisted;
     }
     /**
-     * @return The instance of the assignment question.
+     * The instance of the assignment question.
+     * 
+     * @return Cannot be null.
      */
     public InstanceAssignmentQuestion getIAQ()
     {
         return iaq;
     }
     /**
-     * @return The question criteria.
+     * The question criteria.
+     * 
+     * @return Cannot be null.
      */
     public QuestionCriteria getQC()
     {
         return qc;
     }
     /**
+     * Refer to {@link Status} for more information.
+     * 
      * @return The status of this model.
+     * @since 1.0
      */
     public Status getStatus()
     {
         return status;
     }
     /**
-     * @return The mark of this model.
+     * The mark of this model.
+     * 
+     * @return From 0 to 100.
+     * @since 1.0
      */
     public int getMark()
     {
         return mark;
     }
     /**
-     * @return The unique data for this instance of the criteria.
+     * The unique data for this instance of the criteria.
+     * 
+     * @return The data; can be null.
+     * @since 1.0
      */
     public Object getData()
     {

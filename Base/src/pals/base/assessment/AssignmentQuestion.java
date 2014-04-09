@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -36,28 +35,79 @@ import pals.base.database.Result;
 
 /**
  * A model to represent a question of an assignment (assignment question).
+ * 
+ * @version 1.0
  */
 public class AssignmentQuestion
 {
     // Enums *******************************************************************
+    /**
+     * The status from persisting this model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist due to an exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Invalid assignment.
+         * 
+         * @since 1.0
+         */
         Invalid_Assignment,
+        /**
+         * Invalid question.
+         * 
+         * @since 1.0
+         */
         Invalid_Question,
+        /**
+         * The specified question has not been properly configured.
+         * 
+         * @since 1.0
+         */
         Invalid_Question_Not_Configured,
+        /**
+         * Invalid weight.
+         * 
+         * @since 1.0
+         */
         Invalid_Weight,
+        /**
+         * Invalid page.
+         * 
+         * @since 1.0
+         */
         Invalid_Page,
+        /**
+         * Invalid page-order.
+         * 
+         * @since 1.0
+         */
         Invalid_PageOrder
     }
     // Fields - Constants ******************************************************
     /**
      * Maximum value for page,
+     * 
+     * @since 1.0
      */
     public static final int PAGE_LIMIT          = 1000;
     /**
      * Maximum value for page-order.
+     * 
+     * @since 1.0
      */
     public static final int PAGE_ORDER_LIMIT    = 1000;
     // Fields ******************************************************************
@@ -70,6 +120,8 @@ public class AssignmentQuestion
     // Methods - Constructors **************************************************
     /**
      * Creates a new unpersisted assignment-question.
+     * 
+     * @since 1.0
      */
     public AssignmentQuestion()
     {
@@ -83,6 +135,7 @@ public class AssignmentQuestion
      * @param weight The weight of the question.
      * @param page The page of the question.
      * @param pageOrder The ordering of the question.
+     * @since 1.0
      */
     public AssignmentQuestion(Assignment assignment, Question question, int weight, int page, int pageOrder)
     {
@@ -101,6 +154,7 @@ public class AssignmentQuestion
      * @param conn Database connector.
      * @param ass The assignment to which the models belong.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static AssignmentQuestion[] loadAll(NodeCore core, Connector conn, Assignment ass)
     {
@@ -131,6 +185,7 @@ public class AssignmentQuestion
      * expensive.
      * @param aqid The identifier of the assignment question.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static AssignmentQuestion load(NodeCore core, Connector conn, Assignment ass, int aqid)
     {
@@ -158,6 +213,7 @@ public class AssignmentQuestion
      * expensive.
      * @param res The result of the query; this should have next() pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static AssignmentQuestion load(NodeCore core, Connector conn, Assignment ass, Result res)
     {
@@ -187,6 +243,7 @@ public class AssignmentQuestion
      * 
      * @param conn Database connector.
      * @return The status of the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -246,6 +303,7 @@ public class AssignmentQuestion
      * 
      * @param conn Database connector.
      * @return True = deleted, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -266,37 +324,54 @@ public class AssignmentQuestion
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the assignment to which the question belongs.
+     * 
      * @param assignment The assignment to which this question belongs.
+     * @since 1.0
      */
     public void setAssignment(Assignment assignment)
     {
         this.assignment = assignment;
     }
     /**
+     * Sets the question of this assignment question.
+     * 
      * @param question The question used.
+     * @since 1.0
      */
     public void setQuestion(Question question)
     {
         this.question = question;
     }
     /**
-     * @param weight The weight of the question.
+     * Sets the weight of the assignment question, relative to the
+     * assignment.
+     * 
+     * @param weight The weight of the question; can be any arbitrary
+     * positive number.
+     * @since 1.0
      */
     public void setWeight(int weight)
     {
         this.weight = weight;
     }
     /**
+     * Sets the page of the question.
+     * 
      * @param page The page of the question; must be greater than zero. Refer
-     * to PAGE_LIMIT for the limit.
+     * to {@link #PAGE_LIMIT} for the limit.
+     * @since 1.0
      */
     public void setPage(int page)
     {
         this.page = page;
     }
     /**
+     * Sets the order of which the question appears on a page.
+     * 
      * @param pageOrder The order of which the question is displayed on the
-     * page.Refer to PAGE_ORDER_LIMIT for the limit.
+     * page. Refer to {@link #PAGE_ORDER_LIMIT} for the limit.
+     * @since 1.0
      */
     public void setPageOrder(int pageOrder)
     {
@@ -304,50 +379,71 @@ public class AssignmentQuestion
     }
     // Methods - Accessors *****************************************************
     /**
+     * Indicates if the model has been persisted.
+     * 
      * @return Indicates if the model has been persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return aqid != -1;
     }
     /**
+     * The identifier of this assignment question.
+     * 
      * @return The identifier of the assignment question; allows for multiple
      * instances of questions for a single assignment.
+     * @since 1.0
      */
     public int getAQID()
     {
         return aqid;
     }
     /**
+     * The assignment to which this question belongs.
+     * 
      * @return The assignment to which this question belongs.
+     * @since 1.0
      */
     public Assignment getAssignment()
     {
         return assignment;
     }
     /**
-     * @return The question used.
+     * The question used for this assignment question.
+     * 
+     * @return The question.
+     * @since 1.0
      */
     public Question getQuestion()
     {
         return question;
     }
     /**
+     * The weight of the assignment question, relative to the assignment.
+     * 
      * @return The weight of the assignment question.
+     * @since 1.0
      */
     public int getWeight()
     {
         return weight;
     }
     /**
-     * @return The page of which to display the question on.
+     * The page of which the assignment question appears.
+     * 
+     * @return The page.
+     * @since 1.0
      */
     public int getPage()
     {
         return page;
     }
     /**
+     * The order/priority of the question on a page.
+     * 
      * @return The order of which the question is displayed on the page.
+     * @since 1.0
      */
     public int getPageOrder()
     {

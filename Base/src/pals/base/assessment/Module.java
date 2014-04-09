@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -38,17 +37,36 @@ import pals.base.database.Result;
 /**
  * Represents a (course) module; the system allows users/students to be enrolled
  * on different modules, which offer different assignments.
+ * 
+ * @version 1.0
  */
 public class Module
 {
     // Enums *******************************************************************
     /**
-     * The status from persisting the module.
+     * The status from attempting to persist a module.
+     * 
+     * @since 1.0
      */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist due to an exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Invalid title length.
+         * 
+         * @since 1.0
+         */
         Failed_title_length
     }
     // Fields ******************************************************************
@@ -66,6 +84,7 @@ public class Module
      * Creates a new unpersisted model.
      * 
      * @param title The title of the module.
+     * @since 1.0
      */
     public Module(String title)
     {
@@ -74,8 +93,11 @@ public class Module
     }
     // Methods - Persistence ***************************************************
     /**
+     * Loads all of the modules.
+     * 
      * @param conn Database connector.
      * @return An array with all of the modules (can be empty).
+     * @since 1.0
      */
     public static Module[] loadAll(Connector conn)
     {
@@ -102,9 +124,13 @@ public class Module
         }
     }
     /**
+     * Loads all of the modules to which a user is enrolled.
+     * 
      * @param conn Database connector.
      * @param user The user enrolled within the modules.
-     * @return Array of modules, of which the specified user is enrolled within.
+     * @return Array of modules, of which the specified user is enrolled
+     * within.
+     * @since 1.0
      */
     public static Module[] load(Connector conn, User user)
     {
@@ -130,9 +156,12 @@ public class Module
         }
     }
     /**
+     * Loads a module based on its identifier/
+     * 
      * @param conn Database connector.
      * @param moduleid The identifier of the module.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static Module load(Connector conn, int moduleid)
     {
@@ -150,9 +179,12 @@ public class Module
         }
     }
     /**
+     * Loads a module from a result.
+     * 
      * @param result The result instance from a query, with next() already
      * invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static Module load(Result result)
     {
@@ -175,6 +207,7 @@ public class Module
      * 
      * @param conn Database connector.
      * @return Status of persisting the model.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -206,6 +239,7 @@ public class Module
      * Unpersists the model from the database; can be re-used.
      * 
      * @param conn Database connector.
+     * @since 1.0
      */
     public void delete(Connector conn)
     {
@@ -229,6 +263,7 @@ public class Module
      * @param conn Database connector.
      * @param users The users of the module.
      * @return True = added, false = failed/error.
+     * @since 1.0
      */
     public boolean usersSet(Connector conn, User[] users)
     {
@@ -243,6 +278,7 @@ public class Module
      * @param conn Database connector.
      * @param user The user to add to the module.
      * @return True = added, false = failed/error.
+     * @since 1.0
      */
     public boolean usersAdd(Connector conn, User user)
     {
@@ -268,6 +304,7 @@ public class Module
      * @param users The users to add; the user should not be already added to
      * the module or this will fail.
      * @return True = added, false = failed/error.
+     * @since 1.0
      */
     public boolean usersAdd(Connector conn, User[] users)
     {
@@ -300,6 +337,7 @@ public class Module
      * @param conn Database connector.
      * @param user Removes a user
      * @return True = added, false = failed/error.
+     * @since 1.0
      */
     public boolean usersRemove(Connector conn, User user)
     {
@@ -322,6 +360,7 @@ public class Module
      * @param conn Database connector.
      * @param users The users to remove.
      * @return True = added, false = failed/error.
+     * @since 1.0
      */
     public boolean usersRemove(Connector conn, User[] users)
     {
@@ -352,6 +391,7 @@ public class Module
      * 
      * @param conn Database connector.
      * @return True = added, false = failed/error.
+     * @since 1.0
      */
     public boolean usersRemoveAll(Connector conn)
     {
@@ -374,6 +414,7 @@ public class Module
      * 
      * @param conn Database connector.
      * @return Array of users; may be empty.
+     * @since 1.0
      */
     public User[] usersEnrolled(Connector conn)
     {
@@ -400,7 +441,10 @@ public class Module
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the module's title.
+     * 
      * @param title The new title for the module.
+     * @since 1.0
      */
     public void setTitle(String title)
     {
@@ -408,29 +452,41 @@ public class Module
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the model has been persisted.
+     * Indicates if the model has been persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return moduleid != -1;
     }
     /**
+     * The identifier.
+     * 
      * @return The identifier of the module.
+     * @since 1.0
      */
     public int getModuleID()
     {
         return moduleid;
     }
     /**
+     * Retrieves the title of the module.
+     * 
      * @return The title of the module.
+     * @since 1.0
      */
     public String getTitle()
     {
         return title;
     }
     /**
+     * Retrieves the number of enrolled users for the module.
+     * 
      * @param conn Database connector.
      * @return Total number of enrolled users.
+     * @since 1.0
      */
     public int getUsersEnrolled(Connector conn)
     {
@@ -447,8 +503,11 @@ public class Module
         }
     }
     /**
+     * Retrieves the total number of assignments.
+     * 
      * @param conn Database connector.
      * @return Total number of assignments for this module.
+     * @since 1.0
      */
     public int getTotalAssignments(Connector conn)
     {
@@ -465,9 +524,12 @@ public class Module
         }
     }
     /**
+     * Checks if a user is enrolled in the module.
+     * 
      * @param conn Database connector.
      * @param user User to check.
      * @return Indicates if the user is enrolled on the module.
+     * @since 1.0
      */
     public boolean isEnrolled(Connector conn, User user)
     {
@@ -485,14 +547,20 @@ public class Module
     }
     // Methods - Accessors - Limits ********************************************
     /**
+     * The minimum length of the title.
+     * 
      * @return The minimum length of a module title.
+     * @since 1.0
      */
     public int getTitleMin()
     {
         return 1;
     }
     /**
+     * The maximum length of the title.
+     * 
      * @return Maximum length of a module title.
+     * @since 1.0
      */
     public int getTitleMax()
     {

@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -52,39 +51,48 @@ import pals.base.utils.JarIOException;
  * for e.g. processing work and handling the start/end of web-requests.
  * 
  * Thread-safe.
- * *****************************************************************************
- * Base hooks:
- * base.web.request_start           WebRequestData        Invoked at the start of a web-request.
- * base.web.request_end             WebRequestData        Invoked at the end of a web-request.
- * base.web.request_404             WebRequestData        Invoked to handle page not found event.
+ * 
+ * @version 1.0
  */
 public class PluginManager
 {
     // Enums *******************************************************************
     /**
      * The state of the plugin, held in the database.
+     * 
+     * @since 1.0
      */
     public enum DbPluginState
     {
         /**
          * Indicates the state is unknown.
+         * 
+         * @since 1.0
          */
         Unknown(0),
         /**
          * Indicates the plugin is pending installation.
+         * 
+         * @since 1.0
          */
         PendingInstall(1),
         /**
          * Indicates the plugin has been installed.
+         * 
+         * @since 1.0
          */
         Installed(2),
         /**
          * Indicates the plugin is pending uninstallation.
+         * 
+         * @since 1.0
          */
         PendingUninstall(4),
         /**
          * Indicates the plugin has been uninstalled; such a plugin will be
          * rejected from loading into the runtime.
+         * 
+         * @since 1.0
          */
         Uninstalled(8);
         
@@ -93,6 +101,15 @@ public class PluginManager
         {
             this.val = val;
         }
+        
+        /**
+         * Fetches an enum type based on value.
+         * 
+         * @param value The value of the plugin state.
+         * @return The enum representation; this is the unknown state if
+         * an enum cannot match the value.
+         * @since 1.0
+         */
         public static DbPluginState getType(int value)
         {
             switch(value)
@@ -110,7 +127,10 @@ public class PluginManager
             }
         }
         /**
+         * The value used on the database, for representing the state.
+         * 
          * @return The value of the state for persistence on the database.
+         * @since 1.0
          */
         public int getDbVal()
         {
@@ -119,26 +139,36 @@ public class PluginManager
     }
     /**
      * The status from attempting to load a plugin.
+     * 
+     * @since 1.0
      */
     public enum PluginLoad
     {
         /**
          * Indicates the JAR has been loaded as a plugin.
+         * 
+         * @since 1.0
          */
         Loaded,
         /**
          * Indicates the JAR could not be loaded because it's not a plugin or
          * has invalid plugin configuration.
+         * 
+         * @since 1.0
          */
         FailedIrrelevant,
         /**
          * Indicates the plugin has been uninstalled; thus it has been rejected
          * from loading into the runtime.
+         * 
+         * @since 1.0
          */
         FailedRejected,
         /**
          * Indicates the JAR is most likely a plugin, since it contains a
          * configuration file, but could not be loaded.
+         * 
+         * @since 1.0
          */
         Failed
     }
@@ -160,6 +190,7 @@ public class PluginManager
      * Re-registers all the global events.
      * 
      * @return True if successful, false if failed.
+     * @since 1.0
      */
     public synchronized boolean globalHookRegisterAll()
     {
@@ -183,6 +214,7 @@ public class PluginManager
      * @param event The name of the event.
      * @return True if subscribed, false if failed (most likely already
      * subscribed).
+     * @since 1.0
      */
     public synchronized boolean globalHookRegister(Plugin plugin, String event)
     {
@@ -205,6 +237,7 @@ public class PluginManager
      * 
      * @param plugin The plugin of the event to unregister.
      * @param event The event to unregister.
+     * @since 1.0
      */
     public synchronized void globalHookUnregister(Plugin plugin, String event)
     {
@@ -221,6 +254,7 @@ public class PluginManager
      * Unregisters all global hooks associated with a plugin.
      * 
      * @param plugin The plugin of the events to unregister.
+     * @since 1.0
      */
     public synchronized void globalHookUnregister(Plugin plugin)
     {
@@ -239,8 +273,11 @@ public class PluginManager
         }
     }
     /**
+     * Fetches all of the plugins hooked to an event.
+     * 
      * @param event The name of the global event.
-     * @return All of the plugins registered to an event or an empty array.
+     * @return All of the plugins registered to an event, or an empty array.
+     * @since 1.0
      */
     public synchronized Plugin[] globalHookFetch(String event)
     {
@@ -254,6 +291,7 @@ public class PluginManager
      * @param data The data to be passed to plugins.
      * @return True = a plugin handled the event, false = no plugins,
      * subscribed, have handled the event.
+     * @since 1.0
      */
     public synchronized boolean globalHookInvoke(String event, Object[] data)
     {
@@ -268,6 +306,7 @@ public class PluginManager
      * 
      * @param event The name of the global event.
      * @param data The data to be passed to plugins.
+     * @since 1.0
      */
     public synchronized void globalHookInvokeAll(String event, Object[] data)
     {
@@ -282,6 +321,7 @@ public class PluginManager
      * 
      * @param conn Database connector.
      * @return True if successful, false if failed.
+     * @since 1.0
      */
     public synchronized boolean reload(Connector conn)
     {
@@ -318,6 +358,7 @@ public class PluginManager
      * @param conn Database connector.
      * @param jarPath The path of the plugin.
      * @return True = successful, false = failed.
+     * @since 1.0
      */
     public synchronized PluginLoad load(Connector conn, String jarPath)
     {
@@ -643,6 +684,7 @@ public class PluginManager
      * 
      * @param plugin The plugin to be removed from the runtime.
      * @return True = unloaded, false = not found/not unloaded.
+     * @since 1.0
      */
     public synchronized boolean unload(Plugin plugin)
     {
@@ -660,6 +702,8 @@ public class PluginManager
     }
     /**
      * Unloads all of the plugins.
+     * 
+     * @since 1.0
      */
     public synchronized void unload()
     {
@@ -672,13 +716,17 @@ public class PluginManager
      * 
      * @param uuid The unique universal identifier of the plugin.
      * @return The current instance of the plugin or null.
+     * @since 1.0
      */
     public synchronized Plugin getPlugin(UUID uuid)
     {
         return plugins.get(uuid);
     }
     /**
-     * @return All of the active plugins in the runtime.
+     * Fetches all of the active plugins loaded in the current runtime.
+     * 
+     * @return Array of plugins, can be empty.
+     * @since 1.0
      */
     public synchronized Plugin[] getPlugins()
     {

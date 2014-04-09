@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -29,6 +28,8 @@ package pals.base;
 
 /**
  * Used to store information about a template.
+ * 
+ * @version 1.0
  */
 public class TemplateItem
 {
@@ -38,6 +39,15 @@ public class TemplateItem
     private final String    data;           // The data of the template.
     private final long      lastModified;   // The time at which the template was modified; used by FreeMarker exclusively.
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance of this class, used for storing data and
+     * information about a template.
+     * 
+     * @param plugin The plugin which owns the template; can be null.
+     * @param path The logical path of the template.
+     * @param data The template data.
+     * @since 1.0
+     */
     public TemplateItem(UUID plugin, String path, String data)
     {
         this.plugin = plugin;
@@ -47,29 +57,44 @@ public class TemplateItem
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return The plugin which owns the template; can be null.
+     * The plugin which owns the template; can be null.
+     * 
+     * @return The plugin; can be null.
+     * @since 1.0
      */
     public UUID getPluginUUID()
     {
         return plugin;
     }
     /**
+     * The logical path of the template. This is the path used to fetch
+     * the template from the template manager.
+     * 
      * @return The path of the template.
+     * @since 1.0
      */
     public String getPath()
     {
         return path;
     }
     /**
+     * The render data of the template.
+     * 
      * @return The data of the template.
+     * @since 1.0
      */
     public String getData()
     {
         return data;
     }
     /**
+     * The time the template was last modified. This is used by a third-party
+     * template rendering library and is set to the time this instance
+     * was constructed.
+     * 
      * @return The time at which the template was modified; used by FreeMarker
      * exclusively.
+     * @since 1.0
      */
     public long getLastModified()
     {

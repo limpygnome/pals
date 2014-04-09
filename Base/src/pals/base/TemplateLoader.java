@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -39,23 +38,33 @@ import java.util.Map;
  * StringTemplateLoader:
  * http://freemarker.org/docs/api/freemarker/cache/StringTemplateLoader.html
  * 
- * Except additional information, relevant to PALS, is stored.
+ * Except this class has additional information, relevant to PALS.
  * 
- * Thread-safe.
+ * Thread-safe, with the exception of documented methods.
+ * 
+ * @version 1.0
  */
 public class TemplateLoader implements freemarker.cache.TemplateLoader
 {
     // Fields ******************************************************************
     private final HashMap<String,TemplateItem> items;   // Stores the templates.
     // Methods - Constructors **************************************************
+    /**
+     * Creates a new instance of this class.
+     * 
+     * @since 1.0
+     */
     public TemplateLoader()
     {
         this.items = new HashMap<>();
     }
     // Methods *****************************************************************
     /**
+     * Indicates if the loader contains an item at a path.
+     * 
      * @param path The path to check.
      * @return Indicates if the path exists (true) or does not exist (false).
+     * @since 1.0
      */
     public synchronized boolean contains(String path)
     {
@@ -67,21 +76,28 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
      * @param plugin The owner of the template.
      * @param path The path of the template.
      * @param data The template data/source.
+     * @since 1.0
      */
     public synchronized void put(Plugin plugin, String path, String data)
     {
         items.put(path, new TemplateItem(plugin != null ? plugin.getUUID() : null, path, data));
     }
     /**
+     * Removes a template. No action occurs if the template does not exist.
+     * 
      * @param path The path of the template to be removed.
+     * @since 1.0
      */
     public synchronized void remove(String path)
     {
         items.remove(path);
     }
     /**
+     * Removes any templates, found in the collection, belonging to a plugin.
+     * 
      * @param plugin Any templates belonging to the specified plugin are
      * removed.
+     * @since 1.0
      */
     public synchronized void remove(Plugin plugin)
     {
@@ -100,7 +116,9 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
     }
     /**
      * Removes all of the items in the collection. You must also clear the
-     * template cache in the FreeMaker Configuration class.
+     * template cache, in the FreeMaker Configuration class.
+     * 
+     * @since 1.0
      */
     public synchronized void clear()
     {
@@ -111,6 +129,8 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
      * Refer to (FreeMarker) TemplateLoader for documentation.
      * 
      * Used by FreeMarker to close a template source.
+     * 
+     * @since 1.0
      */
     @Override
     public synchronized void closeTemplateSource(Object o) throws IOException
@@ -121,6 +141,8 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
      * Refer to (FreeMarker) TemplateLoader for documentation.
      * 
      * Used by FreeMarker to get a source for interfacing with a template.
+     * 
+     * @since 1.0
      */
     @Override
     public synchronized Object findTemplateSource(String path) throws IOException
@@ -131,6 +153,8 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
      * Refer to (FreeMarker) TemplateLoader for documentation.
      * 
      * Used by FreeMarker to read a template.
+     * 
+     * @since 1.0
      */
     @Override
     public synchronized Reader getReader(Object templateSource, String encoding) throws IOException
@@ -141,6 +165,8 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
      * Refer to (FreeMarker) TemplateLoader for documentation.
      * 
      * Indicates when the template was last modified.
+     * 
+     * @since 1.0
      */
     @Override
     public synchronized long getLastModified(Object templateSource)
@@ -149,22 +175,33 @@ public class TemplateLoader implements freemarker.cache.TemplateLoader
     }
     // Methods - Accessors *****************************************************
     /**
+     * Fetches a template item.
+     * 
      * @param path The path of the template to retrieve.
      * @return The template at the specified path or null.
+     * @since 1.0
      */
     public synchronized TemplateItem getItem(String path)
     {
         return items.get(path);
     }
     /**
+     * Fetches all of the template items.
+     * 
      * @return All of the templates in the collection.
+     * @since 1.0
      */
     public synchronized TemplateItem[] getItems()
     {
         return items.values().toArray(new TemplateItem[items.size()]);
     }
     /**
+     * Fetches the underlying data-structure used to store the templates.
+     * 
+     * WARNING: not thread safe.
+     * 
      * @return The underlying map used to store templates.
+     * @since 1.0
      */
     public synchronized HashMap<String,TemplateItem> getMap()
     {

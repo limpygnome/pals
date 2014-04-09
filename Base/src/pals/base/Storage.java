@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -36,16 +35,48 @@ import pals.base.web.UploadedFile;
 
 /**
  * A static class responsible for delegating the storage of general files.
+ * 
+ * @version 1.0
  */
 public class Storage
 {
     // Enums *******************************************************************
+    /**
+     * The result from checking access to a storage path.
+     * 
+     * @since 1.0
+     */
     public enum StorageAccess
     {
+        /**
+         * Indicates the storage does not exist.
+         * 
+         * @since 1.0
+         */
         DoesNotExist,
+        /**
+         * Indicates the storage lacks read permissions.
+         * 
+         * @since 1.0
+         */
         CannotRead,
+        /**
+         * Indicates the storage lacks write permissions.
+         * 
+         * @since 1.0
+         */
         CannotWrite,
+        /**
+         * Indicates the storage lacks execution permissions.
+         * 
+         * @since 1.0
+         */
         CannotExecute,
+        /**
+         * Indicates the storage is available.
+         * 
+         * @since 1.0
+         */
         Ready
     }
     // Methods - Static ********************************************************
@@ -55,6 +86,7 @@ public class Storage
      * 
      * @param pathShared The path to the shared directory.
      * @return True if successfully created/exist, false if failed.
+     * @since 1.0
      */
     public static boolean checkFoldersCreated(String pathShared)
     {
@@ -97,7 +129,7 @@ public class Storage
         }
         return true;
     }
-    public static boolean checkCreated(String path)
+    private static boolean checkCreated(String path)
     {
         File f = new File(path);
         return !f.exists() ? f.mkdir() : true;
@@ -111,6 +143,7 @@ public class Storage
      * @param requiresWrite Indicates if to check write permissions.
      * @param requiresExecute Indicates if to check execute permissions.
      * @return The access available to the path.
+     * @since 1.0
      */
     public static StorageAccess checkAccess(String path, boolean isDir, boolean requiresRead, boolean requiresWrite, boolean requiresExecute)
     {
@@ -138,6 +171,7 @@ public class Storage
      * 
      * @param pathShared The path of the shared directory/storage.
      * @return The path of the templates directory.
+     * @since 1.0
      */
     public static String getPath_templates(String pathShared)
     {
@@ -148,6 +182,7 @@ public class Storage
      * 
      * @param pathShared The path of the shared directory/storage.
      * @return The path of the logs directory.
+     * @since 1.0
      */
     public static String getPath_logs(String pathShared)
     {
@@ -159,6 +194,7 @@ public class Storage
      * 
      * @param pathShared The path of the shared directory/storage.
      * @return The path of the temporary web directory.
+     * @since 1.0
      */
     public static String getPath_tempWeb(String pathShared)
     {
@@ -172,6 +208,7 @@ public class Storage
      * @param ip The remote address of the user.
      * @return The path for a new directory; this must be created by the
      * invoker.
+     * @since 1.0
      */
     public static String getPath_tempWebDir(String pathShared, String ip)
     {
@@ -185,6 +222,7 @@ public class Storage
      * @param pathShared The path of the shared directory/storage.
      * @param ip The remote address of the user.
      * @return The path for a new file.
+     * @since 1.0
      */
     public static String getPath_tempWebFile(String pathShared, String ip)
     {
@@ -196,30 +234,41 @@ public class Storage
      * @param pathShared The path of the shared directory/storage.
      * @param file The file used to generate the path.
      * @return The path of the specified file.
+     * @since 1.0
      */
     public static String getPath_tempWebFile(String pathShared, UploadedFile file)
     {
         return getPath_tempWeb(pathShared)+"/"+file.getTempName();
     }
     /**
+     * The path for storing data for instance of assignment questions.
+     * 
      * @param pathShared The path of the shared directory/storage.
-     * @return The root path used for storing temporary data for instance assignment questions.
+     * @return The root path used for storing temporary data for instance
+     * assignment questions.
+     * @since 1.0
      */
     public static String getPath_tempIAQ(String pathShared)
     {
         return pathShared + "/temp_iaq";
     }
     /**
+     * The path for storing data for a question.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @return The root path used for storing temporary data for instances of questions.
+     * @since 1.0
      */
     public static String getPath_tempQuestion(String pathShared)
     {
         return pathShared + "/temp_q";
     }
     /**
+     * The path for storing data for a question criteria.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @return The root path used for storing temporary data for instances of question-criteria.
+     * @since 1.0
      */
     public static String getPath_tempQC(String pathShared)
     {
@@ -227,18 +276,24 @@ public class Storage
     }
     // Methods - Path Construction - Specific **********************************
     /**
+     * The path for storing data for instance of assignment questions.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @param iaq  The instance of the assignment question.
      * @return The path of the temporary directory for the instance of an IAQ.
+     * @since 1.0
      */
     public static String getPath_tempIAQ(String pathShared, InstanceAssignmentQuestion iaq)
     {
         return getPath_tempIAQ(pathShared, iaq.getAIQID());
     }
     /**
+     * The path for storing data for instance of assignment questions.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @param aiqid  The identifier of the instance.
      * @return The path of the temporary directory for the instance of an IAQ.
+     * @since 1.0
      */
     public static String getPath_tempIAQ(String pathShared, int aiqid)
     {
@@ -248,33 +303,43 @@ public class Storage
      * @param pathShared The path of the shared directory/storage.
      * @param q The question instance.
      * @return The temporary path for the instance of the question.
+     * @since 1.0
      */
     public static String getPath_tempQuestion(String pathShared, Question q)
     {
         return getPath_tempQuestion(pathShared, q.getQID());
     }
     /**
+     * The path for storing data for a question.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @param qid The identifier of the instance.
      * @return The temporary path for the instance of the question.
+     * @since 1.0
      */
     public static String getPath_tempQuestion(String pathShared, int qid)
     {
         return pathShared + "/temp_q/" + qid;
     }
     /**
+     * The path for storing data for a question criteria.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @param qc The question criteria instance.
      * @return The temporary path for the instance of the question-criteria.
+     * @since 1.0
      */
     public static String getPath_tempQC(String pathShared, QuestionCriteria qc)
     {
         return getPath_tempQC(pathShared, qc.getQCID());
     }
     /**
+     * The path for storing data for a question criteria.
+     * 
      * @param pathShared The path of the shared directory/storage.
      * @param qcid The identifier of the instance.
      * @return The temporary path for the instance of the question-criteria.
+     * @since 1.0
      */
     public static String getPath_tempQC(String pathShared, int qcid)
     {

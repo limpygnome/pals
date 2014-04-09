@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -54,12 +53,16 @@ import java.util.Map;
  * between plugins, however the same path cannot be mapped multiple times.
  * 
  * Thread-safe.
+ * 
+ * @version 1.0
  */
 public class UrlTree
 {
     // Enums *******************************************************************
     /**
      * The status of registering a URL/path.
+     * 
+     * @since 1.0
      */
     public enum RegisterStatus
     {
@@ -72,6 +75,8 @@ public class UrlTree
     // Methods - Constructors **************************************************
     /**
      * Creates a new empty URL tree.
+     * 
+     * @since 1.0
      */
     public UrlTree()
     {
@@ -103,7 +108,9 @@ public class UrlTree
     }
     // Methods - Mutators ******************************************************
     /**
-     * Resets the URL tree.
+     * Resets/clears the URL tree.
+     * 
+     * @since 1.0
      */
     public synchronized void reset()
     {
@@ -117,6 +124,7 @@ public class UrlTree
      * @param plugin The owner of the path.
      * @param path The path of the URL; without tailing forward slashes.
      * @return The status of attempting to add the URL.
+     * @since 1.0
      */
     public synchronized RegisterStatus add(Plugin plugin, String path)
     {
@@ -158,6 +166,7 @@ public class UrlTree
      * Removes all of the paths associated with a plugin.
      * 
      * @param plugin The plugin which owns the path(s).
+     * @since 1.0
      */
     public synchronized void remove(Plugin plugin)
     {
@@ -173,6 +182,7 @@ public class UrlTree
      * 
      * @param path The path of which to fetch plugins.
      * @return Array of plugins for the specified path.
+     * @since 1.0
      */
     public UUID[] getUUIDs(String path)
     {
@@ -203,7 +213,10 @@ public class UrlTree
 
     // Methods - Debug *********************************************************
     /**
+     * Fetches all of the relative URLs stored in this tree.
+     * 
      * @return All the URLs currently held by the collection.
+     * @since 1.0
      */
     public synchronized String[] getUrls()
     {

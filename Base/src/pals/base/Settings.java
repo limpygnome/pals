@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -57,25 +56,35 @@ import pals.base.utils.Files;
  * A collection which holds key/value settings data, which can be loaded/saved
  * to file.
  * 
- * Thread-safe.
+ * Thread-safe, with the exception of documented methods.
+ * 
+ * @since 1.0
  */
 public class Settings
 {
     // Constants ***************************************************************
     /**
      * The root XML element name in settings files.
+     * 
+     * @since 1.0
      */
     private static final String SETTINGS_XML_TOPNODE = "settings";
     /**
      * The XML element name of settings in a settings file.
+     * 
+     * @since 1.0
      */
     private static final String SETTINGS_XML_NODE_NAME = "item";
     /**
      * The name of the attribute for storing the path.
+     * 
+     * @since 1.0
      */
     private static final String SETTINGS_XML_NODE__PATH = "path";
     /**
      * The name of the attribute for storing the data-type.
+     * 
+     * @since 1.0
      */
     private static final String SETTINGS_XML_NODE__DATATYPE = "datatype";
     // Fields ******************************************************************
@@ -84,8 +93,10 @@ public class Settings
     // Methods - Constructors **************************************************
     /**
      * Creates a new instance of a settings store.
+     * 
      * @param readOnly Indicates if the collection is read-only; if true, the
      * collection cannot be saved.
+     * @since 1.0
      */
     public Settings(boolean readOnly)
     {
@@ -100,7 +111,8 @@ public class Settings
      * @param readOnly Indicates if the collection should be read-only.
      * @return An instance of a settings collection, loaded with the settings in
      * the XML.
-     * @throws SettingsException 
+     * @throws SettingsException Thrown if the settings file cannot be loaded.
+     * @since 1.0
      */
     public static Settings load(String path, boolean readOnly) throws SettingsException
     {
@@ -122,7 +134,8 @@ public class Settings
      * @param readOnly Indicates if the collection should be read-only.
      * @return An instance of a settings collection, loaded with the settings in
      * the XML.
-     * @throws SettingsException 
+     * @throws SettingsException Thrown if the settings file cannot be loaded.
+     * @since 1.0
      */
     public static Settings loadXml(String xml, boolean readOnly) throws SettingsException
     {
@@ -192,6 +205,8 @@ public class Settings
      * @param path The path of where to save the configuration.
      * @throws SettingsException Thrown if an error occurs saving the
      * configuration to file.
+     * 
+     * @since 1.0
      */
     public synchronized void save(String path) throws SettingsException
     {
@@ -207,6 +222,13 @@ public class Settings
             throw new SettingsException(SettingsException.Type.FailedToSave_File, ex);
         }
     }
+    /**
+     * Builds the output for saving the settings in XML format.
+     * 
+     * @return The text output of the saved settings, as XML.
+     * @throws SettingsException Thrown if the setting cannot be built.
+     * @since 1.0
+     */
     public synchronized String save() throws SettingsException
     {
         // Lock the collection
@@ -255,7 +277,10 @@ public class Settings
     }
     // Methods - Accessors *****************************************************
     /**
+     * Indicates if the settings is read-only, and can therefore not be saved.
+     * 
      * @return Indicates if the collection is read-only.
+     * @since 1.0
      */
     public boolean isReadOnly()
     {
@@ -263,8 +288,10 @@ public class Settings
     }
     /**
      * Fetches a settings node.
+     * 
      * @param path The path of the node.
      * @return Node data or null.
+     * @since 1.0
      */
     public synchronized SettingsNode getNode(String path)
     {
@@ -281,6 +308,7 @@ public class Settings
      * more information.
      * @param path The path of the node.
      * @return The data of the node as the specified type; possibly null.
+     * @since 1.0
      */
     public synchronized <T> T get(String path)
     {
@@ -296,6 +324,7 @@ public class Settings
      * @return The data of the node as the specified type; possibly null.
      * @throws SettingsException Thrown if a node at the specified path does not
      * exist.
+     * @since 1.0
      */
     public synchronized <T> T get2(String path) throws SettingsException
     {
@@ -314,6 +343,7 @@ public class Settings
      * 
      * @param path The path of the node.
      * @return Data as a string.
+     * @since 1.0
      */
     public synchronized String getStr(String path)
     {
@@ -329,6 +359,7 @@ public class Settings
      * @param alternative The alternative value if the node is null/does not
      * exist.
      * @return Data as a string.
+     * @since 1.0
      */
     public synchronized String getStr(String path, String alternative)
     {
@@ -343,6 +374,7 @@ public class Settings
      * 
      * @param path The path of the node.
      * @return Data as a boolean.
+     * @since 1.0
      */
     public synchronized boolean getBool(String path)
     {
@@ -358,6 +390,7 @@ public class Settings
      * @param alternative The alternative value if the node is null/does not
      * exist.
      * @return Data as a boolean.
+     * @since 1.0
      */
     public synchronized boolean getBool(String path, boolean alternative)
     {
@@ -372,6 +405,7 @@ public class Settings
      * 
      * @param path The path of the node.
      * @return Data as an integer.
+     * @since 1.0
      */
     public synchronized int getInt(String path)
     {
@@ -387,6 +421,7 @@ public class Settings
      * @param alternative The alternative value if the node is null/does not
      * exist.
      * @return Data as an integer.
+     * @since 1.0
      */
     public synchronized int getInt(String path, int alternative)
     {
@@ -401,6 +436,7 @@ public class Settings
      * 
      * @param path The path of the node.
      * @return Data as a float.
+     * @since 1.0
      */
     public synchronized float getFloat(String path)
     {
@@ -416,6 +452,7 @@ public class Settings
      * @param alternative The alternative value if the node is null/does not
      * exist.
      * @return Data as a float.
+     * @since 1.0
      */
     public synchronized float getFloat(String path, float alternative)
     {
@@ -430,6 +467,7 @@ public class Settings
      * 
      * @param path The path of the node.
      * @return Data as a double.
+     * @since 1.0
      */
     public synchronized double getDouble(String path)
     {
@@ -445,6 +483,7 @@ public class Settings
      * @param alternative The alternative value if the node is null/does not
      * exist.
      * @return Data as a double.
+     * @since 1.0
      */
     public synchronized double getDouble(String path, double alternative)
     {
@@ -452,8 +491,12 @@ public class Settings
         return obj == null ? alternative : obj;
     }
     /**
+     * The raw data-structure for the settings.
+     * 
      * WARNING: this is not thread-safe!
+     * 
      * @return EntrySet for iterating the settings.
+     * @since 1.0
      */
     public synchronized Set<Map.Entry<String,SettingsNode>> getRaw()
     {
@@ -469,6 +512,7 @@ public class Settings
      * @param dataType The type of the setting's value.
      * @param value The value of the setting; can be null.
      * @return True if updated/created, false if failed.
+     * @since 1.0
      */
     public synchronized boolean set(String path, SettingsNode.DataType dataType, Object value)
     {
@@ -488,46 +532,60 @@ public class Settings
         return true;
     }
     /**
-     * Note: empty strings can become null when reloaded!
+     * Sets a setting.
+     * 
      * @param path The path of the setting.
      * @param value The value of the setting.
      * @return True if set, false if failed.
+     * @since 1.0
      */
     public synchronized boolean setString(String path, String value)
     {
         return set(path, SettingsNode.DataType.String, value);
     }
     /**
+     * Sets a setting.
+     * 
      * @param path The path of the setting.
      * @param value The value of the setting.
      * @return True if set, false if failed.
+     * @since 1.0
      */
     public synchronized boolean setBool(String path, Boolean value)
     {
         return set(path, SettingsNode.DataType.Boolean, value);
     }
     /**
+     * Sets a setting.
+     * 
      * @param path The path of the setting.
      * @param value The value of the setting.
      * @return True if set, false if failed.
+     * @since 1.0
      */
     public synchronized boolean setInt(String path, Integer value)
     {
         return set(path, SettingsNode.DataType.Integer, value);
     }
     /**
+     * Sets a setting.
+     * 
      * @param path The path of the setting.
      * @param value The value of the setting.
      * @return True if set, false if failed.
+     * @since 1.0
      */
     public synchronized boolean setFloat(String path, Float value)
     {
         return set(path, SettingsNode.DataType.Float, value);
     }
     /**
+     * Sets a setting.
+     * 
      * @param path The path of the setting.
      * @param value The value of the setting.
      * @return True if set, false if failed.
+     * @since 1.0
      */
     public synchronized boolean setDouble(String path, Double value)
     {

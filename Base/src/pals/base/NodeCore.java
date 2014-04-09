@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -30,7 +29,6 @@ package pals.base;
 import pals.base.rmi.RMI_DefaultServer;
 import pals.base.rmi.RMI;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -48,6 +46,8 @@ import pals.base.utils.Misc;
  * such as plugin management, logging and node intercommunication.
  * 
  * Only one NodeCore may run; singleton design pattern enforced.
+ * 
+ * @version 1.0
  */
 public class NodeCore
 {
@@ -57,50 +57,72 @@ public class NodeCore
      * 
      * The core can be in different states, which indicate the runtime
      * operation mode of the base system.
+     * 
+     * @since 1.0
      */
     public enum State
     {
         /**
          * Indicates the core is starting.
+         * 
+         * @since 1.0
          */
         Starting,
         /**
          * Indicates the core has started/is running.
+         * 
+         * @since 1.0
          */
         Started,
         /**
          * Indicates the core is stopping.
+         * 
+         * @since 1.0
          */
         Stopping,
         /**
          * Indicates the core has stopped.
+         * 
+         * @since 1.0
          */
         Stopped,
         /**
          * Indicates the core has failed and is not running.
+         * 
+         * @since 1.0
          */
         Failed,
         /**
          * Indicates the core has shutdown.
+         * 
+         * @since 1.0
          */
         Shutdown
     }
     /**
      * The type of core stop to occur.
+     * 
+     * @since 1.0
      */
     public enum StopType
     {
         /**
          * Indicates the core should just go into a normal stop state.
+         * 
+         * @since 1.0
          */
         Normal,
         /**
          * Indicates the core should go into a failure/failed state.
+         * 
+         * @since 1.0
          */
         Failure,
         /**
          * Indicates the core should go to a shutdown state; useful for sending
          * a signal to daemon processes to cease execution.
+         * 
+         * @since 1.0
          */
         Shutdown
     }
@@ -139,7 +161,9 @@ public class NodeCore
     // Methods - Core **********************************************************
     /**
      * Starts the core of the node.
+     * 
      * @return True = started, false = failed.
+     * @since 1.0
      */
     public synchronized boolean start()
     {
@@ -391,7 +415,9 @@ public class NodeCore
     }
     /**
      * Stops the core of the node (normal state).
+     * 
      * @return True = stopped, false = no changes.
+     * @since 1.0
      */
     public synchronized boolean stop()
     {
@@ -399,8 +425,10 @@ public class NodeCore
     }
     /**
      * Stops the core of the node.
+     * 
      * @param type The type of core-stop to occur.
      * @return True = stopped, false = no changes.
+     * @since 1.0
      */
     public synchronized boolean stop(StopType type)
     {
@@ -480,6 +508,7 @@ public class NodeCore
      * 
      * @return Instance, else null if the connector could not be made or
      * connect.
+     * @since 1.0
      */
     public Connector createConnector()
     {
@@ -516,6 +545,7 @@ public class NodeCore
      * 
      * @throws InterruptedException Thrown by Object.wait(); refer to
      * third-party documentation.
+     * @since 1.0
      */
     public synchronized void waitStateChange() throws InterruptedException
     {
@@ -523,9 +553,12 @@ public class NodeCore
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the path of plugins.
+     * 
      * @param pathPlugins The path of where plugins reside; this will be checked
      * by the plugin-manager when loading all the plugins. If this parameter is
      * incorrect, the plugins will fail to load and the core will fail.
+     * @since 1.0
      */
     public synchronized void setPathPlugins(String pathPlugins)
     {
@@ -534,7 +567,9 @@ public class NodeCore
     // Methods - Accessors *****************************************************
     /**
      * Gets the instance of the current PALS node Core.
-     * @return 
+     * 
+     * @return The current instance of the core.
+     * @since 1.0
      */
     public synchronized static NodeCore getInstance()
     {
@@ -543,29 +578,42 @@ public class NodeCore
         return currentInstance;
     }
     /**
+     * The current state of the core.
+     * 
      * @return The current state of the core.
+     * @since 1.0
      */
     public synchronized State getState()
     {
         return state;
     }
     /**
+     * The path of the plugins.
+     * 
      * @return The path of where all the plugin libraries reside.
+     * @since 1.0
      */
     public String getPathPlugins()
     {
         return pathPlugins;
     }
     /**
+     * The temporary path for the local copy of plugins.
+     * 
      * @return The path of where plugins, and their dependencies, are copied
      * to be loaded into the runtime.
+     * @since 1.0
      */
     public String getPathPlugins_Temp()
     {
         return "_temp_plugins";
     }
     /**
+     * The path for shared files; allows multiple nodes to share files from
+     * a central location.
+     * 
      * @return The directory of shared files between node(s) and/or website(s).
+     * @since 1.0
      */
     public String getPathShared()
     {
@@ -573,59 +621,83 @@ public class NodeCore
     }
     // Methods - Accessors - Components ****************************************
     /**
+     * Fetches the plugin-manager sub-component.
+     * 
      * @return The plugin manager responsible for handling the runtime plugins.
+     * @since 1.0
      */
     public PluginManager getPlugins()
     {
         return plugins;
     }
     /**
+     * Fetches the template-manager sub-component.
+     * 
      * @return The template manager responsible for rendering and caching
      * templates.
+     * @since 1.0
      */
     public TemplateManager getTemplates()
     {
         return templates;
     }
     /**
+     * Fetches the web-manager sub-component.
+     * 
      * @return The web manager responsible for handling web-requests.
+     * @since 1.0
      */
     public WebManager getWebManager()
     {
         return web;
     }
     /**
+     * Fetches the logging sub-component.
+     * 
      * @return The logger responsible for logging any events with the core.
+     * @since 1.0
      */
     public Logging getLogging()
     {
         return logging;
     }
     /**
+     * Fetches read-only settings for this node.
+     * 
      * @return Read-only collection of node settings.
+     * @since 1.0
      */
     public Settings getSettings()
     {
         return settings;
     }
     /**
+     * A shared RNG for the entire system.
+     * 
      * @return An instance of the Random class, which is created when the core
      * first starts (seeded with the system time).
+     * @since 1.0
      */
     public Random getRNG()
     {
         return rng;
     }
     /**
+     * The RMI sub-component, for communication with other nodes.
+     * 
      * @return The current instance of the core responsible for handling
      * inter-node communication using RMI.
+     * @since 1.0
      */
     public RMI getRMI()
     {
         return comms;
     }
     /**
+     * The UUID for this node.
+     * 
      * @return The UUID used to identify this node.
+     * @since 1.0
      */
     public UUID getNodeUUID()
     {

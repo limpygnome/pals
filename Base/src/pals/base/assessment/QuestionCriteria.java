@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -40,22 +39,67 @@ import pals.base.utils.Misc;
 
 /**
  * A criteria for marking a question.
+ * 
+ * @version 1.0
  */
 public class QuestionCriteria
 {
     // Enums *******************************************************************
+    /**
+     * The status from attempting to persist a model.
+     * 
+     * @since 1.0
+     */
     public enum PersistStatus
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist due to an exception or unknown state.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Failed to serialize data.
+         * 
+         * @since 1.0
+         */
         Failed_Serialize,
+        /**
+         * Invalid question.
+         * 
+         * @since 1.0
+         */
         Invalid_Question,
+        /**
+         * Invalid criteria.
+         * 
+         * @since 1.0
+         */
         Invalid_Criteria,
+        /**
+         * Invalid weight.
+         * 
+         * @since 1.0
+         */
         Invalid_Weight,
+        /**
+         * Invalid title.
+         * 
+         * @since 1.0
+         */
         Invalid_Title;
         /**
-         * @param qc THe question-criteria model being persisted.
+         * Retrieves the text for the persist status.
+         * 
+         * @param qc The question-criteria model being persisted.
          * @return The web text associated with the operation.
+         * @since 1.0
          */
         public String getText(QuestionCriteria qc)
         {
@@ -89,6 +133,8 @@ public class QuestionCriteria
     // Methods - Constructors **************************************************
     /**
      * Creates a new unpersisted model.
+     * 
+     * @since 1.0
      */
     public QuestionCriteria()
     {
@@ -102,6 +148,7 @@ public class QuestionCriteria
      * @param title The title of the criteria.
      * @param data Any data for the criteria-type.
      * @param weight The weight of the criteria.
+     * @since 1.0
      */
     public QuestionCriteria(Question question, TypeCriteria criteria, String title, Object data, int weight)
     {
@@ -120,6 +167,7 @@ public class QuestionCriteria
      * @param conn Database connector.
      * @param q The question to which the criterias belong; cannot be null.
      * @return Array of question-criterias; can be empty.
+     * @since 1.0
      */
     public static QuestionCriteria[] loadAll(NodeCore core, Connector conn, Question q)
     {
@@ -152,6 +200,7 @@ public class QuestionCriteria
      * criterias).
      * @param qcid The identifier of the criteria.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static QuestionCriteria load(NodeCore core, Connector conn, Question question, int qcid)
     {
@@ -176,6 +225,7 @@ public class QuestionCriteria
      * criterias).
      * @param result The result of a query, with the method next() pre-invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static QuestionCriteria load(NodeCore core, Connector conn, Question question, Result result)
     {
@@ -209,6 +259,7 @@ public class QuestionCriteria
      * 
      * @param conn Database connector.
      * @return The status of the operation.
+     * @since 1.0
      */
     public PersistStatus persist(Connector conn)
     {
@@ -273,6 +324,7 @@ public class QuestionCriteria
      * 
      * @param conn Database connector.
      * @return True = removed, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -293,36 +345,52 @@ public class QuestionCriteria
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the question.
+     * 
      * @param question The question to which this criteria belongs.
+     * @since 1.0
      */
     public void setQuestion(Question question)
     {
         this.question = question;
     }
     /**
+     * Sets the criteria.
+     * 
      * @param criteria The type of criteria.
+     * @since 1.0
      */
     public void setCriteria(TypeCriteria criteria)
     {
         this.criteria = criteria;
     }
     /**
+     * Sets the title.
+     * 
      * @param title The new title for the model.
+     * @since 1.0
      */
     public void setTitle(String title)
     {
         this.title = title;
     }
     /**
+     * Sets the data.
+     * 
      * @param data Any data, which can be serialized, set by the criteria-type.
      * @param <T> Serializable data-type.
+     * @since 1.0
      */
     public <T extends Serializable> void  setData(T data)
     {
         this.data = data;
     }
     /**
-     * @param weight The weight of this criteria.
+     * Sets the weight, relative to the question.
+     * 
+     * @param weight The weight of this criteria; can be any positive arbitrary
+     * number.
+     * @since 1.0
      */
     public void setWeight(int weight)
     {
@@ -330,63 +398,90 @@ public class QuestionCriteria
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the model has been persisted.
+     * Indicates if the model has been persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return qcid != -1;
     }
     /**
+     * The identifier.
+     * 
      * @return The identifier of this criteria.
+     * @since 1.0
      */
     public int getQCID()
     {
         return qcid;
     }
     /**
+     * The question.
+     * 
      * @return The question to which this, criteria, belongs.
+     * @since 1.0
      */
     public Question getQuestion()
     {
         return question;
     }
     /**
+     * The criteria type.
+     * 
      * @return The type of criteria.
+     * @since 1.0
      */
     public TypeCriteria getCriteria()
     {
         return criteria;
     }
     /**
+     * The title.
+     * 
      * @return The title of the question-criteria.
+     * @since 1.0
      */
     public String getTitle()
     {
         return title;
     }
     /**
+     * The serializable data.
+     * 
      * @return The custom data set by the criteria-type.
+     * @since 1.0
      */
     public Object getData()
     {
         return data;
     }
     /**
+     * The weight, relative to the question.
+     * 
      * @return The weight of the criteria.
+     * @since 1.0
      */
     public int getWeight()
     {
         return weight;
     }
     /**
+     * The minimum length of the title.
+     * 
      * @return The minimum length of the title.
+     * @since 1.0
      */
     public int getTitleMin()
     {
         return 1;
     }
     /**
+     * The maximum length of the title.
+     * 
      * @return The maximum length of the title.
+     * @since 1.0
      */
     public int getTitleMax()
     {

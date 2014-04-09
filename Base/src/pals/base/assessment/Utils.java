@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -36,9 +35,21 @@ import pals.base.utils.Misc;
 
 /**
  * A helper class with common code shared between assessment classes.
+ * 
+ * @version 1.0
  */
 class Utils
 {
+    /**
+     * Loads serialized data from a result's column.
+     * 
+     * @param core Current instance of core.
+     * @param res Result.
+     * @param column The column name.
+     * @return The object loaded; can be null, especially if it cannot be
+     * loaded.
+     * @since 1.0
+     */
     static Object loadData(NodeCore core, Result res, String column)
     {
         try
