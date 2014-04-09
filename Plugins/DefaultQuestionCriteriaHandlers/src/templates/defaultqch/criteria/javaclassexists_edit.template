@@ -85,6 +85,14 @@
                     Note: if this is a class, you should specify the full-name.
                 </td>
             </tr>
+            <tr>
+                <td>
+                    Generic Type:
+                </td>
+                <td>
+                    <input type="text" name="crit_field_gtype" value="<#if crit_field_gtype??>${crit_field_gtype}</#if>" />
+                </td>
+            </tr>
         </#if>
         <tr>
             <th colspan="2">
@@ -152,6 +160,10 @@
     </p>
 </#if>
 
+<#if crit_mode == 2 || crit_mode == 4>
+    <h3>Notes</h3>
+</#if>
+
 <#if crit_mode == 2>
     <p>
         Note: for method parameters, you should specify the full class-name of each parameter on each line,
@@ -160,5 +172,17 @@
     <p>
         Note 2: for the return-type; you should specify the full class-name of the returned class. Leave this
         empty for void.
+    </p>
+</#if>
+
+<#if crit_mode == 4>
+    <p>
+        The <i>Generic Type</i> specifies the class of the generic type for a field.
+        For example, <i>ArrayList&lt;Kittens&gt;</i> would have the generic type <i>Kittens</i>. Remember
+        to use full class-names.
+    </p>
+    <p>
+        If the student gets the <i>Generic Type</i> incorrect, their overall mark will be zero. Consider using
+        multiple criterias to award marks for correct modifiers or the field existing with the correct type.
     </p>
 </#if>

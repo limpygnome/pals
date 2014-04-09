@@ -59,12 +59,13 @@ public class ClassExists_Criteria implements Serializable
     private int                             modifiers;
     private int                             markClassOnly;
     private JavaExistsShared.CriteriaType   criteriaType;
+    private String                          fieldTypeGeneric;
     // Methods - Constructors **************************************************
     public ClassExists_Criteria()
     {
         this.className = this.method = this.methodReturnType = null;
         this.methodParameters = new String[0];
-        this.fieldName = this.fieldType = null;
+        this.fieldName = this.fieldType = this.fieldTypeGeneric = null;
         this.modifiers = 0;
         this.markClassOnly = 50;
         this.criteriaType = JavaExistsShared.CriteriaType.Class;
@@ -151,6 +152,18 @@ public class ClassExists_Criteria implements Serializable
         this.fieldType = fieldType;
         return true;
     }
+    /**
+     * Sets the generic type of the type of the field.
+     * 
+     * @param fieldTypeGeneric The generic type.
+     * @return Indicates the operation succeeded.
+     * @since 1.0
+     */
+    public boolean setFieldTypeGeneric(String fieldTypeGeneric)
+    {
+        this.fieldTypeGeneric = fieldTypeGeneric == null || fieldTypeGeneric.length() == 0 ? null : fieldTypeGeneric;
+        return true;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The class-name to check exists; this can be null.
@@ -220,6 +233,25 @@ public class ClassExists_Criteria implements Serializable
     public String getFieldType()
     {
         return fieldType;
+    }
+    /**
+     * The generic type of the type of the field.
+     * 
+     * @return 
+     */
+    public String getFieldTypeGeneric()
+    {
+        return fieldTypeGeneric;
+    }
+    /**
+     * Indicates if a generic type has been specified for the field-type.
+     * 
+     * @return Generic type.
+     * @since 1.0
+     */
+    public boolean isFieldTypeGenericConsidered()
+    {
+        return fieldTypeGeneric != null;
     }
     /**
      * @return The type of entity being handled.
