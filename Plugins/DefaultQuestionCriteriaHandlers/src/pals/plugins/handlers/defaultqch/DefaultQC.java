@@ -93,7 +93,8 @@ public class DefaultQC extends Plugin
                         tcJavaMethodExists,
                         tcJavaClassExists,
                         tcJavaFieldExists,
-                        tcJavaTestProgram;
+                        tcJavaTestProgram,
+                        tcJavaInheritance;
         if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
             return false;
         if((tcTextMatch = registerTypeCriteria(conn, core, TextMatch.UUID_CTYPE, TextMatch.TITLE, TextMatch.DESCRIPTION)) == null)
@@ -113,6 +114,8 @@ public class DefaultQC extends Plugin
         if((tcJavaFieldExists = registerTypeCriteria(conn, core, JavaExistsField.UUID_CTYPE, JavaExistsField.TITLE, JavaExistsField.DESCRIPTION)) == null)
             return false;
         if((tcJavaTestProgram = registerTypeCriteria(conn, core, JavaTestProgram.UUID_CTYPE, JavaTestProgram.TITLE, JavaTestProgram.DESCRIPTION)) == null)
+            return false;
+        if((tcJavaInheritance = registerTypeCriteria(conn, core, JavaInheritance.UUID_CTYPE, JavaInheritance.TITLE, JavaInheritance.DESCRIPTION)) == null)
             return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
@@ -138,6 +141,7 @@ public class DefaultQC extends Plugin
         tqCodeJava.criteriaAdd(tcJavaClassExists);
         tqCodeJava.criteriaAdd(tcJavaFieldExists);
         tqCodeJava.criteriaAdd(tcJavaTestProgram);
+        tqCodeJava.criteriaAdd(tcJavaInheritance);
         if(!persistQuestionCriteria(core, tqCodeJava, conn))
             return false;
         
@@ -206,6 +210,7 @@ public class DefaultQC extends Plugin
         unregisterTypeCriteria(conn, MultipleChoice.UUID_CTYPE);
         unregisterTypeCriteria(conn, RegexMatch.UUID_CTYPE);
         unregisterTypeCriteria(conn, TextMatch.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaInheritance.UUID_CTYPE);
         return true;
     }
     @Override
@@ -301,6 +306,9 @@ public class DefaultQC extends Plugin
             return JavaTestInputs.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
             return JavaTestProgram.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaInheritance.UUID_CTYPE))
+            return JavaInheritance.pageCriteriaEdit(data, qc);
+        
         return false;
     }
     private boolean pageQuestionCapture(Object[] hookData)
@@ -386,6 +394,8 @@ public class DefaultQC extends Plugin
             return JavaTestInputs.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
             return JavaTestProgram.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaInheritance.UUID_CTYPE))
+            return JavaInheritance.criteriaMarking(conn, core, iac);
         
         return false;
     }
@@ -421,6 +431,8 @@ public class DefaultQC extends Plugin
             return JavaTestInputs.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaTestProgram.UUID_CTYPE))
             return JavaTestProgram.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaInheritance.UUID_CTYPE))
+            return JavaInheritance.criteriaDisplay(data, ia, iaq, iac, html);
         
         return false;
     }

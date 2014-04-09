@@ -1,0 +1,110 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">Edit Criteria</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Target
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Class:
+            </td>
+            <td>
+                <input type="text" name="crit_class_name" value="<#if crit_class_name??>${crit_class_name?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Inheritance &amp; Interfaces
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Extended Class:
+            </td>
+            <td>
+                <input type="text" name="crit_inherited_class_name" value="<#if crit_inherited_class_name??>${crit_inherited_class_name?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Extended Generic Class:
+            </td>
+            <td>
+                <input type="text" name="crit_inherited_generic" value="<#if crit_inherited_class_name??>${crit_inherited_generic?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implemented Interfaces:
+            </td>
+            <td>
+                <textarea rows="5" name="crit_interfaces"><#if crit_interfaces??>${crit_interfaces?html}</#if></textarea><br />
+                Note: place the full class-name on each line.
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    You can leave the <i>Inheritance &amp; Interfaces</i> section empty; this will ensure
+    a class does not extend or implement any other classes.
+</p>
+<p>
+    The field <i>Extended Generic Class</i> is also optional, which is useful for
+    specifying the generic class of an extended class e.g. <i>Oak</i> for
+    <i>Tree&lt;Oak&gt;</i>.
+</p>
+<p>
+    If you specify both a class to be extended and interfaces, the marks are split equally
+    between the two. If you wish to use different weightings, use separately configured
+    criterias.
+</p>
+<p>
+    The overall mark for the implemented interfaces is divided between each interface
+    being successfully implemented. If an interface is implemented, that is not mentioned,
+    this has no affect.
+</p>

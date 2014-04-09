@@ -4,9 +4,21 @@
     </p>
 </#if>
 
+<#if info2??>
+    <p class="info">
+        ${info2?html}
+    </p>
+</#if>
+
 <#if warning??>
     <p class="warning">
         ${warning?html}
+    </p>
+</#if>
+
+<#if warning2??>
+    <p class="warning">
+        ${warning2?html}
     </p>
 </#if>
 
@@ -16,8 +28,20 @@
     </p>
 </#if>
 
+<#if error2??>
+    <p class="error">
+        ${error2?html}
+    </p>
+</#if>
+
 <#if success??>
     <p class="success">
         ${success?html}
+    </p>
+</#if>
+
+<#if success2??>
+    <p class="success">
+        ${success2?html}
     </p>
 </#if>

@@ -19,7 +19,7 @@
             </td>
             <td>
                 <input type="text" name="ass_weight" value="<#if ass_weight??>${ass_weight?html}</#if>" /><br />
-                A numeric value greater than zero; the weight forms the percentage towards the overall module grade.
+                A numeric value greater than zero; the weight forms the<br />percentage towards the overall module grade.
             </td>
         </tr>
         <tr>
@@ -28,7 +28,7 @@
             </td>
             <td>
                 <input type="text" name="ass_max_attempts" value="<#if ass_max_attempts??>${ass_max_attempts}</#if>" /><br />
-                The maximum times an assignment can be attempted; this can be -1 for unlimited attempts.
+                The maximum times an assignment can be attempted; this<br/ >can be -1 for unlimited attempts.
             </td>
         </tr>
         <tr>
