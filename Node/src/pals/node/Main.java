@@ -1,3 +1,5 @@
+package pals.node;
+
 /*
     The MIT License (MIT)
 
@@ -21,7 +23,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -29,12 +30,21 @@ import pals.base.NodeCore;
 
 /**
  * The execution point of the node program.
+ * 
+ * @version 1.0
  */
 public class Main
 {
     // Fields - Static *********************************************************
     private static NodeCore core;
     // Methods - Entry-Points **************************************************
+    /**
+     * The entry-point of this application, which creates an instance of a
+     * PALS node.
+     * 
+     * @param args Environment arguments.
+     * @since 1.0
+     */
     public static void main(String[] args)
     {
         System.out.println("Node starting...");
