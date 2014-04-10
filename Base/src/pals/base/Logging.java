@@ -121,6 +121,7 @@ public class Logging
      */
     private final static int    ALIAS_MAX_LENGTH    = 16;
     // Fields ******************************************************************
+    private String              path;           // The path of the log file.
     private NodeCore            core;           // The current instance of the core.
     private final String        alias;          // The name for the current log-file.
     private PrintWriter         pw;             // The stream to the current log-file.
@@ -140,6 +141,7 @@ public class Logging
      */
     private Logging(NodeCore core, String alias, boolean stackTraces, EnumSet<EntryType> typesLogged)
     {
+        this.path = null;
         this.core = core;
         this.alias = alias;
         this.pw = null;
@@ -154,11 +156,12 @@ public class Logging
      * @param alias The name of the component producing the message.
      * @param ex The exception which has occurred.
      * @param et The log entry type.
+     * @return The success of the operation.
      * @since 1.0
      */
-    public synchronized void logEx(String alias, Throwable ex, EntryType et)
+    public synchronized boolean logEx(String alias, Throwable ex, EntryType et)
     {
-        logEx(alias, null, ex, et);
+        return logEx(alias, null, ex, et);
     }
     /**
      * Logs a new exception.
@@ -167,9 +170,10 @@ public class Logging
      * @param message The message to append with the exception, can be null.
      * @param ex The exception which has occurred.
      * @param et The log entry type.
+     * @return The success of the operation.
      * @since 1.0
      */
-    public synchronized void logEx(String alias, String message, Throwable ex, EntryType et)
+    public synchronized boolean logEx(String alias, String message, Throwable ex, EntryType et)
     {
         Throwable cause = ex.getCause();
         StringBuilder sb = new StringBuilder();
@@ -191,7 +195,7 @@ public class Logging
             sb.append(" Stack-trace: '").append(s.toString()).append("'.");
         }
         // Log the message
-        log(alias, sb.toString(), et);
+        return log(alias, sb.toString(), et);
     }
     /**
      * Logs a message.
@@ -199,19 +203,20 @@ public class Logging
      * @param alias The name of the component producing the message.
      * @param message The message to be logged.
      * @param et The log entry type.
+     * @return The success of the operation.
      * @since 1.0
      */
-    public synchronized void log(String alias, String message, EntryType et)
+    public synchronized boolean log(String alias, String message, EntryType et)
     {
         // Check the alias is valid
         if(alias == null || alias.length() == 0)
-            return;
+            return false;
         // Check we log the type of event
-        if(!typesLogged.contains(et))
-            return;
+        if(typesLogged != null && !typesLogged.contains(et))
+            return false;
         // Verify the message is not null, else ignore...
         else if(message == null)
-            return;
+            return false;
         // Check if the day has changed
         DateTime dt = DateTime.now();
         if(pw == null || (dt.getYear() != logDt.getYear() || dt.getMonthOfYear() != logDt.getMonthOfYear() || dt.getDayOfMonth()!= logDt.getDayOfMonth()))
@@ -251,6 +256,7 @@ public class Logging
             System.out.println(logPrint);
         pw.println(logEntry);
         pw.flush();
+        return true;
     }
     private static String padRestrictAlias(String alias)
     {
@@ -280,7 +286,7 @@ public class Logging
                 dir.mkdir();
             // Build the log path
             // Note: %0x = x padding of digit
-            String path = String.format("%s/%s_%04d_%02d_%02d.log", folder, alias, logDt.getYear(), logDt.getMonthOfYear(), logDt.getDayOfMonth());
+            path = String.format("%s/%s_%04d_%02d_%02d.log", folder, alias, logDt.getYear(), logDt.getMonthOfYear(), logDt.getDayOfMonth());
             // Open new log-file - set to append data too!
             pw = new PrintWriter(new BufferedWriter(new FileWriter(new File(path), true)));
             return true;
@@ -347,5 +353,26 @@ public class Logging
     public void setStackTraces(boolean enabled)
     {
         this.stackTraces = enabled;
+    }
+    // Methods - Accessors *****************************************************
+    /**
+     * The path of the log file.
+     * 
+     * @return The path.
+     * @since 1.0
+     */
+    public String getPath()
+    {
+        return path;
+    }
+    /**
+     * Indicates if stack traces are logged.
+     * 
+     * @return True = logged, false = not logged.
+     * @since 1.0
+     */
+    public boolean isLoggingStackTraces()
+    {
+        return stackTraces;
     }
 }
