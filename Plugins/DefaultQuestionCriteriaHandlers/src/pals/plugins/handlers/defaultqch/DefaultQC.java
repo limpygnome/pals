@@ -94,7 +94,8 @@ public class DefaultQC extends Plugin
                         tcJavaClassExists,
                         tcJavaFieldExists,
                         tcJavaTestProgram,
-                        tcJavaInheritance;
+                        tcJavaInheritance,
+                        tcJavaEnums;
         if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
             return false;
         if((tcTextMatch = registerTypeCriteria(conn, core, TextMatch.UUID_CTYPE, TextMatch.TITLE, TextMatch.DESCRIPTION)) == null)
@@ -116,6 +117,8 @@ public class DefaultQC extends Plugin
         if((tcJavaTestProgram = registerTypeCriteria(conn, core, JavaTestProgram.UUID_CTYPE, JavaTestProgram.TITLE, JavaTestProgram.DESCRIPTION)) == null)
             return false;
         if((tcJavaInheritance = registerTypeCriteria(conn, core, JavaInheritance.UUID_CTYPE, JavaInheritance.TITLE, JavaInheritance.DESCRIPTION)) == null)
+            return false;
+        if((tcJavaEnums = registerTypeCriteria(conn, core, JavaEnums.UUID_CTYPE, JavaEnums.TITLE, JavaEnums.DESCRIPTION)) == null)
             return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
@@ -142,6 +145,7 @@ public class DefaultQC extends Plugin
         tqCodeJava.criteriaAdd(tcJavaFieldExists);
         tqCodeJava.criteriaAdd(tcJavaTestProgram);
         tqCodeJava.criteriaAdd(tcJavaInheritance);
+        tqCodeJava.criteriaAdd(tcJavaEnums);
         if(!persistQuestionCriteria(core, tqCodeJava, conn))
             return false;
         
@@ -211,6 +215,7 @@ public class DefaultQC extends Plugin
         unregisterTypeCriteria(conn, RegexMatch.UUID_CTYPE);
         unregisterTypeCriteria(conn, TextMatch.UUID_CTYPE);
         unregisterTypeCriteria(conn, JavaInheritance.UUID_CTYPE);
+        unregisterTypeCriteria(conn, JavaEnums.UUID_CTYPE);
         return true;
     }
     @Override
@@ -275,6 +280,7 @@ public class DefaultQC extends Plugin
         // -- Code: Java
         else if(qtype.equals(CodeJava.UUID_QTYPE))
             return CodeJava.pageQuestionEdit(data, q);
+        
         return false;
     }
     private boolean pageCriteriaEdit(Object[] hookData)
@@ -308,6 +314,8 @@ public class DefaultQC extends Plugin
             return JavaTestProgram.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaInheritance.UUID_CTYPE))
             return JavaInheritance.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaEnums.UUID_CTYPE))
+            return JavaEnums.pageCriteriaEdit(data, qc);
         
         return false;
     }
@@ -334,6 +342,7 @@ public class DefaultQC extends Plugin
             return WrittenResponse.pageQuestionCapture(data, ia, iaq, html, secure);
         else if(qtype.equals(CodeJava.UUID_QTYPE))
             return CodeJava.pageQuestionCapture(data, ia, iaq, html, secure);
+        
         return false;
     }
     private boolean pageQuestionDisplay(Object[] hookData)
@@ -360,6 +369,7 @@ public class DefaultQC extends Plugin
             return WrittenResponse.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
         else if(qtype.equals(CodeJava.UUID_QTYPE))
             return CodeJava.pageQuestionDisplay(data, ia, iaq, html, secure, editMode);
+        
         return false;
     }
     // Methods - Criteria ******************************************************
@@ -396,6 +406,8 @@ public class DefaultQC extends Plugin
             return JavaTestProgram.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaInheritance.UUID_CTYPE))
             return JavaInheritance.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaEnums.UUID_CTYPE))
+            return JavaEnums.criteriaMarking(conn, core, iac);
         
         return false;
     }
@@ -433,6 +445,8 @@ public class DefaultQC extends Plugin
             return JavaTestProgram.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaInheritance.UUID_CTYPE))
             return JavaInheritance.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaEnums.UUID_CTYPE))
+            return JavaEnums.criteriaDisplay(data, ia, iaq, iac, html);
         
         return false;
     }

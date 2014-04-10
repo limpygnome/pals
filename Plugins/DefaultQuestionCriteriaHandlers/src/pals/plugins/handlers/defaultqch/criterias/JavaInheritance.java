@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -51,6 +50,8 @@ import pals.plugins.handlers.defaultqch.data.JavaInheritance_InstanceCriteria;
 
 /**
  * Handles Java class existence criteria marking.
+ * 
+ * @version 1.0
  */
 public class JavaInheritance
 {
@@ -253,9 +254,9 @@ public class JavaInheritance
                     kvs.put("success2", "You have correctly implemented all of the required interfaces.");
                 else
                 {
-                    StringBuilder sb = new StringBuilder("You have not implemented the following interfaces:\n");
+                    StringBuilder sb = new StringBuilder("You have not implemented the following interfaces: ");
                     for(String i : missedInterfaces)
-                        sb.append(i).append("\n");
+                        sb.append(i).append(",");
                     sb.deleteCharAt(sb.length()-1);
                     kvs.put("error2", sb.toString());
                 }

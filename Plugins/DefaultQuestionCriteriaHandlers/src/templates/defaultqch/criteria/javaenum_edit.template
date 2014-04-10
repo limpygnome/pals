@@ -1,0 +1,84 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">Edit Criteria</a></h2>
+
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">
+    <table class="table2">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                Enum
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Class:
+            </td>
+            <td>
+                <input type="text" name="crit_class_name" value="<#if crit_class_name??>${crit_class_name?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Values:
+            </td>
+            <td>
+                <textarea rows="5" name="crit_values"><#if crit_values??>${crit_values?html}</#if></textarea><br />
+                Note: place each constant on each line.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Options:
+            </td>
+            <td>
+                <input type="checkbox" name="crit_case_sensitive" value="1" <#if crit_case_sensitive??>checked</#if> /> Case-sensitive<br />
+                <input type="checkbox" name="crit_allow_extra" value="1" <#if crit_allow_extra??>checked</#if> /> Allow Extra Constants
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    The class-name is the full path of the enum. If an enum is inside a class, use a dollar
+    instead of a dot. For example, an enum called <i>TestEnum</i> inside class <i>Foo</i>
+    would have the path <i>Foo$TestEnum</i>.
+</p>
