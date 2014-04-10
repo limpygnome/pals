@@ -29,6 +29,7 @@ package pals.base.assessment;
 import java.util.ArrayList;
 import pals.base.Logging;
 import pals.base.NodeCore;
+import pals.base.Plugin;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -404,5 +405,46 @@ public class TypeCriteria
                 core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
             return false;
         }
+    }
+    // Methods - Static ********************************************************
+    /**
+     * Registers a new criteria type. If a type already exists with the same
+     * UUID, it's loaded and returned and no changes will occur on the
+     * database.
+     * 
+     * @param conn Database connector.
+     * @param core The current instance of the core.
+     * @param plugin The plugin which owns the type.
+     * @param uuid The identifier of the type.
+     * @param title The title of the type.
+     * @param description A description for the type.
+     * @return Instance of type. Can be null if type cannot be persisted.
+     * @since 1.0
+     */
+    public static TypeCriteria register(Connector conn, NodeCore core, Plugin plugin, UUID uuid, String title, String description)
+    {
+        TypeCriteria tc = new TypeCriteria(uuid, plugin.getUUID(), title, description);
+        TypeCriteria.PersistStatus psc = tc.persist(conn);
+        if(psc != TypeCriteria.PersistStatus.Success)
+        {
+            core.getLogging().log("Base.TypeCriteria#register", "Failed to register type-criteria '"+title+"' during installation!", Logging.EntryType.Error);
+            return null;
+        }
+        return tc;
+    }
+    /**
+     * Unregisters a type of criteria.
+     * 
+     * @param conn Database connector.
+     * @param uuid The identifier of the type.
+     * @return Indicates if the operation has succeeded.
+     * @since 1.0
+     */
+    public static boolean unregister(Connector conn, UUID uuid)
+    {
+        TypeCriteria tc = TypeCriteria.load(conn, uuid);
+        if(tc != null)
+            return tc.delete(conn);
+        return false;
     }
 }

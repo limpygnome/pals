@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import pals.base.Logging;
 import pals.base.NodeCore;
+import pals.base.Plugin;
 import pals.base.UUID;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
@@ -508,5 +509,51 @@ public class TypeQuestion
     public int getTitleMax()
     {
         return 64;
+    }
+    // Methods - Static ********************************************************
+    /**
+     * Registers a new type of question. If a type already exists with the same
+     * UUID, it's loaded and returned and no changes will occur on the
+     * database.
+     * 
+     * @param conn Database connector.
+     * @param core The current instance of the core.
+     * @param plugin The plugin which owns the type.
+     * @param uuid The identifier of the type.
+     * @param title The title of the type.
+     * @param description A description for the type.
+     * @return Instance of type. Can be null if type cannot be persisted.
+     * @since 1.0
+     */
+    public static TypeQuestion register(Connector conn, NodeCore core, Plugin plugin, UUID uuid, String title, String description)
+    {
+        TypeQuestion tq = load(conn, uuid);
+        // Attempt to load former
+        if(tq != null)
+            return tq;
+        // Create new
+        tq = new TypeQuestion(uuid, plugin.getUUID(), title, description);
+        TypeQuestion.PersistStatus psq = tq.persist(conn);
+        if(psq != TypeQuestion.PersistStatus.Success)
+        {
+            core.getLogging().log("Base.TypeQuestion#register", "Failed to register type-question '"+title+"' during installation!", Logging.EntryType.Error);
+            return null;
+        }
+        return tq;
+    }
+    /**
+     * Unregisters a type of question.
+     * 
+     * @param conn Database connector.
+     * @param uuid The identifier of the type.
+     * @return Indicates if the operation has succeeded.
+     * @since 1.0
+     */
+    public static boolean unregister(Connector conn, UUID uuid)
+    {
+        TypeQuestion tq = TypeQuestion.load(conn, uuid);
+        if(tq != null)
+            return tq.delete(conn);
+        return false;
     }
 }

@@ -77,11 +77,11 @@ public class DefaultQC extends Plugin
                         tqWrittenResponse,
                         tqCodeJava;
         // Register the types of questions
-        if((tqMultipleChoice = registerTypeQuestion(conn, core, MCQ.UUID_QTYPE, MCQ.TITLE, MCQ.DESCRIPTION)) == null)
+        if((tqMultipleChoice = TypeQuestion.register(conn, core, this, MCQ.UUID_QTYPE, MCQ.TITLE, MCQ.DESCRIPTION)) == null)
             return false;
-        if((tqWrittenResponse = registerTypeQuestion(conn, core, WrittenResponse.UUID_QTYPE, WrittenResponse.TITLE, WrittenResponse.DESCRIPTION)) == null)
+        if((tqWrittenResponse = TypeQuestion.register(conn, core, this, WrittenResponse.UUID_QTYPE, WrittenResponse.TITLE, WrittenResponse.DESCRIPTION)) == null)
             return false;
-        if((tqCodeJava = registerTypeQuestion(conn, core, CodeJava.UUID_QTYPE, CodeJava.TITLE, CodeJava.DESCRIPTION)) == null)
+        if((tqCodeJava = TypeQuestion.register(conn, core, this, CodeJava.UUID_QTYPE, CodeJava.TITLE, CodeJava.DESCRIPTION)) == null)
             return false;
         // Register criteria types
         TypeCriteria    tcManualMarking,
@@ -96,29 +96,29 @@ public class DefaultQC extends Plugin
                         tcJavaTestProgram,
                         tcJavaInheritance,
                         tcJavaEnums;
-        if((tcManualMarking = registerTypeCriteria(conn, core, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
+        if((tcManualMarking = TypeCriteria.register(conn, core, this, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
             return false;
-        if((tcTextMatch = registerTypeCriteria(conn, core, TextMatch.UUID_CTYPE, TextMatch.TITLE, TextMatch.DESCRIPTION)) == null)
+        if((tcTextMatch = TypeCriteria.register(conn, core, this, TextMatch.UUID_CTYPE, TextMatch.TITLE, TextMatch.DESCRIPTION)) == null)
             return false;
-        if((tcRegexMatch = registerTypeCriteria(conn, core, RegexMatch.UUID_CTYPE, RegexMatch.TITLE, RegexMatch.DESCRIPTION)) == null)
+        if((tcRegexMatch = TypeCriteria.register(conn, core, this, RegexMatch.UUID_CTYPE, RegexMatch.TITLE, RegexMatch.DESCRIPTION)) == null)
             return false;
-        if((tcMultipleChoice = registerTypeCriteria(conn, core, MultipleChoice.UUID_CTYPE, MultipleChoice.TITLE, MultipleChoice.DESCRIPTION)) == null)
+        if((tcMultipleChoice = TypeCriteria.register(conn, core, this, MultipleChoice.UUID_CTYPE, MultipleChoice.TITLE, MultipleChoice.DESCRIPTION)) == null)
             return false;
-        if((tcJavaTestInputs = registerTypeCriteria(conn, core, JavaTestInputs.UUID_CTYPE, JavaTestInputs.TITLE, JavaTestInputs.DESCRIPTION)) == null)
+        if((tcJavaTestInputs = TypeCriteria.register(conn, core, this, JavaTestInputs.UUID_CTYPE, JavaTestInputs.TITLE, JavaTestInputs.DESCRIPTION)) == null)
             return false;
-        if((tcJavaCodeMetrics = registerTypeCriteria(conn, core, JavaCodeMetrics.UUID_CTYPE, JavaCodeMetrics.TITLE, JavaCodeMetrics.DESCRIPTION)) == null)
+        if((tcJavaCodeMetrics = TypeCriteria.register(conn, core, this, JavaCodeMetrics.UUID_CTYPE, JavaCodeMetrics.TITLE, JavaCodeMetrics.DESCRIPTION)) == null)
             return false;
-        if((tcJavaMethodExists = registerTypeCriteria(conn, core, JavaExistsMethod.UUID_CTYPE, JavaExistsMethod.TITLE, JavaExistsMethod.DESCRIPTION)) == null)
+        if((tcJavaMethodExists = TypeCriteria.register(conn, core, this, JavaExistsMethod.UUID_CTYPE, JavaExistsMethod.TITLE, JavaExistsMethod.DESCRIPTION)) == null)
             return false;
-        if((tcJavaClassExists = registerTypeCriteria(conn, core, JavaExistsClass.UUID_CTYPE, JavaExistsClass.TITLE, JavaExistsClass.DESCRIPTION)) == null)
+        if((tcJavaClassExists = TypeCriteria.register(conn, core, this, JavaExistsClass.UUID_CTYPE, JavaExistsClass.TITLE, JavaExistsClass.DESCRIPTION)) == null)
             return false;
-        if((tcJavaFieldExists = registerTypeCriteria(conn, core, JavaExistsField.UUID_CTYPE, JavaExistsField.TITLE, JavaExistsField.DESCRIPTION)) == null)
+        if((tcJavaFieldExists = TypeCriteria.register(conn, core, this, JavaExistsField.UUID_CTYPE, JavaExistsField.TITLE, JavaExistsField.DESCRIPTION)) == null)
             return false;
-        if((tcJavaTestProgram = registerTypeCriteria(conn, core, JavaTestProgram.UUID_CTYPE, JavaTestProgram.TITLE, JavaTestProgram.DESCRIPTION)) == null)
+        if((tcJavaTestProgram = TypeCriteria.register(conn, core, this, JavaTestProgram.UUID_CTYPE, JavaTestProgram.TITLE, JavaTestProgram.DESCRIPTION)) == null)
             return false;
-        if((tcJavaInheritance = registerTypeCriteria(conn, core, JavaInheritance.UUID_CTYPE, JavaInheritance.TITLE, JavaInheritance.DESCRIPTION)) == null)
+        if((tcJavaInheritance = TypeCriteria.register(conn, core, this, JavaInheritance.UUID_CTYPE, JavaInheritance.TITLE, JavaInheritance.DESCRIPTION)) == null)
             return false;
-        if((tcJavaEnums = registerTypeCriteria(conn, core, JavaEnums.UUID_CTYPE, JavaEnums.TITLE, JavaEnums.DESCRIPTION)) == null)
+        if((tcJavaEnums = TypeCriteria.register(conn, core, this, JavaEnums.UUID_CTYPE, JavaEnums.TITLE, JavaEnums.DESCRIPTION)) == null)
             return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
@@ -162,60 +162,27 @@ public class DefaultQC extends Plugin
         else
             return true;
     }
-    private TypeQuestion registerTypeQuestion(Connector conn, NodeCore core, UUID uuid, String title, String description)
-    {
-        TypeQuestion tq = new TypeQuestion(uuid, this.getUUID(), title, description);
-        TypeQuestion.PersistStatus psq = tq.persist(conn);
-        if(psq != TypeQuestion.PersistStatus.Success)
-        {
-            core.getLogging().log(LOGGING_ALIAS, "Failed to register type-question '"+title+"' during installation!", Logging.EntryType.Error);
-            return null;
-        }
-        return tq;
-    }
-    private TypeCriteria registerTypeCriteria(Connector conn, NodeCore core, UUID uuid, String title, String description)
-    {
-        TypeCriteria tc = new TypeCriteria(uuid, this.getUUID(), title, description);
-        TypeCriteria.PersistStatus psc = tc.persist(conn);
-        if(psc != TypeCriteria.PersistStatus.Success)
-        {
-            core.getLogging().log(LOGGING_ALIAS, "Failed to register type-criteria '"+title+"' during installation!", Logging.EntryType.Error);
-            return null;
-        }
-        return tc;
-    }
-    private void unregisterTypeQuestion(Connector conn, UUID uuid)
-    {
-        TypeQuestion tq = TypeQuestion.load(conn, uuid);
-        if(tq != null)
-            tq.delete(conn);
-    }
-    private void unregisterTypeCriteria(Connector conn, UUID uuid)
-    {
-        TypeCriteria tc = TypeCriteria.load(conn, uuid);
-        if(tc != null)
-            tc.delete(conn);
-    }
+    
     @Override
     public boolean eventHandler_pluginUninstall(NodeCore core, Connector conn)
     {
         // Remove question types
-        unregisterTypeQuestion(conn, CodeJava.UUID_QTYPE);
-        unregisterTypeQuestion(conn, MCQ.UUID_QTYPE);
-        unregisterTypeQuestion(conn, WrittenResponse.UUID_QTYPE);
+        TypeQuestion.unregister(conn, CodeJava.UUID_QTYPE);
+        TypeQuestion.unregister(conn, MCQ.UUID_QTYPE);
+        TypeQuestion.unregister(conn, WrittenResponse.UUID_QTYPE);
         // Remove criteria types
-        unregisterTypeCriteria(conn, JavaExistsClass.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaExistsMethod.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaExistsField.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaCodeMetrics.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaTestInputs.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaTestProgram.UUID_CTYPE);
-        unregisterTypeCriteria(conn, ManualMarking.UUID_CTYPE);
-        unregisterTypeCriteria(conn, MultipleChoice.UUID_CTYPE);
-        unregisterTypeCriteria(conn, RegexMatch.UUID_CTYPE);
-        unregisterTypeCriteria(conn, TextMatch.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaInheritance.UUID_CTYPE);
-        unregisterTypeCriteria(conn, JavaEnums.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaExistsClass.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaExistsMethod.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaExistsField.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaCodeMetrics.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaTestInputs.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaTestProgram.UUID_CTYPE);
+        TypeQuestion.unregister(conn, ManualMarking.UUID_CTYPE);
+        TypeQuestion.unregister(conn, MultipleChoice.UUID_CTYPE);
+        TypeQuestion.unregister(conn, RegexMatch.UUID_CTYPE);
+        TypeQuestion.unregister(conn, TextMatch.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaInheritance.UUID_CTYPE);
+        TypeQuestion.unregister(conn, JavaEnums.UUID_CTYPE);
         return true;
     }
     @Override
