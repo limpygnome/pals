@@ -503,6 +503,21 @@ public class NodeCore
         System.out.println("PALS CORE STOP Core has completely shutdown.");
         return true;
     }
+    /**
+     * Resets the shutdown state to a stopped state.
+     * 
+     * @return True = success, false = not changed.
+     * @since 1.0
+     */
+    public synchronized boolean resetShutdown()
+    {
+        if(state == State.Shutdown)
+        {
+            state = State.Stopped;
+            return true;
+        }
+        return false;
+    }
     // Methods *****************************************************************
     /**
      * Creates a new database connector.

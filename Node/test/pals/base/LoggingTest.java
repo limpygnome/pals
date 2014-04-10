@@ -42,15 +42,24 @@ public class LoggingTest
 {
     private static NodeCore core;
     
+    /**
+     * Setups a core for the tests.
+     * 
+     * @since 1.0
+     */
     @BeforeClass
-    public static void setUp() throws IOException
+    public static void setup() throws IOException
     {
         core = NodeCore.getInstance();
         core.setPathPlugins("../Plugins");
         core.start();
         assertTrue(core.getState() == NodeCore.State.Started);
-        System.err.println("started.");
     }
+    /**
+     * Disposes the core.
+     * 
+     * @since 1.0
+     */
     @AfterClass
     public static void dispose()
     {
