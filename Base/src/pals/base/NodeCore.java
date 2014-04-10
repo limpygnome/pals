@@ -129,6 +129,7 @@ public class NodeCore
     // Fields - Constants ******************************************************
     private static final String LOGGING_ALIAS_START = "PALS CORE START";
     private static final String LOGGING_ALIAS_STOP  = "PALS CORE STOP";
+    private static final long   STATE_CHANGE_TIMEOUT = 10000L;
     // Fields - Instance *******************************************************
     private static NodeCore     currentInstance = null;             // The current instance of the NodeCore.
     // Fields ******************************************************************
@@ -407,10 +408,10 @@ public class NodeCore
         conn.disconnect();
         logging.log(LOGGING_ALIAS_START, "Started RMI service on port '" + rmiPort + "'.", Logging.EntryType.Info);
         logging.log(LOGGING_ALIAS_START, "Core started.", Logging.EntryType.Info);
-        // Notify any threads
-        notifyAll();
         // Update the state to started
         state = State.Started;
+        // Notify any threads
+        notifyAll();
         return true;
     }
     /**
@@ -466,7 +467,7 @@ public class NodeCore
         // Destroy RNG
         rng = null;
         // Dispose paths
-        this.pathPlugins = this.pathShared = null;
+        this.pathShared = null;
         // Decide on new state (and add any appropriate logging)
         State newState;
         switch(type)
@@ -512,6 +513,9 @@ public class NodeCore
      */
     public Connector createConnector()
     {
+        if(settings == null)
+            return null;
+        
         Connector conn = null;
         // Setup connector based on type
         switch(settings.getInt("database/type"))
@@ -541,15 +545,16 @@ public class NodeCore
     // Methods - Waiting Related ***********************************************
     /**
      * Causes the invoking thread to wait until this object is notified; this
-     * will occur when the state of the core changes.
+     * will occur when the state of the core changes. The timeout value is
+     * dictated by {@link #STATE_CHANGE_TIMEOUT}.
      * 
      * @throws InterruptedException Thrown by Object.wait(); refer to
      * third-party documentation.
      * @since 1.0
      */
-    public synchronized void waitStateChange() throws InterruptedException
+    public void waitStateChange() throws InterruptedException
     {
-        wait();
+        wait(STATE_CHANGE_TIMEOUT);
     }
     // Methods - Mutators ******************************************************
     /**
@@ -583,7 +588,7 @@ public class NodeCore
      * @return The current state of the core.
      * @since 1.0
      */
-    public synchronized State getState()
+    public State getState()
     {
         return state;
     }

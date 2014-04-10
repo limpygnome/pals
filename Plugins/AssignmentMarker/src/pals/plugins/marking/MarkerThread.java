@@ -69,7 +69,8 @@ public class MarkerThread extends ExtendedThread
         {
             try
             {
-                marker.getCore().waitStateChange();
+                //marker.getCore().waitStateChange();
+                Thread.sleep(100);
             }
             catch(InterruptedException ex)
             {

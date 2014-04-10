@@ -1,0 +1,761 @@
+commit c669172e91a64f98940e4f4d8a6c1bf753287a84
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Thu Apr 10 17:16:42 2014 +0100
+
+    Added first real unit test, to replace our own hacky unit tests. Few minor changes to logging.
+
+commit f93ace0ad4a2eefd00e4acb724b0ac35a3b3e023
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Thu Apr 10 04:25:31 2014 +0100
+
+    Few code moves for reuse with registering/unregistering types/criterias.
+
+commit c140844e1d88d267950aaaed134ce3a685a0d324
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Thu Apr 10 03:38:49 2014 +0100
+
+    Added ability to check enums.
+
+commit b8eaca89a4f1f6e9a39dfedd9d40b6a741f44019
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Wed Apr 9 21:50:01 2014 +0100
+
+    Added generic support to fields.
+
+commit 0eb14cb12bc91625e00b6cc0276ee3eb0d983b09
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Wed Apr 9 20:39:22 2014 +0100
+
+    Inheritance and implementation of interfaces can now be checked.
+
+commit 281a0ba42ae7b7cfcc7271ad011021ac4713b3cb
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Wed Apr 9 03:40:44 2014 +0100
+
+    Improving JavaDoc, minor code style fixes.
+
+commit b3b85cdb6d3b0fc9b82877ddb0d1e8cf7ea877fb
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Tue Apr 8 15:39:12 2014 +0100
+
+    Database can be automatically setup by PALS.
+
+commit 38e0a758b812c3f9a64c65aba2fadc3f18d30e14
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Tue Mar 11 14:50:39 2014 +0000
+
+    Base critical improvement: session identifiers now use hashing.
+
+commit c1ecd6dc120edff8832a4464deb9aef5adba2a02
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Thu Mar 6 02:15:22 2014 +0000
+
+    Stats plugin improvements.
+
+commit b93291d471b97b29ff0bf61ca5a400b4124d9374
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Thu Mar 6 02:05:12 2014 +0000
+
+    Made stats a separate plugin; stats can now be assigned hints for runtime and compilation errors, which could be used as friendly feedback to students. Bug-fixes and general improvements.
+
+commit 5edc8495e06ce9aaddce837207f1c2364fbc8a30
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Wed Mar 5 16:51:22 2014 +0000
+
+    Minor changes/improvements, mostly to the questions system which has reduced locs and improved editing.
+
+commit efd0ca582e4a833b6c1ecba9faf2e4ca63987220
+Author: Limpygnome <limpygnome@gmail.com>
+Date:   Wed Mar 5 15:44:04 2014 +0000
+
+    Critical bug-fixes to sandbox/pals, which now communicate the end to avoid stdout not being captured on slow machines. General improvements; added js to inform user of modified iaq question when taking ia.
+
+commit db85db43ed48743811c5a2e801eedb225981763c
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Mar 1 18:40:05 2014 +0000
+
+    General minor bug-fixes, minor comment improvements, code-java compiler errors now indicate source, test-file code (from questions/lecturers) tested and working correctly.
+
+commit 32106ca30b21b81f5a3d53feb45f32a8dcd13836
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Mar 1 17:35:03 2014 +0000
+
+    Bug-fixes, ability to now set HTTP headers, added mass-enrollment downloading (DefaultAuth).
+
+commit 353b6028fa86ef1637f066a3782fb43417539931
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 27 23:07:30 2014 +0000
+
+    Added cleaning of old data.
+
+commit ee2d04021ac4298d354529304478cf8a39a58e65
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 27 21:27:30 2014 +0000
+
+    General fixes; allowed more things in Java Sandbox for Scanner.
+
+commit 3caf4b704a9de8957fa65e575c28b80105138125
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 27 16:56:40 2014 +0000
+
+    Improved CodeJava so files can be specified for secret testing; improved general ability to upload files. Minor bug-fixes and improvements.
+
+commit ac977a0ef1d1a85386ba51489e7674124d281967
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 27 03:48:35 2014 +0000
+
+    Added ability for students to reopen submissions with infinitereattempts.
+
+commit 271c38cefb0bb395df2c958019ec51c3311a9df9
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 27 02:34:19 2014 +0000
+
+    Major security flaws allowed in sandbox to support Scanner; this is required since Scanner is often used for amateur programming. Since the JVM is executed under a restricted user and many other actions are restricted, this should be fairly safe. The ability to use reflection on any field may be an issue, however it will not be able to disable the security-manager.
+
+commit 4bdf78eda0200f59a9cfcee121ef2dcc4a160bb1
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 27 01:30:22 2014 +0000
+
+    General clean-up and refactoring, a lot of critical bug-fixes, template/layout improvements.
+
+commit 22829e56c48ee88f46699919fddca3682a18c21a
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Feb 26 11:51:30 2014 +0000
+
+    Modified RMI class (base) to fetch interface; Jetty now working, as an embedded server (launched as a separate process due to class conflicts).
+
+commit e7c73c5f6e016a838b122f7bce5eb47992afe740
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Feb 26 00:13:54 2014 +0000
+
+    RMI is now able to optionally use SSL.
+
+commit 8e4ad2fae28c62c48e66bf3f8dad3564ac5dafd3
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Feb 25 20:27:53 2014 +0000
+
+    Removed template functions since FreeMarker is effective enough and template functions have remained unused; will provide general speedup of rendering too.
+
+commit aea74d76bc858312779b6d5926a5776fb768be79
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Feb 25 20:22:13 2014 +0000
+
+    Finished initial design of mass-enrollment; general bug-fixes and improvements; refactoring in base.
+
+commit dfbe1c50e01ea5e8b7d672884e79605acd83fe18
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Feb 24 03:36:53 2014 +0000
+
+    Added licensing, general clean-up, removed testing from base (this will be replaced by unit testing).
+
+commit a3622e487e0dbba2818287735269cb9f3ab59b00
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Feb 24 03:09:55 2014 +0000
+
+    Added global-hook documentation. Global hooks can now be invoked on all nodes. RMI accessor added to core. Email and ass-marker now using global events to reduce polling for work at intervals (intervals increased as backup for event invokation failure. RMI now caches hosts with RMI, which is periodically updated by Node-Active plugin. Few changes and refactoring to plugin-manager (base) for global hooks.
+
+commit f56342287982da0e2ba8bd2d0dfd6e20d4d125cd
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 23 22:39:36 2014 +0000
+
+    E-mail modified to sent HTML properly; e-mail plugin tested and working; account recovery added; minor improvements.
+
+commit 612d17040f9dfef1669a6eaabd0b556bd27e4836
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 23 04:49:29 2014 +0000
+
+    Added e-mail plugin and readded the e-mail table removed previously.
+
+commit a3c2eee4b58206a0c29791ba585a30a030f7af92
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Feb 22 23:37:58 2014 +0000
+
+    Finished initial stats system; general bug-fixes and improvements.
+
+commit 626796db7d619ce8503c50067d3c1ab0ddbbd8d8
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Feb 22 17:05:10 2014 +0000
+
+    General bug-fixes and improvements; regex has been improved to hide the expression used and invert matching mark rewarding.
+
+commit 50367e2c5d477ecab9404b2555fbacf3c44428af
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Fri Feb 21 00:47:19 2014 +0000
+
+    General bug-fixes; progress-save of stats logging.
+
+commit 7633bd9ed855a7d05c24909c9b7fed745a369cfd
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Feb 12 00:24:40 2014 +0000
+
+    Bug-fixes, added delete page to instances of assignment pages, added field checking (DefaultQCH).
+
+commit df6bac14aa2d8412358c80e22d1758e23cf216c6
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Feb 11 21:49:58 2014 +0000
+
+    Updated admin page in example.
+
+commit de18a8a1d585596a06f2c4c10d6d2c115a8f760c
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Feb 11 21:48:40 2014 +0000
+
+    Removed email queue table (it's never going to happen); added user and group pages; bug-fixes and improvements.
+
+commit db0667b458b4994bc6f446e4c566e29bb8089bc9
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Feb 11 13:46:18 2014 +0000
+
+    Highest marks can now be viewed for module assignments, along with CSV download and print-off page.
+
+commit 13347b494dbb58a4bfada8a2d57bb34769d72290
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Feb 11 01:39:10 2014 +0000
+
+    Minor improvements to base; added admin page for plugins.
+
+commit 6b20d8f3923faa13be8e0d89c88124cefdb98370
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Feb 10 01:28:47 2014 +0000
+
+    Fixed critical bug in URL-tree manager. Admin page added.
+
+commit afcec8542bb90b30553f5013ab9709fe1661e31b
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Feb 10 00:38:01 2014 +0000
+
+    Modules page, for normal users, now displays assignment info.
+
+commit b69027bf45be8afcca3a558588508d7a21e37e6d
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 9 23:44:04 2014 +0000
+
+    Minor improvements; fixed marking; base models now report errors to current instance of core.
+
+commit 9c7b10ac336ebc2a8218dc385ff05226fd9e7394
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 9 17:58:05 2014 +0000
+
+    Minor fixes in places; DefaultQCH Java test-inputs and test-program are now able to handle arrays. Needs further testing.
+
+commit 909b70e8c908c340f270136295444d3443edad21
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 9 03:35:00 2014 +0000
+
+    Fixed session-cleaner to dispose private sessions after an hour; Java code-metrics now display results.
+
+commit 648a0b6a3a12ac57c787d535051b57c556ea3532
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 9 02:19:27 2014 +0000
+
+    Minor changes; added Java Code Metrics.
+
+commit a21d7b3c387639f9898694ec5305e1604212d76d
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Feb 6 23:51:06 2014 +0000
+
+    Many bug-fixes applied to base; node-active now able to display and shut-down nodes; moved shared-storage to code-base to protect templates under versioning.
+
+commit 862919e10ca409042be7d4691a539cd615170ebd
+Author: unknown <limpygnome@gmail.com>
+Date:   Thu Feb 6 13:00:41 2014 +0000
+
+    Improved DefaultQCH CodeJava inputs; now works with reading files (needs testing for writing and on Linux); also added code uploading, unfinished.
+
+commit 113478c2cd7ee2fdc101fe4cbe6eeac69b61bac3
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Feb 3 01:22:52 2014 +0000
+
+    Minor UI improvements.
+
+commit fb134063ef335c506db16643126086359c53a91e
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Feb 3 01:01:05 2014 +0000
+
+    CodeJava dynamic analysis with Java-Test-Program working and initial creation finished.
+
+commit 4580806d9ea61e8820d77eeff653fc49ca094e0a
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Feb 2 04:52:43 2014 +0000
+
+    Fixed major bug so sessions can now be marked as private with extended timeout on session cookie; updated the way DefaultQCH registers questions/criterias; added random input for test inputs criteria.
+
+commit 33bed8b3eb9ca055064c0a100d38313e4d88e080
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Feb 1 20:19:00 2014 +0000
+
+    Tested input-testing for DefaultQCH plugin; this resulted in changes to the way processes are created.
+
+commit 41ffaa659d7f2cb646084462450d0c96432952c6
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Feb 1 17:39:34 2014 +0000
+
+    Attempted to create Jetty plugin, which works standalone but not as a plugin during runtime due to library loading issues (conflicts).
+
+commit 9af82a03d0cecf1ff94b810856e6a5b6e7fe434e
+Author: unknown <limpygnome@gmail.com>
+Date:   Fri Jan 31 10:48:35 2014 +0000
+
+    Added versioning to plugins, ready for distribution.
+
+commit 6f8541bf39bc6e91fdc74cbd756e0205e28b7fbb
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Fri Jan 31 02:06:35 2014 +0000
+
+    General bug-fixes and clean-up; nodes now use a separate table for locking.
+
+commit db2065eed1bdb24dff365040a0c0cdc9a2b2b6d8
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 30 04:04:35 2014 +0000
+
+    DefaultQCH / Java class/method exists both implemented with modifier checking; method-exist can also check the return-type and param-types. Needs testing to ensure it works correctly.
+
+commit 308c0bbe31461b4ce46cea4a3da8ddae0e88bc53
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 30 00:43:50 2014 +0000
+
+    DefaultQCH / JavaClassExists is now capable of checking modifiers.
+
+commit c90317bd89aab1f4ed384a883a1cfe7f514b17f7
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Jan 29 01:51:06 2014 +0000
+
+    PalsProcess bug-fix for Linux; CodeJava JavaTestInputs initial idea completed, with debugging code ready for Linux testing.
+
+commit 9083a96cbadad1408acd6ab60763a9f97b2265ac
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 28 21:41:55 2014 +0000
+
+    Successfully marks CodeJava fragments for inputs/outputs.
+
+commit 05a61040a0ce17f2d71584eeda57d9e996426728
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Jan 27 03:01:09 2014 +0000
+
+    Major changes to the way storage is handled - storage is now responsible for checking the creation of dirs (rather than node) and temp dirs for q,qc and iaq are now all available. Progress save on JavaTestInputs; criteria can be configured, with test code compiled. JavaClassExists can check the existence of a class, needs more work though.
+
+commit 5f6ef5a3317f2fc7c7a731d0620b5b5a11fbe76a
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Jan 26 18:07:46 2014 +0000
+
+    NodeCore now passed to criteria markers.
+
+commit bc6261b60437cf68ecfa8e4adb90e48f45bd78f7
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Jan 26 17:48:00 2014 +0000
+
+    Major improvements to the way CodeJava handles fragments of code; updated PluginObjectInputStream to use more efficient method of loading classes. InstanceAssignmentQuestion data can now fail to load, which results in null for the data-field. This was returning null before for the model, which would cause issues when saving a new model (due to CK relationship).
+
+commit 1afb71c6c5a841cdb118bbe1e8883d49e7354289
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Jan 25 19:48:00 2014 +0000
+
+    CodeJava questions can now be displayed.
+
+commit 10f65a1c956dce46c53d54840eaf32d11be4701b
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Jan 25 18:50:07 2014 +0000
+
+    CodeJava (Defaultqch) now saves code correctly, with the option to compile each time (allows progress saving without compilation).
+
+commit d0b3852618be8df81eb3788cc765c04761342bc3
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Fri Jan 24 01:23:04 2014 +0000
+
+    Added code-mirror for advanced text-editor for browsers with JS enabled; code-java questions can now capture and compile code (needs further testing).
+
+commit daa9bd802b08d7c7f489765de78d0511888a1efe
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 23 03:22:21 2014 +0000
+
+    More refactoring and progress on code question handler.
+
+commit b45cfd0ec17d0431e7cc56ae9aa0a9b1e72ca248
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Jan 22 23:57:05 2014 +0000
+
+    Hooked-up the question and criteria handlers for code; a lot of refactoring of the DefaultQCH plugin.
+
+commit b12af7be38d90dc9e4f844a1f50ceffec58bb096
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Jan 22 16:52:49 2014 +0000
+
+    Upgraded sandbox program with timeout and additional thread to kill the JVM if the program exceeds the time allowed. Successfully found a way to execute processes on Windows under another user. Discovered a method to execute processes on Linux under a different user, however this has not yet been tested.
+
+commit 788f7ac61fa5945f8b7822d874334b3cdb522ff6
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 21 22:42:40 2014 +0000
+
+    Successfully finished Java sandbox program with testing on Windows and Linux.
+
+commit 8ffddb71cf39a91dce38ebefe6dee2ef83c41991
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Jan 20 23:59:39 2014 +0000
+
+    Created new sandbox plugin for safely executing code, which uses the SecurityManager to prohibit potentially dangerous features of the JVM. This would serve as an additional layer of security, on top of e.g. running the JVM as a different user.
+
+commit 6b9d8a6a6c9ccb7d46d857faf9d0bd5d4748a528
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Jan 20 11:41:32 2014 +0000
+
+    Progress save of work with interfacing with the Java compiler; this successfully compiles from a string, outputs the classes, which are then loadable using a class-loader in an isolated method (to simulate a sandboxed jvm).
+
+commit c9682b8b6e80bc5ce45a85edcf8258d06054f1bd
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 16 04:05:21 2014 +0000
+
+    General bug-fixes/improvements, questions requiring manual-marking are highlighted in red, manual marking feedback can now be provided (with mark computation checked).
+
+commit 0d3fa129a73c6837ec5c0b875c5c68c8fd2a66ef
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 16 02:24:17 2014 +0000
+
+    General improvements/bug-fixes, refactored admin_assignments to admin_questions, cleaned-up code of default qch plugin (a monolithic class of methods was forming), feedback implemented.
+
+commit 456437e6ca5987f2bf464ab00b16c514ab702b60
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Jan 15 16:10:35 2014 +0000
+
+    Bug-fixes and general refactoring/cleaning-up; feedback can now be sent to reviewed instances (although not implemented at present).
+
+commit 03bf6cf58735b65360929ce6b98db633ae1b78fc
+Author: unknown <limpygnome@gmail.com>
+Date:   Tue Jan 14 13:09:06 2014 +0000
+
+    Bug-fixes to views and editing an assignment (modules plugin).
+
+commit 04765fe1202e114a820e5a34fca6cf5f93b489b7
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 14 04:52:27 2014 +0000
+
+    Added protection against invalid questions being added to assignments.
+
+commit 7d4650c5da1a694b379ded04ae54674d19b82e35
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 14 04:09:24 2014 +0000
+
+    General bug-fixes, assignments plugin now displays the results of instances.
+
+commit 8418451ea9b69eea0b5d5423f9954847be88b302
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Jan 11 01:12:24 2014 +0000
+
+    Fixed critical bug in templates where numbers were formatted with commas for thousands; this would be a bug in the future.
+
+commit c9aa46970df67ad2d181369b075558ab5df92bc6
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Jan 11 00:51:34 2014 +0000
+
+    Added history page for assignments, assignments now log the start and end submission date/times.
+
+commit e40e2fe7e72f8f2e7245665f4058526caf9aefd1
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Fri Jan 10 22:09:24 2014 +0000
+
+    Disposed my own custom datetime class for Joda library; assignments can now have a maximum number of attempts and due-date; AssignmentMarker improved (partly to handle assignment due-dates).
+
+commit e3ee8fd1ec0b19730af0fe8d7ae64ac44c4c5e23
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 9 04:10:19 2014 +0000
+
+    Added exception protection to automated marking, general code clean-up.
+
+commit ec4875510a82302ef5571643b9e2da9506e038b8
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 9 04:01:37 2014 +0000
+
+    Automated question marking works, general bug-fixes, improved Questions and Modules plugins.
+
+commit 9fb16ba868b7d83bbed293b8398b6d90fe965d6d
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Jan 8 19:46:07 2014 +0000
+
+    New plugin (AssignmentMarker) for polling the DB and marking assignments periodically; new plugin successfully marks work. General bug-fixes. Major bug-fix to core, which sets the state to Started in coreStart.
+
+commit a6567356d5baaffa539b3e34a76cb0fc376b0383
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 7 23:18:34 2014 +0000
+
+    Instances of assignments can now be submitted.
+
+commit 4f95daad6f4c5e0734f024e9bb8fb10111c01774
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 7 01:31:18 2014 +0000
+
+    User-group model (pals.base.auth) - minor cleanup applied.
+
+commit 30cb3bd42868dd3343b489cf0be2854294d07965
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 7 01:24:44 2014 +0000
+
+    Minor refactoring, improved efficiency of multiple-choice question, minor bug-fixes.
+
+commit d1d7f020b5c707b8746178312b54b756591b9d57
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Jan 7 00:13:57 2014 +0000
+
+    Fixed decimal/double-precision issue with SQL (to avoid casting of BigDecimal to double), created a new plugin (Assignments) to handle the assignment collection/submission process, data for an assignment can now be captured and persisted for written-response/multiple-choice, modified RemoteRequest (pals.base.web) to allow multiple field values to be captured (for multiple-selection).
+
+commit 4220734281e910cac643d78c48948558d22b052b
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Jan 6 01:19:48 2014 +0000
+
+    Modules/assignments/questions initial design complete.
+
+commit 660785fc691f8c71ec2afb5373caf78c2f7530fd
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Jan 5 03:34:42 2014 +0000
+
+    Models in pals.base.assessment have pre-model filtering for security, further progress with modules/questions web-interface plugins, few minor layout improvements.
+
+commit a9eaad3531f3fc305d19316a8722db50b9ba48c4
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Fri Jan 3 02:16:45 2014 +0000
+
+    Multichoice question creation/modification/deletion, along with criteria creation/modification/deletion, completed. Minor bug-fixes/improvements/expansions to base.
+
+commit e2c00ec5734926280bdc0b899823f93925ced703
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Jan 2 13:46:28 2014 +0000
+
+    Progress save: ability to edit questions from a plugin; ability for classes to be loaded from plugins.
+
+commit ee9b1da8cab78a5710fac0f2de20264467645bda
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Dec 30 03:32:07 2013 +0000
+
+    Added questions plugin (web interface for managing questions), progress with assignments for modules page, extended models, general bug-fixes.
+
+commit b2cea7b507681460a54cf00cb288a4ca6aa1e9c2
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Dec 29 01:07:14 2013 +0000
+
+    Fixed SQL (forgot to drop a table), refactored base logging class (logEx methods) and added alias (to allow the name of sub-components creating log entries to be easily tracked ~ rather than in a message, abstract User model (pals.base.auth) constructors are now public (create method removed).
+
+commit 7ee1fe4e4f16c66909bb015007c993eaf3ea8940
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Dec 24 04:00:06 2013 +0000
+
+    Fixed Modules plugin to reflect changes to Modules model in pals.base.assessment; all sub-projects building successfully. Further testing tomorrow.
+
+commit c70452b6a00ad6b43c182a2859dfa9ad89603d3e
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Dec 24 03:57:41 2013 +0000
+
+    SQL tested, syntax errors fixed (apart of auth system creation).
+
+commit 954d4b4e6c9061feb9d48d3da8e0795414e03bcb
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Dec 24 03:55:13 2013 +0000
+
+    Created assessment models, modified SQL (untested); general progress-save.
+
+commit 01531f58ad48c23d469c4c64e16c3490cd670d18
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Dec 22 01:43:50 2013 +0000
+
+    Progress save. Modules (plugin) can now add/remove/edit modules, as well as enrollment.
+
+commit 112206db85fdf0b444154b2347a59ea97c80bc29
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Dec 21 22:14:36 2013 +0000
+
+    Deleted design classes (to be re-made), added Modules plugin (to handle module management ~ web interface), few design/layout changes. Minor bug found in RemoteRequest (pals.base.web) which removed too many characters for a trailing slash. General progress save.
+
+commit 6deffc4a4f84deee3ecac07313e403f1998cd5e1
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Dec 21 01:17:34 2013 +0000
+
+    Captcha plugin complete. Initial creation of DefaultAuth plugin also complete.
+
+commit 6715398ca7e2fc7b39477755fed3a73910b197ba
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Dec 21 00:56:12 2013 +0000
+
+    Completely tested new plugin solution.
+
+commit e366d6b5545b3832d98262fec13f4dc20ff9f123
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Dec 21 00:47:33 2013 +0000
+
+    Fixed critical plugin loading bug by copying jars, and their depend files, to a separate directory. This allows the URLLoader to keep the (Java) archive, of the plugin, open during runtime to load dependencies. Plugins can also be dependent upon other plugins, which saves having to copy the jars of other plugins.
+
+commit 62851eec6aa44c7a0e96dfba58184dbac8f1a3f5
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Fri Dec 20 23:24:31 2013 +0000
+
+    Fixed major bug with cookies in PALS_Servlet (also added the ability to set status codes and redirect). Further progress with DefaultAuth. Modified layout. Few changes and general bugfixes. Added security classes. Added Captcha plugin. However a major bug has been discovered with plugin loading, where the classloader has to be kept open to load dependencies/libraries; this also creates a file-lock, thus an IDE cannot recompile and reload a jar.
+
+commit a4ea0e4f55e9a999ff6a9ca288e8bb9e7b63335e
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Dec 19 03:58:31 2013 +0000
+
+    Added unregister methods for hooks in plugin-manager (base), updated example plugin, rebuilt sessioncleaner, added and started DefaultAuth plugin (for default authentication of users).
+
+commit 18793e8863165cf1b630e7a095035ea559f4bd86
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Thu Dec 19 03:18:46 2013 +0000
+
+    Initial user and usergroup class (pals.base.auth) created.
+
+commit 97df2a4ccb55dda7cf2952728b5c9bd853293a66
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 22:08:45 2013 +0000
+
+    Updated SQL for RMI details of node, nodes now update their IP and RMI port to the database on start-up (NodeCore), connectors feature table locking/unlocking wrappers, cleaned-up plugins, plugins are now automatically added to the database and installed/uninstalled.
+
+commit 3363f1864e3fae67276ddadae23c8886d8ade2b8
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 19:19:23 2013 +0000
+
+    Added title to SessionCleaner plugin and added node/time params to WebManager.
+
+commit fe1ec6470101ad27c4ca28592fb945a71b6c9511
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 19:08:01 2013 +0000
+
+    Few changes to NodeActive; added SessionCleaner to delete old session data (database) and old temp web files (from uploads).
+
+commit ecbcef48ae94f2b2aeada481150d8a0f7bd845ea
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 18:21:58 2013 +0000
+
+    Updated SQL (forgot PK on nodes), added NodeActive plugin to update the last time a node was active (useful for admin duties), made settings and core public in Plugin (base).
+
+commit 7515eeba982ce771919881284be19454badd8e5a
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 17:36:59 2013 +0000
+
+    Deleted EmailQueue idea (since a plugin will replace it in the future), Nodes now auto-register with the database, cleaned-up and finalized initial SQL.
+
+commit 938598fbf58eb23b5b6298d1e574b8819a05b19f
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 16:51:09 2013 +0000
+
+    Added UUID identification of nodes, logging is now in the shared storage, logging now places logs in separate folders based on node UUID, updated RuntimePLuginReloader (plugin) to use shared path for templates, NodeCore checks temp/templates/logs dirs exist in shared storage on start-up.
+
+commit 9b0dc2c736a8978b89a526a830e6deb5b4e9a3ab
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 05:56:01 2013 +0000
+
+    Added caching of bytes and hyphens to UUID (base) due to predicted excessive usage over the duration of a runtime; the memory is very little compared to the repetitive processing.
+
+commit def3f1994148a195ead64c086574bc9a6c297a54
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Dec 18 05:49:41 2013 +0000
+
+    Implemented templating (using FreeMarker and my own technique for functions) (tested), created initial layout for website, improved and extended NodeCore code, plugin (base) cleaned-up, plugin events deleted (no longer needed, apart of design phase), UUID null checking added (to avoid a bug), UrlTree documentation added, initial WebManager complete (working as intended)(needs authentication handling yet though), file-stream bug fixed in Files (utils - stream not closed), futher extensions upon Remote Request+Response, further extensions of Example plugin to demonstrate hooking and templating,  extended Runtime Plugin Reloader to reload templates.
+
+commit 7ee555371f52a3489bfe2714990ae5104c51060b
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Dec 16 03:05:28 2013 +0000
+
+    Added runtime plugin reloader (allows jars/plugins to be reloaded during the runtime without restarting PALS node - tested and works), modified settings to allow strings (as opposed to just ints) for data-types. General bug-fixes. Extended UUID class to override equals and hash-code (for native support of collections).
+
+commit d7686c5435396ab94aa29feff615a6f490dc6175
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Dec 16 01:53:42 2013 +0000
+
+    Bug-fixes to NodeCore.java and Files.java (minor). General relationship between NodeCore (base) and Node (PALS Node) cleaned-up, using notify/wait - original forever-loop was for initial design+testing purposes. Plugins can now be reloaded during runtime from the same path (tested on Windows 8). Cleaned-up Example plugin to reflect changes.
+
+commit ac378e3275895e7ca64baceb4b40e18079ce5965
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Dec 15 02:48:04 2013 +0000
+
+    Cleaned up configuration files, major revamp of web-end (and initial creation finished - fields/files uploading, request/response handling). bug-fix and info improvements in plugin-manager, NodeCore (base) improvements, introduction of storage class, files can be uploaded and stored in a temp directory between the web and RMI ends, logging stdout/stderr improved (redacted EOE tag).
+
+commit 1dd46756ea4becec6c06de151704cbafb81a8ad9
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Dec 14 00:22:07 2013 +0000
+
+    Added DatabaseHTTPSession session manager, modified SQL, added third-party libraries (Apache Commons IO is currently not used).
+
+commit 5398a867b5f7ed772e7585d591ab0d981a75e736
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Nov 20 03:44:46 2013 +0000
+
+    Example plugin now outputs to the website, using UrlTree with fixed path. This proves the architecture, using RMI, will most likely work quite well. Testing of posted files needs to be done though, but this should be as simple as sending byte-arrays in the response wrapper.
+
+commit fe2ac18f20937d8ba7938d3d633891a2c0597e62
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Nov 20 03:34:46 2013 +0000
+
+    Minor changes in RMI architecture (passing of response object) due to new understanding of how it works with return values. 'hello world...' now prints to the website! Just to wrap the rest of the request data, parse the path data, load templates properly (as well as implement rendering) and an actual basic web-page can be displayed.
+
+commit a379f4ca61c2fa80407f3aa25cc4c0cf72e85af8
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Nov 20 01:11:13 2013 +0000
+
+    Progress save. UUID RNG improved/fixed, added UrlTree data-structure, idea of web-manager implemented. This is very close to (hopefully) processing a web-page over RMI.
+
+commit 3fbda085a1b2121cfed1919aee9caaa0c46693c0
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Tue Nov 19 00:41:36 2013 +0000
+
+    Progress save; initial architecture near completion for test. RMI idea has majorly altered the original concept/idea of the system, making it easier and more secure for plugins.
+
+commit 50840b59687c020914a495cf4cf618b0519949c7
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sat Nov 16 21:49:52 2013 +0000
+
+    Progress save; a few ideas on template loading have been changed, PASLP will not be made and will use RMI instead. Web-pages will also be built on nodes using RMI, increasing security. This will make certain NodeCore functions easier, since it won't need to be loaded inside a web-pool.
+
+commit 34d6e22966ab81673523bf129cff4b4a4e525476
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Nov 13 00:29:39 2013 +0000
+
+    Base of website implemented for handling requests, although this will most likely be extended in the future (not a high priority ~ e.g. adding directories other than content to not be handled by PALS). RMI also tested. RMI will be used for building pages on a node, saves having to load plugins in the web-app pool (which gets disposed frequently).
+
+commit 0cc940fea121a96d25ac6e7a970507ef81c6154e
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Nov 11 14:47:52 2013 +0000
+
+    Settings implemented and tested, which will be used by plugins for decentralized storage of runtime configuraton. SQL extended. Libraries extended. Added commenting to some classes, like Result.
+
+commit 369c012916575fa452b311bc6f9f003870a56141
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Nov 11 00:09:10 2013 +0000
+
+    Progress save; further design additions with the idea of a config file for nodes.  Few changes with the design for SQL. A few classes added and changed, also apart of the design phase.
+
+commit 4573b215d124e40813f622d6ea34dbca3afb32c6
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Nov 10 20:35:40 2013 +0000
+
+    Progress save; added UUID, tested UUID with MySQL and Postgres, added UUID testing (this will later be replaced with unit testing), proposed PALSP protocol.
+
+commit 4b02c99c50aeae2046a978ff77924adec84522cd
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Nov 10 02:41:23 2013 +0000
+
+    Progress save of today's work; MySQL and Postgres JDBC connectors successfully tested and working with the same SQL! Further updated SQL for the structure of PALS, but still incomplete.
+
+commit dbf3069c677c2c9753069969c9e96a9264c28d07
+Author: unknown <limpygnome@gmail.com>
+Date:   Thu Oct 31 14:57:06 2013 +0000
+
+    Further SQL design changes.
+
+commit 0ace6952a25dcf7c64993c0802a2938843fc40fd
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Wed Oct 30 00:18:27 2013 +0000
+
+    Changes to main (use of newly created JavaIO class), few new empty classes to help visualize design phase, started developing SQL for the database.
+
+commit a656800cc2a16fb876b02089488d4ad025299b92
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Oct 28 01:31:28 2013 +0000
+
+    Tested loading files from a jar, tested listing the files in a jar, further design added.
+
+commit 3b697beb84c1ccb9389c8e72d171c4e886eebb7b
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Mon Oct 28 00:10:01 2013 +0000
+
+    Added example plugin and tested dynamic loading of jar library. This can be used for dynamically loading third-party plugins compiled as libraries, externally of the base of PALS.
+
+commit 117463d20aaf19e0e85701885ba16bc27d1edc86
+Author: limpygnome <limpygnome@gmail.com>
+Date:   Sun Oct 27 21:54:19 2013 +0000
+
+    Base projects created - hello world moment! :)
