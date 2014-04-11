@@ -696,7 +696,9 @@ public class PluginManager
         // Remove from manager
         plugins.remove(plugin.getUUID());
         // Dispose I/O
-        plugin.getJarIO().dispose();
+        JarIO jio = plugin.getJarIO();
+        if(jio != null)
+            jio.dispose();
         core.getLogging().log(LOGGING_ALIAS, "Unloaded plugin '" + plugin.getTitle() + "' (" + plugin.getUUID().getHexHyphens() + ").", Logging.EntryType.Info);
         return true;
     }
@@ -709,6 +711,33 @@ public class PluginManager
     {
         for(Plugin p : getPlugins())
             unload(p);
+    }
+    /**
+     * Adds a plugin to the manager.
+     * 
+     * NOTE: THIS IS ETXREMELY DANGEROUS AND SHOULD NOT BE USED, EXCEPT IN
+     * TESTING CONDITIONS. This may be useful for plugins requiring multiple
+     * instances, from a single JAR, loaded during runtime. It's advised you
+     * do not use this method, as no checking occurs and the system could be
+     * easily damaged. If you use this method, be absolutely sure your code
+     * is safe and your plugin has all the required constructor variables
+     * fulfilled.
+     * 
+     * NOTE 2: if a plugin exists with the same UUID, its entry WILL be
+     * replaced. This could be extremely dangerous!
+     * 
+     * @param plugin The plugin to add.
+     * @return Indicates if the plugin has been added. Basic UUID checking is
+     * conducted.
+     * @since 1.0
+     */
+    public synchronized boolean add(Plugin plugin)
+    {
+        UUID uuid = plugin.getUUID();
+        if(uuid == null)
+            return false;
+        plugins.put(uuid, plugin);
+        return true;
     }
     // Methods - Accessors *****************************************************
     /**

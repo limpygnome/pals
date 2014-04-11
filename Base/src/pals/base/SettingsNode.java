@@ -91,7 +91,7 @@ public class SettingsNode
                 case "float":
                 case "fp":
                     return Float;
-                case "5":
+                case "8":
                 case "double":
                     return Double;
             }

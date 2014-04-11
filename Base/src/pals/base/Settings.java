@@ -139,6 +139,8 @@ public class Settings
      */
     public static Settings loadXml(String xml, boolean readOnly) throws SettingsException
     {
+        if(xml == null || xml.length() == 0)
+            throw new SettingsException(SettingsException.Type.FailedToParse, null);
         try
         {
             // Create new Settings collection
@@ -210,6 +212,9 @@ public class Settings
      */
     public synchronized void save(String path) throws SettingsException
     {
+        // Check the collection is not read-only
+        if(readOnly)
+            throw new SettingsException(SettingsException.Type.CollectionReadOnly, new Exception("The settings collection is read-only and cannot be modified!"));
         // Generate the XML
         String xml = save();
         // Attempt to save to the specified path
@@ -234,9 +239,6 @@ public class Settings
         // Lock the collection
         synchronized(settings)
         {
-            // Check the collection is not read-only
-            if(readOnly)
-                throw new SettingsException(SettingsException.Type.CollectionReadOnly, new Exception("The settings collection is read-only and cannot be modified!"));
             // Build the XML
             try
             {

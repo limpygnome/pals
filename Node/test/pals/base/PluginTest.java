@@ -30,6 +30,7 @@ import org.junit.Test;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import static org.junit.Assert.*;
+import pals.base.web.WebRequestData;
 
 /**
  * Tests {@link Plugin}.
@@ -64,7 +65,13 @@ public class PluginTest
         {
             return true;
         }
-        
+
+        @Override
+        public boolean eventHandler_webRequest(WebRequestData data)
+        {
+            data.getResponseData().setBuffer("hello world");
+            return true;
+        }    
     }
     /**
      * Tests the accessors of the plugin.

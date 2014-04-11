@@ -376,4 +376,14 @@ public class TemplateManager
     {
         return fmLoader.getItem(path);
     }
+    /**
+     * The number of templates currently loaded in the collection.
+     * 
+     * @return Number of templates.
+     * @since 1.0
+     */
+    public int size()
+    {
+        return fmLoader.getMap().size();
+    }
 }
