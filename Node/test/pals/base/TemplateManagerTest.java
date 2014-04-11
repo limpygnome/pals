@@ -31,41 +31,15 @@ import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import pals.TestWithCore;
 
 /**
  * Tests {@link TemplateManager}.
  * 
  * @version 1.0
  */
-public class TemplateManagerTest
+public class TemplateManagerTest extends TestWithCore
 {
-    private static NodeCore core;
-    
-    /**
-     * Sets up and starts an instance of a core.
-     * 
-     * @since 1.0
-     */
-    @BeforeClass
-    public static void setup()
-    {
-        core = NodeCore.getInstance();
-        core.setPathPlugins("../Plugins");
-        core.start();
-        assertTrue(core.getState() == NodeCore.State.Started);
-    }
-    /**
-     * Disposes core.
-     * 
-     * @since 1.0
-     */
-    @AfterClass
-    public static void dispose()
-    {
-        core.stop();
-        assertTrue(core.getState() == NodeCore.State.Stopped);
-    }
-    
     @Test
     public void testReload()
     {

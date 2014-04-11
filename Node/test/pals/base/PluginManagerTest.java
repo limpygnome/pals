@@ -30,42 +30,15 @@ import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import pals.TestWithCore;
 
 /**
  * Tests {@link PluginManager}.
  * 
  * @version 1.0
  */
-public class PluginManagerTest
+public class PluginManagerTest extends TestWithCore
 {
-    private static NodeCore core;
-    
-    /**
-     * Setups a core for the tests.
-     * 
-     * @since 1.0
-     */
-    @BeforeClass
-    public static void setup()
-    {
-        core = NodeCore.getInstance();
-        core.setPathPlugins("../Plugins");
-        core.start();
-        assertTrue(core.getState() == NodeCore.State.Started);
-    }
-    /**
-     * Disposes the core.
-     * 
-     * @since 1.0
-     */
-    @AfterClass
-    public static void dispose()
-    {
-        core.stop(NodeCore.StopType.Shutdown);
-        assertTrue(core.getState() == NodeCore.State.Shutdown);
-        core = null;
-    }
-    
     /**
      * Tests the global hook mechanism.
      * 

@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -47,23 +46,72 @@ import pals.base.database.Result;
  * password/password-salt/e-mail fields are valid! The password should also
  * be salted with the salt provided, hashing is not performed by this model
  * (which simply acts as a data container).
+ * 
+ * @version 1.0
  */
 public class User
 {
     // Enums *******************************************************************
     /**
      * The status from persisting this model.
+     * 
+     * @since 1.0
      */
     public enum PersistStatus_User
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist due to unknown state or exception.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * Invalid username format.
+         * 
+         * @since 1.0
+         */
         InvalidUsername_format,
+        /**
+         * Invalid username length.
+         * 
+         * @since 1.0
+         */
         InvalidUsername_length,
+        /**
+         * Username already exists.
+         * 
+         * @since 1.0
+         */
         InvalidUsername_exists,
+        /**
+         * Invalid password length.
+         * 
+         * @since 1.0
+         */
         InvalidPassword_length,
+        /**
+         * Invalid e-mail format.
+         * 
+         * @since 1.0
+         */
         InvalidEmail_format,
+        /**
+         * E-mail already in-use by another user.
+         * 
+         * @since 1.0
+         */
         InvalidEmail_exists,
+        /**
+         * Invalid user-group.
+         * 
+         * @since 1.0
+         */
         InvalidGroup
     }
     // Fields ******************************************************************
@@ -76,18 +124,24 @@ public class User
     // Fields - Caching ********************************************************
     private Module[] modules;           // The modules a user belongs to.
     // Methods - Constructors **************************************************
+    /**
+     * Creates a new, unpersisted, instance of an abstract user.
+     * 
+     * @since 1.0
+     */
     public User()
     {
         this(null, null, null, null, null);
     }
     /**
-     * Creates a new instance of an abstract user.
+     * Creates a new, unpersisted, instance of an abstract user.
      * 
      * @param username The username/alias of the user.
      * @param password The password of the user; can be null if unused.
      * @param passwordSalt THe password-salt of the user; can be null if unused.
      * @param email The e-mail for the user; can be null if unused.
      * @param group The user-group of the user.
+     * @since 1.0
      */
     public User(String username, String password, String passwordSalt, String email, UserGroup group)
     {
@@ -105,6 +159,7 @@ public class User
      * @param conn Database connector.
      * @param username Username of user.
      * @return Instance of user or null.
+     * @since 1.0
      */
     public static User load(Connector conn, String username)
     {
@@ -127,6 +182,7 @@ public class User
      * @param conn Database connector.
      * @param email The e-mail of the user.
      * @return Instance of user or null.
+     * @since 1.0
      */
     public static User loadByEmail(Connector conn, String email)
     {
@@ -146,6 +202,7 @@ public class User
      * @param conn Database connector.
      * @param userid The userid of the user to load.
      * @return Instance of user or null.
+     * @since 1.0
      */
     public static User load(Connector conn, int userid)
     {
@@ -169,6 +226,7 @@ public class User
      * @param conn Database connector.
      * @param result Query result.
      * @return Instance of user or null.
+     * @since 1.0
      */
     public static User load(Connector conn, Result result)
     {
@@ -212,6 +270,7 @@ public class User
      * @param core The current instance of the core.
      * @param conn Database connector.
      * @return Status of the operation.
+     * @since 1.0
      */
     public PersistStatus_User persist(NodeCore core, Connector conn)
     {
@@ -270,6 +329,7 @@ public class User
      * 
      * @param conn Database connector.
      * @return Indicates if the operation succeeded.
+     * @since 1.0
      */
     public boolean remove(Connector conn)
     {
@@ -292,36 +352,52 @@ public class User
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the username.
+     * 
      * @param username The new username for the user; can only consist of
      * alpha-numeric characters.
+     * @since 1.0
      */
     public void setUsername(String username)
     {
         this.username = username;
     }
     /**
+     * Sets the password. This does not apply hashing; the authentication
+     * plugin is expected to do this.
+     * 
      * @param password The new password; can be null.
+     * @since 1.0
      */
     public void setPassword(String password)
     {
         this.password = password;
     }
     /**
+     * Sets the password salt.
+     * 
      * @param passwordSalt The new password salt; can be null.
+     * @since 1.0
      */
     public void setPasswordSalt(String passwordSalt)
     {
         this.passwordSalt = passwordSalt;
     }
     /**
+     * Sets the e-mail.
+     * 
      * @param email The new e-mail for the user.
+     * @since 1.0
      */
     public void setEmail(String email)
     {
         this.email = email;
     }
     /**
+     * Sets the user-group.
+     * 
      * @param group The new user-group of the user.
+     * @since 1.0
      */
     public void setGroup(UserGroup group)
     {
@@ -329,57 +405,81 @@ public class User
     }
     // Methods - Accessors *****************************************************
     /**
+     * Indicates if the model has been persisted.
+     * 
      * @return Indicates if the model has been persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return userid != -1;
     }
     /**
+     * Retrieves the user ID.
+     * 
      * @return The user's identifier; -1 if the model has not been persisted.
+     * @since 1.0
      */
     public int getUserID()
     {
         return userid;
     }
     /**
+     * The username.
+     * 
      * @return The user's username/alias; only alpha-numeric.
+     * @since 1.0
      */
     public String getUsername()
     {
         return username;
     }
     /**
+     * The password.
+     * 
      * @return The user's password.
+     * @since 1.0
      */
     public String getPassword()
     {
         return password;
     }
     /**
+     * The password salt.
+     * 
      * @return The user's password salt.
+     * @since 1.0
      */
     public String getPasswordSalt()
     {
         return passwordSalt;
     }
     /**
+     * The e-mail.
+     * 
      * @return The user's e-mail address.
+     * @since 1.0
      */
     public String getEmail()
     {
         return email;
     }
     /**
+     * The user-group.
+     * 
      * @return The class/user-group of the user.
+     * @since 1.0
      */
     public UserGroup getGroup()
     {
         return group;
     }
     /**
+     * The user's enrolled modules.
+     * 
      * @param conn Database connector.
      * @return The modules the user is enrolled on.
+     * @since 1.0
      */
     public Module[] getModules(Connector conn)
     {
@@ -391,56 +491,80 @@ public class User
     }
     // Methods - Accessors - Limits ********************************************
     /**
+     * Minimum username length.
+     * 
      * @return Minimum length of a username.
+     * @since 1.0
      */
     public int getUsernameMin()
     {
         return 1;
     }
     /**
+     * Maximum username length.
+     * 
      * @return Maximum length of a username.
+     * @since 1.0
      */
     public int getUsernameMax()
     {
         return 24;
     }
     /**
+     * Minimum password length.
+     * 
      * @return Minimum length of a password.
+     * @since 1.0
      */
     public int getPasswordMin()
     {
         return 1;
     }
     /**
+     * Maximum password length.
+     * 
      * @return The maximum length of a password.
+     * @since 1.0
      */
     public int getPasswordMax()
     {
-        return 24;
+        return 512;
     }
     /**
+     * Minimum password salt length.
+     * 
      * @return The minimum length of a password salt.
+     * @since 1.0
      */
     public int getPasswordSaltMin()
     {
         return 0;
     }
     /**
+     * Maximum password salt length.
+     * 
      * @return The maximum length of a password.
+     * @since 1.0
      */
     public int getPasswordSaltMax()
     {
         return 32;
     }
     /**
+     * Minimum e-mail length.
+     * 
      * @return The minimum length of an e-mail.
+     * @since 1.0
      */
     public int getEmailMin()
     {
         return 1;
     }
     /**
+     * Maximum e-mail length.
+     * 
      * @return The maximum length of an e-mail.
+     * @since 1.0
      */
     public int getEmailMax()
     {

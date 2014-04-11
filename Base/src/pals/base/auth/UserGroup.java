@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -36,17 +35,36 @@ import pals.base.database.Result;
 
 /**
  * The user-group of a user.
+ * 
+ * @version 1.0
  */
 public class UserGroup
 {
     // Enums *******************************************************************
     /**
      * The status from persisting this model.
+     * 
+     * @since 1.0
      */
     public enum PersistStatus_UserGroup
     {
+        /**
+         * Successfully persisted.
+         * 
+         * @since 1.0
+         */
         Success,
+        /**
+         * Failed to persist due to unknown state or exception.
+         * 
+         * @since 1.0
+         */
         Failed,
+        /**
+         * The title length is too short or long.
+         * 
+         * @since 1.0
+         */
         Title_Length
     }
     // Fields ******************************************************************
@@ -59,6 +77,18 @@ public class UserGroup
                     adminUsers,         // Indicates the user is allowed to manage users.
                     adminSystem;        // Indicates the user is allowed to manage the system.
     // Methods - Constructors **************************************************
+    /**
+     * Creates a new unpersisted instance.
+     * 
+     * @param title The title of the user-group.
+     * @param userLogin Users can login.
+     * @param markerGeneral Users can mark work.
+     * @param adminModules Users can manage modules.
+     * @param adminQuestions Users can manage questions.
+     * @param adminUsers Users can manage users.
+     * @param adminSystem Users can manage system.
+     * @since 1.0
+     */
     public UserGroup(String title, boolean userLogin, boolean markerGeneral, boolean adminModules, boolean adminQuestions, boolean adminUsers, boolean adminSystem)
     {
         this.groupid = -1;
@@ -77,6 +107,7 @@ public class UserGroup
      * @param conn Database connector.
      * @param groupid Group identifier.
      * @return Instance of group or null.
+     * @since 1.0
      */
     public static UserGroup load(Connector conn, int groupid)
     {
@@ -98,6 +129,7 @@ public class UserGroup
      * 
      * @param conn Database connector.
      * @return Array of user-groups; can be empty.
+     * @since 1.0
      */
     public static UserGroup[] load(Connector conn)
     {
@@ -126,6 +158,7 @@ public class UserGroup
      * 
      * @param result Query result; next() should be pre-invoked.
      * @return Instance of group or null.
+     * @since 1.0
      */
     public static UserGroup load(Result result)
     {
@@ -157,6 +190,7 @@ public class UserGroup
      * 
      * @param conn Database connector.
      * @return Status of the operation.
+     * @since 1.0
      */
     public PersistStatus_UserGroup persist(Connector conn)
     {
@@ -208,6 +242,7 @@ public class UserGroup
      * 
      * @param conn Database connector.
      * @return Indicates if the operation succeeded.
+     * @since 1.0
      */
     public boolean remove(Connector conn)
     {
@@ -230,49 +265,70 @@ public class UserGroup
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the title.
+     * 
      * @param title Sets the title of the group.
+     * @since 1.0
      */
     public void setTitle(String title)
     {
         this.title = title;
     }
     /**
+     * Sets login access.
+     * 
      * @param userLogin Sets if the group can login.
+     * @since 1.0
      */
     public void setUserLogin(boolean userLogin)
     {
         this.userLogin = userLogin;
     }
     /**
+     * Sets marker permission.
+     * 
      * @param markerGeneral Sets if the group can mark assignments.
+     * @since 1.0
      */
     public void setMarkerGeneral(boolean markerGeneral)
     {
         this.markerGeneral = markerGeneral;
     }
     /**
+     * Sets modules permission.
+     * 
      * @param adminModules Sets if the group can manage modules.
+     * @since 1.0
      */
     public void setAdminModules(boolean adminModules)
     {
         this.adminModules = adminModules;
     }
     /**
-     * @param adminAssignments Sets if the group can manage questions.
+     * Sets questions permission.
+     * 
+     * @param adminQuestions Sets if the group can manage questions.
+     * @since 1.0
      */
-    public void setAdminQuestions(boolean adminAssignments)
+    public void setAdminQuestions(boolean adminQuestions)
     {
-        this.adminQuestions = adminAssignments;
+        this.adminQuestions = adminQuestions;
     }
     /**
+     * Sets users permission.
+     * 
      * @param adminUsers Sets if the group can manage users.
+     * @since 1.0
      */
     public void setAdminUsers(boolean adminUsers)
     {
         this.adminUsers = adminUsers;
     }
     /**
+     * Sets system permission.
+     * 
      * @param adminSystem Sets if the group can manage the system.
+     * @since 1.0
      */
     public void setAdminSystem(boolean adminSystem)
     {
@@ -280,78 +336,111 @@ public class UserGroup
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the model has been persisted.
+     * Indicates if the model has been persisted.
+     * 
+     * @return True = persisted, false = not persisted.
+     * @since 1.0
      */
     public boolean isPersisted()
     {
         return groupid != -1;
     }
     /**
+     * Group identifier.
+     * 
      * @return The identifier of this group.
+     * @since 1.0
      */
     public int getGroupID()
     {
         return groupid;
     }
     /**
+     * The title.
+     * 
      * @return The title of the group.
+     * @since 1.0
      */
     public String getTitle()
     {
         return title;
     }
     /**
+     * Login permission.
+     * 
      * @return Indicates if the group can login.
+     * @since 1.0
      */
     public boolean isUserLogin()
     {
         return userLogin;
     }
     /**
+     * Marker permission.
+     * 
      * @return Indicates if the group can mark assignments.
+     * @since 1.0
      */
     public boolean isMarkerGeneral()
     {
         return markerGeneral;
     }
     /**
+     * Admin indicator.
+     * 
      * @return Indicates if the group has any admin roles.
+     * @since 1.0
      */
     public boolean isAdmin()
     {
         return adminModules || adminQuestions || adminSystem || adminUsers;
     }
     /**
+     * Modules permission.
+     * 
      * @return Indicates if the group can manage modules.
+     * @since 1.0
      */
     public boolean isAdminModules()
     {
         return adminModules;
     }
     /**
+     * Questions permission.
+     * 
      * @return Indicates if the group can manage questions.
+     * @since 1.0
      */
     public boolean isAdminQuestions()
     {
         return adminQuestions;
     }
     /**
+     * Users permission.
+     * 
      * @return Indicates if the group can manage users.
+     * @since 1.0
      */
     public boolean isAdminUsers()
     {
         return adminUsers;
     }
     /**
+     * System permission.
+     * 
      * @return Indicates if the group can manage the system.
+     * @since 1.0
      */
     public boolean isAdminSystem()
     {
         return adminSystem;
     }
     /**
+     * Total users in group.
+     * 
      * @param conn Database connector.
      * @return The number of users in the group; this is not cached.
+     * @since 1.0
      */
     public int getUserCount(Connector conn)
     {
@@ -369,14 +458,20 @@ public class UserGroup
     }
     // Methods - Accessors - Limits ********************************************
     /**
+     * Title minimum length.
+     * 
      * @return Minimum length of a title.
+     * @since 1.0
      */
     public int getTitleMin()
     {
         return 1;
     }
     /**
+     * Title maximum length.
+     * 
      * @return Maximum length of a title.
+     * @since 1.0
      */
     public int getTitleMax()
     {

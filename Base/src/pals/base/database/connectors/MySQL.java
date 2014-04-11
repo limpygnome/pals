@@ -33,6 +33,11 @@ import pals.base.database.*;
 
 /**
  * The MySQL database connector.
+ * 
+ * NOTE: this is currently not completely supported, but has been left for
+ * future support.
+ * 
+ * @version 1.0
  */
 public class MySQL extends Connector
 {

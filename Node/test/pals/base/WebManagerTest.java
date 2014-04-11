@@ -33,6 +33,7 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import pals.TestWithCore;
 
 /**
  * Tests the {@link WebManager}.
@@ -41,35 +42,8 @@ import org.junit.Test;
  * 
  * @version 1.0
  */
-public class WebManagerTest
+public class WebManagerTest extends TestWithCore
 {
-    private static NodeCore core;
-    
-    /**
-     * Setups a core for the tests.
-     * 
-     * @since 1.0
-     */
-    @BeforeClass
-    public static void setup()
-    {
-        core = NodeCore.getInstance();
-        core.setPathPlugins("../Plugins");
-        core.start();
-        assertTrue(core.getState() == NodeCore.State.Started);
-    }
-    /**
-     * Disposes the core.
-     * 
-     * @since 1.0
-     */
-    @AfterClass
-    public static void dispose()
-    {
-        core.stop(NodeCore.StopType.Shutdown);
-        assertTrue(core.getState() == NodeCore.State.Shutdown);
-        core = null;
-    }
     /**
      * Tests registering/urnegistering and serving a URL.
      * 

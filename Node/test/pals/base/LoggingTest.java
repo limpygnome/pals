@@ -32,41 +32,15 @@ import org.junit.AfterClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
+import pals.TestWithCore;
 
 /**
  * Tests {@link Logging}.
  * 
  * @version 1.0
  */
-public class LoggingTest
+public class LoggingTest extends TestWithCore
 {
-    private static NodeCore core;
-    
-    /**
-     * Setups a core for the tests.
-     * 
-     * @since 1.0
-     */
-    @BeforeClass
-    public static void setup() throws IOException
-    {
-        core = NodeCore.getInstance();
-        core.setPathPlugins("../Plugins");
-        core.start();
-        assertTrue(core.getState() == NodeCore.State.Started);
-    }
-    /**
-     * Disposes the core.
-     * 
-     * @since 1.0
-     */
-    @AfterClass
-    public static void dispose()
-    {
-        core.stop(NodeCore.StopType.Shutdown);
-        assertTrue(core.getState() == NodeCore.State.Shutdown);
-        core = null;
-    }
     /**
      * Checks instances of logging can be created and disposed, as well as the
      * path working.
