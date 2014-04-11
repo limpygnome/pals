@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -35,6 +34,7 @@ import pals.base.web.WebRequestData;
  * information, refer to:
  * https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
  * 
+ * @version 1.0
  */
 public class CSRF
 {
@@ -50,6 +50,7 @@ public class CSRF
      * @return The token generated; this should be embedded in a form and
      * sent back to csrfSecure method to later confirm a request,
      * such as a postback from a form, is secure.
+     * @since 1.0
      */
     public static String set(WebRequestData data)
     {
@@ -66,6 +67,7 @@ public class CSRF
      * 
      * @param data The data for the current web-request.
      * @return True = secure/valid, false = insecure/invalid.
+     * @since 1.0
      */
     public static boolean isSecure(WebRequestData data)
     {
@@ -79,6 +81,7 @@ public class CSRF
      * @param userInput The token provided by the user for the current
      * request.
      * @return True = secure/valid, false = insecure/invalid.
+     * @since 1.0
      */
     public static boolean isSecure(WebRequestData data, String userInput)
     {

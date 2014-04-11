@@ -24,25 +24,45 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base.web.security;
+package pals.base.utils;
+
+import java.io.File;
+import java.io.IOException;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
- * Used for escaping encoding/decoding.
+ * Tests {@link Files}.
  * 
  * @version 1.0
  */
-public class Escaping
+public class FilesTest
 {
     /**
-     * Encodes a HTML string.
+     * Tests copying files.
      * 
-     * @param value The string to be escaped; can be null (will become empty
-     * string).
-     * @return The escaped string.
      * @since 1.0
      */
-    public static String htmlEncode(String value)
+    @Test
+    public void testFileCopyReadWrite() throws IOException
     {
-        return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        // Create test file
+        Files.fileWrite("unit_test_fcpy", "test data", true);
+        
+        // Copy
+        Files.fileCopy("unit_test_fcpy", "unit_test_fcpy2", true);
+        
+        // Read contents and check it's the same
+        assertEquals("test data", Files.fileRead("unit_test_fcpy2"));
+        
+        // Check both files exist
+        File    f1 = new File("unit_test_fcpy"),
+                f2 = new File("unit_test_fcpy2");
+        assertTrue(f1.exists());
+        assertTrue(f2.exists());
+        
+        // Delete
+        assertTrue(f1.delete());
+        assertTrue(f2.delete());
     }
 }

@@ -24,25 +24,48 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base.web.security;
+package pals.web.security;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+import pals.TestWithCore;
+import pals.base.database.Connector;
+import pals.base.web.RemoteRequest;
+import pals.base.web.RemoteResponse;
+import pals.base.web.WebRequestData;
+import pals.base.web.security.CSRF;
 
 /**
- * Used for escaping encoding/decoding.
+ * Tests {@link CSRF}.
  * 
  * @version 1.0
  */
-public class Escaping
+public class CSRFTest extends TestWithCore
 {
-    /**
-     * Encodes a HTML string.
-     * 
-     * @param value The string to be escaped; can be null (will become empty
-     * string).
-     * @return The escaped string.
-     * @since 1.0
-     */
-    public static String htmlEncode(String value)
+    @Test
+    public void testCSRF()
     {
-        return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        Connector conn = core.createConnector();
+        WebRequestData w = WebRequestData.create(core, conn, new RemoteRequest(null, "/", "127.0.0.1"), new RemoteResponse());
+        
+        // Ensure we are not safe
+        assertFalse(CSRF.isSecure(w));
+        
+        // Set CSRF
+        String token = CSRF.set(w);
+        
+        // Attempt to redeem
+        assertTrue(CSRF.isSecure(w, token));
+        
+        // Grab a new token
+        String token2 = CSRF.set(w);
+        
+        // Attempt with old token
+        assertFalse(CSRF.isSecure(w, token));
+        
+        // Attempt with new
+        assertTrue(CSRF.isSecure(w, token2));
+        
+        conn.disconnect();
     }
 }

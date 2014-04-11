@@ -24,25 +24,27 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base.web.security;
+package pals.web.security;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+import pals.base.web.security.Escaping;
 
 /**
- * Used for escaping encoding/decoding.
+ * Tests {@link Escaping}.
  * 
  * @version 1.0
  */
-public class Escaping
+public class EscapingTest
 {
     /**
-     * Encodes a HTML string.
+     * Tests encoding HTML.
      * 
-     * @param value The string to be escaped; can be null (will become empty
-     * string).
-     * @return The escaped string.
      * @since 1.0
      */
-    public static String htmlEncode(String value)
+    @Test
+    public void testHtmlEncode()
     {
-        return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        assertEquals("&lt;&amp;&gt;", Escaping.htmlEncode("<&>"));
     }
 }

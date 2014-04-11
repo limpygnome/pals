@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -41,9 +40,22 @@ import java.util.ArrayList;
 
 /**
  * A class of general utility functions for interfacing with the file-system.
+ * 
+ * @version 1.0
  */
 public class Files
 {
+    /**
+     * Copies a file, whilst taking care of checking and creating the
+     * destination directory.
+     * 
+     * @param source The source file.
+     * @param dest The destination of the file.
+     * @param overwrite Indicates if to overwrite if a file exists at dest.
+     * @throws FileNotFoundException Thrown if the source file is not found.
+     * @throws IOException Thrown if an I/O issue arises.
+     * @since 1.0
+     */
     public static void fileCopy(String source, String dest, boolean overwrite) throws FileNotFoundException, IOException
     {
         File fs = new File(source);
@@ -56,7 +68,7 @@ public class Files
             throw new IOException("Destination '" + dest + "' already exists!");
         // Check the root dir exists
         File fdRoot = fd.getParentFile();
-        if(!fdRoot.exists())
+        if(fdRoot != null && !fdRoot.exists())
             fdRoot.mkdir();
         // Open up the source file and copy the contents to the destination
         try
@@ -85,6 +97,7 @@ public class Files
      * @return The text of the file, read as UTF-8.
      * @throws IOException Thrown if an IO error occurs.
      * @throws FileNotFoundException Thrown if the specified file is not found.
+     * @since 1.0
      */
     public static String fileRead(String path) throws IOException, FileNotFoundException
     {
@@ -95,6 +108,7 @@ public class Files
      * @param is The input-stream of data.
      * @return The text of the file, read as UTF-8.
      * @throws IOException Thrown if an IO error occurs.
+     * @since 1.0
      */
     public static String fileRead(InputStream is) throws IOException
     {
@@ -119,6 +133,7 @@ public class Files
      * @param data The data to write to the file.
      * @param overwrite Indicates if to overwrite the file.
      * @throws IOException Thrown if an error occurs writing the data to file.
+     * @since 1.0
      */
     public static void fileWrite(String path, String data, boolean overwrite) throws IOException
     {
@@ -146,6 +161,7 @@ public class Files
      * @param subDirs Indicates if to recursively iterate sub-directory items.
      * @return Array of file objects to represent the sub-files.
      * @throws FileNotFoundException Thrown if the directory cannot be found.
+     * @since 1.0
      */
     public static File[] getAllFiles(String path, boolean includeDirs, boolean includeFiles, String extFilter, boolean subDirs) throws FileNotFoundException
     {
@@ -175,9 +191,12 @@ public class Files
         }
     }
     /**
+     * Fetches all the sub-directories, of the path, which are empty.
+     * 
      * @param path The path of the directory to test, exclusive of the array
      * returned.
      * @return Array of directories which are empty; can be empty (array).
+     * @since 1.0
      */
     public static File[] getDirsEmpty(String path)
     {

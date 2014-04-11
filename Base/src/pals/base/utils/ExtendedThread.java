@@ -34,7 +34,7 @@ package pals.base.utils;
  * 
  * Thread-safe.
  */
-public class ExtendedThread extends Thread
+public abstract class ExtendedThread extends Thread
 {
     // Fields ******************************************************************
     private boolean stopped;

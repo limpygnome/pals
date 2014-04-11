@@ -24,25 +24,37 @@
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
-package pals.base.web.security;
+package pals.base.utils;
+
+import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
- * Used for escaping encoding/decoding.
+ * Tests {@link ExtendedThread}.
  * 
  * @version 1.0
  */
-public class Escaping
+public class ExtendedThreadTest
 {
     /**
-     * Encodes a HTML string.
+     * Tests the stop mechanism.
      * 
-     * @param value The string to be escaped; can be null (will become empty
-     * string).
-     * @return The escaped string.
      * @since 1.0
      */
-    public static String htmlEncode(String value)
+    @Test
+    public void testStopMechanism()
     {
-        return value == null ? "" : value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        ExtendedThread th = new ExtendedThread() {
+        };
+        
+        assertFalse(th.extended_isStopped());
+        
+        th.extended_stop();
+        
+        assertTrue(th.extended_isStopped());
+        
+        th.extended_reset();;
+        
+        assertFalse(th.extended_isStopped());
     }
 }
