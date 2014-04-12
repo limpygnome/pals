@@ -567,7 +567,7 @@ public class NodeCore
      * third-party documentation.
      * @since 1.0
      */
-    public void waitStateChange() throws InterruptedException
+    public synchronized void waitStateChange() throws InterruptedException
     {
         wait(STATE_CHANGE_TIMEOUT);
     }
