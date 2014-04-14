@@ -110,6 +110,30 @@ public class RemoteRequest implements Serializable
         this.fields.put(key, values);
     }
     /**
+     * Adds a new value to a key. If the key exists, the value is added in a
+     * new array. If the key does not exist, the key is mapped to the value.
+     * 
+     * @param key The key.
+     * @param value The value.
+     * @since 1.0
+     */
+    public synchronized void setAddFields(String key, String value)
+    {
+        if(fields.containsKey(key))
+        {
+            // Create new array with additional field
+            String[] orig = fields.get(key);
+            String[] buffer = new String[orig.length+1];
+            for(int i = 0; i < orig.length; i++)
+                buffer[i] = orig[i];
+            buffer[buffer.length-1] = value;
+            // Update with new array
+            fields.put(key, buffer);
+        }
+        else
+            fields.put(key, new String[]{value});
+    }
+    /**
      * @param key The key/name associated with the file.
      * @param file The file to be stored; can be null.
      */
@@ -132,6 +156,16 @@ public class RemoteRequest implements Serializable
         this.files.remove(key);
     }
     // Methods - Accessors *****************************************************
+    /**
+     * Indicates if the request contains a field.
+     * 
+     * @param key The key.
+     * @return True = exists, false = does not exist.
+     */
+    public synchronized boolean containsField(String key)
+    {
+        return fields.containsKey(key);
+    }
     /**
      * @return The IP address of the user making the request.
      */

@@ -77,6 +77,7 @@ public class CompilerClassLoader extends SecureClassLoader
     public void remove(String classPath)
     {
         objs.remove(classPath);
+        whiteList.remove(classPath);
     }
     /**
      * @param classPath The-path of the item to retrieve.

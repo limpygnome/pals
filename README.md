@@ -58,7 +58,7 @@ File Structure
 Unit Tests
 ----------
 The base has been mostly unit tested, with the test files located at:
-/Node/test
+*/Node/test*
 
 Third-Party Libraries
 ---------------------

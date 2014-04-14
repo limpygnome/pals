@@ -84,7 +84,7 @@ public class PALS_Servlet extends HttpServlet
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
+    {        
         ResponseType rt = ResponseType.Success;
         Exception caughtException = null;
         try
@@ -143,8 +143,8 @@ public class PALS_Servlet extends HttpServlet
                         }
                         else
                         {
-                            // Not a file - a field - set anyhow!
-                            dataRequest.setField(fis.getFieldName(), Streams.asString(is));
+                            // Not a file - a field...
+                            dataRequest.setAddFields(fis.getFieldName(), Streams.asString(is));
                         }
                     }
                 }
