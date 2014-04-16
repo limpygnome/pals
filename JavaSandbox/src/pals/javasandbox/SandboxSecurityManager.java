@@ -118,6 +118,9 @@ public class SandboxSecurityManager extends SecurityManager
         // Allowed - the user may want to terminate their program or the
         // thread-watcher may want to kill the JVM due to excessive
         // computation.
+        System.out.flush();
+        System.out.println("Environment exit called.");
+        System.out.flush();
     }
     @Override
     public void checkPermission(Permission p)

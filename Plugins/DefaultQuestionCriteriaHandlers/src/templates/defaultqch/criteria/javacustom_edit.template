@@ -1,0 +1,100 @@
+<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">Edit Criteria</a></h2>
+
+<h3 class="tac">Java - Custom Code</h3>
+<form method="post" action="/admin/questions/${question.getQID()?c}/criteria/${criteria.getQCID()?c}/edit">
+    <table class="table2 questions_form">
+        <tr>
+            <th colspan="2">
+                General
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Title:
+            </td>
+            <td>
+                <input type="text" name="crit_title" value="${crit_title?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Weight:
+            </td>
+            <td>
+                <input type="text" name="crit_weight" value="${crit_weight?html}" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Full Class Name:
+            </td>
+            <td>
+                <input type="text" name="crit_class" value="<#if crit_class??>${crit_class?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Method Name:
+            </td>
+            <td>
+                <input type="text" name="crit_method" value="<#if crit_method??>${crit_method?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Message Threshold:
+            </td>
+            <td>
+                <input type="text" name="crit_messages" value="<#if crit_messages??>${crit_messages?html}</#if>" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="tac">
+                <a class="button" href="/admin/questions/${question.getQID()?c}">Back</a>
+                <input type="submit" value="Update" />
+            </td>
+        </tr>
+    </table>
+    <input type="hidden" name="csrf" value="${csrf}" />
+</form>
+
+<#if error??>
+    <p class="error">
+        ${error?html}
+    </p>
+</#if>
+
+<#if warning??>
+    <p class="warning">
+        ${warning?html}
+    </p>
+</#if>
+
+<#if info??>
+    <p class="info">
+        ${info?html}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success?html}
+    </p>
+</#if>
+
+<h3>Notes</h3>
+<p>
+    This will invoke the specified method at the class specified. This class can be included by
+    editing the current question and uploading the code.
+</p>
+<p>
+    The invoked method should take no parameters and should have public and static modifiers. The
+    return type should be integer, which returns a value from 0 to 100 as the mark.
+</p>
+<p>
+    You can also display feedback by printing a line to standard output. By default, any
+    message will be considered an information feedback message. If the line starts with
+    error, the line is shown as an error feedback message. The same occurs if the line
+    starts with warning or success - this must be the keyword, followed by a space and
+    then the message to display.
+</p>

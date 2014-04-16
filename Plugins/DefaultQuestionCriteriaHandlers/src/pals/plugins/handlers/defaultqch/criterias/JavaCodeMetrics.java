@@ -38,6 +38,7 @@ import pals.base.database.Connector;
 import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
+import pals.plugins.handlers.defaultqch.DefaultQC;
 import pals.plugins.handlers.defaultqch.criterias.metrics.AverageIdentifiers;
 import pals.plugins.handlers.defaultqch.criterias.metrics.BlankLines;
 import pals.plugins.handlers.defaultqch.criterias.metrics.CommentLines;
@@ -177,6 +178,12 @@ public class JavaCodeMetrics
             JavaCodeMetrics_Criteria    cdata = (JavaCodeMetrics_Criteria)iac.getQC().getData();
             if(idata.getStatus() != CompilerResult.CompileStatus.Success)
                 iac.setMark(0);
+            else if(cdata == null)
+            {
+                // Criteria not setup correctly
+                core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Invalid/null question or criteria data for IAC '"+iac.getIAQ().getAIQID()+","+iac.getQC().getQCID()+"' (aqid,qcid).", Logging.EntryType.Error);
+                return false;
+            }
             else
             {
                 // Setup the metric

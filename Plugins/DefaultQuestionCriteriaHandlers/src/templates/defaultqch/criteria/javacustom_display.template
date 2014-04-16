@@ -1,0 +1,14 @@
+<#list messages as msg>
+    <#assign type=msg.getTypeNumber()>
+    <#if type == 2>
+        <p class="warning">
+    <#elseif type == 3>
+        <p class="error">
+    <#elseif type == 4>
+        <p class="success">
+    <#else>
+        <p class="info">
+    </#if>
+            ${msg.getMessage()?html}
+        </p>
+</#list>

@@ -200,6 +200,7 @@ public class JavaTestProgram
                 // Start process
                 if(!proc.start())
                 {
+                    core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Failed to start Java Sandbox ~ aiqid "+iac.getIAQ().getAIQID()+", qcid "+iac.getQC().getQCID(), Logging.EntryType.Warning);
                     iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
                     return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                 }
@@ -303,7 +304,7 @@ public class JavaTestProgram
                                 l = ++ioIndex >= ioLimit ? null : parseLine(IO[ioIndex]);
                         }
                         catch(IOException ex){}
-                        Thread.sleep(10);
+                        Thread.sleep(5);
                     }
                     catch(InterruptedException ex){}
                 }

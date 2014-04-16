@@ -95,7 +95,8 @@ public class DefaultQC extends Plugin
                         tcJavaFieldExists,
                         tcJavaTestProgram,
                         tcJavaInheritance,
-                        tcJavaEnums;
+                        tcJavaEnums,
+                        tcJavaCustom;
         if((tcManualMarking = TypeCriteria.register(conn, core, this, ManualMarking.UUID_CTYPE, ManualMarking.TITLE, ManualMarking.DESCRIPTION)) == null)
             return false;
         if((tcTextMatch = TypeCriteria.register(conn, core, this, TextMatch.UUID_CTYPE, TextMatch.TITLE, TextMatch.DESCRIPTION)) == null)
@@ -119,6 +120,8 @@ public class DefaultQC extends Plugin
         if((tcJavaInheritance = TypeCriteria.register(conn, core, this, JavaInheritance.UUID_CTYPE, JavaInheritance.TITLE, JavaInheritance.DESCRIPTION)) == null)
             return false;
         if((tcJavaEnums = TypeCriteria.register(conn, core, this, JavaEnums.UUID_CTYPE, JavaEnums.TITLE, JavaEnums.DESCRIPTION)) == null)
+            return false;
+        if((tcJavaCustom = TypeCriteria.register(conn, core, this, JavaCustomCode.UUID_CTYPE, JavaCustomCode.TITLE, JavaCustomCode.DESCRIPTION)) == null)
             return false;
         // Add criterias to questions, and persist
         // -- Multiple Choice
@@ -146,6 +149,7 @@ public class DefaultQC extends Plugin
         tqCodeJava.criteriaAdd(tcJavaTestProgram);
         tqCodeJava.criteriaAdd(tcJavaInheritance);
         tqCodeJava.criteriaAdd(tcJavaEnums);
+        tqCodeJava.criteriaAdd(tcJavaCustom);
         if(!persistQuestionCriteria(core, tqCodeJava, conn))
             return false;
         
@@ -283,6 +287,8 @@ public class DefaultQC extends Plugin
             return JavaInheritance.pageCriteriaEdit(data, qc);
         else if(ctype.equals(JavaEnums.UUID_CTYPE))
             return JavaEnums.pageCriteriaEdit(data, qc);
+        else if(ctype.equals(JavaCustomCode.UUID_CTYPE))
+            return JavaCustomCode.pageCriteriaEdit(data, qc);
         
         return false;
     }
@@ -375,6 +381,8 @@ public class DefaultQC extends Plugin
             return JavaInheritance.criteriaMarking(conn, core, iac);
         else if(ctype.equals(JavaEnums.UUID_CTYPE))
             return JavaEnums.criteriaMarking(conn, core, iac);
+        else if(ctype.equals(JavaCustomCode.UUID_CTYPE))
+            return JavaCustomCode.criteriaMarking(conn, core, iac);
         
         return false;
     }
@@ -414,6 +422,8 @@ public class DefaultQC extends Plugin
             return JavaInheritance.criteriaDisplay(data, ia, iaq, iac, html);
         else if(ctype.equals(JavaEnums.UUID_CTYPE))
             return JavaEnums.criteriaDisplay(data, ia, iaq, iac, html);
+        else if(ctype.equals(JavaCustomCode.UUID_CTYPE))
+            return JavaCustomCode.criteriaDisplay(data, ia, iaq, iac, html);
         
         return false;
     }
