@@ -350,6 +350,7 @@ public class Assignment
         try
         {
             conn.execute("DELETE FROM pals_assignment WHERE assid=?;", assid);
+            assid = -1;
             return true;
         }
         catch(DatabaseException ex)
@@ -692,5 +693,24 @@ public class Assignment
     public int getTitleMax()
     {
         return 64;
+    }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Indicates if two assignments are the same, based on their identifier. If
+     * either is unpersisted, this will always be false.
+     * 
+     * @param o The object being compared.
+     * @return True = same assignment, false = not the same.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(assid == -1)
+            return false;
+        if(!(o instanceof Assignment))
+            return false;
+        return ((Assignment)o).assid==assid;
     }
 }
