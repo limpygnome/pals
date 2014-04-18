@@ -214,8 +214,11 @@ public class RMI
     {
         try
         {
-            UnicastRemoteObject.unexportObject(r, true);
+            UnicastRemoteObject.unexportObject(r.lookup(RMI_Interface.class.getName()), true);
         }
-        catch(NoSuchObjectException ex) {}
+        catch(RemoteException | NotBoundException ex)
+        {
+            ex.printStackTrace(System.err);
+        }
     }
 }

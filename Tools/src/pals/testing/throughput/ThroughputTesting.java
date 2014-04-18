@@ -48,9 +48,21 @@ public class ThroughputTesting
      */
     public static void main(String[] args) throws DatabaseException
     {
-        // Change this variable to control the amount of data tested
-        final int data = 500;
+        // Test configuration
+        int min         = 200,      // Minimum number of instances of work to process
+            max         = 100000,   // Maximum number of instances of work to process
+            increment   = 100;      // Increment between min and max
         
+        System.out.println("Running "+((max-min)/increment)+" tests...");
+        
+//        for(int i = min; i <= max; i+=increment)
+//            runTest(i);
+        
+        runTest(100000);
+    }
+    
+    public static long runTest(int work) throws DatabaseException
+    {
         // Fetch and start an instance of a core, used for communication and DB
         // -- Create fake plugins folder, we do not want any plugins
         File f = new File("tt_plugins");
@@ -59,12 +71,12 @@ public class ThroughputTesting
         // -- Create core
         NodeCore core = NodeCore.getInstance();
         core.setPathPlugins("tt_plugins");
-        core.setPathSettings("../Node/_config/node.config");
+        core.setPathSettings("../Node/_config_cluster/node.config");
         // -- Start
         if(!core.start())
         {
             System.err.println("Failed to start instance of core.");
-            return;
+            return -1;
         }
         // Create database connector
         Connector conn = core.createConnector();
@@ -72,7 +84,7 @@ public class ThroughputTesting
         conn.tableLock("pals_nodes", false);
         // Create fake data
         System.out.println("Creating test data...");
-        TestData td = new Regex(data);
+        TestData td = new Regex(work);
         td.create(core);
         // Log start time, unlock table
         long start = System.currentTimeMillis();
@@ -90,7 +102,7 @@ public class ThroughputTesting
         while(!hasCompleted);
         long end = System.currentTimeMillis();
         // Output time taken
-        System.out.println("Time taken (ms): "+(end-start));
+        System.out.println("Time taken (ms): "+(end-start)+" - "+work+" IACs");
         // Lock table
         conn.tableLock("pals_nodes", false);
         // Dispose data
@@ -98,7 +110,9 @@ public class ThroughputTesting
         // Unlock table
         conn.tableUnlock(false);
         // Dispose core
-        conn.disconnect();;
+        conn.disconnect();
         core.stop();
+        System.out.println("Test complete.");
+        return end-start;
     }
 }
