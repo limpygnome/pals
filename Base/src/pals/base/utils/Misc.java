@@ -311,4 +311,25 @@ public class Misc
         // Execute SQL
         conn.execute(sql);
     }
+    /**
+     * Generates a value between the two numbers. Supports negative values.
+     * 
+     * @param rng The random number generator used.
+     * @param a Start of range. Can be min or max.
+     * @param b End of range. Can be min or max.
+     * @return Random value using specified RNG between specified range.
+     * @since 1.0
+     */
+    public static int rngRange(Random rng, int a, int b)
+    {
+        // Treat a as min, b as max - swap if different
+        if(a > b)
+        {
+            int t = a;
+            a = b;
+            b = t;
+        }
+        // Generate value
+        return rng.nextInt(b-a+1)+a;
+    }
 }

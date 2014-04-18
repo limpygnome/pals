@@ -62,3 +62,7 @@ Todo.txt
 /Plugins/Stats/nbproject/private/
 /Plugins/Stats/build/
 /Plugins/Stats/dist/
+/Plugins/ThroughputTest/nbproject/private/
+/ThroughputTesting/nbproject/private/
+/ThroughputTesting/build/
+/ThroughputTesting/dist/

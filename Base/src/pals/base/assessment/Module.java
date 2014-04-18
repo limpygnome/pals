@@ -239,20 +239,23 @@ public class Module
      * Unpersists the model from the database; can be re-used.
      * 
      * @param conn Database connector.
+     * @return True = success, false = failed.
      * @since 1.0
      */
-    public void delete(Connector conn)
+    public boolean delete(Connector conn)
     {
         try
         {
             conn.execute("DELETE FROM pals_modules WHERE moduleid=?;", moduleid);
             this.moduleid = -1;
+            return true;
         }
         catch(DatabaseException ex)
         {
             NodeCore core;
             if((core = NodeCore.getInstance())!=null)
                 core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
+            return false;
         }
     }
     // Methods *****************************************************************

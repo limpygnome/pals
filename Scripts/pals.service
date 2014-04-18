@@ -1,0 +1,12 @@
+[Unit]
+Description=Programming Assessment and Learning System
+Requires=postgresql.service
+
+[Service]
+WorkingDirectory=/pals
+ExecStart=/usr/bin/bash /pals/launch_linux_headless.sh
+PIDFile=/pals/node.pid
+
+[Install]
+WantedBy=multi-user.target
+

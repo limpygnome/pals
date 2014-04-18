@@ -39,6 +39,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import pals.base.NodeCore;
 import pals.base.utils.Files;
+import pals.base.utils.Misc;
 import pals.base.utils.PalsProcess;
 import pals.base.web.WebRequestData;
 
@@ -51,7 +52,7 @@ public class Utils
     private final static Pattern patternRandom;
     static
     {
-        patternRandom = Pattern.compile("^rand\\(([0-9]+):([0-9]+)\\)$");
+        patternRandom = Pattern.compile("^rand\\((.+):(.+)\\)$");
     }
     // Methods - Static ********************************************************
     /**
@@ -289,7 +290,7 @@ public class Utils
             buffer.append(k).append("=");
             for(int j = 0; j < v.length; j++)
             {
-                t = v[j];
+                t = v[j].trim();
                 // Format current value for random value
                 if(t.startsWith("rand("))
                     t = formatInputs_inputRandom(core, k, t);
@@ -310,6 +311,7 @@ public class Utils
         // Parse min and max range
         String  rawMin = m.group(1),
                 rawMax = m.group(2);
+        
         try
         {
             int min = Integer.parseInt(rawMin);
@@ -317,7 +319,7 @@ public class Utils
             if(min >= max)
                 return input;
             // Fetch RNG and produce random value
-            int rv = core.getRNG().nextInt(max-min+1)-min;
+            int rv = Misc.rngRange(core.getRNG(), min, max);
             // Parse input
             switch(type)
             {

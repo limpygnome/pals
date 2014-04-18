@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -43,6 +42,8 @@ import pals.base.database.Result;
  * exceptions, from assignment-questions.
  * 
  * Used by the stats system.
+ * 
+ * @version 1.0
  */
 public class ModelException
 {
@@ -54,7 +55,7 @@ public class ModelException
     private DateTime    dt;
     private boolean     runtime;
     // Fields - Information ****************************************************
-    private int aiidPage;
+    private int aiidPage; // Intended for persisted models being loaded from the database.
     // Methods - Constructors **************************************************
     private ModelException(int aqid, int aiid, String message, DateTime dt, int aiidPage)
     {
@@ -66,10 +67,17 @@ public class ModelException
         this.aiidPage = aiidPage;
         this.runtime = false;
     }
+    /**
+     * Creates a new instance of this class.
+     * 
+     * @param className The class/category of the exception.
+     * @param message The exception message for this instance.
+     * @param iaq The current assignment question.
+     * @param runtime True = runtime error, false = compilation error.
+     * @since 1.0
+     */
     public ModelException(String className, String message, InstanceAssignmentQuestion iaq, boolean runtime)
     {
-        if(className == null || iaq == null)
-            throw new IllegalArgumentException("ModelException ~ only message can be null!");
         this.className = className;
         this.message = message;
         this.aqid = iaq.getAssignmentQuestion().getAQID();
@@ -77,6 +85,33 @@ public class ModelException
         this.message = message;
         this.runtime = runtime;
         this.aiidPage = -1;
+    }
+    /**
+     * Creates a new instance for a compilation error, where the class-name and
+     * message are automatically determined from a compilation message.
+     * 
+     * @param error The error message to be parsed.
+     * @param iaq The current assignment question.
+     * @since 1.0
+     */
+    public ModelException(String error, InstanceAssignmentQuestion iaq)
+    {
+        this(null, null, iaq, false);
+        
+        int i = error.indexOf(':');
+        if(i == -1 || i >= error.length()-2 || i == 0)
+            this.className = error;
+        else
+        {
+            this.className = error.substring(0, i).trim();
+            this.message = error.substring(i+1).trim();
+            // Fail-safe protection against empty class-names
+            if(className.length() == 0)
+            {
+                this.className = error;
+                this.message = null;
+            }
+        }
     }
     // Methods - Persistence ***************************************************
     /**
@@ -110,6 +145,7 @@ public class ModelException
         }
         catch(DatabaseException ex)
         {
+            ex.printStackTrace(System.out);
             return false;
         }
         return true;

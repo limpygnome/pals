@@ -197,7 +197,7 @@ public class JavaTestInputs_Criteria implements Serializable
         {
             t = inputs[r];
             for(int c = 0; c < t.length; c++)
-                sb.append(t[c]).append(',');
+                sb.append(t[c]).append(';');
             sb.deleteCharAt(sb.length()-1).append('\n');
         }
         if(sb.length() > 0)

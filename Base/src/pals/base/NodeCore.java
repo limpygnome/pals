@@ -135,6 +135,7 @@ public class NodeCore
     // Fields ******************************************************************
     private UUID                uuidNode;                           // The UUID used to represent this node.
     private State               state;                              // The current state of the core.
+    private String              pathSettings;                       // The path of the settings file.
     private String              pathPlugins;                        // The path of where the plugins reside.
     private String              pathShared;                         // The path of shared storage.
     private Random              rng;                                // A random number generator (RNG) for general random usage; avoids multiple instances.
@@ -150,6 +151,7 @@ public class NodeCore
     {
         this.uuidNode = null;
         this.pathPlugins = this.pathShared = null;
+        this.pathSettings = "_config/node.config"; // Default path.
         this.state = State.Stopped;
         this.plugins = null;
         this.templates = null;
@@ -180,7 +182,7 @@ public class NodeCore
         // Load base node settings
         try
         {
-            settings = Settings.load("_config/node.config", true);
+            settings = Settings.load(pathSettings, true);
         }
         catch(SettingsException ex)
         {
@@ -584,6 +586,16 @@ public class NodeCore
     {
         this.pathPlugins = pathPlugins;
     }
+    /**
+     * Sets the path of where the settings file resides.
+     * 
+     * @param pathSettings File path.
+     * @since 1.0
+     */
+    public synchronized void setPathSettings(String pathSettings)
+    {
+        this.pathSettings = pathSettings;
+    }
     // Methods - Accessors *****************************************************
     /**
      * Gets the instance of the current PALS node Core.
@@ -638,6 +650,16 @@ public class NodeCore
     public String getPathShared()
     {
         return pathShared;
+    }
+    /**
+     * The path of where the settings file is located.
+     * 
+     * @return File path.
+     * @since 1.0
+     */
+    public String getPathSettings()
+    {
+        return pathSettings;
     }
     // Methods - Accessors - Components ****************************************
     /**

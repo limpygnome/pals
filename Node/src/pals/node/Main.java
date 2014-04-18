@@ -1,5 +1,3 @@
-package pals.node;
-
 /*
     The MIT License (MIT)
 
@@ -26,6 +24,8 @@ package pals.node;
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
+package pals.node;
+
 import pals.base.NodeCore;
 
 /**

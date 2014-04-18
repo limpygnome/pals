@@ -30,6 +30,7 @@ package pals.plugins.handlers.defaultqch.questions;
 import java.io.File;
 import java.util.HashMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
@@ -58,6 +59,11 @@ public class CodeJava extends QuestionHelper
     public static final String  TITLE = "Code: Java";
     public static final String  DESCRIPTION = "Allows students to upload or provide fragments of Java code.";
     public static final int     FILEUPLOAD_FILES_LIMIT = 64;
+    public static final Pattern patt;
+    static
+    {
+        patt = Pattern.compile("");
+    }
     // Methods - Pages *********************************************************
     public static boolean pageQuestionEdit(WebRequestData data, Question q)
     {
@@ -286,7 +292,7 @@ public class CodeJava extends QuestionHelper
                         {
                             if(!exceptionLogged)
                             {
-                                ModelException m = new ModelException(error.getMessage(), null, iaq, false);
+                                ModelException m = new ModelException(error.getMessage(), iaq);
                                 m.persist(data.getConnector());
                             }
                             adata.errorsAdd(error);
@@ -400,7 +406,7 @@ public class CodeJava extends QuestionHelper
                                 {
                                     if(!exceptionLogged)
                                     {
-                                        ModelException m = new ModelException(error.getMessage(), null, iaq, false);
+                                        ModelException m = new ModelException(error.getMessage(), iaq);
                                         m.persist(data.getConnector());
                                         exceptionLogged = true;
                                     }
