@@ -40,6 +40,8 @@ import pals.testing.throughput.data.Regex;
  */
 public class ThroughputTesting
 {
+    static NodeCore core;
+    
     /**
      * Program entry-point.
      * 
@@ -49,35 +51,46 @@ public class ThroughputTesting
     public static void main(String[] args) throws DatabaseException
     {
         // Test configuration
-        int min         = 200,      // Minimum number of instances of work to process
-            max         = 100000,   // Maximum number of instances of work to process
-            increment   = 100;      // Increment between min and max
+        int min         = 1000,      // Minimum number of instances of work to process
+            max         = 20000,   // Maximum number of instances of work to process
+            increment   = 1000;      // Increment between min and max
         
         System.out.println("Running "+((max-min)/increment)+" tests...");
         
-//        for(int i = min; i <= max; i+=increment)
-//            runTest(i);
+        // Start core
+        core = NodeCore.getInstance();
+        core.setPathPlugins("tt_plugins");
+        core.setPathSettings("../Node/_config/node.config");
+        // -- Start
+        if(!core.start())
+        {
+            System.err.println("Failed to start instance of core.");
+            return;
+        }
         
-        runTest(100000);
+        // Perform tests
+        StringBuilder sb = new StringBuilder();
+        for(int i = min; i <= max; i+=increment)
+            sb.append(runTest(i)).append(" ");
+        if(sb.length()>0)
+            sb.deleteCharAt(sb.length()-1);
+        
+        // Dispose core
+        core.stop();
+        
+        // Print results
+        System.out.println("Results:");
+        System.out.println(sb.toString());
     }
     
     public static long runTest(int work) throws DatabaseException
     {
+        System.out.println("Starting test "+work+" items.");
         // Fetch and start an instance of a core, used for communication and DB
         // -- Create fake plugins folder, we do not want any plugins
         File f = new File("tt_plugins");
         if(!f.exists())
             f.mkdir();
-        // -- Create core
-        NodeCore core = NodeCore.getInstance();
-        core.setPathPlugins("tt_plugins");
-        core.setPathSettings("../Node/_config_cluster/node.config");
-        // -- Start
-        if(!core.start())
-        {
-            System.err.println("Failed to start instance of core.");
-            return -1;
-        }
         // Create database connector
         Connector conn = core.createConnector();
         // Lock nodes table
@@ -98,6 +111,11 @@ public class ThroughputTesting
         {
             if((long)conn.executeScalar("SELECT COUNT('') FROM pals_assignment_instance_question_criteria WHERE status=?;", InstanceAssignmentCriteria.Status.AwaitingMarking.getStatus())==0L)
                 hasCompleted=true;
+            try
+            {
+                Thread.sleep(5);
+            }
+            catch(InterruptedException ex){}
         }
         while(!hasCompleted);
         long end = System.currentTimeMillis();
@@ -111,7 +129,6 @@ public class ThroughputTesting
         conn.tableUnlock(false);
         // Dispose core
         conn.disconnect();
-        core.stop();
         System.out.println("Test complete.");
         return end-start;
     }

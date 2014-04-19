@@ -654,4 +654,22 @@ public class InstanceAssignment
             return -1;
         }
     }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Compares this instance to another item and tests the equality based
+     * on the type of object and the identifiers being the same.
+     * 
+     * @param o The object to tested against this object.
+     * @return True = same, false = not the same.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof InstanceAssignment))
+            return false;
+        InstanceAssignment a = (InstanceAssignment)o;
+        return a.aiid == aiid;
+    }
 }

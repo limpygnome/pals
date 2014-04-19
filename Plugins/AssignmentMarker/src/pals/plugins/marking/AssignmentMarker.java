@@ -21,12 +21,13 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
 package pals.plugins.marking;
 
+import java.util.HashSet;
+import java.util.concurrent.LinkedBlockingQueue;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Plugin;
@@ -34,22 +35,34 @@ import pals.base.PluginManager;
 import pals.base.Settings;
 import pals.base.UUID;
 import pals.base.Version;
+import pals.base.assessment.InstanceAssignment;
+import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import pals.base.utils.ThreadPool;
 
 /**
  * A plugin for marking (instances of) assignments.
+ * 
+ * @version 1.0
  */
 public class AssignmentMarker extends Plugin
 {
     // Fields ******************************************************************
-    private final ThreadPool<MarkerThread> threads;     // The threads for processing/marking work.
+    private ThreadMain                                              threadMain;     // The thread for fetching work.
+    private final ThreadPool<ThreadMarker>                          threadWorkers;  // The threads for processing/marking work.
+    private final LinkedBlockingQueue<InstanceAssignmentCriteria>   work;           // Pending work.
+    private final HashSet<InstanceAssignment>                       assMarkCompute; // Assignments requiring marking.
     // Methods - Constructors **************************************************
     public AssignmentMarker(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
     {
         super(core, uuid, jario, version, settings, jarPath);
-        this.threads = new ThreadPool<>();
+        
+        this.threadMain = new ThreadMain(this);
+        this.threadWorkers = new ThreadPool<>();
+        
+        this.work = new LinkedBlockingQueue<>();
+        this.assMarkCompute = new HashSet<>();
     }
     // Methods - Event Handlers ************************************************
     @Override
@@ -75,7 +88,8 @@ public class AssignmentMarker extends Plugin
         switch(event)
         {
             case "base.assessment.wake":
-                threads.interruptAll();
+                // Wake main thread to fetch new work
+                threadMain.interrupt();
                 return true;
         }
         return false;
@@ -87,9 +101,11 @@ public class AssignmentMarker extends Plugin
         int numThreads = settings.getInt("marking/threads");
         getCore().getLogging().log("Ass. Marker", "Launching "+numThreads+" marking threads.", Logging.EntryType.Info);
         for(int i = 0; i < numThreads; i++)
-            threads.add(new MarkerThread(this, i+1));
-        // Start threads
-        threads.start();
+            threadWorkers.add(new ThreadMarker(this, i+1));
+        // Start main thread
+        threadMain.start();
+        // Start worker threads
+        threadWorkers.start();
         return true;
     }
     @Override
@@ -97,13 +113,71 @@ public class AssignmentMarker extends Plugin
     {
         getCore().getLogging().log("Ass. Marker", "Stopping thread-pool.", Logging.EntryType.Info);
         // Dispose threads
-        threads.stopJoin();
-        threads.clear();
+        // -- Stop and join main thread
+        threadMain.extended_stop();
+        try
+        {
+            threadMain.join();
+        }
+        catch(InterruptedException ex) {}
+        // -- Stop workers
+        threadWorkers.stopJoin();
+        threadWorkers.clear();
         getCore().getLogging().log("Ass. Marker", "Disposed thread-pool.", Logging.EntryType.Info);
+        // Dispose work
+        assMarkCompute.clear();
+        work.clear();
     }
+    // Methods - Accessors *****************************************************
+    /**
+     * @see Plugin#getTitle()
+     * 
+     * @since 1.0
+     */
     @Override
     public String getTitle()
     {
         return "[PALS] Assignment Marker";
+    }
+    /**
+     * Fetches the queue storing work to be processed by marker threads.
+     * 
+     * @return Queue.
+     * @since 1.0
+     */
+    public LinkedBlockingQueue<InstanceAssignmentCriteria> getWorkQueue()
+    {
+        return work;
+    }
+    /**
+     * Adds an instance of assignment to be checked for marking.
+     * 
+     * @param ia The instance assignment requiring checking.
+     * @since 1.0
+     */
+    public void addInstanceAssignmentMarking(InstanceAssignment ia)
+    {
+        synchronized(assMarkCompute)
+        {
+            assMarkCompute.add(ia);
+        }
+        // Wake main thread to perform checking
+        threadMain.interrupt();
+    }
+    /**
+     * Fetches all of the instance assignments requiring mark computation to be
+     * checked.
+     * 
+     * @return Array of IAs, can be empty.
+     * @since 1.0
+     */
+    public InstanceAssignment[] fetchComputeCheckIAs()
+    {
+        synchronized(assMarkCompute)
+        {
+            InstanceAssignment[] buffer = assMarkCompute.toArray(new InstanceAssignment[assMarkCompute.size()]);
+            assMarkCompute.clear();
+            return buffer;
+        }
     }
 }

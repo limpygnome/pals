@@ -289,26 +289,34 @@ public class InstanceAssignmentCriteria
      * @param core Current instance of the core.
      * @param conn Database connector.
      * @param timeoutMs The timeout period for the last_processed column.
-     * @return An instance of the model or null.
+     * @param limit Maximum pieces of work to fetch.
+     * @return Array of models, can be empty.
      * @since 1.0
      */
-    public static InstanceAssignmentCriteria loadNextWork(NodeCore core, Connector conn, int timeoutMs)
+    public static InstanceAssignmentCriteria[] loadNextWork(NodeCore core, Connector conn, int timeoutMs, int limit)
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_assignment_instance_question_criteria WHERE status=? AND (last_processed IS NULL OR last_processed < (current_timestamp - CAST(? AS INTERVAL))) LIMIT 1;", Status.AwaitingMarking.dbValue, timeoutMs+" millisecond");
-            if(res.next())
+            Result res = conn.read("SELECT * FROM pals_assignment_instance_question_criteria WHERE status=? AND (last_processed IS NULL OR last_processed < (current_timestamp - CAST(? AS INTERVAL))) LIMIT ?;", Status.AwaitingMarking.dbValue, timeoutMs+" millisecond", limit);
+            ArrayList<InstanceAssignmentCriteria> buffer = new ArrayList<>();
+            InstanceAssignmentCriteria t;
+            // Iterate data and attempt to load into buffer as models
+            while(res.next())
             {
-                conn.execute("UPDATE pals_assignment_instance_question_criteria SET last_processed=current_timestamp WHERE aiqid=? AND qcid=?;", (int)res.get("aiqid"), (int)res.get("qcid"));
-                return loadAuto(core, conn, null, null, res);
+                // Attempt to load model
+                if((t = loadAuto(core, conn, null, null, res)) != null)
+                {
+                    // Update work to handled
+                    conn.execute("UPDATE pals_assignment_instance_question_criteria SET last_processed=current_timestamp WHERE aiqid=? AND qcid=?;", (int)res.get("aiqid"), (int)res.get("qcid"));
+                    buffer.add(t);
+                }
             }
-            else
-                return null;
+            return buffer.toArray(new InstanceAssignmentCriteria[buffer.size()]);
         }
         catch(DatabaseException ex)
         {
             core.getLogging().logEx("Base", ex, Logging.EntryType.Warning);
-            return null;
+            return new InstanceAssignmentCriteria[0];
         }
     }
     /**
