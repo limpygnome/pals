@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -33,10 +32,17 @@ import pals.base.NodeCore;
 
 /**
  * A cross-platform wrapper for launching processes.
+ * 
+ * @version 1.0
  */
 public class PalsProcess
 {
     // Enums *******************************************************************
+    /**
+     * The current operating system.
+     * 
+     * @since 1.0
+     */
     public enum OS
     {
         Unknown,
@@ -54,7 +60,10 @@ public class PalsProcess
     }
     // Methods *****************************************************************
     /**
+     * Starts the process.
+     * 
      * @return True if the process started, false if it failed to start.
+     * @since 1.0
      */
     public boolean start()
     {
@@ -70,7 +79,10 @@ public class PalsProcess
         }
     }
     /**
-     * @return Indicates if the process has terminated.
+     * Indicates if the process has terminated.
+     * 
+     * @return True = exited, false = not exited.
+     * @since 1.0
      */
     public boolean hasExited()
     {
@@ -86,14 +98,20 @@ public class PalsProcess
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return The underlying process.
+     * The underlying process.
+     * 
+     * @return The process.
+     * @since 1.0
      */
     public Process getProcess()
     {
         return proc;
     }
     /**
-     * @return The underlying process-builder.
+     * The underlying process-builder.
+     * 
+     * @return The process-builder.
+     * @since 1.0
      */
     public ProcessBuilder getProcessBuilder()
     {
@@ -101,7 +119,10 @@ public class PalsProcess
     }
     // Methods - Static ********************************************************
     /**
-     * @return The operating system this JVM is currently operating on.
+     * The operating system of which this JVM is currently operating upon.
+     * 
+     * @return The operating system.
+     * @since 1.0
      */
     public static OS getOS()
     {
@@ -114,8 +135,12 @@ public class PalsProcess
             return OS.Unknown;
     }
     /**
+     * Formats a file-path based on the operating system. This is mostly to
+     * just support paths for Windows.
+     * 
      * @param path A file-system path to be passed to the {@link #create(pals.base.NodeCore, java.lang.String, java.lang.String)}.
      * @return A formatted path.
+     * @since 1.0
      */
     public static String formatPath(String path)
     {
@@ -140,6 +165,7 @@ public class PalsProcess
      * @param fullPath The full path of the program  to execute.
      * @param args The arguments to be passed to the program.
      * @return The process created; null if it failed to be created.
+     * @since 1.0
      */
     public static PalsProcess create(NodeCore core, String workingDir, String fullPath, String[] args)
     {

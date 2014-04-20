@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -40,6 +39,8 @@ import java.util.Map;
  * - Relative Urls should not start or end with a forward-slash.
  * 
  * Thread-safe.
+ * 
+ * @version 1.0
  */
 public class RemoteRequest implements Serializable
 {
@@ -51,6 +52,16 @@ public class RemoteRequest implements Serializable
     private final HashMap<String,String[]>      fields;         // Any field data provided by the user.
     private final HashMap<String,UploadedFile>  files;          // Any files uploaded by the request.
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param sessionID The session ID as a base-64 string.
+     * @param relativeUrl The relative URL requested.
+     * @param ipaddr The IP address of the request.
+     * @throws IllegalArgumentException Thrown if an illegal argument is
+     * specified.
+     * @since 1.0
+     */
     public RemoteRequest(String sessionID, String relativeUrl, String ipaddr) throws IllegalArgumentException
     {
         // Validate data
@@ -65,14 +76,20 @@ public class RemoteRequest implements Serializable
     }
     // Methods - Mutators ******************************************************
     /**
-     * @param sessionID Sets the session ID of the user; can be null.
+     * Sets the session ID of the user; can be null.
+     * 
+     * @param sessionID Base64 string.
+     * @since 1.0
      */
     public synchronized void setSessionID(String sessionID)
     {
         this.sessionID = sessionID;
     }
     /**
-     * @param relativeUrl Sets the relative URL requested; can be null.
+     * Sets the relative URL requested; can be null.
+     * 
+     * @param relativeUrl The relative URL.
+     * @since 1.0
      */
     public synchronized void setRelativeUrl(String relativeUrl)
     {
@@ -94,16 +111,22 @@ public class RemoteRequest implements Serializable
         }
     }
     /**
+     * Sets a HTTP POST or GET field.
+     * 
      * @param key The key of the field to set.
      * @param value The value of the field; can be null.
+     * @since 1.0
      */
     public synchronized void setField(String key, String value)
     {
         this.fields.put(key, new String[]{value});
     }
     /**
+     * Sets multiple HTTP POST or GET fields.
+     * 
      * @param key The key of the field to set.
      * @param values The values to set for a field; can be null.
+     * @since 1.0
      */
     public synchronized void setFields(String key, String[] values)
     {
@@ -134,22 +157,31 @@ public class RemoteRequest implements Serializable
             fields.put(key, new String[]{value});
     }
     /**
+     * Sets a file uploaded.
+     * 
      * @param key The key/name associated with the file.
      * @param file The file to be stored; can be null.
+     * @since 1.0
      */
     public synchronized void setFile(String key, UploadedFile file)
     {
         this.files.put(key, file);
     }
     /**
+     * Removes a field.
+     * 
      * @param key The key/name of the field to remove.
+     * @since 1.0
      */
     public synchronized void removeField(String key)
     {
         this.fields.remove(key);
     }
     /**
+     * Removes a file.
+     * 
      * @param key The key/name of the file to remove.
+     * @since 1.0
      */
     public synchronized void removeFile(String key)
     {
@@ -161,37 +193,50 @@ public class RemoteRequest implements Serializable
      * 
      * @param key The key.
      * @return True = exists, false = does not exist.
+     * @since 1.0
      */
     public synchronized boolean containsField(String key)
     {
         return fields.containsKey(key);
     }
     /**
+     * Retrieves the IP address.
+     * 
      * @return The IP address of the user making the request.
+     * @since 1.0
      */
     public synchronized String getIpAddress()
     {
         return ipaddr;
     }
     /**
+     * Retrieves the session ID.
+     * 
      * @return The session ID provided by the user of the request; can be null.
+     * @since 1.0
      */
     public synchronized String getSessionID()
     {
         return sessionID;
     }
     /**
+     * Retrieves the relative URL.
+     * 
      * @return The requested relative URL; null-protected (becomes
      * empty-string).
+     * @since 1.0
      */
     public synchronized String getRelativeUrl()
     {
         return relativeUrl;
     }
     /**
+     * Retrieves a field.
+     * 
      * @param key The key/name of the field to retrieve.
      * @return The data associated with the key; can be null. Null if the
-     * field does not exist.
+     * field does not exist. If multiple fields exist, the first is returned.
+     * @since 1.0
      */
     public synchronized String getField(String key)
     {
@@ -199,45 +244,63 @@ public class RemoteRequest implements Serializable
         return t != null && t.length > 0 ? t[0] : null;
     }
     /**
+     * Retrieves all of the fields.
+     * 
      * @param key The key/name of the fields to retrieve.
      * @return All of the field values associated with a key; can be null.
+     * @since 1.0
      */
     public synchronized String[] getFields(String key)
     {
         return fields.get(key);
     }
     /**
+     * Retrieves all the field names.
+     * 
      * @return An array of all the keys of fields.
+     * @since 1.0
      */
     public synchronized String[] getFieldNames()
     {
         return fields.keySet().toArray(new String[fields.size()]);
     }
     /**
+     * Retrieves the number of fields.
+     * 
      * @return The number of fields.
+     * @since 1.0
      */
     public synchronized int getFieldsCount()
     {
         return this.fields.size();
     }
     /**
+     * Retrieves an uploaded file.
+     * 
      * @param key The key/name of the file.
      * @return The file associated with the key; null if the item does not
      * exist.
+     * @since 1.0
      */
     public synchronized UploadedFile getFile(String key)
     {
         return this.files.get(key);
     }
     /**
+     * Retrieves all of the file-names.
+     * 
      * @return An array of all the file-names.
+     * @since 1.0
      */
     public synchronized String[] getFileNames()
     {
         return files.keySet().toArray(new String[files.size()]);
     }
     /**
+     * Retrieves all of the uploaded files.
+     * 
      * @return An array of all the files.
+     * @since 1.0
      */
     public synchronized UploadedFile[] getFiles()
     {
@@ -248,21 +311,30 @@ public class RemoteRequest implements Serializable
         return files;
     }
     /**
+     * Retrieves the number of files.
+     * 
      * @return Total number of files in the request.
+     * @since 1.0
      */
     public synchronized int getFilesCount()
     {
         return this.files.size();
     }
     /**
+     * The internal data-structure for storing fields.
+     * 
      * @return The map which stores the fields.
+     * @since 1.0
      */
     public synchronized Map<String,String[]> getFieldsMap()
     {
         return fields;
     }
     /**
+     * The internal data-structure for storing files.
+     * 
      * @return The map which stores the files.
+     * @since 1.0
      */
     public synchronized Map<String,UploadedFile> getFilesMap()
     {

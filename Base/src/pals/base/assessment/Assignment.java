@@ -694,7 +694,6 @@ public class Assignment
     {
         return 64;
     }
-
     // Methods - Overrides *****************************************************
     /**
      * Indicates if two assignments are the same, based on their identifier. If
@@ -712,5 +711,15 @@ public class Assignment
         if(!(o instanceof Assignment))
             return false;
         return ((Assignment)o).assid==assid;
+    }
+    /**
+     * The hash-code for the assignment, based on the module identifier.
+     * 
+     * @return 
+     */
+    @Override
+    public int hashCode()
+    {
+        return module != null ? module.getModuleID() : -1;
     }
 }

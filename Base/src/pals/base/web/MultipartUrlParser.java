@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -30,6 +29,8 @@ package pals.base.web;
 /**
  * Allows dynamic relative paths to be easily parsed; performs repetitive tasks
  * such as index and null-pointer protection, as well as parsing to data-types.
+ * 
+ * @version 1.0
  */
 public class MultipartUrlParser
 {
@@ -40,6 +41,7 @@ public class MultipartUrlParser
      * Creates a new parser.
      * 
      * @param data The data for the current request.
+     * @since 1.0
      */
     public MultipartUrlParser(WebRequestData data)
     {
@@ -53,6 +55,7 @@ public class MultipartUrlParser
      * @param index The index of the directory to parse.
      * @param alt The alternate value to return if the index is invalid.
      * @return The parsed value or the alt parameter.
+     * @since 1.0
      */
     public int parseInt(int index, int alt)
     {
@@ -70,9 +73,12 @@ public class MultipartUrlParser
     }
     // Methods - Accessors *****************************************************
     /**
+     * Retrieves a part of the URL at an index.
+     * 
      * @param index The index of the directory to retrieve.
      * @return The data at the index; either a string or null (converted to null
      * if empty-string).
+     * @since 1.0
      */
     public String getPart(int index)
     {

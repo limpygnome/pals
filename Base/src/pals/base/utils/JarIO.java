@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -42,7 +41,8 @@ import java.util.jar.JarInputStream;
 
 /**
  * A class for handling I/O with JAR (Java Archive) files.
- * @author limpygnome
+ * 
+ * @version 1.0
  */
 public class JarIO
 {
@@ -57,9 +57,11 @@ public class JarIO
     // Methods *****************************************************************
     /**
      * Loads a class from the JAR file.
+     * 
      * @param fullyQualifiedName The full name of the class, including package.
      * @return Type of the class.
-     * @throws JarIOException
+     * @throws JarIOException Thrown if an underlying exception occurs.
+     * @since 1.0
      */
     public Class fetchClassType(String fullyQualifiedName) throws JarIOException
     {
@@ -74,9 +76,11 @@ public class JarIO
     }
     /**
      * Reads a binary resource.
+     * 
      * @param path The relative path in the JAR file, without a starting slash.
      * @return The byte data of the resource.
-     * @throws JarIOException Throws ResourceFetchError.
+     * @throws JarIOException Thrown if an underlying exception occurs.
+     * @since 1.0
      */
     public byte[] fetchFile(String path) throws JarIOException
     {
@@ -104,9 +108,11 @@ public class JarIO
     }
     /**
      * Reads a text file resource as UTF-8.
+     * 
      * @param path The relative path in the JAR file, without a starting slash.
      * @return The string data from the file.
-     * @throws JarIOException Throws ResourceFetchError.
+     * @throws JarIOException Thrown if an underlying exception occurs.
+     * @since 1.0
      */
     public String fetchFileText(String path) throws JarIOException
     {
@@ -126,12 +132,14 @@ public class JarIO
     }
     /**
      * Fetches a list of files in the archive.
+     * 
      * @param filter Base directory for files to retrieve. Can be empty or null.
      * @param extFilter Extension filter (for files). Can be empty or null.
      * @param files Indicates if to retrieve files.
      * @param directories Indicates if to retrieve directories.
      * @return An array of paths of files found matching the specified criteria.
-     * @throws JarIOException Throws ResourceFetchError and FileReadPermissions.
+     * @throws JarIOException Thrown if an underlying exception occurs.
+     * @since 1.0
      */
     public String[] getFiles(String filter, String extFilter, boolean files, boolean directories) throws JarIOException
     {
@@ -168,7 +176,9 @@ public class JarIO
     // Methods - Accessors *****************************************************
     /**
      * Gets the absolute path of the JAR.
+     * 
      * @return Path of JAR; may differ to the original path passed.
+     * @since 1.0
      */
     public String getPath()
     {
@@ -176,7 +186,9 @@ public class JarIO
     }
     /**
      * The underlying class-loader.
+     * 
      * @return Class-loader.
+     * @since 1.0
      */
     public ClassLoader getRawLoader()
     {
@@ -185,12 +197,13 @@ public class JarIO
     // Methods - Static ********************************************************
     /**
      * Opens a JAR file.
+     * 
      * @param path The path of the file.
      * @param dependencies The paths of any dependencies to be added to the
      * underlying class-loader. Can be null.
      * @return An instance of this class for handling the JAR file.
-     * @throws JarIOException Throws FileNotFound, FileReadPermissions and
-     * FileReadError.
+     * @throws JarIOException Thrown if an underlying exception occurs.
+     * @since 1.0
      */
     public static JarIO open(String path, String[] dependencies) throws JarIOException
     {
@@ -236,6 +249,8 @@ public class JarIO
     }
     /**
      * Disposes any file streams used by this class.
+     * 
+     * @since 1.0
      */
     public void dispose()
     {

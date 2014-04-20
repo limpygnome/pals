@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -41,6 +40,8 @@ import java.util.HashMap;
  * - Session private should be used to timeout the session, when idle; refer to
  * the following for guidelines:
  * https://www.owasp.org/index.php/Session_Management#Ensure_Idle.2C_absolute_timeouts_are_as_short_as_practical
+ * 
+ * @version 1.0
  */
 public class RemoteResponse implements Serializable
 {
@@ -48,6 +49,8 @@ public class RemoteResponse implements Serializable
     // Fields - Constants ******************************************************
     /**
      * The default MIME response type.
+     * 
+     * @since 1.0
      */
     public static final String DEFAULT_MIME_TYPE = "text/html;charset=UTF-8";
     // Fields ******************************************************************
@@ -59,6 +62,11 @@ public class RemoteResponse implements Serializable
     private int                     responseCode;   // The response status/code.
     private HashMap<String,String>  headers;        // Any header data to be appended.
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @since 1.0
+     */
     public RemoteResponse()
     {
         this.sessionID = null;
@@ -71,38 +79,54 @@ public class RemoteResponse implements Serializable
     }
     // Methods - Mutators ******************************************************
     /**
-     * @param data The data to be placed in the buffer, for writing to the user.
+     * Sets the response buffer.
+     * 
+     * @param data The data to be placed in the buffer, for writing to the
+     * user.
+     * @since 1.0
      */
     public void setBuffer(byte[] data)
     {
         this.buffer = data;
     }
     /**
+     * Sets the buffer.
+     * 
      * @param data The string data to be transformed from a UTF-8 string into
      * bytes, and then placed in a buffer for writing to the user.
+     * @since 1.0
      */
     public void setBuffer(String data)
     {
         this.buffer = data == null ? null : data.getBytes(Charset.forName("UTF-8"));
     }
     /**
+     * Sets the session ID.
+     * 
      * @param sessionID Sets the session ID to deliver to the user, for cookie
      * management; can be null.
+     * @since 1.0
      */
     public void setSessionID(String sessionID)
     {
         this.sessionID = sessionID;
     }
     /**
+     * Sets if the session is private.
+     * 
      * @param sessionPrivate Sets if the user session is private, and thus
      * should expire after a longer duration.
+     * @since 1.0
      */
     public void setSessionPrivate(boolean sessionPrivate)
     {
         this.sessionPrivate = sessionPrivate;
     }
     /**
+     * Sets the response-type.
+     * 
      * @param responseType The MIME type of the response data; cannot be null.
+     * @since 1.0
      */
     public void setResponseType(String responseType) throws IllegalArgumentException
     {
@@ -111,14 +135,20 @@ public class RemoteResponse implements Serializable
         this.responseType = responseType;
     }
     /**
+     * Sets the redirect URL.
+     * 
      * @param url The URL of where to redirect the response.
+     * @since 1.0
      */
     public void setRedirectUrl(String url)
     {
         urlRedirect = url;
     }
     /**
+     * Sets the response-code.
+     * 
      * @param responseCode The new response code.
+     * @since 1.0
      */
     public void setResponseCode(int responseCode)
     {
@@ -129,6 +159,7 @@ public class RemoteResponse implements Serializable
      * 
      * @param k The key of the header.
      * @param v The value of the header.
+     * @since 1.0
      */
     public void setHeader(String k, String v)
     {
@@ -140,6 +171,7 @@ public class RemoteResponse implements Serializable
      * Removes a header from the HTTP headers collection.
      * 
      * @param k The key of the header to remove.
+     * @since 1.0
      */
     public void removeHeader(String k)
     {
@@ -152,59 +184,83 @@ public class RemoteResponse implements Serializable
     }
     // Methods - Accessors *****************************************************
     /**
+     * Retrieves the response buffer.
+     * 
      * @return The buffer of data to write to the end-user.
+     * @since 1.0
      */
     public byte[] getBuffer()
     {
         return buffer;
     }
     /**
+     * Retrieves the session ID.
+     * 
      * @return Retrieves the session ID associated with the current user; can
      * be null.
+     * @since 1.0
      */
     public String getSessionID()
     {
         return sessionID;
     }
     /**
-     * @return Indicates if the user session is private, and thus should expire
+     * Indicates if the user session is private, and thus should expire
      * after a longer duration.
+     * 
+     * @return True = private, false = not private.
+     * @since 1.0
      */
     public boolean isSessionPrivate()
     {
         return sessionPrivate;
     }
     /**
+     * Retrieves the response-type.
+     * 
      * @return The MIME type of the response data.
+     * @since 1.0
      */
     public String getResponseType()
     {
         return responseType;
     }
     /**
-     * @return Gets the redirect URL.
+     * Gets the redirect URL.
+     * 
+     * @return Redirect URL.
+     * @since 1.0
      */
     public String getRedirectUrl()
     {
         return urlRedirect;
     }
     /**
-     * @return The response-code for the current request.
+     * Gets the response-code for the current request.
+     * 
+     * @return Response code.
+     * @since 1.0
      */
     public int getResponseCode()
     {
         return responseCode;
     }
     /**
-     * @return The HTTP headers to be set for the response; this should not be
+     * Gets the HTTP headers to be set for the response; this should not be
      * used to set data.
+     * 
+     * @return Internal data-structure.
+     * @since 1.0
      */
     public HashMap<String,String> getHeaders()
     {
         return headers == null ? new HashMap<String, String>() : headers;
     }
     /**
-     * @return Indicates if header-data is available.
+     * Indicates if header-data is available.
+     * 
+     * @return True = available, false = not available.
+     * @since 1.0
      */
     public boolean isHeadersAvailable()
     {

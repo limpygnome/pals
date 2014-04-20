@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -42,6 +41,8 @@ import pals.base.database.Result;
  * Used for RMI (remote method invocation) communication; allows methods to be
  * invoked over the network. Useful for inter-communication between different
  * Java Virtual Machines.
+ * 
+ * @version 1.0
  */
 public class RMI
 {
@@ -52,6 +53,16 @@ public class RMI
     private HashMap<UUID,RMI_Host>  hosts;
     private SSL_Factory             sockFactory;
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param core Current instance of core.
+     * @param conn Database connector; used for updating the internal node
+     * cache.
+     * @param port The port on which to run a local RMI registry.
+     * @param serverInstance The interface to be exposed.
+     * @since 1.0
+     */
     public RMI(NodeCore core, Connector conn, int port, RMI_Interface serverInstance)
     {
         this.port = port;
@@ -73,6 +84,7 @@ public class RMI
      * Updates the local cache of RMI-enabled nodes.
      * 
      * @param conn Database connector.
+     * @since 1.0
      */
     public synchronized void hostsUpdate(Connector conn)
     {
@@ -102,6 +114,7 @@ public class RMI
      * @param event The name of the global event.
      * @param data The data to be passed to plugins; must be serializable.
      * @return Indicates if a plugin on a host handled the event.
+     * @since 1.0
      */
     public synchronized boolean nodesGlobalEvent(String event, Object[] data)
     {        
@@ -124,6 +137,7 @@ public class RMI
      * 
      * @param event The name of the global event.
      * @param data The data to be passed to plugins; must be serializable.
+     * @since 1.0
      */
     public synchronized void nodesGlobalEventAll(String event, Object[] data)
     {
@@ -141,7 +155,10 @@ public class RMI
         }
     }
     /**
-     * @return All of the RMI-enabled nodes cached.
+     * All of the RMI-enabled nodes cached.
+     * 
+     * @return Array of {@link RMI_Host}; can be empty.
+     * @since 1.0
      */
     public synchronized RMI_Host[] getNodes()
     {
@@ -157,6 +174,7 @@ public class RMI
      * @throws NotBoundException Thrown if a remote interface is not compatible.
      * @throws RemoteException Thrown if a connection cannot be established
      * with the node.
+     * @since 1.0
      */
     public synchronized RMI_Interface fetchRMIConnection(String host, int port) throws NotBoundException, RemoteException
     {
@@ -168,6 +186,7 @@ public class RMI
      * 
      * @param port The port on which the registry will listen.
      * @return An instance of a registry or null.
+     * @since 1.0
      */
     public synchronized Registry fetchRMIServerConnection(int port)
     {
@@ -185,7 +204,9 @@ public class RMI
     // Methods *****************************************************************
     /**
      * Starts the RMI service.
+     * 
      * @return True if successful, false if failed.
+     * @since 1.0
      */
     public boolean start()
     {
@@ -197,6 +218,8 @@ public class RMI
     }
     /**
      * Stops and disposes the RMI service.
+     * 
+     * @since 1.0
      */
     public void stop()
     {
@@ -209,6 +232,7 @@ public class RMI
      * Disposes a registry / RMI server connection.
      * 
      * @param r The registry to be disposed.
+     * @since 1.0
      */
     public void disposeRegistry(Registry r)
     {

@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -31,6 +30,8 @@ import java.io.Serializable;
 
 /**
  * Represents a file uploaded from a request.
+ * 
+ * @version 1.0
  */
 public class UploadedFile implements Serializable
 {
@@ -41,6 +42,15 @@ public class UploadedFile implements Serializable
     private long    size;           // The size of the file.
     private String  tempName;       // The temporary filename of the upload.
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param name The original file-name.
+     * @param contentType The content-type of the file.
+     * @param size The size of the file, in bytes.
+     * @param tempName The temporary file-name.
+     * @since 1.0
+     */
     public UploadedFile(String name, String contentType, long size, String tempName)
     {
         this.name = name;
@@ -50,28 +60,40 @@ public class UploadedFile implements Serializable
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets the name.
+     * 
      * @param name The name of the file; cannot be null.
+     * @since 1.0
      */
     public void setName(String name)
     {
         this.name = name;
     }
     /**
+     * Sets the content-type.
+     * 
      * @param contentType The content-type of the file.
+     * @since 1.0
      */
     public void setContentType(String contentType)
     {
         this.contentType = contentType;
     }
     /**
+     * Sets the file size.
+     * 
      * @param size The size of the file, in bytes.
+     * @since 1.0
      */
     public void setSize(long size)
     {
         this.size = size;
     }
     /**
+     * Sets the temporary file-name.
+     * 
      * @param tempName The temporary file-name of the upload.
+     * @since 1.0
      */
     public void setTempName(String tempName)
     {
@@ -79,29 +101,41 @@ public class UploadedFile implements Serializable
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Retrieves the file-name of the file.
+     * Retrieves the file-name of the file.
+     * 
+     * @return The file-name.
+     * @since 1.0
      */
     public String getName()
     {
         return name;
     }
     /**
-     * @return Retrieves the content-type of the file; this is not concrete and
+     * Retrieves the content-type of the file; this is not concrete and
      * could be falsified by the user.
+     * 
+     * @return The content-type.
+     * @since 1.0
      */
     public String getContentType()
     {
         return contentType;
     }
     /**
-     * @return The size of the file.
+     * Retrieves the size of the file.
+     * 
+     * @return The size, in bytes.
+     * @since 1.0
      */
     public long getSize()
     {
         return size;
     }
     /**
-     * @return The temporary file-name of the upload.
+     * The temporary file-name of the upload.
+     * 
+     * @return The temporary file-name.
+     * @since 1.0
      */
     public String getTempName()
     {

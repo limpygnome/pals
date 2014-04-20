@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -42,6 +41,11 @@ import pals.base.database.*;
 public class MySQL extends Connector
 {
     // Constants ***************************************************************
+    /**
+     * The unique identifier of this connector.
+     * 
+     * @since 1.0
+     */
     public static final int IDENTIFIER_TYPE = 1453673645;
     // Fields - Settings *******************************************************
     private final String    settingsHost,
@@ -50,6 +54,16 @@ public class MySQL extends Connector
                             settingsPassword;
     private  final int      settingsPort;
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param settingsHost Host IP/name.
+     * @param settingsDatabase Database.
+     * @param settingsUsername Username.
+     * @param settingsPassword Password.
+     * @param settingsPort Port of host.
+     * @since 1.0
+     */
     public MySQL(String settingsHost, String settingsDatabase, String settingsUsername, String settingsPassword, int settingsPort)
     {
         this.connection = null;
@@ -60,6 +74,12 @@ public class MySQL extends Connector
         this.settingsPort = settingsPort;
     }
     // Methods - Overrides *****************************************************
+    /**
+     * Connects to the host.
+     * 
+     * @throws DatabaseException Thrown if a connection cannot be established.
+     * @since 1.0
+     */
     @Override
     public void connect() throws DatabaseException
     {
@@ -77,6 +97,12 @@ public class MySQL extends Connector
             throw new DatabaseException(DatabaseException.Type.ConnectionFailure, ex);
         }
     }
+    /**
+     * @see Connector#getConnectorType()
+     * 
+     * @return The unique identifier.
+     * @since 1.0
+     */
     @Override
     public int getConnectorType()
     {

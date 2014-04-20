@@ -21,12 +21,16 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
 package pals.base.database;
 
+/**
+ * Thrown by any class extending {@link Connector} when an exception occurs.
+ * 
+ * @version 1.0
+ */
 public class DatabaseException extends Exception
 {
     // Enums *******************************************************************
@@ -34,57 +38,97 @@ public class DatabaseException extends Exception
     {
         /**
          * A connection-initiation related exception.
+         * 
+         * @since 1.0
          */
         ConnectionFailure,
         /**
          * Indicates a connection has already been made; thrown when
          * connect is called again without a call to disconnect.
+         * 
+         * @since 1.0
          */
         ConnectionAlreadyEstablished,
         /**
          * A connection related exception, after an initial connection.
+         * 
+         * @since 1.0
          */
         ConnectionException,
         /**
          * An exception generated from generating/preparing/building a query.
+         * 
+         * @since 1.0
          */
         QueryCreationException,
         /**
          * An exception generated from setting a substituted value when building
          * a query.
+         * 
+         * @since 1.0
          */
         QueryCreationInvalidValueException,
         /**
          * An exception generated from a query.
+         * 
+         * @since 1.0
          */
         QueryException,
         /**
          * An exception from disposing the result of a query.
+         * 
+         * @since 1.0
          */
         QueryDisposeException,
         /**
          * An unknown reason.
+         * 
+         * @since 1.0
          */
         Unknown
     };
     // Methods - Fields ********************************************************
     private final   Type    type;
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @since 1.0
+     */
     public DatabaseException()
     {
         super();
         this.type = Type.Unknown;
     }
+    /**
+     * Constructs a new instance.
+     * 
+     * @param rootException The underlying exception thrown.
+     * @since 1.0
+     */
     public DatabaseException(Throwable rootException)
     {
         super(rootException);
         this.type = Type.Unknown;
     }
+    /**
+     * Constructs a new instance.
+     * 
+     * @param type The type of exception.
+     * @since 1.0
+     */
     public DatabaseException(Type type)
     {
         super();
         this.type = type;
     }
+    /**
+     * Constructs a new instance.
+     * 
+     * @param type The type of exception.
+     * @param rootException The underlying exception.
+     * @since 1.0
+     */
     public DatabaseException(Type type, Throwable rootException)
     {
         super(rootException);
@@ -93,7 +137,9 @@ public class DatabaseException extends Exception
     // Methods - Accessors *****************************************************
     /**
      * The type of database exception.
-     * @return Type.
+     * 
+     * @return The {@link Type} of exception.
+     * @since 1.0
      */
     public Type getType()
     {

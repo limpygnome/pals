@@ -185,12 +185,12 @@ public class ThreadMain extends ExtendedThread
         InstanceAssignment[] iarr = am.fetchComputeCheckIAs();
         if(iarr.length > 0)
         {
+            ArrayList<InstanceAssignment> needComputing = new ArrayList<>();
             try
             {
                 // Lock table
                 conn.tableLock(LOCK_TABLE, false);
                 // Iterate each IA, check if needs computing
-                ArrayList<InstanceAssignment> needComputing = new ArrayList<>();
                 for(InstanceAssignment ia : iarr)
                 {
                     if(ia.isMarkComputationNeeded(conn))
@@ -206,49 +206,56 @@ public class ThreadMain extends ExtendedThread
                     }
                 }
                 // Unlock table
-                conn.tableUnlock(true);
-                // Compute marks for IAs
-                for(InstanceAssignment ia : needComputing)
-                {
-                    if(!ia.computeMark(conn))
-                        am.getCore().getLogging().log("Ass. Marker", "Failed to compute marks for assignment instance '"+ia.getAIID()+"'.", Logging.EntryType.Warning);
-                    else
-                    {
-                        // Update the status
-                        ia.setStatus(InstanceAssignment.Status.Marked);
-                        ia.persist(conn);
-                        am.getCore().getLogging().log("Ass. Marker", "Computed marks for assignment instance '"+ia.getAIID()+"' ~ "+ia.getMark()+"%.", Logging.EntryType.Info);
-                    }
-                }
+                conn.tableUnlock(false);
             }
             catch(DatabaseException ex)
             {
             }
-        }
-        // Fetch work to do
-        try
-        {
-            // Lock the table to fetch work
-            conn.tableLock(LOCK_TABLE, false);
-            // Fetch work
-            InstanceAssignmentCriteria[] newWork = InstanceAssignmentCriteria.loadNextWork(am.getCore(), conn, timeout, fetchRate);
-            // Add to queue
-            if(newWork.length > 0)
+            // Compute marks for IAs
+            for(InstanceAssignment ia : needComputing)
             {
-                for(InstanceAssignmentCriteria iac : newWork)
-                    am.getWorkQueue().add(iac);
+                if(!ia.computeMark(conn))
+                    am.getCore().getLogging().log("Ass. Marker", "Failed to compute marks for assignment instance '"+ia.getAIID()+"'.", Logging.EntryType.Warning);
+                else
+                {
+                    // Update the status
+                    ia.setStatus(InstanceAssignment.Status.Marked);
+                    ia.persist(conn);
+                    am.getCore().getLogging().log("Ass. Marker", "Computed marks for assignment instance '"+ia.getAIID()+"' ~ "+ia.getMark()+"%.", Logging.EntryType.Info);
+                }
             }
-            // Unlock the table
-            conn.tableUnlock(false);
         }
-        catch(DatabaseException ex)
+        // Fetch work to do - but only if the queue is not at the fetch-rate
+        if(am.getWorkQueue().size() < fetchRate)
         {
             try
             {
+                // Lock the table to fetch work
+                conn.tableLock(LOCK_TABLE, false);
+                // Fetch work
+                InstanceAssignmentCriteria[] newWork = InstanceAssignmentCriteria.loadNextWork(am.getCore(), conn, timeout, fetchRate-am.getWorkQueue().size());
+                // Add to queue
+                if(newWork.length > 0)
+                {
+                    for(InstanceAssignmentCriteria iac : newWork)
+                    {
+                        // Ensure item is unique
+                        if(!am.getWorkQueue().contains(iac))
+                            am.getWorkQueue().add(iac);
+                    }
+                }
+                // Unlock the table
                 conn.tableUnlock(false);
             }
-            catch(DatabaseException ex2)
+            catch(DatabaseException ex)
             {
+                try
+                {
+                    conn.tableUnlock(false);
+                }
+                catch(DatabaseException ex2)
+                {
+                }
             }
         }
         return hasWorked;

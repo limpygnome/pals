@@ -649,4 +649,34 @@ public class InstanceAssignmentCriteria
     {
         return data;
     }
+    // Methods - Overrides *****************************************************
+    /**
+     * Determines if an object is equal to this object, based on being an
+     * instance of this class and having the same AIQID and QCID.
+     * 
+     * @param o The object to be compared.
+     * @return True = equal, false = not equal.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(!(o instanceof InstanceAssignmentCriteria))
+            return false;
+        
+        InstanceAssignmentCriteria iac = (InstanceAssignmentCriteria)o;
+        return qc != null && iac.getQC() != null && qc.getQCID() == iac.getQC().getQCID() &&
+                iaq != null && iac.getIAQ() != null && iaq.getAIQID() == iac.getIAQ().getAIQID();
+    }
+    /**
+     * The hash-code, based on the assignment question instance identifier.
+     * 
+     * @return The hash code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return iaq.getAIQID();
+    }
 }

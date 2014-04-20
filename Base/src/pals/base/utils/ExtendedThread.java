@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -33,19 +32,29 @@ package pals.base.utils;
  * extended_reset.
  * 
  * Thread-safe.
+ * 
+ * @version 1.0
  */
 public abstract class ExtendedThread extends Thread
 {
     // Fields ******************************************************************
     private boolean stopped;
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @since 1.0
+     */
     public ExtendedThread()
     {
         stopped = false;
     }
     // Methods *****************************************************************
     /**
-     * @return Indicates if the thread should stop execution.
+     * Indicates if the thread should stop execution.
+     * 
+     * @return True = stop, false = continue.
+     * @since 1.0
      */
     public synchronized boolean extended_isStopped()
     {
@@ -54,6 +63,8 @@ public abstract class ExtendedThread extends Thread
     /**
      * Resets the thread's stop state; this should be called by the
      * inheriting thread.
+     * 
+     * @since 1.0
      */
     protected synchronized void extended_reset()
     {
@@ -61,6 +72,8 @@ public abstract class ExtendedThread extends Thread
     }
     /**
      * Requests the thread to cease execution.
+     * 
+     * @since 1.0
      */
     public synchronized void extended_stop()
     {

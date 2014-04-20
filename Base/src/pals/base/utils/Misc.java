@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -47,13 +46,18 @@ import pals.base.database.DatabaseException;
 
 /**
  * Miscellaneous utility methods.
+ * 
+ * @version 1.0
  */
 public class Misc
 {
     /**
+     * Takes an array of items and returns the unique items. Also excludes
+     * null or empty items.
+     * 
      * @param array Array of items.
-     * @return Array of unique items; excludes null and empty elements too.
-     * The items are also ordered.
+     * @return Array of filtered items; can be empty.
+     * @since 1.0
      */
     public static String[] arrayStringUnique(String[] array)
     {
@@ -66,8 +70,12 @@ public class Misc
         return buffer.toArray(new String[buffer.size()]);
     }
     /**
+     * Takes an array of items and returns only items which are not null
+     * and not empty.
+     * 
      * @param array Array of items.
-     * @return Array of items with no empty or null items.
+     * @return Array of filtered items; can be empty.
+     * @since 1.0
      */
     public static String[] arrayStringNonEmpty(String[] array)
     {
@@ -83,6 +91,7 @@ public class Misc
      * @param <T> The data-type of the array.
      * @param rng An instance of a random number generator.
      * @param array The array.
+     * @since 1.0
      */
     public static <T> void arrayShuffle(Random rng, T[] array)
     {
@@ -96,6 +105,7 @@ public class Misc
      * @param array The array.
      * @param index1 The index of element one.
      * @param index2 The index of element two.
+     * @since 1.0
      */
     public static <T> void arraySwap(T[] array, int index1, int index2)
     {
@@ -104,10 +114,14 @@ public class Misc
         array[index2] = t;
     }
     /**
+     * Indicates if an array contains a type, by using
+     * {@link Object#equals(java.lang.Object)} for comparison.
+     * 
      * @param <T> The data-type of the array and item (must be the same).
      * @param array The array to be tested.
      * @param item The item to be found.
      * @return Indicates if the specified item exists in the array.
+     * @since 1.0
      */
     public static <T> boolean arrayContains(T[] array, T item)
     {
@@ -126,6 +140,7 @@ public class Misc
      * @param arr1 Array to be merged.
      * @param arr2 Array to be merged.
      * @return The two arrays merged.
+     * @since 1.0
      */
     public static <T> T[] arrayMerge(Class t, T[] arr1, T[] arr2)
     {
@@ -143,6 +158,7 @@ public class Misc
      * @param core Used to retrieve an RNG.
      * @param length The length of the string to generate.
      * @return Alpha-numeric random-character string.
+     * @since 1.0
      */
     public static String randomText(NodeCore core, int length)
     {
@@ -154,8 +170,11 @@ public class Misc
         return new String(buffer);
     }
     /**
+     * Tests if the input contains only alpha-numeric characters.
+     * 
      * @param input The input string to test; can be null.
      * @return True if input consists of alpha-numric chars, false otherwise.
+     * @since 1.0
      */
     public static boolean isAlphaNumeric(String input)
     {
@@ -169,8 +188,11 @@ public class Misc
         return true;
     }
     /**
+     * Tests if the input contains numeric characters.
+     * 
      * @param input The input to be tested; can be null.
      * @return Indicates if the input is numeric.
+     * @since 1.0
      */
     public static boolean isNumeric(String input)
     {
@@ -189,6 +211,7 @@ public class Misc
      * @return Byte-array of the serialized data; data is returned for null,
      * which can be converted back to null.
      * @throws IOException Thrown if this operation fails.
+     * @since 1.0
      */
     public static byte[] bytesSerialize(Object obj) throws IOException
     {
@@ -206,6 +229,7 @@ public class Misc
      * as null.
      * @throws IOException Thrown if this operation fails.
      * @throws ClassNotFoundException Thrown if a class is not found.
+     * @since 1.0
      */
     public static Object bytesDeserialize(byte[] data) throws IOException, ClassNotFoundException
     {
@@ -225,6 +249,7 @@ public class Misc
      * as null.
      * @throws IOException Thrown if this operation fails.
      * @throws ClassNotFoundException Thrown if a class is not found.
+     * @since 1.0
      */
     public static Object bytesDeserialize(NodeCore core, byte[] data) throws IOException, ClassNotFoundException
     {
@@ -233,9 +258,12 @@ public class Misc
         return deserialOis.readObject();
     }
     /**
-     * @param dt The date-time to compare to present.
-     * @return A more human-readable date-time representation, which returns
+     * Creates a more human-readable date-time representation, which returns
      * a string saying e.g. x days ago.
+     * 
+     * @param dt The date-time to compare to present.
+     * @return The human date-time.
+     * @since 1.0
      */
     public static String humanDateTime(DateTime dt)
     {
@@ -267,6 +295,7 @@ public class Misc
      * @param data The data to be checked.
      * @param charMatch The character to match, inside the data.
      * @return The number of times the charMatch occurs inside data.
+     * @since 1.0
      */
     public static int countOccurrences(String data, char charMatch)       
     {
@@ -283,6 +312,7 @@ public class Misc
      * @param data The data to be parsed.
      * @param alternate The alternate value.
      * @return The parsed, or alternate, integer.
+     * @since 1.0
      */
     public static int parseInt(String data, int alternate)
     {
@@ -303,6 +333,7 @@ public class Misc
      * @throws FileNotFoundException Thrown if the file is not found.
      * @throws IOException Thrown if an issue occurs reading the file.
      * @throws DatabaseException Thrown if an issue occurs executing the SQL.
+     * @since 1.0
      */
     public static void executeSqlFile(File file, Connector conn) throws FileNotFoundException, IOException, DatabaseException
     {

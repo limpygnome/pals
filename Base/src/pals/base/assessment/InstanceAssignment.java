@@ -596,7 +596,14 @@ public class InstanceAssignment
                     "SELECT (SELECT COUNT('') FROM pals_assignment_instance_question_criteria AS aiqc "
                     + "LEFT OUTER JOIN pals_assignment_instance_question AS aiq ON aiq.aiqid=aiqc.aiqid "
                     +"WHERE aiq.aiid=? AND NOT aiqc.status=?) AS unmarked, (SELECT status FROM pals_assignment_instance WHERE aiid=?) AS status;", aiid, InstanceAssignmentCriteria.Status.Marked.dbValue, aiid);
-            return res.next() && (long)res.get("unmarked") == 0 && Status.parse((int)res.get("status")) == Status.Submitted;
+            
+            if(res.next())
+            {
+                Object  unmarked = res.get("unmarked"),
+                        status = res.get("status");
+                return unmarked != null && status != null && (long)unmarked == 0 && Status.parse((int)status) == Status.Submitted;
+            }
+            return false;
         }
         catch(DatabaseException ex)
         {
@@ -671,5 +678,16 @@ public class InstanceAssignment
             return false;
         InstanceAssignment a = (InstanceAssignment)o;
         return a.aiid == aiid;
+    }
+    /**
+     * Based on the model's identifier.
+     * 
+     * @return The hash code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return aiid;
     }
 }

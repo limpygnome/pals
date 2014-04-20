@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -31,6 +30,8 @@ import pals.base.UUID;
 
 /**
  * A model for holding RMI information for a node.
+ * 
+ * @version 1.0
  */
 public class RMI_Host
 {
@@ -39,6 +40,14 @@ public class RMI_Host
     private String  host;
     private int     port;
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param uuid The UUID of the host.
+     * @param host The IP/host-name of the host.
+     * @param port The port of the RMI registry on the host.
+     * @since 1.0
+     */
     public RMI_Host(UUID uuid, String host, int port)
     {
         this.uuid = uuid;
@@ -47,21 +56,30 @@ public class RMI_Host
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return The UUID of the node.
+     * The UUID of the node.
+     * 
+     * @return The UUID.
+     * @since 1.0
      */
     public UUID getUUID()
     {
         return uuid;
     }
     /**
-     * @return The IP of the host.
+     * The IP of the host.
+     * 
+     * @return The IP/host-name.
+     * @since 1.0
      */
     public String getHost()
     {
         return host;
     }
     /**
-     * @return The port of the RMI registry of the host.
+     * The port of the RMI registry of the host.
+     * 
+     * @return The port.
+     * @since 1.0
      */
     public int getPort()
     {

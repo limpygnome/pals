@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -45,6 +44,8 @@ import javax.net.ssl.TrustManagerFactory;
  * A factory for creating SSL server and client sockets, using a custom
  * keystore. Avoids having to apply a global keystore and/or trustmanager
  * to the entire application, which may conflict with other plugins.
+ * 
+ * @version 1.0
  */
 public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFactory, Serializable
 {
@@ -53,6 +54,13 @@ public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFacto
     private SSLServerSocketFactory  sfact;      // Creates server SSL sockets.
     private SSLContext              context;    // The current SSL context - points to the keystore and trustmanager.
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param keystorePath The path of the key-store.
+     * @param keystorePassword  The password of the key-store.
+     * @since 1.0
+     */
     public SSL_Factory(String keystorePath, String keystorePassword)
     {
         try
@@ -86,6 +94,7 @@ public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFacto
      * @param port The destination port.
      * @return An instance of a client socket.
      * @throws IOException Thrown if a socket cannot be made.
+     * @since 1.0
      */
     @Override
     public Socket createSocket(String host, int port) throws IOException
@@ -98,6 +107,7 @@ public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFacto
      * @param port The port for listening.
      * @return An instance of a server socket.
      * @throws IOException Thrown if a socket cannot be made.
+     * @since 1.0
      */
     @Override
     public ServerSocket createServerSocket(int port) throws IOException

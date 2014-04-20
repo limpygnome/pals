@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -69,6 +68,8 @@ import pals.base.database.DatabaseException;
  * Refer to PluginManager for the event name.
  * 
  * Refer to pals.base.TemplateManager for more information about template data.
+ * 
+ * @version 1.0
  */
 public class WebRequestData
 {
@@ -94,21 +95,30 @@ public class WebRequestData
     }
     // Methods *****************************************************************
     /**
-     * @param relUrl The relative URL of the CSS file to append.
+     * Appends a CSS file to the header.
+     * 
+     * @param relUrl Relative URL.
+     * @since 1.0
      */
     public synchronized void appendHeaderCSS(String relUrl)
     {
         appendHeader("<link rel=\"Stylesheet\" href=\""+relUrl+"\">");
     }
     /**
-     * @param relUrl The relative URL of the JavaScript file to append.
+     * Appends a JavaScript file to the header.
+     * 
+     * @param relUrl Relative URL.
+     * @since 1.0
      */
     public synchronized void appendHeaderJS(String relUrl)
     {
         appendHeader("<script src=\""+relUrl+"\"></script>");
     }
     /**
-     * @param data The data to append to the header of the page.
+     * Appends data to the header.
+     * 
+     * @param data The data to be appended.
+     * @since 1.0
      */
     public synchronized void appendHeader(String data)
     {
@@ -118,6 +128,16 @@ public class WebRequestData
         templateData.put("pals_header", sb.toString());
     }
     // Methods - Static ********************************************************
+    /**
+     * Creates a new instance.
+     * 
+     * @param core Current instance of core.
+     * @param connector Database connector.
+     * @param request Request model.
+     * @param response Response model.
+     * @return New instance.
+     * @since 1.0
+     */
     public static WebRequestData create(NodeCore core, Connector connector, RemoteRequest request, RemoteResponse response)
     {
         WebRequestData data = new WebRequestData(core, connector, request, response);
@@ -144,28 +164,40 @@ public class WebRequestData
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return The current instance of the core.
+     * Retrieves the current instance of the core.
+     * 
+     * @return Current instance of {@link Core}.
+     * @since 1.0
      */
     public synchronized NodeCore getCore()
     {
         return core;
     }
     /**
+     * Retrieves the database connector for this request.
+     * 
      * @return The database connector for this request.
+     * @since 1.0
      */
     public synchronized Connector getConnector()
     {
         return connector;
     }
     /**
-     * @return The remote request data for this request.
+     * Retrieves the remote request data for this request.
+     * 
+     * @return Request model.
+     * @since 1.0
      */
     public synchronized RemoteRequest getRequestData()
     {
         return request;
     }
     /**
-     * @return The remote response data for this request.
+     * Retrieves the remote response data for this request.
+     * 
+     * @return Response model.
+     * @since 1.0
      */
     public synchronized RemoteResponse getResponseData()
     {
@@ -176,34 +208,49 @@ public class WebRequestData
      * 
      * @param key The key/name of the item.
      * @return True = exists, false = does not exist.
+     * @since 1.0
      */
     public synchronized boolean containsTemplateData(String key)
     {
         return templateData.containsKey(key);
     }
     /**
+     * Retrieves a variable used for template rendering.
+     * 
      * @param key The key of the template data.
      * @return The template data associated with the key or null.
+     * @since 1.0
      */
     public synchronized Object getTemplateData(String key)
     {
         return templateData.get(key);
     }
-    
+    /**
+     * Retrieves an internal map used for variables for template rendering.
+     * 
+     * @return The internal map.
+     * @since 1.0
+     */
     public synchronized HashMap<String,Object> getTemplateMap()
     {
         return templateData;
     }
     /**
-     * @return The session data/manager associated with the current user making
-     * the request.
+     * Retrieves the session data/manager associated with the current user
+     * making the request.
+     * 
+     * @return Session manager.
+     * @since 1.0
      */
     public synchronized DatabaseHttpSession getSession()
     {
         return session;
     }
     /**
+     * Retrieves the user of the current request.
+     * 
      * @return A model of the current, abstract, user for the current request.
+     * @since 1.0
      */
     public synchronized User getUser()
     {
@@ -211,15 +258,21 @@ public class WebRequestData
     }
     // Methods - Mutators ******************************************************
     /**
+     * Sets a template variable.
+     * 
      * @param key The key of the template data.
      * @param data The template data.
+     * @since 1.0
      */
     public synchronized void setTemplateData(String key, Object data)
     {
         templateData.put(key, data);
     }
     /**
-     * @param user Sets the current user for the request.
+     * Sets the current user for the request.
+     * 
+     * @param user The user.
+     * @since 1.0
      */
     public synchronized void setUser(User user)
     {

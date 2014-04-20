@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -33,10 +32,17 @@ import pals.base.database.*;
 
 /**
  * The Postgres (PostgreSQL) database connector.
+ * 
+ * @version 1.0
  */
 public class Postgres extends Connector
 {
     // Constants ***************************************************************
+    /**
+     * The unique identifier of this connector.
+     * 
+     * @since 1.0
+     */
     public static final int IDENTIFIER_TYPE = 90326058;
     // Fields - Settings *******************************************************
     private final String    settingsHost,
@@ -45,6 +51,16 @@ public class Postgres extends Connector
                             settingsPassword;
     private  final int      settingsPort;
     // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param settingsHost Host name/IP.
+     * @param settingsDatabase Database.
+     * @param settingsUsername Username.
+     * @param settingsPassword Password.
+     * @param settingsPort Port of the host.
+     * @since 1.0
+     */
     public Postgres(String settingsHost, String settingsDatabase, String settingsUsername, String settingsPassword, int settingsPort)
     {
         this.connection = null;
@@ -55,6 +71,12 @@ public class Postgres extends Connector
         this.settingsPort = settingsPort;
     }
     // Methods - Overrides *****************************************************
+    /**
+     * Connects to the host.
+     * 
+     * @throws DatabaseException Thrown if a connection cannot be established.
+     * @since 1.0
+     */
     @Override
     public void connect() throws DatabaseException
     {
@@ -72,6 +94,15 @@ public class Postgres extends Connector
             throw new DatabaseException(DatabaseException.Type.ConnectionFailure, ex);
         }
     }
+    /**
+     * @see Connector#tableLock(java.lang.String, boolean) 
+     * 
+     * @param table The table to be locked.
+     * @param inTransaction Indicates if the connection is currently in a
+     * transaction.
+     * @throws DatabaseException Thrown if the table cannot be locked.
+     * @since 1.0
+     */
     @Override
     public void tableLock(String table, boolean inTransaction) throws DatabaseException
     {
@@ -79,12 +110,26 @@ public class Postgres extends Connector
             execute("BEGIN;");
         execute("LOCK TABLE "+table+" IN ACCESS EXCLUSIVE MODE;");
     }
+    /**
+     * @see Connector#tableUnlock(boolean) 
+     * 
+     * @param inTransaction Indicates if the connnection is currently in a
+     * transaction.
+     * @throws DatabaseException Thrown if the table cannot be locked.
+     * @since 1.0
+     */
     @Override
     public void tableUnlock(boolean inTransaction) throws DatabaseException
     {
         if(!inTransaction)
             execute("COMMIT;");
     }
+    /**
+     * @see Connector#getConnectorType() 
+     * 
+     * @return The unique identifier.
+     * @since 1.0
+     */
     @Override
     public int getConnectorType()
     {

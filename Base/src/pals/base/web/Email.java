@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -36,6 +35,8 @@ import pals.base.database.Result;
 
 /**
  * A model which represents an e-mail in the e-mail queue.
+ * 
+ * @version 1.0
  */
 public class Email
 {
@@ -49,6 +50,8 @@ public class Email
     // Methods - Constructors **************************************************
     /**
      * Creates a new unpersisted model.
+     * 
+     * @since 1.0
      */
     public Email()
     {
@@ -61,6 +64,7 @@ public class Email
      * @param title The title of the e-mail.
      * @param content The content of the e-mail.
      * @param destination The destination e-mail address.
+     * @since 1.0
      */
     public Email(String title, String content, String destination)
     {
@@ -74,6 +78,7 @@ public class Email
      * @param destination The destination e-mail address.
      * @param lastAttempted The date-time of the last attempt to send the e-mail.
      * @param attempts The number of attempts of sending the e-mail.
+     * @since 1.0
      */
     public Email(String title, String content, String destination, DateTime lastAttempted, int attempts)
     {
@@ -91,6 +96,7 @@ public class Email
      * @param conn Database connector.
      * @param emailid The identifier of the model.
      * @return An instance of a model or null.
+     * @since 1.0
      */
     public static Email load(Connector conn, int emailid)
     {
@@ -111,6 +117,7 @@ public class Email
      * @param limit The number of models to retrieve at a time.
      * @param offset The offset of models to skip.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static Email[] load(Connector conn, int limit, int offset)
     {
@@ -130,6 +137,7 @@ public class Email
      * @param ms The threshold for resending failed e-mails, in milliseconds.
      * @param limit The maximum number of e-mails to fetch.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static Email[] loadSendNext(Connector conn, int ms, int limit)
     {
@@ -147,6 +155,7 @@ public class Email
      * 
      * @param res The result data.
      * @return Array of models; can be empty.
+     * @since 1.0
      */
     public static Email[] loadArr(Result res)
     {
@@ -171,6 +180,7 @@ public class Email
      * 
      * @param res The result data; next() should be invoked.
      * @return An instance of the model or null.
+     * @since 1.0
      */
     public static Email load(Result res)
     {
@@ -193,6 +203,7 @@ public class Email
      * @param maxAttempts The maximum attempts allowed; if a model surpasses
      * this value, it is deleted.
      * @return True = success, false = failed.
+     * @since 1.0
      */
     public static boolean deleteOld(Connector conn, int maxAttempts)
     {
@@ -211,6 +222,7 @@ public class Email
      * 
      * @param conn Database connector.
      * @return True = successful, false = failed.
+     * @since 1.0
      */
     public boolean delete(Connector conn)
     {
@@ -233,6 +245,7 @@ public class Email
      * 
      * @param conn Database connector.
      * @return True = successful, false = failed.
+     * @since 1.0
      */
     public static boolean deleteAll(Connector conn)
     {
@@ -251,6 +264,7 @@ public class Email
      * 
      * @param conn Database connector.
      * @return True = successful, false = failed.
+     * @since 1.0
      */
     public boolean persist(Connector conn)
     {
@@ -282,35 +296,50 @@ public class Email
     }
     // Methods - Mutators ******************************************************
     /**
-     * @param title Sets the title of the e-mail.
+     * Sets the title of the e-mail.
+     * 
+     * @param title The title.
+     * @since 1.0
      */
     public void setTitle(String title)
     {
         this.title = title;
     }
     /**
-     * @param content Sets the content of the e-mail.
+     * Sets the content of the e-mail.
+     * 
+     * @param content The content.
+     * @since 1.0
      */
     public void setContent(String content)
     {
         this.content = content;
     }
     /**
-     * @param destination Sets the e-mail destination.
+     * Sets the e-mail destination.
+     * 
+     * @param destination Destination e-mail.
+     * @since 1.0
      */
     public void setDestination(String destination)
     {
         this.destination = destination;
     }
     /**
-     * @param lastAttempted Sets the date-time of the last send attempt.
+     * Sets the date-time of the last send attempt.
+     * 
+     * @param lastAttempted The date-time.
+     * @since 1.0
      */
     public void setLastAttempted(DateTime lastAttempted)
     {
         this.lastAttempted = lastAttempted;
     }
     /**
-     * @param attempts Sets the number of attempts of sending the e-mail.
+     * Sets the number of attempts of sending the e-mail.
+     * 
+     * @param attempts The attempts.
+     * @since 1.0
      */
     public void setAttempts(int attempts)
     {
@@ -318,6 +347,8 @@ public class Email
     }
     /**
      * Increments the attempts by one.
+     * 
+     * @since 1.0
      */
     public void setAttemptsIncrement()
     {
@@ -325,43 +356,61 @@ public class Email
     }
     // Methods - Accessors *****************************************************
     /**
+     * The e-mail identifier.
+     * 
      * @return The identifier of the e-mail; -1 if the model has not been
      * persisted.
+     * @since 1.0
      */
     public int getEmailID()
     {
         return emailid;
     }
     /**
-     * @return The title of the e-mail.
+     * Retrieves the title of the e-mail.
+     * 
+     * @return The title.
+     * @since 1.0
      */
     public String getTitle()
     {
         return title;
     }
     /**
-     * @return The content of the e-mail.
+     * Retrieves the content of the e-mail.
+     * 
+     * @return The content.
+     * @since 1.0
      */
     public String getContent()
     {
         return content;
     }
     /**
-     * @return The destination e-mail address.
+     * Retrieves the destination e-mail address.
+     * 
+     * @return The destination e-mail.
+     * @since 1.0
      */
     public String getDestination()
     {
         return destination;
     }
     /**
-     * @return Date and time of when the last send attempt.
+     * Date and time of when the last send attempt.
+     * 
+     * @return The date-time.
+     * @since 1.0
      */
     public DateTime getLastAttempted()
     {
         return lastAttempted;
     }
     /**
-     * @return The number of attempts of sending the e-mail.
+     * The number of attempts of sending the e-mail.
+     * 
+     * @return The number of attempts.
+     * @since 1.0
      */
     public long getAttempts()
     {

@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -35,17 +34,39 @@ import pals.base.NodeCore;
 import pals.base.Plugin;
 
 /**
- * An extension of ObjectInputStream to resolve classes available from plugin
- * JARs, which have not been loaded into the runtime of the base library.
+ * An extension of {@link ObjectInputStream} to resolve classes available from
+ * plugin JARs, which have not been loaded into the runtime of the base
+ * library.
+ * 
+ * @version 1.0
  */
 public class PluginObjectInputStream extends ObjectInputStream
 {
+    // Fields ******************************************************************
     private NodeCore core;
+    // Methods - Constructors **************************************************
+    /**
+     * Constructs a new instance.
+     * 
+     * @param core Current instance of core.
+     * @param is The input-stream of the data.
+     * @throws IOException Thrown by {@link ObjectInputStream}.
+     * @since 1.0
+     */
     public PluginObjectInputStream(NodeCore core, InputStream is) throws IOException
     {
         super(is);
         this.core = core;
     }
+    /**
+     * Reads a class from the input-stream.
+     * 
+     * @param osc The class to be located.
+     * @return The class located.
+     * @throws IOException Thrown if an I/O error occurs reading the data.
+     * @throws ClassNotFoundException Thrown if the class cannot be found.
+     * @since 1.0
+     */
     @Override
     protected Class<?> resolveClass(ObjectStreamClass osc) throws IOException, ClassNotFoundException
     {

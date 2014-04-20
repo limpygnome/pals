@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -38,20 +37,31 @@ import java.sql.SQLException;
  * This is implemented by connectors for a specific RDBMS, allowing
  * cross-database communication using standard SQL or switching on the
  * getConnectorType method.
+ * 
+ * @version 1.0
  */
 public abstract class Connector
 {
     // Fields ******************************************************************
-    protected Connection connection;      // The underlying JDBC connection.
+    /**
+     * The underlying JDBC connection.
+     * 
+     * @since 1.0
+     */
+    protected Connection connection;
     // Methods - Connection ****************************************************
     /**
      * Connects to the database.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * 
+     * @since 1.0
      */
     public abstract void connect()                                              throws DatabaseException;
     /**
      * Disconnects from the database.
+     * 
+     * @since 1.0
      */
     public void disconnect()
     {
@@ -77,6 +87,7 @@ public abstract class Connector
      * @return An instance of PreparedStatement ready for execution.
      * @throws DatabaseException Thrown if the prepared-statement cannot be
      * created.
+     * @since 1.0
      */
     public PreparedStatement prepare(String query, Object... values)            throws DatabaseException
     {
@@ -117,6 +128,7 @@ public abstract class Connector
      * @param values The values for substitution in the query.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * @since 1.0
      */
     public void execute(String query, Object... values)                         throws DatabaseException
     {
@@ -129,6 +141,7 @@ public abstract class Connector
      * @param ps The prepared statement to be executed.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * @since 1.0
      */
     public void execute(PreparedStatement ps)                                   throws DatabaseException
     {
@@ -152,6 +165,7 @@ public abstract class Connector
      * @return Single value returned from the query; may be null.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * @since 1.0
      */
     public Object executeScalar(String query, Object... values)                 throws DatabaseException
     {
@@ -165,6 +179,7 @@ public abstract class Connector
      * @return Single value returned from the query; may be null.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * @since 1.0
      */
     public Object executeScalar(PreparedStatement ps)                           throws DatabaseException
     {
@@ -191,6 +206,7 @@ public abstract class Connector
      * @return The result from the query.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * @since 1.0
      */
     public Result read(String query, Object... values)                          throws DatabaseException
     {
@@ -203,6 +219,7 @@ public abstract class Connector
      * @return The result from the query.
      * @throws DatabaseException Thrown if a database exception occurs with the
      * connector.
+     * @since 1.0
      */
     public Result read(PreparedStatement ps)                                    throws DatabaseException
     {
@@ -224,6 +241,7 @@ public abstract class Connector
      * a transaction before the lock. Invoking tableUnlock will commit the
      * transaction and thus release the lock.
      * @throws DatabaseException Thrown if an issue occurs.
+     * @since 1.0
      */
     public void tableLock(String table, boolean inTransaction) throws DatabaseException
     {
@@ -237,6 +255,7 @@ public abstract class Connector
      * transaction. If this was false for tableLock, this should be false
      * again.
      * @throws DatabaseException Thrown if an issue occurs.
+     * @since 1.0
      */
     public void tableUnlock(boolean inTransaction) throws DatabaseException
     {
@@ -250,6 +269,7 @@ public abstract class Connector
      * 
      * This may be used to implement RDMS-specific SQL.
      * @return Any possible integer or 0 if unknown/not-specified/generic.
+     * @since 1.0
      */
     public abstract int getConnectorType();
 }

@@ -32,6 +32,7 @@ import pals.base.assessment.InstanceAssignmentCriteria;
 import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.testing.throughput.data.Regex;
+import pals.testing.throughput.data.TestInputs;
 
 /**
  * An application for performing through-put testing.
@@ -51,16 +52,20 @@ public class ThroughputTesting
     public static void main(String[] args) throws DatabaseException
     {
         // Test configuration
-        int min         = 1000,      // Minimum number of instances of work to process
-            max         = 20000,   // Maximum number of instances of work to process
-            increment   = 1000;      // Increment between min and max
+        int min         = 1000,         // Minimum number of instances of work to process
+            max         = 20000,        // Maximum number of instances of work to process
+            increment   = 1000;         // Increment between min and max
         
-        System.out.println("Running "+((max-min)/increment)+" tests...");
+//        min = 10;
+//        max = 200;
+//        increment=10;
+        
+        System.out.println("Running "+(((max-min)/increment)+1)+" tests...");
         
         // Start core
         core = NodeCore.getInstance();
         core.setPathPlugins("tt_plugins");
-        core.setPathSettings("../Node/_config/node.config");
+        core.setPathSettings("../Node/_config_cluster/node.config");
         // -- Start
         if(!core.start())
         {
@@ -70,8 +75,12 @@ public class ThroughputTesting
         
         // Perform tests
         StringBuilder sb = new StringBuilder();
+        TestData td;
         for(int i = min; i <= max; i+=increment)
-            sb.append(runTest(i)).append(" ");
+        {
+            td = new TestInputs(i);
+            sb.append(runTest(td,i)).append(" ");
+        }
         if(sb.length()>0)
             sb.deleteCharAt(sb.length()-1);
         
@@ -83,7 +92,7 @@ public class ThroughputTesting
         System.out.println(sb.toString());
     }
     
-    public static long runTest(int work) throws DatabaseException
+    public static long runTest(TestData td, int work) throws DatabaseException
     {
         System.out.println("Starting test "+work+" items.");
         // Fetch and start an instance of a core, used for communication and DB
@@ -97,7 +106,6 @@ public class ThroughputTesting
         conn.tableLock("pals_nodes", false);
         // Create fake data
         System.out.println("Creating test data...");
-        TestData td = new Regex(work);
         td.create(core);
         // Log start time, unlock table
         long start = System.currentTimeMillis();

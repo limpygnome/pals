@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -34,6 +33,8 @@ import pals.base.web.RemoteResponse;
 
 /**
  * The interface used for RMI communication.
+ * 
+ * @version 1.0
  */
 public interface RMI_Interface extends Remote
 {
@@ -43,6 +44,7 @@ public interface RMI_Interface extends Remote
      * @param request The remote web request data.
      * @return Response data for the request.
      * @throws RemoteException Thrown if an issue occurs with RMI.
+     * @since 1.0
      */
     public RemoteResponse handleWebRequest(RemoteRequest request) throws RemoteException;
     /**
@@ -50,6 +52,7 @@ public interface RMI_Interface extends Remote
      * 
      * @param plugin The identifier of the plugin to unload.
      * @throws RemoteException Thrown if an issue occurs with RMI.
+     * @since 1.0
      */
     public void pluginUnload(UUID plugin) throws RemoteException;
     /**
@@ -61,6 +64,7 @@ public interface RMI_Interface extends Remote
      * @return True = a plugin handled the event, false = no plugins,
      * subscribed, have handled the event.
      * @throws RemoteException Thrown if an issue occurs with RMI.
+     * @since 1.0
      */
     public boolean invokeGlobalHook(String event, Object[] data) throws RemoteException;;
     /**
@@ -69,18 +73,21 @@ public interface RMI_Interface extends Remote
      * @param event The name of the global event.
      * @param data The data to be passed to plugins; must be serializable.
      * @throws RemoteException Thrown if an issue occurs with RMI.
+     * @since 1.0
      */
     public void invokeGlobalHookAll(String event, Object[] data) throws RemoteException;;
     /**
      * Restarts the node.
      * 
      * @throws RemoteException Thrown if an issue occurs with RMI.
+     * @since 1.0
      */
     public void restart() throws RemoteException;
     /**
      * Informs this node to shutdown; this will not shutdown the physical host.
      * 
      * @throws RemoteException Thrown if an issue occurs with RMI.
+     * @since 1.0
      */
     public void shutdown() throws RemoteException;
 }

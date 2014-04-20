@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -34,6 +33,8 @@ import java.sql.SQLException;
 
 /**
  * A class for handling the results from the execution of a query.
+ * 
+ * @version 1.0
  */
 public class Result
 {
@@ -48,14 +49,20 @@ public class Result
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Gets the ResultSet from the query.
+     * Gets the ResultSet from the query.
+     * 
+     * @return The result set.
+     * @since 1.0
      */
     public ResultSet getResultSet()
     {
         return this.rs;
     }
     /**
-     * @return Gets the prepared-statement used for the query.
+     * Gets the prepared-statement used for the query.
+     * 
+     * @return The prepared statement.
+     * @since 1.0
      */
     public PreparedStatement getPreparedStatement()
     {
@@ -67,6 +74,7 @@ public class Result
      * 
      * @param column The column name to check.
      * @return True = exists, false = does not exist.
+     * @since 1.0
      */
     public boolean contains(String column)
     {
@@ -86,8 +94,11 @@ public class Result
         }
     }
     /**
-     * @return Moves to the next tuple/row in the result.
+     * Moves to the next tuple/row in the result.
+     * 
+     * @return True = new row available, false = end of result.
      * @throws DatabaseException Thrown if a database error occurs.
+     * @since 1.0
      */
     public boolean next() throws DatabaseException
     {
@@ -105,10 +116,12 @@ public class Result
      * 
      * WARNING: this can be used dangerously, but it also makes programming
      * a lot easier. Only type-casting is applied, no type-conversion.
+     * 
      * @param <T> The data-type of the value to read.
      * @param attributeName The attribute to read.
      * @return The value of the specified attribute.
      * @throws DatabaseException Thrown if a database error occurs.
+     * @since 1.0
      */
     public <T> T get(String attributeName) throws DatabaseException
     {
@@ -126,6 +139,7 @@ public class Result
      * 
      * @throws DatabaseException Thrown if the prepared-statement cannot be
      * created.
+     * @since 1.0
      */
     public void dispose() throws DatabaseException
     {

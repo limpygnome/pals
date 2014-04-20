@@ -21,7 +21,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
     ----------------------------------------------------------------------------
-    Version:    1.0
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
@@ -72,6 +71,8 @@ import pals.base.database.Result;
  * https://www.owasp.org/index.php/Session_Management
  * 
  * Thread-safe collection.
+ * 
+ * @version 1.0
  */
 public class DatabaseHttpSession
 {
@@ -125,6 +126,7 @@ public class DatabaseHttpSession
      * @throws IOException Thrown if an object cannot be deserialized.
      * @throws ClassNotFoundException Thrown if an object cannot be deserialized
      * because its original class is missing.
+     * @since 1.0
      */
     public static DatabaseHttpSession load(Connector conn, String base64id, String ipAddress) throws IllegalArgumentException, DatabaseException, IOException, ClassNotFoundException
     {
@@ -183,6 +185,7 @@ public class DatabaseHttpSession
      * the database.
      * @throws IOException Thrown if an issue occurs serializing an object to
      * the database.
+     * @since 1.0
      */
     public synchronized void persist(Connector conn) throws DatabaseException, IOException
     {
@@ -244,6 +247,7 @@ public class DatabaseHttpSession
      * @param conn Database connector.
      * @throws DatabaseException Thrown if an issue occurs communicating with
      * the database.
+     * @since 1.0
      */
     public synchronized void destroy(Connector conn) throws DatabaseException
     {
@@ -281,6 +285,7 @@ public class DatabaseHttpSession
      * @param <T> The type of the value; must be Serializable.
      * @param key The key of the attribute.
      * @param value The value/instance of the attribute; can be null.
+     * @since 1.0
      */
     public synchronized <T extends Serializable> void setAttribute(String key, T value)
     {
@@ -312,6 +317,7 @@ public class DatabaseHttpSession
      * Removes an attribute from the session.
      * 
      * @param key The key of the attribute.
+     * @since 1.0
      */
     public synchronized void removeAttribute(String key)
     {
@@ -332,8 +338,11 @@ public class DatabaseHttpSession
             changes.put(key, SValueChange.Removed);
     }
     /**
-     * @param isPrivate Indicates if the session should be marked with a private
+     * Sets if the session should be marked with a private
      * flag.
+     * 
+     * @param isPrivate True = private, false = not private.
+     * @since 1.0
      */
     public synchronized void setIsPrivate(boolean isPrivate)
     {
@@ -341,36 +350,51 @@ public class DatabaseHttpSession
     }
     // Methods - Accessors *****************************************************
     /**
-     * @return Indicates if the session is empty.
+     * Indicates if the session contains any data.
+     * 
+     * @return True = empty / no data, false = has data.
+     * @since 1.0
      */
     public synchronized boolean isEmpty()
     {
         return data.isEmpty();
     }
     /**
-     * @return The number of session attributes.
+     * The number of session attributes.
+     * 
+     * @return The number.
+     * @since 1.0
      */
     public synchronized int size()
     {
         return data.size();
     }
     /**
-     * @return The session ID.
+     * The session ID.
+     * 
+     * @return Represented by a byte-array.
+     * @since 1.0
      */
     public synchronized byte[] getId()
     {
         return sessid;
     }
     /**
-     * @return The session ID, as a base-64 string.
+     * The session ID.
+     * 
+     * @return Base-64 string.
+     * @since 1.0
      */
     public synchronized String getIdBase64()
     {
         return Base64.encodeBase64String(sessid);
     }
     /**
+     * Indicates if the session contains a data with a key.
+     * 
      * @param key The key to check.
      * @return True = exists, false = does not exist.
+     * @since 1.0
      */
     public synchronized boolean contains(String key)
     {
@@ -388,14 +412,20 @@ public class DatabaseHttpSession
         return (T)data.get(key);
     }
     /**
-     * @return The IP address of the current session.
+     * Retrieves the IP address of the current session.
+     * 
+     * @return The IP address.
+     * @since 1.0
      */
     public synchronized String getIpAddress()
     {
         return ipAddress;
     }
     /**
-     * @return Indicates if the session has been marked with a private flag.
+     * Indicates if the session has been marked with a private flag.
+     * 
+     * @return True = private, false = not private.
+     * @since 1.0
      */
     public synchronized boolean isPrivate()
     {
