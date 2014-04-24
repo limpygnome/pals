@@ -241,13 +241,13 @@ public class RMI
      * @param r The registry to be disposed.
      * @since 1.0
      */
-    public void disposeRegistry(Registry r)
+    public static void disposeRegistry(Registry r)
     {
         try
         {
-            UnicastRemoteObject.unexportObject(r.lookup(RMI_Interface.class.getName()), true);
+            UnicastRemoteObject.unexportObject(r, true);
         }
-        catch(RemoteException | NotBoundException ex)
+        catch(RemoteException ex)
         {
             ex.printStackTrace(System.err);
         }
