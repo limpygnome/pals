@@ -198,6 +198,7 @@ public class RMI
         }
         catch(RemoteException | AlreadyBoundException ex)
         {
+            ex.printStackTrace(System.err);
             return null;
         }
     }
@@ -211,9 +212,15 @@ public class RMI
     public boolean start()
     {
         if(registry != null)
+        {
+            System.err.println("Attempted to start RMI when registry has already been started.");
             return false;
+        }
         if((registry = fetchRMIServerConnection(port)) == null)
+        {
+            System.err.println("Failed to setup RMI server socket.");
             return false;
+        }
         return true;
     }
     /**
