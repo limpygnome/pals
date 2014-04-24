@@ -60,6 +60,11 @@ Unit Tests
 The base has been mostly unit tested, with the test files located at:
 */Node/test*
 
+SQL
+---
+Any SQL can be found at:
+*/Node/_sql*
+
 Third-Party Libraries
 ---------------------
 - JavaMail 1.4.7 - used to send and receive e-mail messages.

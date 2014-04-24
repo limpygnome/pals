@@ -370,7 +370,8 @@ public class AssignmentQuestion
      * Sets the order of which the question appears on a page.
      * 
      * @param pageOrder The order of which the question is displayed on the
-     * page. Refer to {@link #PAGE_ORDER_LIMIT} for the limit.
+     * page. Refer to {@link #PAGE_ORDER_LIMIT} for the upper limit. Must be
+     * greater than zero.
      * @since 1.0
      */
     public void setPageOrder(int pageOrder)
@@ -448,5 +449,30 @@ public class AssignmentQuestion
     public int getPageOrder()
     {
         return pageOrder;
+    }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if an object is equal to this object, based on being of this type
+     * and having the same aqid.
+     * 
+     * @param o The object to be tested.
+     * @return True = equal, false = not equal.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o); //To change body of generated methods, choose Tools | Templates.
+    }
+    /**
+     * The hash-code, derived from the assignment identifier.
+     * 
+     * @return Hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return assignment == null ? -1 : assignment.getAssID();
     }
 }

@@ -235,9 +235,9 @@ public class Question
         try
         {
             // Validate data
-            if(qtype == null)
+            if(qtype == null || !qtype.isPersisted() || qtype.getUuidQType() == null)
                 return PersistStatus.Invalid_QuestionType;
-            else if(title.length() < getTitleMin() || title.length() > getTitleMax())
+            else if(title == null || title.length() < getTitleMin() || title.length() > getTitleMax())
                 return PersistStatus.Invalid_Title;
             else
             {
@@ -438,5 +438,36 @@ public class Question
     public int getTitleMax()
     {
         return 64;
+    }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if an object is equal to this instance, based on being the same
+     * type and having the same qid identifier.
+     * 
+     * @param o The object to be tested.
+     * @return True = same, false = not the smae.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null)
+            return false;
+        else if(!(o instanceof Question))
+            return false;
+        Question q = (Question)o;
+        return q.qid == qid;
+    }
+    /**
+     * The hash-code, derived from the hash-code of the question-type.
+     * 
+     * @return Hash code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return qtype == null ? 0 : qtype.getUuidQType().hashCode();
     }
 }

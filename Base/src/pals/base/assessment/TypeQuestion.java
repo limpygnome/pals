@@ -556,4 +556,36 @@ public class TypeQuestion
             return tq.delete(conn);
         return false;
     }
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if an object is equal to this instance. This is based on both
+     * objects being of this type and having the same plugin and type UUID.
+     * 
+     * @param o The object to be tested.
+     * @return True = equal, false = not equal.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null)
+            return false;
+        else if(uuidPlugin == null || uuidQType == null)
+            return false;
+        else if(!(o instanceof TypeQuestion))
+            return false;
+        TypeQuestion tq = (TypeQuestion)o;
+        return uuidPlugin.equals(tq.getUuidPlugin()) && uuidQType.equals(tq.getUuidQType());
+    }
+    /**
+     * Hash-code is based on the hash-code of the plugin UUID.
+     * 
+     * @return Hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return uuidPlugin == null ? 0 : uuidPlugin.hashCode();
+    }
 }

@@ -60,6 +60,14 @@ public class ThroughputTesting
 //        max = 200;
 //        increment=10;
         
+        min = 1000;
+        max = 20000;
+        increment = 1000;
+        
+//        min = 1;
+//        max = 1;
+//        increment = 1;
+        
         System.out.println("Running "+(((max-min)/increment)+1)+" tests...");
         
         // Start core
@@ -78,7 +86,8 @@ public class ThroughputTesting
         TestData td;
         for(int i = min; i <= max; i+=increment)
         {
-            td = new TestInputs(i);
+            //td = new TestInputs(i);
+            td = new Regex(i);
             sb.append(runTest(td,i)).append(" ");
         }
         if(sb.length()>0)

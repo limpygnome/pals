@@ -708,9 +708,10 @@ public class Assignment
     {
         if(assid == -1)
             return false;
-        if(!(o instanceof Assignment))
+        else if(!(o instanceof Assignment))
             return false;
-        return ((Assignment)o).assid==assid;
+        Assignment ass = (Assignment)o;
+        return ass.assid==assid;
     }
     /**
      * The hash-code for the assignment, based on the module identifier.

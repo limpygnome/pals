@@ -1,4 +1,0 @@
-You will need both the JDK and JRE installed; you will also need an additional user for executing the sandbox.
-
-To create an account:
-net user <username> <password> /add

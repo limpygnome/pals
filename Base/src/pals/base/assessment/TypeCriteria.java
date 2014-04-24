@@ -121,7 +121,6 @@ public class TypeCriteria
         this.title = title;
         this.description = description;
     }
-
     // Methods - Persistence ***************************************************
     /**
      * Loads all the persisted criteria-types for a question-type.
@@ -446,5 +445,37 @@ public class TypeCriteria
         if(tc != null)
             return tc.delete(conn);
         return false;
+    }
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if two instances are equal based on the specified object being
+     * of this type and the plugin and type UUIDs being equal.
+     * 
+     * @param o The object to be tested.
+     * @return True = equal, false = not equal.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null)
+            return false;
+        else if(uuidPlugin == null || uuidCType == null)
+            return false;
+        else if(!(o instanceof TypeQuestion))
+            return false;
+        TypeCriteria tq = (TypeCriteria)o;
+        return uuidPlugin.equals(tq.getUuidPlugin()) && uuidCType.equals(tq.getUuidCType());
+    }
+    /**
+     * The hash-code, based on the hash-code of the UUID plugin hash-code.
+     * 
+     * @return Hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return uuidPlugin == null ? 0 : uuidPlugin.hashCode();
     }
 }

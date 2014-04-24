@@ -62,6 +62,7 @@ public class WebManager
      * Creates a new web-manager.
      * 
      * @param core The current instance of the core.
+     * @since 1.0
      */
     protected WebManager(NodeCore core)
     {

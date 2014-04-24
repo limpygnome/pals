@@ -60,6 +60,8 @@ public class AssignmentTest extends TestWithCore
         
         Assignment ass = new Assignment(m, "ass 1", 15, true, 100, dt, true);
         
+        assertEquals(-1, ass.getAssID());
+        
         // Check constructor is correct
         assertEquals(m, ass.getModule());
         assertEquals("ass 1", ass.getTitle());

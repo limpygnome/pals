@@ -1,11 +1,3 @@
-package pals;
-
-
-import org.junit.AfterClass;
-import static org.junit.Assert.assertTrue;
-import org.junit.BeforeClass;
-import pals.base.NodeCore;
-
 /*
     The MIT License (MIT)
 
@@ -32,6 +24,13 @@ import pals.base.NodeCore;
     Authors:    Marcus Craske           <limpygnome@gmail.com>
     ----------------------------------------------------------------------------
 */
+package pals;
+
+import org.junit.AfterClass;
+import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
+import pals.base.NodeCore;
+
 /**
  * A simple helper class for tests requiring a NodeCore instance.
  * 

@@ -212,7 +212,7 @@ public class Module
     public PersistStatus persist(Connector conn)
     {
         // Validate data
-        if(title.length() < getTitleMin() || title.length() > getTitleMax())
+        if(title == null || title.length() < getTitleMin() || title.length() > getTitleMax())
             return PersistStatus.Failed_title_length;
         // Persist data
         try
