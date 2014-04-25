@@ -26,8 +26,10 @@
 */
 package pals.base.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import pals.TestWithCore;
@@ -66,7 +68,11 @@ public class PalsProcessTest extends TestWithCore
         catch(InterruptedException ex)
         {
         }
-        
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getProcess().getInputStream()));
+        String l;
+        while((l = br.readLine()) != null)
+            System.out.println("DIAG : " + l);
+            
         assertTrue(p.hasExited());
     }
 }
