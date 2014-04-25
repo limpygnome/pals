@@ -61,6 +61,14 @@ public class PalsProcessTest extends TestWithCore
         assertFalse(p.hasExited());
         assertNotNull(p.getProcess());
         
+        try
+        {
+            Thread.sleep(1000);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+
         assertTrue(p.hasExited());
     }
 }
