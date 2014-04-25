@@ -26,10 +26,13 @@
 */
 package pals.base;
 
+import java.io.Serializable;
 import org.junit.Test;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
 import static org.junit.Assert.*;
+import pals.base.utils.PluginObjectInputStream;
+import pals.base.utils.PluginObjectInputStreamTest;
 import pals.base.web.WebRequestData;
 
 /**
@@ -40,12 +43,30 @@ import pals.base.web.WebRequestData;
 public class PluginTest
 {
     /**
-     * A test plugin.
+     * A test plugin. Also used by {@link PluginObjectInputStreamTest}.
      * 
      * @version 1.0
      */
     public static class TestPlugin extends Plugin
     {
+        public static class TestClass implements Serializable
+        {
+            static final long serialVersionUID = 1L;
+            
+            long time = System.currentTimeMillis(); // Initialized during construction, used as random identifier for testing class deserializes correctly
+
+            @Override
+            public boolean equals(Object o)
+            {
+                return (o instanceof TestClass) && ((TestClass)o).time == time;
+            }
+            @Override
+            public int hashCode()
+            {
+                return 1;
+            }
+        }
+        
         public TestPlugin(NodeCore core, UUID uuid, JarIO jario, Version version, Settings settings, String jarPath)
         {
             super(core, uuid, jario, version, settings, jarPath);

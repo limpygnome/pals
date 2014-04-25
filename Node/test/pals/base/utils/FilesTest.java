@@ -27,9 +27,11 @@
 package pals.base.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import static org.junit.Assert.*;
 import org.junit.Test;
+import pals.PalsUnitExtensions;
 
 /**
  * Tests {@link Files}.
@@ -39,7 +41,7 @@ import org.junit.Test;
 public class FilesTest
 {
     /**
-     * Tests copying files.
+     * Tests copying, reading and writing files.
      * 
      * @since 1.0
      */
@@ -64,5 +66,76 @@ public class FilesTest
         // Delete
         assertTrue(f1.delete());
         assertTrue(f2.delete());
+    }
+    /**
+     * Tests locating files.
+     * 
+     * @since 1.0
+     */
+    public void testGetFiles()
+    {
+        File    dirA = new File("unit-test-gf"),
+                fA = new File("unit-test-gf/ff.txt"),
+                dirB = new File("unit-test-gf/b"),
+                fB = new File("unit-test-gf/b/ff");
+        
+        if(!dirA.exists())
+            dirA.mkdir();
+        if(!dirB.exists())
+            dirB.mkdir();
+        if(!fA.exists())
+            fA.mkdir();
+        if(!fB.exists())
+            fB.mkdir();
+        
+        File[] res;
+        
+        try
+        {
+            res = Files.getAllFiles(dirA.getPath(), true, true, null, true);
+            assertEquals(2, res.length);
+            
+            res = Files.getAllFiles(dirA.getPath(), true, true, ".txt", true);
+            assertEquals(1, res.length);
+            
+            res = Files.getAllFiles(dirA.getPath(), true, false, null, true);
+            assertEquals(1, res.length);
+            
+            res = Files.getAllFiles(dirA.getPath(), true, false, null, true);
+            assertEquals(0, res.length);
+        }
+        catch(FileNotFoundException ex)
+        {
+            fail(ex.getMessage());
+        }
+        
+        dirB.delete();
+        fB.delete();
+        fA.delete();
+        dirA.delete();
+    }
+    /**
+     * Tests locating empty directories.
+     * 
+     * @since 1.0
+     */
+    @Test
+    public void testDirsEmpty()
+    {
+        File    dA = new File("unit-test-empty-a"),
+                dB = new File("unit-test-empty-a/b");
+        
+        if(!dA.exists())
+            dA.mkdir();
+        if(!dB.exists())
+            dB.mkdir();
+        
+        File[] farr = Files.getDirsEmpty(dA.getPath());
+        assertEquals(1, farr.length);
+        
+        PalsUnitExtensions.assertArrayElementsEqual(new String[]{dB.getPath()}, new String[]{farr[0].getPath()});
+        
+        dA.delete();
+        dB.delete();
     }
 }

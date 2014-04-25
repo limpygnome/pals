@@ -54,17 +54,25 @@ public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFacto
     private SSLServerSocketFactory  sfact;      // Creates server SSL sockets.
     private SSLContext              context;    // The current SSL context - points to the keystore and trustmanager.
     // Methods - Constructors **************************************************
+    private SSL_Factory()
+    {
+    }
+    // Methods - Static ********************************************************
     /**
      * Constructs a new instance.
      * 
      * @param keystorePath The path of the key-store.
      * @param keystorePassword  The password of the key-store.
+     * @return A new factory, or null if the factory cannot be created due
+     * to an invalid key-store or password.
      * @since 1.0
      */
-    public SSL_Factory(String keystorePath, String keystorePassword)
+    public static SSL_Factory createFactory(String keystorePath, String keystorePassword)
     {
         try
         {
+            SSL_Factory sf = new SSL_Factory();
+            
             char[] password = keystorePassword.toCharArray();
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(new FileInputStream(keystorePath), password);
@@ -75,18 +83,22 @@ public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFacto
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ks);
             
-            context = SSLContext.getInstance("TLS");
+            sf.context = SSLContext.getInstance("TLS");
 
-            context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+            sf.context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             
-            cfact = context.getSocketFactory();
-            sfact = context.getServerSocketFactory();
+            sf.cfact = sf.context.getSocketFactory();
+            sf.sfact = sf.context.getServerSocketFactory();
+            
+            return sf;
         }
         catch(Exception ex)
         {
             System.err.println("ERROR: "+ex.getMessage());
+            return null;
         }
     }
+    // Methods - Factory *******************************************************
     /**
      * Creates a new client SSL socket.
      * 

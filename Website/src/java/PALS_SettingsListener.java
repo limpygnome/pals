@@ -77,7 +77,9 @@ public class PALS_SettingsListener implements ServletContextListener
             String  keystorePath = settings.getStr("rmi/keystore/path"),
                     keystorePassword = settings.getStr("rmi/keystore/password");
             
-            sfact = new SSL_Factory(keystorePath, keystorePassword);
+            sfact = SSL_Factory.createFactory(keystorePath, keystorePassword);
+            if(sfact == null)
+                throw new SettingsException(SettingsException.Type.FailedToParse_InvalidSetting, new IOException("Failed to setup SSL; check path of JKS and password."));
         }
         catch(SettingsException ex)
         {

@@ -31,6 +31,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
+import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.UUID;
 import pals.base.database.Connector;
@@ -47,6 +48,7 @@ import pals.base.database.Result;
 public class RMI
 {
     // Fields ******************************************************************
+    private NodeCore                core;
     private int                     port;
     private Registry                registry;
     private final RMI_Interface     serverInstance;
@@ -65,19 +67,13 @@ public class RMI
      */
     public RMI(NodeCore core, Connector conn, int port, RMI_Interface serverInstance)
     {
+        this.core = core;
         this.port = port;
         this.registry = null;
         this.serverInstance = serverInstance;
         this.hosts = new HashMap<>();
-        hostsUpdate(conn);
-        // Setup custom SSL factory if keystore settings are defined
-        String  keystorePath = core.getSettings().getStr("rmi/keystore/path"),
-                keystorePassword = core.getSettings().getStr("rmi/keystore/password");
-        if(keystorePath != null && keystorePassword != null)
-            sockFactory = new SSL_Factory(keystorePath, keystorePassword);
-        else
-            sockFactory = null;
         
+        hostsUpdate(conn);
     }
     // Methods - Hosts *********************************************************
     /**
@@ -209,13 +205,26 @@ public class RMI
      * @return True if successful, false if failed.
      * @since 1.0
      */
-    public boolean start()
+    public synchronized boolean start()
     {
+        // Check registry is not already setup
         if(registry != null)
         {
             System.err.println("Attempted to start RMI when registry has already been started.");
             return false;
         }
+        // Setup custom SSL factory if keystore settings are defined
+        String  keystorePath = core.getSettings().getStr("rmi/keystore/path"),
+                keystorePassword = core.getSettings().getStr("rmi/keystore/password");
+        if(keystorePath != null && keystorePassword != null)
+        {
+            sockFactory = SSL_Factory.createFactory(keystorePath, keystorePassword);
+            if(sockFactory == null)
+                core.getLogging().log("RMI", "Cannot setup key-store for SSL, critical failure.", Logging.EntryType.Error);
+        }
+        else
+            sockFactory = null;
+        // Setup RMI socket
         if((registry = fetchRMIServerConnection(port)) == null)
         {
             System.err.println("Failed to setup RMI server socket.");
@@ -228,13 +237,14 @@ public class RMI
      * 
      * @since 1.0
      */
-    public void stop()
+    public synchronized void stop()
     {
         if(registry == null)
             return;
         disposeRegistry(registry);
         registry = null;
     }
+    // Methods - Static ********************************************************
     /**
      * Disposes a registry / RMI server connection.
      * 

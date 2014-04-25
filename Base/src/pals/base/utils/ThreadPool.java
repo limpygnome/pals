@@ -122,6 +122,8 @@ public class ThreadPool<T extends ExtendedThread>
      */
     public synchronized T get(int index)
     {
+        if(index >= threads.size())
+            return null;
         return threads.get(index);
     }
     // Methods - Mutators ******************************************************
@@ -163,6 +165,7 @@ public class ThreadPool<T extends ExtendedThread>
      */
     public synchronized void remove(int index)
     {
-        threads.remove(index);
+        if(index < threads.size())
+            threads.remove(index);
     }
 }

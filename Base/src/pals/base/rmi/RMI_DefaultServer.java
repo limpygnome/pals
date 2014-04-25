@@ -124,7 +124,7 @@ public class RMI_DefaultServer extends UnicastRemoteObject  implements RMI_Inter
      * @since 1.0
      */
     @Override
-    public void restart() throws RemoteException
+    public synchronized void restart() throws RemoteException
     {
         core.stop(NodeCore.StopType.Normal);
         core.start();
@@ -136,7 +136,7 @@ public class RMI_DefaultServer extends UnicastRemoteObject  implements RMI_Inter
      * @since 1.0
      */
     @Override
-    public void shutdown() throws RemoteException
+    public synchronized void shutdown() throws RemoteException
     {
         core.stop(NodeCore.StopType.Shutdown);
     }
