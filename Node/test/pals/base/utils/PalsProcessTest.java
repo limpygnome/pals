@@ -61,18 +61,6 @@ public class PalsProcessTest extends TestWithCore
         assertFalse(p.hasExited());
         assertNotNull(p.getProcess());
         
-        try
-        {
-            Thread.sleep(1000);
-        }
-        catch(InterruptedException ex)
-        {
-        }
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getProcess().getInputStream()));
-        String l;
-        while((l = br.readLine()) != null)
-            System.out.println("DIAG : " + l);
-            
         assertTrue(p.hasExited());
     }
 }
