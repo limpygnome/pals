@@ -415,5 +415,34 @@ public class Email
     public long getAttempts()
     {
         return attempts;
-    }    
+    }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if an object is equal to this instance, based on the same type
+     * and identifier.
+     * 
+     * @param o The object being compared.
+     * @return True = same, false = not the same.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof Email))
+            return false;
+        Email a = (Email)o;
+        return a.emailid == emailid;
+    }
+    /**
+     * The hash-code, based on the e-mail identifier.
+     * 
+     * @return The hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return emailid;
+    }
 }

@@ -45,8 +45,28 @@ public class MultipartUrlParser
      */
     public MultipartUrlParser(WebRequestData data)
     {
-        String url = data.getRequestData().getRelativeUrl();
-        this.data = (url == null ? "" : url).split("/");
+        this(data.getRequestData().getRelativeUrl());
+    }
+    /**
+     * Creates a new parser.
+     * 
+     * @param url The URL of the current request.
+     * @since 1.0
+     */
+    public MultipartUrlParser(String url)
+    {
+        // Perform cleaning
+        if(url == null)
+            url = "";
+        else
+        {
+            if(url.startsWith("/") && url.length()>1)
+                url = url.substring(1);
+            if(url.endsWith("/") && url.length()>1)
+                url = url.substring(0, url.length()-1);
+        }
+        // Split parts
+        this.data = url.split("/");
     }
     // Methods - Parsing *******************************************************
     /**
