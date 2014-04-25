@@ -66,7 +66,7 @@ public class UserTest extends TestWithCore
         
         u = User.load(conn, userid);
         assertNotNull(u);
-        assertTrue(u.remove(conn));
+        assertTrue(u.delete(conn));
         
         u = User.load(conn, userid);
         assertNull(u);
@@ -86,7 +86,7 @@ public class UserTest extends TestWithCore
         assertEquals(User.PersistStatus_User.InvalidUsername_exists, new User("username", "password", "password salt", "email2@email.com", ug).persist(core, conn));
         
         userid = u.getUserID();
-        assertTrue(u.remove(conn));
+        assertTrue(u.delete(conn));
         assertTrue(userid >= 0);
         
         assertNull(User.load(conn, userid));

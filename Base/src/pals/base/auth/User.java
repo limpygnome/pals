@@ -331,7 +331,7 @@ public class User
      * @return Indicates if the operation succeeded.
      * @since 1.0
      */
-    public boolean remove(Connector conn)
+    public boolean delete(Connector conn)
     {
         try
         {
@@ -569,5 +569,34 @@ public class User
     public int getEmailMax()
     {
         return 128;
+    }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Checks a specified object is equal to the current instance, based
+     * on being the same type and having the same identifier.
+     * 
+     * @param o The object being compared.
+     * @return True = same, false = not same.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof User))
+            return false;
+        User a = (User)o;
+        return a.userid == userid;
+    }
+    /**
+     * The hash-code based on the group identifier.
+     * 
+     * @return The hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return group != null ? group.getGroupID() : -1;
     }
 }

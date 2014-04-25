@@ -677,6 +677,6 @@ public class InstanceAssignmentCriteria
     @Override
     public int hashCode()
     {
-        return iaq.getAIQID();
+        return iaq != null ? iaq.getAIQID() : -1;
     }
 }

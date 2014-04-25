@@ -586,6 +586,6 @@ public class TypeQuestion
     @Override
     public int hashCode()
     {
-        return uuidPlugin == null ? 0 : uuidPlugin.hashCode();
+        return uuidPlugin == null ? -1 : uuidPlugin.hashCode();
     }
 }

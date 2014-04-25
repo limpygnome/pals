@@ -468,6 +468,6 @@ public class Question
     @Override
     public int hashCode()
     {
-        return qtype == null ? 0 : qtype.getUuidQType().hashCode();
+        return qtype == null ? -1 : qtype.getUuidQType().hashCode();
     }
 }

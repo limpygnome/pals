@@ -270,7 +270,7 @@ public class QuestionCriteria
             return PersistStatus.Invalid_Criteria;
         else if(weight <= 0)
             return PersistStatus.Invalid_Weight;
-        else if(title.length() < getTitleMin() || title.length() > getTitleMax())
+        else if(title == null || title.length() < getTitleMin() || title.length() > getTitleMax())
             return PersistStatus.Invalid_Title;
         else
         {
@@ -486,5 +486,33 @@ public class QuestionCriteria
     public int getTitleMax()
     {
         return 64;
+    }
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if the specified object is equal to the current instance, based
+     * on being the same type and having the same identifier.
+     * 
+     * @param o The object to be tested.
+     * @return True = equal, false = not equal.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof QuestionCriteria))
+            return false;
+        QuestionCriteria qc = (QuestionCriteria)o;
+        return qc.qcid == qcid;
+    }
+    /**
+     * The hash-code, based on the question.
+     * 
+     * @return The hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return question != null ? question.getQID() : -1;
     }
 }

@@ -477,4 +477,33 @@ public class UserGroup
     {
         return 64;
     }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Tests if an instance is equal to the current instance, based on being
+     * the same type and having the same identifier.
+     * 
+     * @param o The object being tested.
+     * @return True = same, false = not the same.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof UserGroup))
+            return false;
+        UserGroup a = (UserGroup)o;
+        return a.groupid == groupid;
+    }
+    /**
+     * The hash-code, based on the group identifier.
+     * 
+     * @return The hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return groupid;
+    }
 }

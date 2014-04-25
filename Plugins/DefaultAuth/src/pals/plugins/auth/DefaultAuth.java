@@ -946,7 +946,7 @@ public class DefaultAuth extends Plugin
             else
             {
                 // Unpersist the user
-                user.remove(data.getConnector());
+                user.delete(data.getConnector());
                 data.getResponseData().setRedirectUrl("/admin/users");
             }
         }

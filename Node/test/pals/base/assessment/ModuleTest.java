@@ -151,9 +151,9 @@ public class ModuleTest extends TestWithCore
         assertEquals(0, m.getTotalAssignments(conn));
         
         // Dispose data
-        assertTrue(stu1.remove(conn));
-        assertTrue(stu2.remove(conn));
-        assertTrue(stu3.remove(conn));
+        assertTrue(stu1.delete(conn));
+        assertTrue(stu2.delete(conn));
+        assertTrue(stu3.delete(conn));
         
         m.delete(conn);
         

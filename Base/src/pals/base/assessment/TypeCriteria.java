@@ -462,7 +462,7 @@ public class TypeCriteria
             return false;
         else if(uuidPlugin == null || uuidCType == null)
             return false;
-        else if(!(o instanceof TypeQuestion))
+        else if(!(o instanceof TypeCriteria))
             return false;
         TypeCriteria tq = (TypeCriteria)o;
         return uuidPlugin.equals(tq.getUuidPlugin()) && uuidCType.equals(tq.getUuidCType());
@@ -476,6 +476,6 @@ public class TypeCriteria
     @Override
     public int hashCode()
     {
-        return uuidPlugin == null ? 0 : uuidPlugin.hashCode();
+        return uuidPlugin == null ? -1 : uuidPlugin.hashCode();
     }
 }

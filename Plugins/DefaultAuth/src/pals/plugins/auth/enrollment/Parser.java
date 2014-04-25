@@ -288,7 +288,7 @@ public abstract class Parser
         if(u != null)
         {
             // Remove them from the system...
-            u.remove(data.getConnector());
+            u.delete(data.getConnector());
             messages.add("Deleted user '"+u.getUsername()+"'.");
         }
     }

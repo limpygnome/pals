@@ -680,7 +680,7 @@ public class InstanceAssignment
         return a.aiid == aiid;
     }
     /**
-     * Based on the model's identifier.
+     * Based on the assignment identifier.
      * 
      * @return The hash code.
      * @since 1.0
@@ -688,6 +688,6 @@ public class InstanceAssignment
     @Override
     public int hashCode()
     {
-        return aiid;
+        return ass != null ? ass.getAssID() : -1;
     }
 }

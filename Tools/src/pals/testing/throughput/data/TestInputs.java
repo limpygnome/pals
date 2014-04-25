@@ -214,7 +214,7 @@ public class TestInputs extends TestData
         Connector conn = core.createConnector();
         // Dispose user
         User u = User.load(conn, userid);
-        if(u == null || !u.remove(conn))
+        if(u == null || !u.delete(conn))
             System.err.println("Warning: could not dispose user!");
         // Dispose module - all other data will cascade
         Module m = Module.load(conn, moduleid);
