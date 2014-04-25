@@ -61,7 +61,7 @@ public class PalsProcessTest extends TestWithCore
         
         try
         {
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
         catch(InterruptedException ex)
         {
