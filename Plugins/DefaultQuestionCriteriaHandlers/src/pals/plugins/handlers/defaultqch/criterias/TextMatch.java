@@ -84,7 +84,7 @@ public class TextMatch
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_match", critMatch != null ? critMatch : cdata.getText());
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         if((critMatch == null && cdata.isCaseSensitive()) || (critSensitive != null && critSensitive.equals("1")))
             data.setTemplateData("crit_sensitive", cdata.isCaseSensitive());
         return true;

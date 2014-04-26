@@ -68,7 +68,7 @@ public class ManualMarking
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         return true;
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)

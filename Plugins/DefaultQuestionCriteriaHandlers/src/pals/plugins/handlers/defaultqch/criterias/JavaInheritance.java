@@ -101,7 +101,7 @@ public class JavaInheritance
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         data.setTemplateData("crit_class_name", critClassName != null ? critClassName : cdata.getClassName());
         data.setTemplateData("crit_inherited_class_name", critInheritedClassName != null ? critInheritedClassName : cdata.getInheritedClassName());
         data.setTemplateData("crit_inherited_generic", critInheritedGeneric != null ? critInheritedGeneric : cdata.getInheritedGenericType());

@@ -119,7 +119,7 @@ public class MultipleChoice
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         data.setTemplateData("crit_items_selected", itemsSelected);
         data.setTemplateData("crit_items_total", totalAnswers);
         data.setTemplateData("crit_items", qdata != null ? qdata.getAnswers() : new String[0]);

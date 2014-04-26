@@ -108,7 +108,7 @@ public class RegexMatch
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_regex", critRegex != null ? critRegex : cdata.getRegexPattern());
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         if(critHide != null && critHide.equals("1") || (critRegex == null && cdata.getHide()))
             data.setTemplateData("crit_hide", true);
         if(critInvert != null && critInvert.equals("1") || (critRegex == null && cdata.getInvert()))

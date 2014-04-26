@@ -142,7 +142,7 @@ public class JavaTestInputs
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         data.setTemplateData("crit_class_name", critClassName != null ? critClassName : cdata.getClassName());
         data.setTemplateData("crit_method", critMethod != null ? critMethod : cdata.getMethod());
         data.setTemplateData("crit_test_code", critTestCode != null ? critTestCode : cdata.getTestCode());

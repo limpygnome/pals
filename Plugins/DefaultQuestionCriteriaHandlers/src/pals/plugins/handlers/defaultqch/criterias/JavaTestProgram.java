@@ -138,7 +138,7 @@ public class JavaTestProgram
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         data.setTemplateData("crit_class", critClass != null ? critClass : cdata.getEpClass());
         data.setTemplateData("crit_method", critMethod != null ? critMethod : cdata.getEpMethod());
         data.setTemplateData("crit_args", critArgs != null ? critArgs : cdata.getEpArgsWeb());

@@ -112,7 +112,7 @@ public class JavaCustomCode
         data.setTemplateData("question", qc.getQuestion());
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("crit_title", critTitle != null ? critTitle : qc.getTitle());
-        data.setTemplateData("crit_weight", critWeight != null ? critWeight : qc.getWeight());
+        data.setTemplateData("crit_weight", critWeight != null ? critWeight : String.valueOf(qc.getWeight()));
         data.setTemplateData("crit_class", critClass != null ? critClass : cdata.getClassName());
         data.setTemplateData("crit_method", critMethod != null ? critMethod : cdata.getMethod());
         data.setTemplateData("crit_messages", critMessageThreshold != null ? critMessageThreshold : cdata.getMessageThreshold());
