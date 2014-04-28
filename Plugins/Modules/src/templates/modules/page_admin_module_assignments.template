@@ -40,19 +40,19 @@
                     </#if>
                 </td>
                 <td>
-                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
+                    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">
                         View / Attempts
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">
+                    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">
                         Questions
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">
+                    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/edit">
                         Edit
                     </a>
                     &nbsp;
-                    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/delete">
+                    <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/delete">
                         Delete
                     </a>
                 </td>

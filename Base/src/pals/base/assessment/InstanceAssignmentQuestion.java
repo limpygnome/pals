@@ -464,4 +464,33 @@ public class InstanceAssignmentQuestion
             cacheCriteria = InstanceAssignmentCriteria.loadAll(core, conn, this);
         return cacheCriteria;
     }
+
+    // Methods - Overrides *****************************************************
+    /**
+     * Compares an object to the current instance, based on the type and
+     * identifier.
+     * 
+     * @param o The object being compared.
+     * @return True = same, false = not the same.
+     * @since 1.0
+     */
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == null || !(o instanceof InstanceAssignmentQuestion))
+            return false;
+        InstanceAssignmentQuestion a = (InstanceAssignmentQuestion)o;
+        return aiqid == a.aiqid;
+    }
+    /**
+     * The hash-code, based on the instance assignment identifier.
+     * 
+     * @return The hash-code.
+     * @since 1.0
+     */
+    @Override
+    public int hashCode()
+    {
+        return ia != null ? ia.getAIID() : -1;
+    }
 }

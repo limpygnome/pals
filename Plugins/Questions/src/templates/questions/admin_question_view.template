@@ -46,11 +46,11 @@
                     ${((criteria.getWeight()/total_weight)*100)?string}%
                 </td>
                 <td>
-                    <a href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()?c}/edit">
+                    <a class="button" href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()?c}/edit">
                         Edit
                     </a>
                     &nbsp;
-                    <a href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()?c}/delete">
+                    <a class="button" href="/admin/questions/${question.getQID()}/criteria/${criteria.getQCID()?c}/delete">
                         Delete
                     </a>
                 </td>
