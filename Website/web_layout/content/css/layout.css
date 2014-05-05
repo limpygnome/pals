@@ -41,7 +41,7 @@ body
 .layout_body .banner
 {
 	width: 100%;
-	background: #EEE;
+	background: #FFF;
 }
 .layout_body .banner .items
 {
@@ -88,6 +88,10 @@ body
 	line-height: 1em;
 	text-align: center;
 	border-right: solid 0.2em #0B0;
+}
+.layout_body .nav .items > li:not(.ritems):nth-child(2), .layout_body .nav .items li:not(.ritems) ul li:nth-child(2)
+{
+	border-left: solid 0.2em #0B0;
 }
 .layout_body .nav .items li:not(.ritems):hover, .layout_body .nav .items li:not(.ritems):focus
 {
@@ -141,6 +145,11 @@ body
 	float: left;
 	padding: 0.5em;
 	height: 1em;
+	border-left: solid 0.2em #0B0;
+}
+.layout_body .nav .ritems ul li:last-child
+{
+	border-right: solid 0.2em #0B0;
 }
 .layout_body .content
 {
