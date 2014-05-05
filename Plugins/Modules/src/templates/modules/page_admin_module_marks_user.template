@@ -1,0 +1,52 @@
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/modules">Modules</a>
+    <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a>
+    <a href="/admin/modules/${module.getModuleID()?c}/marks">Marks</a>
+    <span>Marks for ${marks.getUsername()?html}</span>
+</h2>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/marks">
+        Back
+    </a>
+</p>
+
+<table class="table3">
+    <tr>
+        <tr>
+            <th>Ass. ID</th>
+            <th>Title</th>
+            <th>Highest Mark</th>
+            <th>AIID</th>
+            <th>Options</th>
+        </tr>
+        <#list marks.getMarks() as mark>
+            <tr>
+                <td>
+                    ${mark.getAss().getAssID()?c}
+                </td>
+                <td>
+                    ${mark.getAss().getTitle()?html}
+                </td>
+                <td>
+                    ${mark.getMark()?html}%
+                </td>
+                <td>
+                    <#if mark.getAIID()??>
+                        ${mark.getAIID()?c}
+                    <#else>
+                        --
+                    </#if>
+                </td>
+                <td>
+                    <#if mark.getAIID()??>
+                        <a class="button" href="/assignments/instance/${mark.getAIID()?c}?edit=1" target="_blank">
+                            View
+                        </a>
+                    </#if>
+                </td>
+            </tr>
+        </#list>
+    </tr>
+</table>

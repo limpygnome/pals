@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PALS - Assignment Marks</title>
+        <link rel="stylesheet" type="text/css" href="/content/css/assignment_print.css">
+    </head>
+</html>
+<body>
+    <h1>Module Marks - ${module.getTitle()?html}</h1>
+
+    <table class="table3">
+        <tr>
+            <th>
+                User ID
+            </th>
+            <th>
+                Username
+            </th>
+            <th>
+                Overall Mark
+            </th>
+            <th>
+                Assignments
+            </th>
+        </tr>
+        <#list marks as mark>
+            <tr>
+                <td>
+                    ${mark.getUserID()?c}
+                </td>
+                <td>
+                    ${mark.getUsername()?html}
+                </td>
+                <td>
+                    ${mark.getMark()?string}
+                </td>
+                <td>
+                    <ul>
+                        <#list mark.getMarks() as m>
+                            <li>
+                                ${m.getAss().getTitle()?html} - ${m.getMark()?string}%
+                            </li>
+                        </#list>
+                    </ul>
+                </td>
+            </tr>
+        </#list>
+    </table>
+    <script>
+        window.print();
+    </script>
+</body>
+</html>

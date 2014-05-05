@@ -1,0 +1,4 @@
+userid,username,mark
+<#list marks as mark>
+${mark.getUserID()?c},${mark.getUsername()?html},${mark.getMark()?string}
+</#list>

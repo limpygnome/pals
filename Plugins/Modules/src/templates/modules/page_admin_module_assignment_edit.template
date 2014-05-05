@@ -20,7 +20,7 @@
                 Title:
             </td>
             <td>
-                <input type="text" name="ass_title" value="${ass_title}" />
+                <input type="text" name="ass_title" value="${ass_title?html}" />
             </td>
         </tr>
         <tr>
@@ -28,7 +28,7 @@
                 Weight:
             </td>
             <td>
-                <input type="text" name="ass_weight" value="${ass_weight}" />
+                <input type="text" name="ass_weight" value="${ass_weight?html}" />
             </td>
         </tr>
         <tr>
@@ -44,7 +44,7 @@
                 Max Attempts:
             </td>
             <td>
-                <input type="text" name="ass_max_attempts" value="<#if ass_max_attempts??>${ass_max_attempts}</#if>" />
+                <input type="text" name="ass_max_attempts" value="<#if ass_max_attempts??>${ass_max_attempts?html}</#if>" />
             </td>
         </tr>
         <tr>

@@ -1,0 +1,53 @@
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/modules">Modules</a>
+    <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a>
+    <span>Marks</span>
+</h2>
+
+<p class="tac">
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}">
+        Back
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/marks/download.csv">
+        Download CSV
+    </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/marks/print">
+        Print
+    </a>
+</p>
+
+<table class="table3">
+    <tr>
+        <th>
+            User ID
+        </th>
+        <th>
+            Username
+        </th>
+        <th>
+            Overall Mark
+        </th>
+        <th>
+            Options
+        </th>
+    </tr>
+    <#list marks as mark>
+        <tr>
+            <td>
+                ${mark.getUserID()?c}
+            </td>
+            <td>
+                ${mark.getUsername()?html}
+            </td>
+            <td>
+                ${mark.getMark()?string}
+            </td>
+            <td>
+                <a class="button" href="/admin/modules/${module.getModuleID()?c}/marks/${mark.getUserID()?c}">View</a>
+            </td>
+        </tr>
+    </#list>
+</table>

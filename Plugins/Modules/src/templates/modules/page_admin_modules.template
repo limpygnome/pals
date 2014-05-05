@@ -44,6 +44,10 @@
                 <a class="button" href="/admin/modules/${module.getModuleID()?c}/enrollment">
                     Enrolment
                 </a>
+                &nbsp;
+                <a class="button" href="/admin/modules/${module.getModuleID()?c}/marks">
+                    Marks
+                </a>
             </td>
         </tr>
         </#list>

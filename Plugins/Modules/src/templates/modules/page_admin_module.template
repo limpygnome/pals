@@ -24,6 +24,10 @@
     <a class="button" href="/admin/stats/overview?type=m&amp;tid=${module.getModuleID()?c}">
         Stats
     </a>
+    &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/marks">
+        Marks
+    </a>
 </p>
 
 <h3>Active Assignments</h3>

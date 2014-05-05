@@ -44,6 +44,7 @@ import pals.base.assessment.Question;
 import pals.base.auth.User;
 import pals.base.database.Connector;
 import pals.base.utils.JarIO;
+import pals.base.utils.Misc;
 import pals.base.web.MultipartUrlParser;
 import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
@@ -322,6 +323,8 @@ public class Modules extends Plugin
                     return pageAdminModule_edit(data, module);
                 case "delete":
                     return pageAdminModule_delete(data, module);
+                case "marks":
+                    return pageAdminModule_marks(data, module);
                 default:
                     return false;
             }
@@ -408,6 +411,50 @@ public class Modules extends Plugin
         data.setTemplateData("module", module);
         // -- Fields
         data.setTemplateData("csrf", CSRF.set(data));
+        return true;
+    }
+    private boolean pageAdminModule_marks(WebRequestData data, Module module)
+    {
+        RemoteRequest req = data.getRequestData();
+        MultipartUrlParser mup = new MultipartUrlParser(data);
+        // Check if we're displaying all marks or for a single user
+        int userid;
+        if((userid = mup.parseInt(4, -1)) != -1)
+        {
+            // Fetch mark for user
+            User u = User.load(data.getConnector(), userid);
+            if(u == null)
+                return false;
+            ModelAssHighest.ModelModule mm[] = ModelAssHighest.loadModule(data.getConnector(), module, u);
+            if(mm.length != 1)
+                return false;
+            data.setTemplateData("marks", mm[0]);
+            data.setTemplateData("pals_content", "modules/page_admin_module_marks_user");
+        }
+        else
+        {
+            // Fetch marks
+            data.setTemplateData("marks", ModelAssHighest.loadModule(data.getConnector(), module, null));
+            // Check view/download type
+            String type = mup.getPart(4);
+            if(type == null)
+                type = "";
+            switch(type)
+            {
+                case "download.csv":
+                    data.setTemplateData("pals_page", "modules/page_admin_module_marks_csv");
+                    break;
+                case "print":
+                    data.setTemplateData("pals_page", "modules/page_admin_module_marks_print");
+                    break;
+                default:
+                    data.setTemplateData("pals_content", "modules/page_admin_module_marks");
+                    break;
+            }
+        }
+        // Setup the page
+        data.setTemplateData("pals_title", "Admin - Module - "+Escaping.htmlEncode(module.getTitle()) + " - Marks");
+        data.setTemplateData("module", module);
         return true;
     }
     private boolean pageAdminModule_enrollment(WebRequestData data, Module module)
@@ -850,10 +897,10 @@ public class Modules extends Plugin
         data.setTemplateData("module", module);
         data.setTemplateData("assignment", ass);
         data.setTemplateData("ass_title", assTitle != null ? assTitle : ass.getTitle());
-        data.setTemplateData("ass_weight", assWeight != null ? assWeight : ass.getWeight());
+        data.setTemplateData("ass_weight", assWeight != null ? assWeight : String.valueOf(ass.getWeight()));
         if((assTitle == null && ass.isActive()) || assActive != null)
             data.setTemplateData("ass_active", true);
-        data.setTemplateData("ass_max_attempts", assMaxAttempts != null ? assMaxAttempts : ass.getMaxAttempts());
+        data.setTemplateData("ass_max_attempts", assMaxAttempts != null ? assMaxAttempts : String.valueOf(ass.getMaxAttempts()));
         // -- -- Due
         if((assTitle != null && assDue != null && assDue.equals("1")) || (assTitle == null && ass.getDue() != null))
             data.setTemplateData("ass_due", true);
