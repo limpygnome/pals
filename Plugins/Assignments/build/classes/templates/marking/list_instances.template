@@ -1,4 +1,7 @@
-<h2><a href="/marking">Manual Marking</a> - <a href="/marking/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a></h2>
+<h2>
+    <a href="/marking">Manual Marking</a>
+    <span>${assignment.getTitle()?html}</span>
+</h2>
 
 <h3 class="tac">Instances Awaiting Marking</h3>
 

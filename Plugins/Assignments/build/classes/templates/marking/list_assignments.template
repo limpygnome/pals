@@ -1,4 +1,6 @@
-<h2><a href="/marking">Manual Marking</a></h2>
+<h2>
+    <span>Manual Marking</span>
+</h2>
 
 <table class="table3 marking_list">
     <tr>
