@@ -1,4 +1,9 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/delete">Delete</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/questions">Questions</a>
+    <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a>
+    <span>Delete</span>
+</h2>
 
 <p>
     Deleting a question could break assignments and result in a loss of data for a question! Ensure any grades, involving a question, have been logged

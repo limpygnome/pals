@@ -15,7 +15,7 @@
             </td>
         </tr>
         <tr>
-            <td>
+            <td class="tac">
                 <input type="submit" value="Confirm" />
             </td>
         </tr>

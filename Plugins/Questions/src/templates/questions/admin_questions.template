@@ -1,4 +1,7 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>Questions</span>
+</h2>
 
 <form method="get" action="/admin/questions">
     <table class="table2">

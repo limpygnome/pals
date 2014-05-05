@@ -1,4 +1,7 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>Modules</span>
+</h2>
 
 <table class="table3 modules_admin">
     <tr>
@@ -39,7 +42,7 @@
                 </a>
                 &nbsp;
                 <a class="button" href="/admin/modules/${module.getModuleID()?c}/enrollment">
-                    Enrollment
+                    Enrolment
                 </a>
             </td>
         </tr>

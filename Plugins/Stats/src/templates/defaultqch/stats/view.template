@@ -1,4 +1,9 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a> - <a href="/admin/stats/view?ecid=${ec.getECID()?c}">View</a> - ${ec.getClassName()?html}</h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/stats">Stats</a>
+    <a href="/admin/stats/view?ecid=${ec.getECID()?c}">View</a>
+    <span>${ec.getClassName()?html}</span>
+</h2>
 
 <p class="tac">
     <a href="/admin/stats/view?ecid=${ec.getECID()?c}&amp;clear=1&amp;csrf=${csrf}<#if type?? && tid??>&amp;type=${type}&amp;tid=${tid}</#if>" class="button">

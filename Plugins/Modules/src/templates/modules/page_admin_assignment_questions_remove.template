@@ -1,4 +1,12 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">Questions</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions/${question.getAQID()?c}/remove">Remove</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/modules">Modules</a>
+    <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a>
+    <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a>
+    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a>
+    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">Questions</a>
+    <span>Remove</span>
+</h2>
 
 <p>
     This action may permanently delete data from any instances of the assignment taken by students! This action is irreversible...
@@ -44,7 +52,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/questions">Back</a>
                 <input type="submit" value="Delete" />
             </td>

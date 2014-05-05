@@ -1,4 +1,9 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/edit">Edit</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/questions">Questions</a>
+    <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a>
+    <span>Edit</span>
+</h2>
 
 <form method="post" action="/admin/questions/${question.getQID()?c}/edit" enctype="multipart/form-data">
     <table class="table2 questions_form">

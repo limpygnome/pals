@@ -1,4 +1,7 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/users">Users</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>Users</span>
+</h2>
 
 <p class="tac">
     <a class="button" href="/admin/users/create">

@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a> - <a href="/admin/stats/overview">Overview</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/stats">Stats</a>
+    <span>Overview</span>
+</h2>
 
 <p>
     Below you can see common exceptions experienced by students during runtime (yellow) and compile-time (red).

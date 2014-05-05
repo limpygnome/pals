@@ -30,14 +30,16 @@
                 [${question.getInstanceQuestion().getAssignmentQuestion().getWeight()?c}]
             </div>
         </#if>
-        <h3 <#if question.getInstanceQuestion()??>id="${question.getInstanceQuestion().getAssignmentQuestion().getAQID()?c}"</#if>>Question ${question.getNumber()?string}</h3>
-        <#if !capture_mode>
-            <div class="clear"></div>
-        </#if>
-        ${question.getHTML()}
-        <#if !capture_mode>
-            <#include "instance_question_criteria">
-        </#if>
+        <div class="container">
+            <h3 class="title" <#if question.getInstanceQuestion()??>id="${question.getInstanceQuestion().getAssignmentQuestion().getAQID()?c}"</#if>>Question ${question.getNumber()?string}</h3>
+            <#if !capture_mode>
+                <div class="clear"></div>
+            </#if>
+            ${question.getHTML()}
+            <#if !capture_mode>
+                <#include "instance_question_criteria">
+            </#if>
+        </div>
     </#list>
     <#if capture_mode || edit_mode>
         <p class="tac">

@@ -2,15 +2,17 @@
 {
 	background: #0C0;
 }
-html
+@font-face
 {
-	background: #CCC;
+	font-family: RobotoRegular;
+	src: url('Roboto-Regular.ttf');
 }
 body
 {
-	font: normal 14px Arial,Helvetica;
+	font: normal 14px RobotoRegular,Arial,Helvetica;
 	margin: 0em;
 	padding: 0em 0em 1em 0em;
+	background: #CCC;
 }
 .clear
 {
@@ -39,6 +41,7 @@ body
 .layout_body .banner
 {
 	width: 100%;
+	background: #EEE;
 }
 .layout_body .banner .items
 {
@@ -49,28 +52,15 @@ body
 .layout_body .banner .items h1
 {
 	margin: 0em;
-	color: #999;
+	color: #3C0;
 	font-weight: normal;
-	text-shadow: 0.1em 0.1em 0.1em #BBB;
 }
 .layout_body .nav
 {
 	position: relative;
 	width: 100%;
-	background: #999;
+	background: #3C0;
 	z-index: 6;
-}
-.layout_body .nav .ritems
-{
-	float: right;
-	color: #050;
-	padding: 0.4em;
-	height: 1em;
-	line-height: 1em;
-}
-.layout_body .nav .ritems a
-{
-	color: #FFF;
 }
 .layout_body .nav .ritems a:hover, .layout_body .nav .ritems a:focus
 {
@@ -81,12 +71,13 @@ body
 	/* Root items container */
 	background: #0C0;
 	width: 65em;
+	height: 2em;
 	margin: auto;
 	padding: 0em;
 	list-style: none;
 	color: #030;
 }
-.layout_body .nav .items li
+.layout_body .nav .items > li:not(.ritems), .layout_body .nav .items li:not(.ritems) ul li
 {
 	/* Root item */
 	display: inline-block;
@@ -98,13 +89,13 @@ body
 	text-align: center;
 	border-right: solid 0.2em #0B0;
 }
-.layout_body .nav .items li:hover, .layout_body .nav .items li:focus
+.layout_body .nav .items li:not(.ritems):hover, .layout_body .nav .items li:not(.ritems):focus
 {
 	/* Root item hover */
 	background: #090;
 	overflow: visible;
 }
-.layout_body .nav .items li ul
+.layout_body .nav .items li:not(.ritems) ul
 {
 	/* Sub-item container */
 	display: block;
@@ -114,7 +105,7 @@ body
 	padding: 0em;
 	margin: 0em;
 }
-.layout_body .nav .items li ul li
+.layout_body .nav .items li:not(.ritems) ul li
 {
 	/* Sub-item */
 	display: block;
@@ -123,12 +114,12 @@ body
 	float: none;
 	border: none;
 }
-.layout_body .nav .items li ul li:hover, .layout_body .nav .items li ul li:focus
+.layout_body .nav .items li:not(.ritems) ul li:hover, .layout_body .nav .items li:not(.ritems) ul li:focus
 {
 	/* Sub-item hover */
 	background: #060;
 }
-.layout_body .nav .items li a
+.layout_body .nav .items li:not(.ritems) a
 {
 	/* All hyperlinks */
 	display: block;
@@ -136,16 +127,47 @@ body
 	color: #FFF;
 	text-decoration: none;
 }
+.layout_body .nav .ritems
+{
+	display: block;
+	float: right;
+	color: #050;
+	height: 1em;
+	line-height: 1em;
+}
+.layout_body .nav .ritems ul li
+{
+	display: block;
+	float: left;
+	padding: 0.5em;
+	height: 1em;
+}
 .layout_body .content
 {
-	border-radius: 0.8em;
-	border-top-left-radius: 0em;
-	border-top-right-radius: 0em;
+	border-radius: 0.4em;
 	width: 65em;
 	background: #FFF;
-	margin: auto;
+	margin: 1.0em auto auto auto;
 	min-height: 40em;
 	box-shadow: 0em 0em 0.7em #666;
+	overflow: hidden;
+}
+.layout_body .accessibility
+{
+	width: 65em;
+	margin: auto;
+	text-align: right;
+	padding: 0.5em;
+	height: 1.5em;
+	line-height: 1.5em;
+}
+.layout_body .accessibility img
+{
+	border-radius: 0.4em;
+	width: 1.5em;
+	height: 1.5em;
+	vertical-align: center;
+	box-shadow: 0em 0em 0.4em #666;
 }
 .layout_body .footer
 {
@@ -165,14 +187,34 @@ body
 /* Content */
 .layout_body .content h2
 {
-	margin: 0em;
-	padding: 0.25em;
+	display: block;
+	background: #DDD;
+	padding: 0em;
+	margin: 0em 0em 0.5em 0em;
 	font-weight: normal;
+	font-size: medium;
+	overflow: hidden;
+	border: solid 0.1em #CCC;
+	box-shadow: #CCC 0em 0em 0.5em;
 }
-.layout_body .content h2, .layout_body .content h2 a
+.layout_body .content h2 a, .layout_body .content h2 span
 {
-	color: #0C0;
+	display: inline-block;
+	padding: 0.25em 1.5em 0.25em 0.25em;
+	color: #666;
+	background: url('../images/layout_nav_arrow.png') 100% 50% no-repeat;
 }
+.layout_body .content h2 a:hover, .layout_body .content h2 a:focus
+{
+	background-color: #CCC;
+}
+.layout_body .content h2 a:last-child, .layout_body .content h2 span:last-child
+{
+	font-weight: bold;
+	background: none;
+	padding: 0.25em;
+}
+
 .layout_body .content h3
 {
 	margin: 0em;
@@ -379,6 +421,8 @@ body
 {
 	background: #0C0;
 	padding: 0.25em;
+	margin: 0em;
+	font: inherit;
 	font-size: larger;
 	color: #FFF;
 }
@@ -552,6 +596,7 @@ body
 /* Assignment ~ Instance */
 .layout_body .assignment_pages
 {
+	margin-top: 0.5em;
 	padding: 0.5em;
 	border-bottom: solid 0.4em #0C0;
 }
@@ -585,17 +630,13 @@ body
 {
 	float: right;
 	font-size: large;
-	margin: 0.25em;
+	margin: 0.25em 0.75em 0.25em 0.25em;
 	text-align: right;
+	color: #FFF;
 }
 .layout_body .assignment_question_mark
 {
 	width: 4em;
-	color: #0C0;
-}
-.layout_body .assignment_question_weight
-{
-	color: #CCC;
 }
 .layout_body .assignment_mark .red
 {

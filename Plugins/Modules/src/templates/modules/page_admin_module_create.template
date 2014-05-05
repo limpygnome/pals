@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/create">Create</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/modules">Modules</a>
+    <span>Create</span>
+</h2>
 
 <form method="post" action="/admin/modules/create">
     <table class="table2">

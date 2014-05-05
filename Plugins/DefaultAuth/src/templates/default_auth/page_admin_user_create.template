@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/users">Users</a> - <a href="/admin/users/create">Create User</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/users">Users</a>
+    <span>Create User</span>
+</h2>
 
 <form method="post" action="/admin/users/create">
     <table class="table2">

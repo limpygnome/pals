@@ -1,4 +1,7 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/email">E-mail</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>E-mail</span>
+</h2>
 
 <p>
     Below are all the e-mails pending in the queue for sending.

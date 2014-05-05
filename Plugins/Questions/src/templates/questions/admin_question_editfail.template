@@ -1,4 +1,9 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()?c}/edit">Edit</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/questions">Questions</a>
+    <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a>
+    <span>Edit</span>
+</h2>
 
 <p class="error">
     Could not load question-type handler to render page.

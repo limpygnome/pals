@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/mass_enrollment">Mass-Enrollment</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>Mass-Enrollment</span>
+</h2>
+
 <h3>Upload</h3>
 <p>
     Below you can upload user data to the system to apply actions to create, enroll, disenroll

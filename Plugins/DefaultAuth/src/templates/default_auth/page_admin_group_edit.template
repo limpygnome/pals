@@ -1,4 +1,9 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a> - <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a> - <a href="/admin/groups/${group.getGroupID()?c}/edit">Edit</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/groups">Groups</a>
+    <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a>
+    <span>Edit</span>
+</h2>
 
 <form method="post" action="/admin/groups/${group.getGroupID()?c}/edit">
     <table class="table2">

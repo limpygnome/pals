@@ -1,4 +1,7 @@
-<h2>Account - Logged-Out</h2>
+<h2>
+    <span>Account</span>
+    <span>Logged Out</span>
+</h2>
 <p>
     Your session has been successfully logged-out.
 </p>

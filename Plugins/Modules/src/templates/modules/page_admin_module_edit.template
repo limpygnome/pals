@@ -1,7 +1,15 @@
-<h2><a href="/admin/">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/edit">Edit</a></h2>
+<h2>
+    <a href="/admin/">Admin</a>
+    <a href="/admin/modules">Modules</a>
+    <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a>
+    <span>Edit</span>
+</h2>
 
 <form method="post" action="/admin/modules/${module.getModuleID()?c}/edit">
     <table class="table2">
+        <tr>
+            <th colspan="2">Edit Module</th>
+        </tr>
         <tr>
             <td>
                 Title:
@@ -11,7 +19,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" class="tac">
                 <a class="button" href="/admin/modules/${module.getModuleID()?c}">Back</a>
                 <input type="submit" value="Update" />
             </td>

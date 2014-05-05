@@ -1,4 +1,6 @@
-<h2><a href="/admin">Admin</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+</h2>
 
 <p>
     From this section of the site, you can manage PALS.

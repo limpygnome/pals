@@ -1,4 +1,8 @@
-<h2>Account - <a href="/account/register">Register</a></h2>
+<h2>
+    <span>Account</span>
+    <span>Register</span>
+</h2>
+
 <form method="post" action="/account/register">
 	<table class="table2">
 		<tr>

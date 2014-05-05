@@ -1,4 +1,7 @@
-<h2><a href="/modules">Modules</a> - <a href="/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a></h2>
+<h2>
+    <a href="/modules">Modules</a>
+    <span>${module.getTitle()?html}</span>
+</h2>
 
 <h3>Assignments</h3>
 

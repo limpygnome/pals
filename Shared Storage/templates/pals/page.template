@@ -20,13 +20,25 @@
 		</div>
 		<div class="nav">
 			<ul class="items">
-				<div class="ritems">
-					<#if user??>
-						${user.getUsername()} <a href="/account/logout">Logout</a>
-					<#else>
-						<a href="/account/register">Register</a> <a href="/account/login">Login</a>
-					</#if>
-				</div>
+				<li class="ritems">
+					<ul>
+						<#if user??>
+							<li>
+								<a href="/account/settings">${user.getUsername()}</a>
+							</li>
+							<li>
+								<a href="/account/logout">Logout</a>
+							</li>
+						<#else>
+							<li>
+								<a href="/account/register">Register</a>
+							</li>
+							<li>
+								<a href="/account/login">Login</a>
+							</li>
+						</#if>
+					</ul>
+				</li>
 				<li>
 					<a href="/home">Home</a>
 				</li>
@@ -104,7 +116,6 @@
 					</ul>
 				</li>
 				</#if>
-				<div class="clear"></div>
 			</ul>
 			<div class="clear"></div>
 		</div>

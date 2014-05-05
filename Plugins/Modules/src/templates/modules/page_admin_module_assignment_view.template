@@ -1,4 +1,11 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/modules">Modules</a> - <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a> - <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}/print_off">Highest Marks</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/modules">Modules</a>
+    <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a>
+    <a href="/admin/modules/${module.getModuleID()?c}/assignments">Assignments</a>
+    <a href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">${assignment.getTitle()?html}</a>
+    <span>Highest Marks</span>
+</h2>
 
 <p class="tac">
     <a class="button" href="/admin/modules/${module.getModuleID()?c}/assignments/${assignment.getAssID()?c}">

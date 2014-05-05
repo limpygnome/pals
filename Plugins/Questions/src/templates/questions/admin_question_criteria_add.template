@@ -1,4 +1,9 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()}">${question.getTitle()?html}</a> - <a href="/admin/questions/${question.getQID()}/criteria/add">Add Criteria</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/questions">Questions</a>
+    <a href="/admin/questions/${question.getQID()}">${question.getTitle()?html}</a>
+    <span>Add Criteria</span>
+</h2>
 
 <form method="post" action="/admin/questions/${question.getQID()?c}/criteria/add">
     <table class="table2">

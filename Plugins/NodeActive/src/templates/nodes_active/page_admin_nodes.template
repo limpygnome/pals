@@ -1,4 +1,7 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/nodes">Nodes</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>Nodes</span>
+</h2>
 
 <table class="table3">
     <tr>

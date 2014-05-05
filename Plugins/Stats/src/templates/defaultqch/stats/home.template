@@ -1,4 +1,7 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/stats">Stats</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <span>Stats</span>
+</h2>
 
 <p>
     Welcome to the statistics section; from here you can see the compilation and runtime

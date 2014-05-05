@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a> - <a href="/admin/groups/create">Create</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/groups">Groups</a>
+    <span>Create</span>
+</h2>
 
 <form method="post" action="/admin/groups/create">
     <table class="table2">

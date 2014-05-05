@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/questions">Questions</a> - <a href="/admin/questions/${question.getQID()?c}">${question.getTitle()?html}</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/questions">Questions</a>
+    <span>${question.getTitle()?html}</span>
+</h2>
 
 <p class="tac">
     <a class="button" href="/admin/questions/${question.getQID()?c}/delete">

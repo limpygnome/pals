@@ -1,4 +1,6 @@
-<h2>Welcome!</h2>
+<h2>
+    <span>Welcome!</span>
+</h2>
 <div class="fr">
     <img alt="Welcome to PALS" src="/content/images/welcome.png" />
 </div>

@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/groups">Groups</a> - <a href="/admin/groups/${group.getGroupID()?c}">${group.getTitle()?html}</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/groups">Groups</a>
+    <span>${group.getTitle()?html}</span>
+</h2>
 
 <p class="tac">
     <a class="button" href="/admin/groups/${group.getGroupID()?c}/edit">

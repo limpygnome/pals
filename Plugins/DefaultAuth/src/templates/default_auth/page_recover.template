@@ -1,4 +1,8 @@
-<h2>Account - <a href="/account/recover">Recover</a></h2>
+<h2>
+    <span>Account</span>
+    <a href="/account/login">Login</a>
+    <span>Recover</span>
+</h2>
 
 <#if recover_mode == 1>
     <form method="post" action="/account/recover">

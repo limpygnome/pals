@@ -1,4 +1,8 @@
-<h2><a href="/admin">Admin</a> - <a href="/admin/users">Users</a> - <a href="/admin/users/${edit_user.getUserID()?c}/edit">Edit User</a></h2>
+<h2>
+    <a href="/admin">Admin</a>
+    <a href="/admin/users">Users</a>
+    <span>Edit User</span>
+</h2>
 
 <form method="post" action="/admin/users/${edit_user.getUserID()?c}/edit">
     <table class="table2">
