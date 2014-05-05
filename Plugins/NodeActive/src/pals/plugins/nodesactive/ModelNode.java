@@ -41,6 +41,7 @@ import pals.base.database.Connector;
 import pals.base.database.DatabaseException;
 import pals.base.database.Result;
 import pals.base.utils.Misc;
+import pals.plugins.NodeActive;
 
 public class ModelNode
 {
@@ -99,6 +100,7 @@ public class ModelNode
         }
         catch(DatabaseException ex)
         {
+            NodeCore.getInstance().getLogging().logEx(NodeActive.LOGGING_ALIAS, ex, Logging.EntryType.Warning);
             return new ModelNode[0];
         }
     }
@@ -120,11 +122,30 @@ public class ModelNode
         }
         catch(DatabaseException ex)
         {
-            NodeCore.getInstance().getLogging().logEx("test", ex, Logging.EntryType.Info);
+            NodeCore.getInstance().getLogging().logEx(NodeActive.LOGGING_ALIAS, ex, Logging.EntryType.Warning);
             return null;
         }
     }
-
+    /**
+     * Unpersists the model.
+     * 
+     * @param conn Database connector.
+     * @return True = removed, false = not removed.
+     * @since 1.0
+     */
+    public boolean remove(Connector conn)
+    {
+        try
+        {
+            conn.execute("DELETE FROM pals_nodes WHERE uuid_node=?;", uuid.getBytes());
+            return true;
+        }
+        catch(DatabaseException ex)
+        {
+            NodeCore.getInstance().getLogging().logEx(NodeActive.LOGGING_ALIAS, ex, Logging.EntryType.Warning);
+            return false;
+        }
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The UUID used to identify the node.

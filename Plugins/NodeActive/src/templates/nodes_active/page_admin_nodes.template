@@ -22,12 +22,18 @@
             <td>${node.getUUID().getHexHyphens()?html}</td>
             <td>${node.getTitle()?html}</td>
             <td title="${node.getLastActive().toString("dd/MM/YYYY HH:mm:ss")?html}">${node.getLastActiveHuman()?html}</td>
-            <td><#if node.getRmiIP??>${node.getRmiIP()?html}</#if></td>
-            <td><#if node.getRmiPort??>${node.getRmiPort()?c}</#if></td>
+            <td>
+                <#if node.getRmiIP()??>${node.getRmiIP()?html}<#else>--</#if>
+            </td>
+            <td>
+                <#if node.getRmiPort()??>${node.getRmiPort()?c}<#else>--</#if>
+            </td>
             <td>
                 <a href="/admin/nodes?uuid=${node.getUUID().getHex()?html}&amp;action=shutdown&amp;csrf=${csrf}">Shutdown</a>
                 &nbsp;
                 <a href="/admin/nodes?uuid=${node.getUUID().getHex()?html}&amp;action=restart&amp;csrf=${csrf}">Restart</a>
+                <br />
+                <a href="/admin/nodes?uuid=${node.getUUID().getHex()?html}&amp;action=remove&amp;csrf=${csrf}">Remove</a>
             </td>
         </tr>
     </#list>

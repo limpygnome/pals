@@ -178,6 +178,9 @@ public class NodeActive extends Plugin
                             }
                         }
                         break;
+                    case "remove":
+                        node.remove(data.getConnector());
+                        break;
                     default:
                         return false;
                 }
