@@ -6,7 +6,7 @@
 </div>
 
 <p>
-    ...to the PALS (Programming Assessment and Learning System) system.
+    ...to PALS (Programming Assessment and Learning System).
 </p>
 
 <#if !(user??)>

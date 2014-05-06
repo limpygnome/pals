@@ -84,24 +84,14 @@ public class RMI
      */
     public synchronized void hostsUpdate(Connector conn)
     {
-        try
+        RMI_Host[] hh = RMI_Host.load(conn);
+        // Only update the list if we can fetch new models
+        if(hh != null)
         {
-            // Clear old hosts
+            // Clear and map hosts
             hosts.clear();
-            // Fetch hosts
-            Result res = conn.read("SELECT * FROM pals_nodes WHERE rmi_ip IS NOT NULL AND rmi_port IS NOT NULL;");
-            // Add to local cache
-            UUID uuid;
-            RMI_Host h;
-            while(res.next())
-            {
-                uuid = UUID.parse((byte[])res.get("uuid_node"));
-                h = new RMI_Host(uuid, (String)res.get("rmi_ip"), (int)res.get("rmi_port"));
-                hosts.put(uuid, h);
-            }
-        }
-        catch(DatabaseException ex)
-        {
+            for(RMI_Host h : hh)
+                hosts.put(h.getUUID(), h);
         }
     }
     /**

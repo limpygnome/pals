@@ -530,6 +530,18 @@ public class NodeCore
      */
     public Connector createConnector()
     {
+        return createConnector(settings);
+    }
+    /**
+     * Creates a new database connector.
+     * 
+     * @param settings The settings to use to create the connector.
+     * @return Instance, else null if the connector could not be made or
+     * connect.
+     * @since 1.0
+     */
+    public static Connector createConnector(Settings settings)
+    {
         if(settings == null)
             return null;
         
@@ -555,7 +567,10 @@ public class NodeCore
         }
         catch(DatabaseException ex)
         {
-            logging.logEx(LOGGING_ALIAS_START, "Could not create database connector.", ex, Logging.EntryType.Warning);
+            if(NodeCore.getInstance() != null)
+                NodeCore.getInstance().getLogging().logEx(LOGGING_ALIAS_START, "Could not create database connector.", ex, Logging.EntryType.Warning);
+            else
+                ex.printStackTrace(System.err);
         }
         return null;
     }

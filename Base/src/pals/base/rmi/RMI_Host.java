@@ -26,7 +26,11 @@
 */
 package pals.base.rmi;
 
+import java.util.ArrayList;
 import pals.base.UUID;
+import pals.base.database.Connector;
+import pals.base.database.DatabaseException;
+import pals.base.database.Result;
 
 /**
  * A model for holding RMI information for a node.
@@ -53,6 +57,36 @@ public class RMI_Host
         this.uuid = uuid;
         this.host = host;
         this.port = port;
+    }
+    // Methods - Persistence ***************************************************
+    /**
+     * Loads all of the RMI host models.
+     * 
+     * @param conn Database connector.
+     * @return Array; can be empty. Returns null if an error occurs.
+     * @since 1.0
+     */
+    public static RMI_Host[] load(Connector conn)
+    {
+        try
+        {
+            // Fetch hosts
+            Result res = conn.read("SELECT * FROM pals_nodes WHERE rmi_ip IS NOT NULL AND rmi_port IS NOT NULL;");
+            // Add to local cache
+            UUID uuid;
+            RMI_Host h;
+            ArrayList<RMI_Host> buffer = new ArrayList<>();
+            while(res.next())
+            {
+                uuid = UUID.parse((byte[])res.get("uuid_node"));
+                buffer.add(new RMI_Host(uuid, (String)res.get("rmi_ip"), (int)res.get("rmi_port")));
+            }
+            return buffer.toArray(new RMI_Host[buffer.size()]);
+        }
+        catch(DatabaseException ex)
+        {
+            return null;
+        }
     }
     // Methods - Accessors *****************************************************
     /**
