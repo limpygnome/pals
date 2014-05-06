@@ -763,6 +763,13 @@ body
 	border: solid 0.2em #CCC;
 	background: #DDD;
 }
+/* CodeJava - Uploaded Files */
+.cjuf_options
+{
+	float: right;
+	clear: both;
+	margin-bottom: 0.5em;
+}
 /* Admin - Nodes */
 .node_online
 {

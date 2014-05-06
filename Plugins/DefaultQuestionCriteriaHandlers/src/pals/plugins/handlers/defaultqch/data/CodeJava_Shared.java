@@ -51,6 +51,7 @@ import pals.base.NodeCore;
 import pals.base.Storage;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
+import pals.base.utils.Files;
 import pals.base.web.UploadedFile;
 import pals.base.web.WebRequestData;
 import pals.plugins.handlers.defaultqch.java.Utils;
@@ -90,10 +91,16 @@ public class CodeJava_Shared implements Serializable
          */
         Maximum_Files,
         /**
+         * Indicates the path offset is invalid.
+         */
+        Invalid_Path_Offset,
+        /**
          * Indicates the operation was successful.
          */
         Success
     }
+    // Constants ***************************************************************
+    private static final int MAXIMUM_PATH_OFFSET_LENGTH = 40;
     // Fields ******************************************************************
     private         TreeMap<String,String>          code;
     private         TreeSet<String>                 files;
@@ -125,6 +132,57 @@ public class CodeJava_Shared implements Serializable
         }
         return true;
     }
+    /**
+     * Fetches a file, which can be either an actual file or code.
+     * 
+     * @param baseStorage The base storage of physical files.
+     * @param path The path of the file or code.
+     * @return Byte array of target, or null if not found/error.
+     */
+    public byte[] fetch(File baseStorage, String path)
+    {
+        if(code.containsKey(path))
+            return code.get(path).getBytes();
+        else if(files.contains(path))
+        {
+            File dest = new File(baseStorage, path);
+            if(Files.isChild(baseStorage, dest, false) && dest.exists())
+            {
+                try
+                {
+                    return FileUtils.readFileToByteArray(dest);
+                }
+                catch(IOException ex)
+                {
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * Removes a file, which can be either an actual file or code.
+     * 
+     * @param baseStorage The base storage of physical files.
+     * @param path The path of the file or code.
+     * @return True = removed, false = could not be removed.
+     */
+    public boolean remove(File baseStorage, String path)
+    {
+        if(code.containsKey(path))
+        {
+            code.remove(path);
+            return true;
+        }
+        if(files.contains(path))
+        {
+            File dest = new File(baseStorage, path);
+            if(Files.isChild(baseStorage, dest, false) && dest.exists())
+                dest.delete();
+            files.remove(path);
+            return true;
+        }
+        return false;
+    }
     // Methods - File Collection ***********************************************
     /**
      * Processes an uploaded file, which can be a zip-archive (and extracted)
@@ -134,9 +192,10 @@ public class CodeJava_Shared implements Serializable
      * @param file The uploaded file to be processed.
      * @param dest The destination path for outputting the files; this
      * should be the IAQ or IAC directory.
+     * @param destOffset The sub path for the file.
      * @return The result from processing the file.
      */
-    public ProcessFileResult processFile(WebRequestData data, UploadedFile file, File dest)
+    public ProcessFileResult processFile(WebRequestData data, UploadedFile file, File dest, String destOffset)
     {
         // Check we have a valid file to process
         if(file == null || file.getSize() == 0)
@@ -145,8 +204,25 @@ public class CodeJava_Shared implements Serializable
         File src = new File(Storage.getPath_tempWebFile(data.getCore().getPathShared(), file));
         if(!src.exists())
             return ProcessFileResult.Temp_Missing;
+        // Clean offset
+        destOffset = destOffset.trim();
+        if(destOffset.startsWith("/"))
+            destOffset = destOffset.length() == 1 ? "" : destOffset.substring(1);
+        if(destOffset.endsWith("/"))
+            destOffset = destOffset.length() == 1 ?  "" : destOffset.substring(0, destOffset.length()-1);
+        // Create offset, with checking
+        File finalDest;
+        if(destOffset.length() == 0)
+            finalDest = dest;
+        else if(destOffset.length() != 0 && (destOffset.length() > MAXIMUM_PATH_OFFSET_LENGTH || !destOffset.matches("^([a-zA-Z0-9-_/.])+$")))
+            return ProcessFileResult.Invalid_Path_Offset;
+        else
+            finalDest = new File(dest, destOffset);
+        // Perform security check
+        if(!Files.isChild(dest, finalDest, true))
+            return ProcessFileResult.Invalid_Path_Offset;
         // Check the destination path
-        if(!dest.exists() && !dest.mkdir())
+        if(!finalDest.exists() && !finalDest.mkdir())
             return ProcessFileResult.Failed_Dest_Dir;
         // Check if the file is a zip
         String fileName = file.getName();
@@ -200,7 +276,7 @@ public class CodeJava_Shared implements Serializable
                         // -- -- May also pose security risk.
                         else if(!ent.getName().endsWith(".class"))
                         {
-                            f = new File(dest, ent.getName());
+                            f = new File(finalDest, ent.getName());
                             // Ensure all dirs have been created, in-case the file is within a new sub-dir
                             f.getParentFile().mkdirs();
                             // Create new file
@@ -211,7 +287,7 @@ public class CodeJava_Shared implements Serializable
                             fos.flush();
                             fos.close();
                             // Add to model
-                            filesAdd(ent.getName());
+                            filesAdd(destOffset+"/"+ent.getName());
                         }
                         files++;
                     }
@@ -261,8 +337,8 @@ public class CodeJava_Shared implements Serializable
             // Copy the file
             try
             {
-                FileUtils.copyFile(src, new File(dest, file.getName()));
-                filesAdd(file.getName());
+                FileUtils.copyFile(src, new File(finalDest, file.getName()));
+                filesAdd(destOffset+"/"+file.getName());
             }
             catch(IOException ex)
             {
@@ -287,6 +363,16 @@ public class CodeJava_Shared implements Serializable
         if(files == null)
             files = new TreeSet<>();
         files.add(fileName);
+    }
+    /**
+     * Removes the specified file from the internal data-structure. This does
+     * NOT physically delete the file.
+     * 
+     * @param fileName The file-name.
+     */
+    public void filesRemove(String fileName)
+    {
+        files.remove(fileName);
     }
     // Methods - Code Collection ***********************************************
     /**

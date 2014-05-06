@@ -52,7 +52,8 @@
                 Upload:
             </td>
             <td>
-                <input type="file" name="mc_upload" />
+                <input type="file" name="mc_upload" /><br />
+                Path: <input type="text" name="mc_upload_path" value="<#if mc_upload_path??>${mc_upload_path?html}<#else>/</#if>" />
             </td>
         </tr>
         <tr>
@@ -71,7 +72,9 @@
                 <#if code_names?? && code_names?has_content>
                     <ul>
                         <#list code_names as cn>
-                            <li>${cn?html}</li>
+                            <li>
+                                <a href="/admin/questions/${question.getQID()?c}/edit?download=${cn?url}.java&amp;csrf=${csrf?url}">${cn?html}</a> - <a href="/admin/questions/${question.getQID()?c}/edit?remove=${cn?url}&amp;csrf=${csrf?url}">Remove</a>
+                            </li>
                         </#list>
                     </ul>
                 <#else>
@@ -87,7 +90,9 @@
                 <#if file_names?? && file_names?has_content>
                     <ul>
                         <#list file_names as fn>
-                            <li>${fn?html}</li>
+                            <li>
+                                <a href="/admin/questions/${question.getQID()?c}/edit?download=${fn?url}&amp;csrf=${csrf?url}">${fn?html}</a> - <a href="/admin/questions/${question.getQID()?c}/edit?remove=${fn?url}&amp;csrf=${csrf?url}">Remove</a>
+                            </li>
                         </#list>
                     </ul>
                 <#else>

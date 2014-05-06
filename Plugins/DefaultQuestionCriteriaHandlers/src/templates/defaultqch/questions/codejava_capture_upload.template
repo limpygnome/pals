@@ -23,7 +23,8 @@
                 File:
             </td>
             <td>
-                <input type="file" name="codejava_${aqid}_upload" />
+                <input type="file" name="codejava_${aqid}_upload" /><br />
+                Path: <input type="text" name="codejava_${aqid}_upload_path" value="<#if upload_path??>${upload_path}<#else>/</#if>" />
             </td>
         </tr>
         <tr>
@@ -46,7 +47,14 @@
                 <#if code_names?? && code_names?has_content>
                     <ul>
                         <#list code_names as cn>
-                            <li>${cn?html}</li>
+                            <li>
+                                ${cn?html}
+                                <div class="cjuf_options">
+                                    <button type="submit" name="codejava_${aqid?c}_download" value="${cn?html}.java">Download</button>
+                                    &nbsp;
+                                    <button type="submit" name="codejava_${aqid?c}_remove" value="${cn?html}">Remove</button>
+                                </div>
+                            </li>
                         </#list>
                     </ul>
                 <#else>
@@ -62,7 +70,14 @@
                 <#if file_names?? && file_names?has_content>
                     <ul>
                         <#list file_names as fn>
-                            <li>${fn?html}</li>
+                            <li>
+                                ${fn?html}
+                                <div class="cjuf_options">
+                                    <button type="submit" name="codejava_${aqid?c}_download" value="${fn?html}">Download</button>
+                                    &nbsp;
+                                    <button type="submit" name="codejava_${aqid?c}_remove" value="${fn?html}">Remove</button>
+                                </div>
+                            </li>
                         </#list>
                     </ul>
                 <#else>

@@ -28,15 +28,21 @@
 package pals.plugins.handlers.defaultqch.questions;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
+import pals.base.Logging;
 import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
+import pals.base.utils.Files;
 import pals.base.web.RemoteRequest;
+import pals.base.web.RemoteResponse;
 import pals.base.web.UploadedFile;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
@@ -71,14 +77,53 @@ public class CodeJava extends QuestionHelper
         CodeJava_Question qdata = (CodeJava_Question)q.getData();
         if(q.getData() == null)
             qdata = new CodeJava_Question();
-        // Check for postback
+        
         RemoteRequest req = data.getRequestData();
+        String  download = req.getField("download"),
+                remove = req.getField("remove");
+        
+        if(download != null || remove != null)
+        {
+            if(!CSRF.isSecure(data))
+                data.setTemplateData("error", "Invalid request, please try again!");
+            else if(download != null && download.length() != 0)
+            {
+                // Download file
+                boolean java = download.endsWith(".java");
+                if(java && download.length() > 5)
+                    download = download.substring(0,download.length()-5);
+                byte[] bdata = qdata.fetch(new File(Storage.getPath_tempQuestion(data.getCore().getPathShared(), q)), download);
+                if(bdata != null)
+                {
+                    RemoteResponse resp = data.getResponseData();
+                    resp.setBuffer(bdata);
+                    resp.setHeader("Content-Disposition", "attachment; filename="+new File(download).getName()+(java ? ".java":""));
+                    resp.setResponseType("application/octet-stream");
+                    return true;
+                }
+                else
+                    data.setTemplateData("error", "Could not fetch file '"+download+".");
+            }
+            else if(remove != null && remove.length() != 0)
+            {
+                // Remove file
+                if(!qdata.remove(new File(Storage.getPath_tempQuestion(data.getCore().getPathShared(), q)), remove))
+                    data.setTemplateData("error", "Could not remove file '"+remove+"'.");
+                else
+                {
+                    q.setData(qdata);
+                    q.persist(data.getConnector());
+                }
+            }
+        }
+        // Check for postback
         String  qTitle = req.getField("q_title"),
                 qDesc = req.getField("q_desc");
         String  mcText = req.getField("mc_text"),
                 mcType = req.getField("mc_type"),
                 mcSkeleton = req.getField("mc_skeleton"),
-                mcWhitelist = req.getField("mc_whitelist");
+                mcWhitelist = req.getField("mc_whitelist"),
+                mcUploadPath = req.getField("mc_upload_path");
         CodeJava_Question.QuestionType qt = CodeJava_Question.QuestionType.parse(mcType);
         // -- Optional
         String mcReset = req.getField("mc_reset");
@@ -104,43 +149,52 @@ public class CodeJava extends QuestionHelper
             // Check for upload
             if(!data.containsTemplateData("error") && mcUpload != null && mcUpload.getSize() > 0)
             {
-                // Fetch Q path
-                String qPath = Storage.getPath_tempQuestion(data.getCore().getPathShared(), q);
-                File qDest = new File(qPath);
-                CodeJava_Shared.ProcessFileResult res = qdata.processFile(data, mcUpload, qDest);
-                switch(res)
+                // Validate request
+                if(!CSRF.isSecure(data))
+                    data.setTemplateData("error", "Invalid request; please try again or contact an administrator!");
+                else
                 {
-                    case Error:
-                        data.setTemplateData("error", "An unknown error occurred handling the upload.");
-                        break;
-                    case Failed_Dest_Dir:
-                        data.setTemplateData("error", "Unable to create destination directory.");
-                        break;
-                    case Failed_Temp_Dir:
-                        data.setTemplateData("error", "Unable to create temporary directory.");
-                        break;
-                    case Invalid_Zip:
-                        data.setTemplateData("error", "Invalid ZIP archive uploaded.");
-                        break;
-                    case Maximum_Files:
-                        data.setTemplateData("error", "Maximum files ("+FILEUPLOAD_FILES_LIMIT+") exceeded.");
-                        break;
-                    case Temp_Missing:
-                        data.setTemplateData("error", "Temporary web upload missing.");
-                        break;
-                    case Success:
-                        // Persist the model
-                        q.setData(qdata);
-                        Question.PersistStatus psq = q.persist(data.getConnector());
-                        switch(psq)
-                        {
-                            default:
-                                data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
-                                break;
-                            case Success:
-                                data.setTemplateData("success", "Successfully updated question.");
-                                break;
-                        }
+                    // Fetch Q path
+                    String qPath = Storage.getPath_tempQuestion(data.getCore().getPathShared(), q);
+                    // Process the file
+                    CodeJava_Shared.ProcessFileResult res = qdata.processFile(data, mcUpload, new File(qPath), mcUploadPath);
+                    switch(res)
+                    {
+                        case Error:
+                            data.setTemplateData("error", "An unknown error occurred handling the upload.");
+                            break;
+                        case Invalid_Path_Offset:
+                            data.setTemplateData("error", "Invalid upload path. This cannot leave the current directory and must contain only alpha-numeric characters or dot, hyphen or dash.");
+                            break;
+                        case Failed_Dest_Dir:
+                            data.setTemplateData("error", "Unable to create destination directory.");
+                            break;
+                        case Failed_Temp_Dir:
+                            data.setTemplateData("error", "Unable to create temporary directory.");
+                            break;
+                        case Invalid_Zip:
+                            data.setTemplateData("error", "Invalid ZIP archive uploaded.");
+                            break;
+                        case Maximum_Files:
+                            data.setTemplateData("error", "Maximum files ("+FILEUPLOAD_FILES_LIMIT+") exceeded.");
+                            break;
+                        case Temp_Missing:
+                            data.setTemplateData("error", "Temporary web upload missing.");
+                            break;
+                        case Success:
+                            // Persist the model
+                            q.setData(qdata);
+                            Question.PersistStatus psq = q.persist(data.getConnector());
+                            switch(psq)
+                            {
+                                default:
+                                    data.setTemplateData("error", "Failed to persist question data; error '"+psq.name()+"'!");
+                                    break;
+                                case Success:
+                                    data.setTemplateData("success", "Successfully updated question.");
+                                    break;
+                            }
+                    }
                 }
             }
         }
@@ -156,6 +210,7 @@ public class CodeJava extends QuestionHelper
         data.setTemplateData("mc_type", mcType != null ? qt.getFormValue() : qdata.getType().getFormValue());
         data.setTemplateData("mc_skeleton", mcSkeleton != null ? mcSkeleton : qdata.getSkeleton());
         data.setTemplateData("mc_whitelist", qdata.getWhitelistWeb());
+        data.setTemplateData("mc_upload_path", mcUploadPath);
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("code_names", qdata.getCodeNames());
         data.setTemplateData("file_names", qdata.getFileNames());
@@ -192,16 +247,48 @@ public class CodeJava extends QuestionHelper
         RemoteRequest req =     data.getRequestData();
         int aqid =              iaq.getAssignmentQuestion().getAQID();
         UploadedFile file =     data.getRequestData().getFile("codejava_"+aqid+"_upload");
-        String reqReset =       req.getField("codejava_"+aqid+"_reset");
-        String reqSubmitted =   req.getField("codejava_"+aqid+"_submitted");
-        String reqViewCode =    req.getField("codejava_"+aqid+"_viewcode");
-        String reqCompile =     req.getField("codejava_"+aqid+"_compile");
+        String  reqReset =      req.getField("codejava_"+aqid+"_reset"),
+                reqSubmitted =  req.getField("codejava_"+aqid+"_submitted"),
+                reqViewCode =   req.getField("codejava_"+aqid+"_viewcode"),
+                reqCompile =    req.getField("codejava_"+aqid+"_compile"),
+                reqUploadPath = req.getField("codejava_"+aqid+"_upload_path");
         boolean submitted =     reqSubmitted != null && reqSubmitted.equals("1");
         boolean reset =         reqReset != null && reqReset.equals("1");
         boolean viewCode =      reqViewCode != null && reqViewCode.equals("1");
         boolean compile =       reqCompile != null && reqCompile.equals("1");
+        String  download =      req.getField("codejava_"+aqid+"_download"),
+                remove =        req.getField("codejava_"+aqid+"_remove");
         if(submitted && !viewCode)
         {
+            // Check if to download file
+            if(download != null && download.length() > 0)
+            {
+                boolean java = download.endsWith(".java");
+                if(java && download.length() > 5)
+                    download = download.substring(0,download.length()-5);
+                byte[] bdata = adata.fetch(new File(Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq)), download);
+                if(bdata != null)
+                {
+                    RemoteResponse resp = data.getResponseData();
+                    resp.setBuffer(bdata);
+                    resp.setHeader("Content-Disposition", "attachment; filename="+new File(download).getName()+(java ? ".java":""));
+                    resp.setResponseType("application/octet-stream");
+                    return true;
+                }
+                else
+                    kvs.put("error", "Could not fetch file '"+download+"'.");
+            }
+            // Check if to remove file
+            if(remove != null && remove.length() > 0)
+            {
+                if(!adata.remove(new File(Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq)), remove))
+                    kvs.put("error", "Could not delete file '"+remove+"'.");
+                else
+                {
+                    iaq.setData(adata);
+                    iaq.persist(data.getConnector());
+                }
+            }
             // Check if to reset existing files
             if(reset)
             {
@@ -227,12 +314,12 @@ public class CodeJava extends QuestionHelper
                 }
             }
             // Check no error has occurred thus-far, before handling file-upload
-            if(!kvs.containsKey("error") && file != null)
+            if(!kvs.containsKey("error") && file != null && reqUploadPath != null)
             {
                 // Fetch the output directory
                 File fIAQ = new File(Storage.getPath_tempIAQ(data.getCore().getPathShared(), iaq));
                 // Process the file
-                CodeJava_Shared.ProcessFileResult res = adata.processFile(data, file, fIAQ);
+                CodeJava_Shared.ProcessFileResult res = adata.processFile(data, file, fIAQ, reqUploadPath);
                 switch(res)
                 {
                     case Error:
@@ -252,6 +339,9 @@ public class CodeJava extends QuestionHelper
                         break;
                     case Temp_Missing:
                         kvs.put("error", "Temporary web file missing; please try again or contact an administrator.");
+                        break;
+                    case Invalid_Path_Offset:
+                        kvs.put("error", "Invalid upload path.");
                         break;
                     case Success:
                         // Update the iaq model
@@ -331,6 +421,7 @@ public class CodeJava extends QuestionHelper
             kvs.put("code_names", adata.getCodeNames());
             kvs.put("file_names", adata.getFileNames());
             kvs.put("error_class", new ModelExceptionClass()); // Fetches hints through static calls
+            kvs.put("upload_path", reqUploadPath);
         }
         else
         {

@@ -224,4 +224,31 @@ public class Files
             }
         }
     }
+    /**
+     * Checks if a file is the child of another file.
+     * 
+     * @param parent The parent file.
+     * @param possibleChild The file that may be a child.
+     * @param canBeParent Indicates if the child can be the parent.
+     * @return True = is the child, false = is not the child.
+     * @since 1.0
+     */
+    public static boolean isChild(File parent, File possibleChild, boolean canBeParent)
+    {
+        try
+        {
+            parent = parent.getCanonicalFile();
+            File child = possibleChild.getCanonicalFile();
+            while(child != null)
+            {
+                if(child.equals(parent))
+                    return true;
+                child = child.getParentFile();
+            }
+        }
+        catch(IOException ex)
+        {
+        }
+        return false;
+    }
 }

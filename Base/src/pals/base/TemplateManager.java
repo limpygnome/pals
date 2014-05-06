@@ -68,10 +68,11 @@ public class TemplateManager
     // Methods *****************************************************************
     private void setupFreeMarker()
     {
-        fmLoader = new TemplateLoader();            // Used for loading, storing and interfacing with templates.
-        fmConfig = new Configuration();             // Used for configuration and caching (http://freemarker.org/docs/pgui_config_templateloading.html) templates.
-        fmConfig.setTemplateLoader(fmLoader);       // Sets the loader to use.
-        fmConfig.setDefaultEncoding("UTF-8");       // Sets the encoding of templates.
+        fmLoader = new TemplateLoader();                // Used for loading, storing and interfacing with templates.
+        fmConfig = new Configuration();                 // Used for configuration and caching (http://freemarker.org/docs/pgui_config_templateloading.html) templates.
+        fmConfig.setTemplateLoader(fmLoader);           // Sets the loader to use.
+        fmConfig.setDefaultEncoding("UTF-8");           // Sets the encoding of templates.
+        fmConfig.setURLEscapingCharset("ISO-8859-1");   // Sets the URL encoding character set.
         fmConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);     // Rethrows exceptions; recommended in production systems (http://freemarker.org/docs/api/freemarker/template/TemplateExceptionHandler.html#RETHROW_HANDLER).
     }
     /**
