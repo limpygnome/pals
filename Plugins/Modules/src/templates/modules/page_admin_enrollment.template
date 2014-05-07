@@ -2,7 +2,7 @@
     <a href="/admin">Admin</a>
     <a href="/admin/modules">Modules</a>
     <a href="/admin/modules/${module.getModuleID()?c}">${module.getTitle()?html}</a>
-    <span>Enrollment</span>
+    <span>Enrolment</span>
 </h2>
 
 <h3>Add User(s)</h3>

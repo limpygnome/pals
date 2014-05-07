@@ -29,6 +29,7 @@ package pals.plugins.handlers.defaultqch.criterias;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -72,6 +73,7 @@ public class JavaExistsShared
         Incorrect_ReturnTypeMethod,
         Incorrect_FieldType,
         Incorrect_FieldTypeGenericType,
+        Incorrect_Value,
         Correct
     }
     // Methods - Shared ********************************************************
@@ -92,7 +94,8 @@ public class JavaExistsShared
         String  critMethodRT =  req.getField("crit_method_rt");
         String  critFieldName = req.getField("crit_field_name");
         String  critFieldType = req.getField("crit_field_type");
-        String  critFieldGenericType = req.getField("crit_field_gtype");
+        String  critFieldGenericType = req.getField("crit_field_gtype"),
+                critFieldValue = req.getField("crit_field_value");
         // -- Optional
         String  critMod =       req.getField("crit_mod");
         String  critAbstract =  req.getField("crit_mod_abstract"),
@@ -175,6 +178,8 @@ public class JavaExistsShared
                 data.setTemplateData("error", "Invalid field type.");
             else if(ct == CriteriaType.Field && !cdata.setFieldTypeGeneric(critFieldGenericType))
                 data.setTemplateData("error", "Invalid field generic type.");
+            else if(ct == CriteriaType.Field && !cdata.setFieldValue(critFieldValue))
+                data.setTemplateData("error", "Invalid field value.");
             else
             {
                 if(ct == CriteriaType.Method)
@@ -221,6 +226,7 @@ public class JavaExistsShared
                 data.setTemplateData("crit_field_name", critFieldName != null ? critFieldName : cdata.getFieldName());
                 data.setTemplateData("crit_field_type", critFieldType != null ? critFieldType : cdata.getFieldType());
                 data.setTemplateData("crit_field_gtype", critFieldGenericType != null ? critFieldGenericType : cdata.getFieldTypeGeneric());
+                data.setTemplateData("crit_field_value", critFieldValue != null ? critFieldValue : cdata.getFieldValue());
                 break;
         }
         // -- -- Optional
@@ -342,20 +348,43 @@ public class JavaExistsShared
                                 {
                                     Field field = c.getDeclaredField(cdata.getFieldName());
                                     // Check the class matches correctly
-                                    ParameterizedType pt = (ParameterizedType)field.getGenericType();
-                                    if(pt.getRawType().equals(ft))
+                                    ParameterizedType pt;
+                                    if(field.getType().equals(ft))
                                     {
                                         // Check generic type
                                         if(cdata.isFieldTypeGenericConsidered() &&
+                                                (field.getGenericType() instanceof ParameterizedType) &&
                                                 (
-                                                    pt.getActualTypeArguments().length == 0 ||
+                                                    (pt = (ParameterizedType)field.getGenericType()).getActualTypeArguments().length == 0 ||
                                                     !((Class<?>)pt.getActualTypeArguments()[0]).getName().equals(cdata.getFieldTypeGeneric())
                                                 )
                                         )
                                             ms = MarkingStatus.Incorrect_FieldTypeGenericType;
                                         else
+                                        {
                                             // Check modifiers
                                             ms = modifiers == -1 || field.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;
+                                            // Check value
+                                            if(ms == MarkingStatus.Correct && cdata.isFieldValueConsidered())
+                                            {
+                                                try
+                                                {
+                                                    Object inst = null;
+                                                    // Check if to create instance
+                                                    if((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
+                                                        inst = c.getConstructor().newInstance();
+                                                    // Set to accessible, just in-case it is private
+                                                    field.setAccessible(true);
+                                                    // Check value
+                                                    if(!field.get(inst).toString().equals(cdata.getFieldValue()))
+                                                        ms = MarkingStatus.Incorrect_Value;
+                                                }
+                                                catch(IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalArgumentException ex)
+                                                {
+                                                    ms = MarkingStatus.Incorrect_Value;
+                                                }
+                                            }
+                                        }
                                     }
                                     else
                                         ms = MarkingStatus.Incorrect_FieldType;
@@ -382,6 +411,7 @@ public class JavaExistsShared
                 case Correct:
                     iac.setMark(100);
                     break;
+                case Incorrect_Value:
                 case Incorrect_Modifiers:
                     iac.setMark(cdata.getMarkClassOnly());
                     break;
@@ -420,6 +450,9 @@ public class JavaExistsShared
                 case Incorrect_FieldTypeGenericType:
                     kvs.put("error", "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', has the correct field type '"+cdata.getFieldType()+"', but the field type has an incorrect generic type, which should be '"+cdata.getFieldTypeGeneric()+"'.");
                     break;
+                case Incorrect_Value:
+                    kvs.put("error", "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', has an incorrect value, which should be '"+cdata.getFieldValue()+"'.");
+                    break;
                 case Incorrect_Modifiers:
                     switch(cdata.getCriteriaType())
                     {
@@ -444,7 +477,7 @@ public class JavaExistsShared
                             kvs.put("success", cdata.getModifiers() == -1 ? "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', found." : "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', found with correct modifiers.");
                             break;
                         case Field:
-                            kvs.put("success", cdata.getModifiers() == -1 ? "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found." : "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found with correct modifiers.");
+                            kvs.put("success", cdata.getModifiers() == -1 ? "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found" + (cdata.isFieldValueConsidered() ? " with correct value set." : ".") : "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', found with correct modifiers"+(cdata.isFieldValueConsidered() ? " and value." : "."));
                             break;
                     }
                     break;

@@ -98,6 +98,14 @@
                     <input type="text" name="crit_field_gtype" value="<#if crit_field_gtype??>${crit_field_gtype}</#if>" />
                 </td>
             </tr>
+            <tr>
+                <td>
+                    Value:
+                </td>
+                <td>
+                    <input type="text" name="crit_field_value" value="<#if crit_field_value??>${crit_field_value}</#if>" />
+                </td>
+            </tr>
         </#if>
         <tr>
             <th colspan="2">
@@ -189,5 +197,10 @@
     <p>
         If the student gets the <i>Generic Type</i> incorrect, their overall mark will be zero. Consider using
         multiple criterias to award marks for correct modifiers or the field existing with the correct type.
+    </p>
+    <p>
+        The field value is the initial value specified for a field. You can specify <i>null</i> to check
+        for null. The class can also be non-static, but it will need a parameterless constructor. If the
+        field value is incorrect, the mark for incorrect modifiers is used.
     </p>
 </#if>

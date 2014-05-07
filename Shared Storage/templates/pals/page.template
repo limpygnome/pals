@@ -87,7 +87,7 @@
 								<a href="/admin/groups">Groups</a>
 							</li>
 							<li>
-								<a href="/admin/mass_enrollment">Mass-Enrollment</a>
+								<a href="/admin/mass_enrollment">Mass Enrolment</a>
 							</li>
 						</#if>
 						<#if user.getGroup().isMarkerGeneral()||user.getGroup().isAdminModules()>

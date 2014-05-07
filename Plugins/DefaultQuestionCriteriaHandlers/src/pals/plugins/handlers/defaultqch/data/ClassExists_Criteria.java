@@ -60,12 +60,13 @@ public class ClassExists_Criteria implements Serializable
     private int                             markClassOnly;
     private JavaExistsShared.CriteriaType   criteriaType;
     private String                          fieldTypeGeneric;
+    private String                          fieldValue;
     // Methods - Constructors **************************************************
     public ClassExists_Criteria()
     {
         this.className = this.method = this.methodReturnType = null;
         this.methodParameters = new String[0];
-        this.fieldName = this.fieldType = this.fieldTypeGeneric = null;
+        this.fieldName = this.fieldType = this.fieldTypeGeneric = this.fieldValue = null;
         this.modifiers = 0;
         this.markClassOnly = 50;
         this.criteriaType = JavaExistsShared.CriteriaType.Class;
@@ -164,6 +165,18 @@ public class ClassExists_Criteria implements Serializable
         this.fieldTypeGeneric = fieldTypeGeneric == null || fieldTypeGeneric.length() == 0 ? null : fieldTypeGeneric;
         return true;
     }
+    /**
+     * Sets the value of the field.
+     * 
+     * @param fieldValue The value of the field.
+     * @return Indicates if the operation succeeded.
+     * @since 1.0
+     */
+    public boolean setFieldValue(String fieldValue)
+    {
+        this.fieldValue = fieldValue == null || fieldValue.length() == 0 ? null : fieldValue;
+        return true;
+    }
     // Methods - Accessors *****************************************************
     /**
      * @return The class-name to check exists; this can be null.
@@ -237,11 +250,22 @@ public class ClassExists_Criteria implements Serializable
     /**
      * The generic type of the type of the field.
      * 
-     * @return 
+     * @return The generic type.
+     * @since 1.0
      */
     public String getFieldTypeGeneric()
     {
         return fieldTypeGeneric;
+    }
+    /**
+     * The value of the field.
+     * 
+     * @return The value.
+     * @since 1.0
+     */
+    public String getFieldValue()
+    {
+        return fieldValue;
     }
     /**
      * Indicates if a generic type has been specified for the field-type.
@@ -252,6 +276,16 @@ public class ClassExists_Criteria implements Serializable
     public boolean isFieldTypeGenericConsidered()
     {
         return fieldTypeGeneric != null;
+    }
+    /**
+     * Indicates if the field's value is considered.
+     * 
+     * @return True = considered, false = not considered.
+     * @since 1.0
+     */
+    public boolean isFieldValueConsidered()
+    {
+        return fieldValue != null;
     }
     /**
      * @return The type of entity being handled.

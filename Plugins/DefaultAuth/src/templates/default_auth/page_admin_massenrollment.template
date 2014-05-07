@@ -1,11 +1,11 @@
 <h2>
     <a href="/admin">Admin</a>
-    <span>Mass-Enrollment</span>
+    <span>Mass Enrolment</span>
 </h2>
 
 <h3>Upload</h3>
 <p>
-    Below you can upload user data to the system to apply actions to create, enroll, disenroll
+    Below you can upload user data to the system to apply actions to create, enrol, disenrol
     and delete users. Refer to <a href="#notes">notes</a> section for detailed information.
 </p>
 <form method="post" action="/admin/mass_enrollment" enctype="multipart/form-data">
@@ -187,7 +187,7 @@
     <input type="hidden" name="enroll_atype" value="2" />
 </form>
 
-<h3 id="notes">Notes - Enrollment</h3>
+<h3 id="notes">Notes - Enrolment</h3>
 <p>
     The first row of the file should contain the following headings, with unrecognized
     columns ignored:
