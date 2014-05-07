@@ -175,7 +175,7 @@ public class QuestionCriteria
         {
             ArrayList<QuestionCriteria> buffer = new ArrayList<>();
             // Load from the database, iterate each result and load the model
-            Result res = conn.read("SELECT * FROM pals_question_criteria WHERE qid=?;", q.getQID());
+            Result res = conn.read("SELECT * FROM pals_question_criteria WHERE qid=? ORDER BY title ASC;", q.getQID());
             QuestionCriteria qc;
             while(res.next())
             {

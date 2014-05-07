@@ -589,7 +589,7 @@ public class Assignment
         try
         {
             ArrayList<Integer> buffer = new ArrayList<>();
-            Result res = conn.read("SELECT DISTINCT page FROM pals_assignment_questions WHERE assid=?;", assid);
+            Result res = conn.read("SELECT DISTINCT page FROM pals_assignment_questions WHERE assid=? ORDER BY page ASC;", assid);
             while(res.next())
             {
                 buffer.add((int)res.get("page"));
