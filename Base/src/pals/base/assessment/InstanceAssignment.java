@@ -402,7 +402,10 @@ public class InstanceAssignment
                     aiid
             );
             while(res.next())
-                conn.execute("UPDATE pals_assignment_instance_question SET mark=? WHERE aiqid=?;", (double)res.get("mark"), (int)res.get("aiqid"));
+            {
+                if(res.get("mark") != null && res.get("aiqid") != null)
+                    conn.execute("UPDATE pals_assignment_instance_question SET mark=? WHERE aiqid=?;", (double)res.get("mark"), (int)res.get("aiqid"));
+            }
             // Compute mark of assignment
             mark = (double)conn.executeScalar(
                 "UPDATE pals_assignment_instance AS ai SET mark = "

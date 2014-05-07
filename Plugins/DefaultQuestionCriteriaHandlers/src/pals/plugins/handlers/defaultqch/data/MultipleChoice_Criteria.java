@@ -33,17 +33,17 @@ import java.util.ArrayList;
 /**
  * Holds data for a multiple-choice criteria.
  */
-public class MultipleChoice_InstanceCriteria implements Serializable
+public class MultipleChoice_Criteria implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private Integer[] indexesCorrect;
     // Methods - Constructors **************************************************
-    public MultipleChoice_InstanceCriteria()
+    public MultipleChoice_Criteria()
     {
         this.indexesCorrect = new Integer[0];
     }
-    public MultipleChoice_InstanceCriteria(Integer[] values)
+    public MultipleChoice_Criteria(Integer[] values)
     {
         this.indexesCorrect = values;
     }

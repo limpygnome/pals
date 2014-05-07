@@ -29,6 +29,7 @@ package pals.plugins.handlers.defaultqch.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Random;
 import pals.base.utils.Misc;
@@ -36,14 +37,15 @@ import pals.base.web.RemoteRequest;
 import pals.plugins.handlers.defaultqch.MultipleChoiceRenderHolder;
 
 /**
- * Stores the answer data for a multiple-choice question.
+ * Stores the answer data for a multiple-choice question. This is the instance
+ * question data holder.
  */
 public class MultipleChoice_Instance implements Serializable
 {
     static final long serialVersionUID = 1L;
     // Fields ******************************************************************
     private Integer[]                   answers;                // Original indexes stored as items
-    private HashMap<Integer,Integer>    randomIndexMappings;    // Random index,original index
+    private HashMap<Integer,Integer>    randomIndexMappings;    // New index,original index
     // Methods - Constructors **************************************************
     public MultipleChoice_Instance(Random rng, MultipleChoice_Question qdata)
     {
@@ -70,6 +72,8 @@ public class MultipleChoice_Instance implements Serializable
     {
         ArrayList<Integer> buffer = new ArrayList<>();
         String[] answers = req.getFields("multiple_choice_"+aqid);
+        if(answers == null)
+            return;
         int value;
         for(String answer : answers)
         {
@@ -86,6 +90,8 @@ public class MultipleChoice_Instance implements Serializable
                 return;
             }
         }
+        // Sort indexes
+        Collections.sort(buffer);
         // Check we do not capture more than one answer for single-answer mode
         // -- Else we will ignore the request.
         // -- -- Most likely the user attempting to trick the system.

@@ -92,7 +92,7 @@ public class QuestionData
     /**
      * @return Retrieves the question being displayed.
      */
-    public AssignmentQuestion getQuestion()
+    public AssignmentQuestion getAssignmentQuestion()
     {
         return question;
     }

@@ -28,19 +28,15 @@
 package pals.plugins.handlers.defaultqch.questions;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
-import pals.base.Logging;
 import pals.base.Storage;
 import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
-import pals.base.utils.Files;
+import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
 import pals.base.web.UploadedFile;
@@ -209,7 +205,7 @@ public class CodeJava extends QuestionHelper
         data.setTemplateData("mc_text", mcText != null ? mcText : qdata.getText());
         data.setTemplateData("mc_type", mcType != null ? qt.getFormValue() : qdata.getType().getFormValue());
         data.setTemplateData("mc_skeleton", mcSkeleton != null ? mcSkeleton : qdata.getSkeleton());
-        data.setTemplateData("mc_whitelist", qdata.getWhitelistWeb());
+        data.setTemplateData("mc_whitelist", mcWhitelist != null ? mcWhitelist : qdata.getWhitelistWeb());
         data.setTemplateData("mc_upload_path", mcUploadPath);
         data.setTemplateData("csrf", CSRF.set(data));
         data.setTemplateData("code_names", qdata.getCodeNames());

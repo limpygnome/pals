@@ -148,7 +148,7 @@ public class JavaTestInputs
         data.setTemplateData("crit_test_code", critTestCode != null ? critTestCode : cdata.getTestCode());
         data.setTemplateData("crit_input_types", critInputTypes != null ? critInputTypes : cdata.getInputTypesWeb());
         data.setTemplateData("crit_inputs", critInputs != null ? critInputs : cdata.getInputsWeb());
-        data.setTemplateData("crit_hidden", (critTitle != null && critHidden != null && critHidden.equals("1")) || (cdata.getHideSolution()));
+        data.setTemplateData("crit_hidden", critTitle != null ? (critHidden != null && critHidden.equals("1")) : cdata.getHideSolution());
         return true;
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)

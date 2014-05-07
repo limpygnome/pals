@@ -280,7 +280,7 @@ public class Assignments extends Plugin
             HashMap<String,Object> kvs;
             UUID plugin;
             InstanceAssignmentQuestion iaq;
-            InstanceAssignmentCriteria[] iac;
+            InstanceAssignmentCriteria[] arrIac;
             int temp2;
             InstanceAssignmentCriteria.PersistStatus iacps;
             boolean gradeChanged = false;
@@ -307,11 +307,11 @@ public class Assignments extends Plugin
                     html.append(data.getCore().getTemplates().render(data, kvs, "assignment/question_failed"));
                 }
                 // Process criterias
-                if(editMode)
+                if(editMode && iaq != null)
                 {
                     // Iterate each instance-criteria, check for postback of mark change; if so, update the model
-                    iac = iaq.getInstanceCriteria(data.getCore(), data.getConnector());
-                    for(InstanceAssignmentCriteria c : iac)
+                    arrIac = iaq.getInstanceCriteria(data.getCore(), data.getConnector());
+                    for(InstanceAssignmentCriteria c : arrIac)
                     {
                         // Check for input
                         if((temp = req.getField("criteria_"+iaq.getAIQID()+"_"+c.getQC().getQCID())) != null)

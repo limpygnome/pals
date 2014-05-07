@@ -41,7 +41,7 @@ import pals.base.web.RemoteRequest;
 import pals.base.web.WebRequestData;
 import pals.base.web.security.CSRF;
 import pals.plugins.handlers.defaultqch.data.MultipleChoice_Instance;
-import pals.plugins.handlers.defaultqch.data.MultipleChoice_InstanceCriteria;
+import pals.plugins.handlers.defaultqch.data.MultipleChoice_Criteria;
 import pals.plugins.handlers.defaultqch.data.MultipleChoice_Question;
 import pals.plugins.handlers.defaultqch.questions.MCQ;
 
@@ -64,11 +64,11 @@ public class MultipleChoice
         else
             qdata = null;
         // Load criteria data
-        MultipleChoice_InstanceCriteria cdata;
+        MultipleChoice_Criteria cdata;
         if(qc.getData() != null)
-            cdata = (MultipleChoice_InstanceCriteria)qc.getData();
+            cdata = (MultipleChoice_Criteria)qc.getData();
         else
-            cdata = new MultipleChoice_InstanceCriteria();
+            cdata = new MultipleChoice_Criteria();
         // Fetch the possible answers
         String[] answers;
         if(qdata != null)
@@ -137,7 +137,7 @@ public class MultipleChoice
             // Load question, answer and criteria data
             MultipleChoice_Question qdata = (MultipleChoice_Question)iac.getQC().getQuestion().getData();
             MultipleChoice_Instance adata = (MultipleChoice_Instance)iac.getIAQ().getData();
-            MultipleChoice_InstanceCriteria cdata = (MultipleChoice_InstanceCriteria)iac.getQC().getData();
+            MultipleChoice_Criteria cdata = (MultipleChoice_Criteria)iac.getQC().getData();
             // Check the indexes selected match the correct indexes
             boolean correct = true;
             Integer[] answers = adata.getAnswers();
@@ -166,7 +166,7 @@ public class MultipleChoice
     {
         Object fdata = iac.getData();
         MultipleChoice_Question qdata = (MultipleChoice_Question)iac.getQC().getQuestion().getData();
-        MultipleChoice_InstanceCriteria cdata = (MultipleChoice_InstanceCriteria)iac.getQC().getData();
+        MultipleChoice_Criteria cdata = (MultipleChoice_Criteria)iac.getQC().getData();
         if(fdata != null && (fdata instanceof Boolean) && qdata != null && cdata != null)
         {
             boolean correct = (Boolean)fdata;

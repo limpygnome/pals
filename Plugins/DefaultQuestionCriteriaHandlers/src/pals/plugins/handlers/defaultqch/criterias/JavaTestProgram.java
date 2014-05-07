@@ -144,7 +144,8 @@ public class JavaTestProgram
         data.setTemplateData("crit_args", critArgs != null ? critArgs : cdata.getEpArgsWeb());
         data.setTemplateData("crit_io", critIO != null ? critIO : cdata.getIOWeb());
         data.setTemplateData("crit_error_threshold", critErrorThreshold != null ? critErrorThreshold : cdata.getErrorThreshold());
-        data.setTemplateData("crit_merge", (critMerge != null && critMerge.equals("1")) || (critTitle == null && cdata.getMergeStdErr()));
+        data.setTemplateData("crit_merge", critTitle != null ? (critMerge != null && critMerge.equals("1")) : cdata.getMergeStdErr());
+        data.setTemplateData("crit_hide", critTitle != null ? (critHide != null && critHide.equals("1")) : cdata.getHideSolution());
         return true;
     }
     public static boolean criteriaMarking(Connector conn, NodeCore core, InstanceAssignmentCriteria iac)

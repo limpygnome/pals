@@ -9,6 +9,10 @@
         Back
     </a>
     &nbsp;
+    <a class="button" href="/admin/modules/${module.getModuleID()?c}/edit">
+        Edit
+    </a>
+    &nbsp;
     <a class="button" href="/admin/modules/${module.getModuleID()?c}/delete">
         Delete Module
     </a>
