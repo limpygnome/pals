@@ -34,6 +34,14 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import pals.javasandbox.parsers.PA_Boolean;
+import pals.javasandbox.parsers.PA_Byte;
+import pals.javasandbox.parsers.PA_Char;
+import pals.javasandbox.parsers.PA_Double;
+import pals.javasandbox.parsers.PA_Float;
+import pals.javasandbox.parsers.PA_Integer;
+import pals.javasandbox.parsers.PA_Long;
+import pals.javasandbox.parsers.PA_Short;
 
 /**
  * A simple application used to load compiled classes and run them within a
@@ -185,6 +193,7 @@ public class JavaSandbox
         {
             System.err.println("Failed to setup URLs for class-loader.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         // Load any classes used by this program elsewhere
@@ -198,6 +207,7 @@ public class JavaSandbox
         {
             System.err.println("Failed to load internal classes.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         // Enforce security manager
@@ -210,6 +220,7 @@ public class JavaSandbox
         {
             System.err.println("Failed to setup security-manager.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         // Create class-loader for directory
@@ -244,6 +255,7 @@ public class JavaSandbox
         {
             System.err.println("Attempted to load restricted class '"+args[1]+"'.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         catch(ClassNotFoundException ex)
@@ -253,6 +265,7 @@ public class JavaSandbox
             else
                 System.err.println("Could not find class '"+args[1]+"'.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         // Build arguments
@@ -279,6 +292,7 @@ public class JavaSandbox
         {
             System.err.println("Could not parse entry-point arguments ~ "+ex.getMessage()+".");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         // Fetch the required method
@@ -291,6 +305,7 @@ public class JavaSandbox
         {
             System.err.println("Could not find entry-point method '"+args[2]+"'.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         // Start the time-out thread
@@ -300,24 +315,63 @@ public class JavaSandbox
         {
             Object obj = meth.invoke(null, objs);
             if(modeOutput)
-                System.out.println(obj != null ? obj : "null");
+            {
+                if(obj == null)
+                    System.out.println("null");
+                else if(obj.getClass().isArray())
+                {
+                    StringBuilder sb = new StringBuilder();
+                    Object[] arr;
+                    if(obj instanceof boolean[])
+                        arr = new PA_Boolean().convert((boolean[])obj);
+                    else if(obj instanceof byte[])
+                        arr = new PA_Byte().convert((byte[])obj);
+                    else if(obj instanceof char[])
+                        arr = new PA_Char().convert((char[])obj);
+                    else if(obj instanceof double[])
+                        arr = new PA_Double().convert((double[])obj);
+                    else if(obj instanceof float[])
+                        arr = new PA_Float().convert((float[])obj);
+                    else if(obj instanceof int[])
+                        arr = new PA_Integer().convert((int[])obj);
+                    else if(obj instanceof long[])
+                        arr = new PA_Long().convert((long[])obj);
+                    else if(obj instanceof short[])
+                        arr = new PA_Short().convert((short[])obj);
+                    else
+                        arr = (Object[])obj;
+                    // Append each element of the array to buffer
+                    for(Object o : arr)
+                        sb.append(o.toString()).append(",");
+                    // Remove tailing comma
+                    if(sb.length() > 0)
+                        sb.deleteCharAt(sb.length()-1);
+                    // Output array
+                    System.out.println(sb.toString());
+                }
+                else
+                    System.out.println(obj);
+            }
         }
         catch(SecurityException ex)
         {
             System.err.println("Attempted to perform prohibited action during runtime.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         catch(IllegalAccessException ex)
         {
             System.err.println("Could not access entry-point method.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         catch(IllegalArgumentException ex)
         {
             System.err.println("Incorrect parameters for entry-point method.");
             printDebugData(ex);
+            System.exit(1);
             return;
         }
         catch(InvocationTargetException ex)
@@ -340,6 +394,12 @@ public class JavaSandbox
                         System.err.println("at "+sframes[pos++]);
                 }
             }
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace(System.err);
+            System.exit(1);
+            return;
         }
         // Ensure standard output is flushed, although this should be redundant
         System.out.println("javasandbox-end-of-program");

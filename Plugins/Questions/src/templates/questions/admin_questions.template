@@ -13,6 +13,9 @@
             </td>
         </tr>
     </table>
+    <#if assignment??>
+        <input type="hidden" name="assid" value="${assignment.getAssID()?c}" />
+    </#if>
 </form>
 
 <table class="table3 questions">

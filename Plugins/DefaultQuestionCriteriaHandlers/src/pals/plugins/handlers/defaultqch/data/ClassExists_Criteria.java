@@ -48,7 +48,7 @@ public class ClassExists_Criteria implements Serializable
         Field
     }                             
     // Fields - Method *********************************************************
-    private String                          method;
+    private String                          method;                 // Null if constructor
     private String[]                        methodParameters;
     private String                          methodReturnType;
     // Fields - Field **********************************************************
@@ -89,9 +89,7 @@ public class ClassExists_Criteria implements Serializable
      */
     public boolean setMethod(String method)
     {
-        if(method == null || method.length() == 0)
-            return false;
-        this.method = method;
+        this.method = method != null && method.length() > 0 ? method : null;
         return true;
     }
     /**
@@ -191,6 +189,16 @@ public class ClassExists_Criteria implements Serializable
     public String getMethod()
     {
         return method;
+    }
+    /**
+     * Indicates if the method is a constructor.
+     * 
+     * @return True = constructor, false = not constructor.
+     * @since 1.0
+     */
+    public boolean isMethodConstructor()
+    {
+        return method == null;
     }
     /**
      * @return The modifiers to be matched.

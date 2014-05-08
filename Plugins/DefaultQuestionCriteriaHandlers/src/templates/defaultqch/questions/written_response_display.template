@@ -1,5 +1,5 @@
 <p>
-    ${text?html}
+    ${text}
 </p>
 <#if answer??>
     <h3 class="tac">Answer</h3>

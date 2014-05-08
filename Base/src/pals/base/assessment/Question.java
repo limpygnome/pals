@@ -155,7 +155,7 @@ public class Question
             if(filter == null || filter.length() == 0)
                 res = conn.read("SELECT * FROM pals_question ORDER BY title ASC LIMIT ? OFFSET ?;", amount, offset);
             else
-                res = conn.read("SELECT * FROM pals_question WHERE title LIKE ? ORDER BY title ASC LIMIT ? OFFSET ?;", "%"+(filter.replace("%", ""))+"%", amount, offset);
+                res = conn.read("SELECT * FROM pals_question WHERE title ILIKE ? ORDER BY title ASC LIMIT ? OFFSET ?;", "%"+(filter.replace("%", ""))+"%", amount, offset);
             Question q;
             while(res.next())
             {

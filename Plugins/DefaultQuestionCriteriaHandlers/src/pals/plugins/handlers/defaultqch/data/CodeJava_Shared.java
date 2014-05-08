@@ -484,18 +484,33 @@ public class CodeJava_Shared implements Serializable
         return names.toArray(new String[names.size()]);
     }
     /**
-     * Prepares.
+     * Prepares question files by copying them to a needed IAQ.
      * 
      * @param core Current instance of core.
+     * @param q The current question.
      * @param iaq The instance of an assignment question.
      * @return Indicates if the operation succeeded without error.
+     * @since 1.0
      */
     public static boolean copyQuestionFiles(NodeCore core, Question q, InstanceAssignmentQuestion iaq)
     {
-        // Fetch dirs
+        return copyQuestionFiles(core, q, Storage.getPath_tempIAQ(core.getPathShared(), iaq));
+    }
+    /**
+     * Prepares question files by copying them to a needed path.
+     * 
+     * @param core Current instance of core.
+     * @param q The current question.
+     * @param path The destination path of the files.
+     * @return Indicates if the operation succeeded without error.
+     * @since 1.0
+     */
+    public static boolean copyQuestionFiles(NodeCore core, Question q, String path)
+    {
+        // Fetch dir
         String shared = core.getPathShared();
         File fSrc = new File(Storage.getPath_tempQuestion(shared, q));
-        File fDest = new File(Storage.getPath_tempIAQ(shared, iaq));
+        File fDest = new File(path);
         // Copy physical files
         if(fSrc.exists() && fDest.exists())
         {

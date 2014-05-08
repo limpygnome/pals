@@ -48,4 +48,14 @@ public class PA_Float implements Parser
         else
             pa.setArgValue(Float.parseFloat(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        float[] arr = (float[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Float.valueOf(arr[i]);
+        return r;
+    }
 }

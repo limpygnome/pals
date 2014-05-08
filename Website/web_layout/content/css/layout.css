@@ -324,21 +324,26 @@ body
 	background: #DDD;
 }
 /* Table 1 ~ data */
+.layout_body .content table:not(.table2):not(.table3):not(.table4),
 .layout_body .content .table
 {
 	margin: 0.5em auto;
 	border-collapse: collapse;
 }
+.layout_body .content table:not(.table2):not(.table3):not(.table4) tr:nth-child(odd),
 .layout_body .content .table tr:nth-child(odd)
 {
 	background: #EEE;
 }
+.layout_body .content table:not(.table2):not(.table3):not(.table4) th,
+.layout_body .content table:not(.table2):not(.table3):not(.table4) td,
 .layout_body .content .table th,
 .layout_body .content .table td
 {
 	border: solid 0.2em #999;
 	padding: 0.25em 0.5em;
 }
+.layout_body .content table:not(.table2):not(.table3):not(.table4) th,
 .layout_body .content .table th
 {
 	background: #CCC;

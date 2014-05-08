@@ -48,4 +48,14 @@ public class PA_Integer implements Parser
         else
             pa.setArgValue(Integer.parseInt(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        int[] arr = (int[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Integer.valueOf(arr[i]);
+        return r;
+    }
 }

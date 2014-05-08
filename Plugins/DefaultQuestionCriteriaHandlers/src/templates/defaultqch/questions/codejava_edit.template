@@ -12,7 +12,8 @@
                 Question:
             </td>
             <td>
-                <textarea rows="5" name="mc_text"><#if mc_text??>${mc_text?html}</#if></textarea>
+                <textarea rows="5" name="mc_text"><#if mc_text??>${mc_text?html}</#if></textarea><br />
+                Note: HTML can be used.
             </td>
         </tr>
         <tr>

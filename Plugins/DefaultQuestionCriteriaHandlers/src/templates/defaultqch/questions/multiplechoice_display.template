@@ -1,5 +1,5 @@
 <p>
-    ${text?html}
+    ${text}
 </p>
 <p class="tac">
     <b>Answer(s):</b>

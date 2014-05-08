@@ -48,4 +48,14 @@ public class PA_Byte implements Parser
         else
             pa.setArgValue(Byte.parseByte(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        byte[] arr = (byte[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Byte.valueOf(arr[i]);
+        return r;
+    }
 }

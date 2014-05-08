@@ -31,9 +31,11 @@ import pals.javasandbox.ParsedArgument;
 
 /**
  * The interface for parsing different types of arguments, passed to the
- * sandbox.
+ * sandbox. Also parses results.
  */
 public interface Parser
 {
     public void parse(ParsedArgument pa, String[] value, boolean array);
+    
+    public Object[] convert(Object raw);
 }

@@ -28,6 +28,7 @@
 package pals.plugins.handlers.defaultqch.criterias;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -92,6 +93,7 @@ public class JavaExistsShared
         String  critMethod =    req.getField("crit_method");
         String  critMethodParams = req.getField("crit_method_params");
         String  critMethodRT =  req.getField("crit_method_rt");
+        String  critConstructor = req.getField("crit_constructor");
         String  critFieldName = req.getField("crit_field_name");
         String  critFieldType = req.getField("crit_field_type");
         String  critFieldGenericType = req.getField("crit_field_gtype"),
@@ -111,7 +113,7 @@ public class JavaExistsShared
                 critTransient = req.getField("crit_mod_trans"),
                 critVolatile =  req.getField("crit_mod_vol");
         if(critTitle != null && critWeight != null && critClassName != null && critClassOnly != null &&
-                (ct != CriteriaType.Method || (critMethod != null && critMethodParams != null && critMethodRT != null)) &&
+                (ct != CriteriaType.Method || ((critMethod != null || (critConstructor != null && critConstructor.equals("1"))) && critMethodParams != null && critMethodRT != null)) &&
                 (ct != CriteriaType.Field || (critFieldName != null && critFieldType != null))
             )
         {
@@ -221,6 +223,7 @@ public class JavaExistsShared
                 data.setTemplateData("crit_method", critMethod != null ? critMethod : cdata.getMethod());
                 data.setTemplateData("crit_method_params", critMethodParams != null ? critMethodParams : cdata.getMethodParametersWeb());
                 data.setTemplateData("crit_method_rt", critMethodRT != null ? critMethodRT : cdata.getMethodReturnType());
+                data.setTemplateData("crit_constructor", (critMethod == null || critMethod.length() == 0) || (critTitle == null && cdata.isMethodConstructor()));
                 break;
             case Field:
                 data.setTemplateData("crit_field_name", critFieldName != null ? critFieldName : cdata.getFieldName());
@@ -305,31 +308,49 @@ public class JavaExistsShared
                                         return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
                                     }
                                 }
-                                // Build return-type
-                                Class rt;
-                                if(trt == null || trt.length() == 0)
-                                    rt = null;
-                                else if((rt = Utils.parseClass(trt, cl)) == null)
+                                // Check if constructor or not - these are treated differently
+                                if(cdata.isMethodConstructor())
                                 {
-                                    core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Could not parse return-type class '"+trt+"' during marking; aiqid '"+iac.getIAQ().getAIQID()+"', qcid '"+iac.getQC().getQCID()+"'.", Logging.EntryType.Warning);
-                                    iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
-                                    return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
-                                }
-                                // Locate the method
-                                try
-                                {
-                                    Method m = c.getDeclaredMethod(cdata.getMethod(), params);
-                                    if((rt == null && m.getReturnType().equals(Void.TYPE)) || m.getReturnType().equals(rt))
+                                    // Locate constructor
+                                    try
                                     {
+                                        Constructor con = c.getConstructor(params);
                                         // Check modifiers
-                                        ms = modifiers == -1 || m.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;
+                                        ms = modifiers == -1 || c.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;
                                     }
-                                    else
-                                        ms = MarkingStatus.Incorrect_ReturnTypeMethod;
+                                    catch(NoSuchMethodException ex)
+                                    {
+                                        ms = MarkingStatus.Incorrect_NotFoundMethod;
+                                    }
                                 }
-                                catch(NoSuchMethodException | SecurityException ex)
+                                else
                                 {
-                                    ms = MarkingStatus.Incorrect_NotFoundMethod;
+                                    // Build return-type
+                                    Class rt;
+                                    if(trt == null || trt.length() == 0)
+                                        rt = null;
+                                    else if((rt = Utils.parseClass(trt, cl)) == null)
+                                    {
+                                        core.getLogging().log(DefaultQC.LOGGING_ALIAS, "Could not parse return-type class '"+trt+"' during marking; aiqid '"+iac.getIAQ().getAIQID()+"', qcid '"+iac.getQC().getQCID()+"'.", Logging.EntryType.Warning);
+                                        iac.setStatus(InstanceAssignmentCriteria.Status.AwaitingManualMarking);
+                                        return iac.persist(conn) == InstanceAssignmentCriteria.PersistStatus.Success;
+                                    }
+                                    // Locate the method
+                                    try
+                                    {
+                                        Method m = c.getDeclaredMethod(cdata.getMethod(), params);
+                                        if((rt == null && m.getReturnType().equals(Void.TYPE)) || m.getReturnType().equals(rt))
+                                        {
+                                            // Check modifiers
+                                            ms = modifiers == -1 || m.getModifiers() == modifiers ? MarkingStatus.Correct : MarkingStatus.Incorrect_Modifiers;
+                                        }
+                                        else
+                                            ms = MarkingStatus.Incorrect_ReturnTypeMethod;
+                                    }
+                                    catch(NoSuchMethodException | SecurityException ex)
+                                    {
+                                        ms = MarkingStatus.Incorrect_NotFoundMethod;
+                                    }
                                 }
                                 break;
                             }

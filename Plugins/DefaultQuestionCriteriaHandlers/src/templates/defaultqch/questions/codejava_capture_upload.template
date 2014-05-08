@@ -2,7 +2,7 @@
     <table class="table4">
         <tr>
             <td colspan="2">
-                ${text?html}
+                ${text}
             </td>
         </tr>
         <#if skeleton?has_content>

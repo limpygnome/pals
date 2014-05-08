@@ -48,4 +48,14 @@ public class PA_Boolean implements Parser
         else
             pa.setArgValue(Boolean.parseBoolean(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        boolean[] arr = (boolean[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Boolean.valueOf(arr[i]);
+        return r;
+    }
 }

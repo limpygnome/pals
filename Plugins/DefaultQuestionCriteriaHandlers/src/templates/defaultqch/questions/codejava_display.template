@@ -1,5 +1,5 @@
 <p>
-    ${text?html}
+    ${text}
 </p>
 <h3 class="tac">Code Submitted</h3>
 <#if code?has_content>

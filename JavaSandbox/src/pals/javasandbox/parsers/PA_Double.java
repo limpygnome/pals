@@ -48,4 +48,14 @@ public class PA_Double implements Parser
         else
             pa.setArgValue(Double.parseDouble(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        double[] arr = (double[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Double.valueOf(arr[i]);
+        return r;
+    }
 }

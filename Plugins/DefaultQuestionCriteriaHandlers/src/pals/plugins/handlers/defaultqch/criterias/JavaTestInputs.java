@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
+import org.apache.commons.io.FileUtils;
 import pals.base.Logging;
 import pals.base.NodeCore;
 import pals.base.Storage;
@@ -49,6 +50,7 @@ import pals.base.web.security.CSRF;
 import pals.plugins.handlers.defaultqch.DefaultQC;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Instance;
 import pals.plugins.handlers.defaultqch.data.CodeJava_Question;
+import pals.plugins.handlers.defaultqch.data.CodeJava_Shared;
 import pals.plugins.handlers.defaultqch.data.JavaTestInputs_Criteria;
 import pals.plugins.handlers.defaultqch.data.JavaTestInputs_InstanceCriteria;
 import pals.plugins.handlers.defaultqch.java.CompilerResult;
@@ -92,14 +94,41 @@ public class JavaTestInputs
                 String className = Utils.parseFullClassName(critTestCode);
                 if(className == null)
                     data.setTemplateData("error", "Cannot compile test-code, unable to determine the full class-name.");
-                else if(!className.equals(critClassName))
-                    data.setTemplateData("error", "Class-name of test-code ('"+className+"') does not match the provided class-name ('"+critClassName+"'); these must be the same.");
+                // Check disabled for now - there are cases where we do not need this.
+                //else if(!className.equals(critClassName))
+                //    data.setTemplateData("error", "Class-name of test-code ('"+className+"') does not match the provided class-name ('"+critClassName+"'); these must be the same.");
                 else
                 {
+                    String outputPath = Storage.getPath_tempQC(data.getCore().getPathShared(), qc);
                     HashMap<String,String> codeMap = new HashMap<>();
+                    // Copy support files
+                    {
+                        File op = new File(outputPath);
+                        // Delete old files
+                        if(op.isDirectory() && op.exists())
+                        {
+                            try
+                            {
+                                FileUtils.deleteDirectory(op);
+                            }
+                            catch(IOException ex){}
+                        }
+                        // Remake dir
+                        if(!op.exists())
+                            op.mkdir();
+                        // Copy files
+                        CodeJava_Shared.copyQuestionFiles(data.getCore(), qc.getQuestion(), TITLE);
+                    }
+                    // Copy any code from the question
+                    {
+                        CodeJava_Question qdata = (CodeJava_Question)qc.getQuestion().getData();
+                        if(qdata != null)
+                            codeMap.putAll(qdata.getCodeMap());
+                    }
+                    // Add test code
                     codeMap.put(className, critTestCode);
                     // Attempt to compile the code
-                    CompilerResult cr = Utils.compile(data.getCore(), Storage.getPath_tempQC(data.getCore().getPathShared(), qc), codeMap);
+                    CompilerResult cr = Utils.compile(data.getCore(), outputPath, codeMap);
                     CompilerResult.CompileStatus cs = cr.getStatus();
                     switch(cs)
                     {

@@ -132,7 +132,8 @@
 
 <h3>Notes</h3>
 <p>
-    Test code will only be compiled if changed; you can also tick the checkbox to force the code to be recompiled.
+    Test code will only be compiled if changed; you can also tick the checkbox to force the code to be recompiled - this will be needed if you change the code of any required code or/and files
+    set in the actual question.
 </p>
 <p>
     Input types should be in the format of the primitive data-types required to invoke a method; examples:

@@ -48,4 +48,14 @@ public class PA_Long implements Parser
         else
             pa.setArgValue(Long.parseLong(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        long[] arr = (long[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Long.valueOf(arr[i]);
+        return r;
+    }
 }

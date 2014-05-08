@@ -1,7 +1,7 @@
 <table class="table4">
     <tr>
         <td>
-            ${text?html}
+            ${text}
         </td>
     </tr>
     <#list choices as choice>

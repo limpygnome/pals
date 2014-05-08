@@ -43,4 +43,10 @@ public class PA_String implements Parser
         else
             pa.setArgValue(value[0]);
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        return (Object[])raw;
+    }
 }

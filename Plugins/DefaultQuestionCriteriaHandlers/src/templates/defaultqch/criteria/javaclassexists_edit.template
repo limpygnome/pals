@@ -42,7 +42,7 @@
                     Method:
                 </td>
                 <td>
-                    <input type="text" name="crit_method" value="<#if crit_method??>${crit_method?html}</#if>" />
+                    <input type="text" name="crit_method" value="<#if crit_method??>${crit_method?html}</#if>" /> - or - <input type="checkbox" name="crit_constructor" value="1" <#if crit_constructor?? && crit_constructor>checked</#if> /> Constructor
                 </td>
             </tr>
             <tr>

@@ -52,4 +52,14 @@ public class PA_Char implements Parser
     {
         return data.length() == 0 ? data.charAt(0) : (char)Integer.parseInt(data);
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        char[] arr = (char[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Character.valueOf(arr[i]);
+        return r;
+    }
 }

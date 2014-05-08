@@ -36,7 +36,6 @@ import pals.base.UUID;
 import pals.base.assessment.InstanceAssignment;
 import pals.base.assessment.InstanceAssignmentQuestion;
 import pals.base.assessment.Question;
-import pals.base.utils.Misc;
 import pals.base.web.RemoteRequest;
 import pals.base.web.RemoteResponse;
 import pals.base.web.UploadedFile;

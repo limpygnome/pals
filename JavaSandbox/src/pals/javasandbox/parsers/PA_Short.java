@@ -48,4 +48,14 @@ public class PA_Short implements Parser
         else
             pa.setArgValue(Short.parseShort(value[0]));
     }
+    
+    @Override
+    public Object[] convert(Object raw)
+    {
+        short[] arr = (short[])raw;
+        Object[] r = new Object[arr.length];
+        for(int i = 0; i < arr.length; i++)
+            r[i] = Short.valueOf(arr[i]);
+        return r;
+    }
 }
