@@ -11,6 +11,6 @@
 
 <#if !(user??)>
     <p>
-        Please <a href="/login">login</a> to access your assessment and learning environment.
+        Please <a href="/account/login">login</a> to access your assessment and learning environment.
     </p>
 </#if>

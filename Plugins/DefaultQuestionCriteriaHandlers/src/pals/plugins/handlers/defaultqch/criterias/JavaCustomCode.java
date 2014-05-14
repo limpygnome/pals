@@ -231,7 +231,6 @@ public class JavaCustomCode
                                 if(lastLine != null)
                                     icdata.add(JavaCustom_InstanceCriteria.FeedbackType.Info, lastLine);
                                 lastLine = line;
-                                System.err.println("last line is now : "+lastLine);
                             }
                         }
                         catch(IOException ex)

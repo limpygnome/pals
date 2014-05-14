@@ -140,6 +140,18 @@
     });
 </script>
 
+<#if error??>
+    <p class="error">
+        ${error}
+    </p>
+</#if>
+
+<#if success??>
+    <p class="success">
+        ${success}
+    </p>
+</#if>
+
 <h3>Notes</h3>
 <p>
     When code fragment mode is enabled, only single classes can be
@@ -162,15 +174,3 @@
     You can therefore test your own test-code, which may be useful for testing student code
     in a way not covered by this system.
 </p>
-
-<#if error??>
-    <p class="error">
-        ${error}
-    </p>
-</#if>
-
-<#if success??>
-    <p class="success">
-        ${success}
-    </p>
-</#if>

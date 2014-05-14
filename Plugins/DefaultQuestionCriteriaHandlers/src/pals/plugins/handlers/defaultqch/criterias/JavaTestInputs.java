@@ -122,7 +122,7 @@ public class JavaTestInputs
                     // Copy any code from the question
                     {
                         CodeJava_Question qdata = (CodeJava_Question)qc.getQuestion().getData();
-                        if(qdata != null)
+                        if(qdata != null && qdata.getCodeMap() != null)
                             codeMap.putAll(qdata.getCodeMap());
                     }
                     // Add test code
