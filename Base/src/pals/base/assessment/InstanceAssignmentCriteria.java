@@ -333,7 +333,7 @@ public class InstanceAssignmentCriteria
     {
         try
         {
-            Result res = conn.read("SELECT * FROM pals_assignment_instance_question_criteria WHERE aiqid=? AND qcid=?;", iaq.getAIQID(), qc.getQCID());
+            Result res = conn.read("SELECT iac.* FROM pals_assignment_instance_question_criteria AS iac LEFT OUTER JOIN pals_question_criteria AS qc ON qc.qcid=iac.qcid WHERE iac.aiqid=? AND iac.qcid=? ORDER BY qc.title ASC;", iaq.getAIQID(), qc.getQCID());
             return res.next() ? load(core, conn, iaq, qc, res) : null;
         }
         catch(DatabaseException ex)
@@ -416,7 +416,7 @@ public class InstanceAssignmentCriteria
         try
         {
             ArrayList<InstanceAssignmentCriteria> buffer = new ArrayList<>();
-            Result data = conn.read("SELECT * FROM pals_assignment_instance_question_criteria AS aiqc, pals_question_criteria AS qc WHERE aiqc.aiqid=? AND qc.qcid=aiqc.qcid;", iaq.getAIQID());
+            Result data = conn.read("SELECT * FROM pals_assignment_instance_question_criteria AS aiqc, pals_question_criteria AS qc WHERE aiqc.aiqid=? AND qc.qcid=aiqc.qcid ORDER BY qc.title ASC;", iaq.getAIQID());
             InstanceAssignmentCriteria iac;
             QuestionCriteria qc;
             while(data.next())

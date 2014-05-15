@@ -460,7 +460,7 @@ public class JavaExistsShared
                     kvs.put("error", "Class '"+cdata.getClassName()+"' not found.");
                     break;
                 case Incorrect_NotFoundMethod:
-                    kvs.put("error", "Method '"+cdata.getMethod()+"', in class '"+cdata.getClassName()+"', not found.");
+                    kvs.put("error", "Method '"+(cdata.getMethod() == null ? "<constructor>":cdata.getMethod())+"', in class '"+cdata.getClassName()+"', not found.");
                     break;
                 case Incorrect_NotFoundField:
                     kvs.put("error", "Field '"+cdata.getFieldName()+"', in class '"+cdata.getClassName()+"', not found.");
