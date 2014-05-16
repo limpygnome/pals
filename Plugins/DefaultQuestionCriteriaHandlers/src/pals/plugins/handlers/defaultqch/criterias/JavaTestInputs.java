@@ -327,7 +327,7 @@ public class JavaTestInputs
                 {
                     while((line = br.readLine()) != null)
                     {
-                        if(line.equals("javasandbox-end-of-program"))
+                        if(line.endsWith("javasandbox-end-of-program"))
                         {
                             // Inform the sandbox we're happy for it to end - this can be anything
                             proc.getProcess().getOutputStream().write(0);

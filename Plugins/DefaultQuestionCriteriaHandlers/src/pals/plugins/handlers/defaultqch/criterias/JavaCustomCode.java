@@ -202,7 +202,7 @@ public class JavaCustomCode
                                     keepRunning = false;
                             }
                             // Check if this is an exit line
-                            else if(line.equals("javasandbox-end-of-program"))
+                            else if(line.endsWith("javasandbox-end-of-program"))
                             {
                                 // Inform sandbox it can terminate
                                 pw.println("0"); // Input does not matter

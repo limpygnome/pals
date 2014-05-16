@@ -251,6 +251,7 @@ public class CodeJava_Shared implements Serializable
                 int                 files = 0;
                 File                f;
                 FileOutputStream    fos;
+                String className;
                 while(ents.hasMoreElements())
                 {
                     ent = ents.nextElement();
@@ -268,7 +269,9 @@ public class CodeJava_Shared implements Serializable
                             while((bufferlen = isr.read(buffer, 0, 4096)) != -1)
                                 codeBuffer.append(buffer, 0, bufferlen);
                             code = codeBuffer.toString();
-                            codeAdd(Utils.parseFullClassName(code), code);
+                            className = Utils.parseFullClassName(code);
+                            if(className != null)
+                                codeAdd(className, code);
                         }
                         // Read files into IAQ/model dir
                         // -- Ignore .class files, most likely a student/user forgetting to delete their build files

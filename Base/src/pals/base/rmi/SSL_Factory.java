@@ -111,7 +111,10 @@ public class SSL_Factory implements RMIClientSocketFactory, RMIServerSocketFacto
     @Override
     public Socket createSocket(String host, int port) throws IOException
     {
-        return cfact.createSocket(host, port);
+        Socket s = cfact.createSocket(host, port);
+        s.setSoTimeout(60);
+        s.setSoLinger(false, 0);
+        return s;
     }
     /**
      * Creates a new server SSL socket for listening.

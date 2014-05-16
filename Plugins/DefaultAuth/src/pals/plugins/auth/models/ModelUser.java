@@ -92,7 +92,7 @@ public class ModelUser
     {
         try
         {
-            Result res = conn.read("SELECT userid, username FROM pals_users WHERE groupid=? LIMIT ? OFFSET ?;", ug.getGroupID(), amount, offset);
+            Result res = conn.read("SELECT userid, username, email FROM pals_users WHERE groupid=? LIMIT ? OFFSET ?;", ug.getGroupID(), amount, offset);
             ArrayList<ModelUser> buffer = new ArrayList<>();
             ModelUser t;
             while(res.next())

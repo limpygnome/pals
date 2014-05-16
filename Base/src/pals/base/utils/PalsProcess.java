@@ -207,7 +207,7 @@ public class PalsProcess
                         username+"@localhost",
                         fullPath
                     };
-                    cmd = Misc.arrayMerge(String.class, cmd, args);
+                    cmd = Misc.arrayMerge(String.class, cmd, linuxArgs(args));
                     break;
                 default:
                     return null;
@@ -245,5 +245,12 @@ public class PalsProcess
         if(sb.length() > 1)
             sb.deleteCharAt(sb.length()-1);
         return sb.toString();
+    }
+    private static String[] linuxArgs(String[] args)
+    {
+        String[] temp = new String[args.length];
+        for(int i = 0; i < args.length; i++)
+            temp[i] = "\""+args[i].replace("\"", "\\\"")+"\" "; // " -> \"
+        return temp;
     }
 }

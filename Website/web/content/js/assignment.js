@@ -2,13 +2,33 @@ txtElems = new Array();
 
 function fetchElems()
 {
-	return document.all.tags('textarea');
+	return document.getElementsByTagName('textarea');
+}
+function fetchHyps()
+{
+	return document.getElementsByTagName('a');
 }
 function assLoad()
 {
+	// Log text areas to monitor for changes
 	var elems  = fetchElems();
 	for(var i = 0; i < elems.length; i++)
 		txtElems[i] = elems[i].value;
+	// Enable event to prevent leaving the page by hooking each hyperlink click
+	var hyps = fetchHyps();
+	for(var i = 0; i < hyps.length; i++)
+	{
+		hyps[i].addEventListener('click',
+		function(event)
+		{
+			if(!assLeave())
+			{
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		},
+		true);
+	}
 }
 function assLeave()
 {

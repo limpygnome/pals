@@ -390,14 +390,16 @@ public class JavaExistsShared
                                             {
                                                 try
                                                 {
-                                                    Object inst = null;
+                                                    Object inst = null, t;
                                                     // Check if to create instance
                                                     if((field.getModifiers() & Modifier.STATIC) != Modifier.STATIC)
                                                         inst = c.getConstructor().newInstance();
                                                     // Set to accessible, just in-case it is private
                                                     field.setAccessible(true);
                                                     // Check value
-                                                    if(!field.get(inst).toString().equals(cdata.getFieldValue()))
+                                                    if( ((t = field.get(inst)) == null && !cdata.getFieldValue().equals("null")) ||
+                                                            (t != null && !t.toString().equals(cdata.getFieldValue()))
+                                                    )
                                                         ms = MarkingStatus.Incorrect_Value;
                                                 }
                                                 catch(IllegalAccessException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalArgumentException ex)

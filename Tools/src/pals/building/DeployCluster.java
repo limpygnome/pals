@@ -55,6 +55,22 @@ public class DeployCluster
     // Methods - Entry Point ***************************************************
     public static void main(String[] args)
     {
+//        args = new String[]
+//        {
+//            "plugins",
+//            "\\\\10.0.0.150\\shared\\plugins",
+//            "nodes",
+//            "\\\\10.0.3.1\\pals","\\\\10.0.3.2\\pals","\\\\10.0.3.3\\pals","\\\\10.0.3.4\\pals","\\\\10.0.3.5\\pals"
+//        };
+//        args = new String[]
+//        {
+//            "plugins",
+//            "\\\\10.0.0.150\\shared\\plugins",
+//            "nodes",
+//            "\\\\10.0.3.1\\pals"
+//        };
+        
+        
         try
         {
             ArrayList<File> nodes = new ArrayList<>();

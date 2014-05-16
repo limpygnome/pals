@@ -65,8 +65,8 @@ public class Utils
         String strPackage, strClass;
         // -- We'll take the first ones we find and use those to form the full-name
         // -- -- We'll also make the package optional
-        Pattern pattPackage = Pattern.compile("package (([a-zA-Z]{1})([a-zA-Z0-9.\\_]+)?);");
-        Pattern pattClass = Pattern.compile("class ([a-zA-Z0-9]+)");
+        Pattern pattPackage = Pattern.compile("package\\s+(([a-zA-Z]{1})([a-zA-Z0-9.\\_]+)?);");
+        Pattern pattClass = Pattern.compile("(?:class|interface)\\s+([A-Z]{1}(?:[a-zA-Z0-9]+))\\s+(?:\\{|extends|implements)");
         Matcher t;
         // -- Package
         t = pattPackage.matcher(code);
@@ -324,32 +324,32 @@ public class Utils
             switch(type)
             {
                 case "byte":
-                case "byte:arr":
+                case "byte[]":
                     return Byte.toString((byte)rv);
                 case "short":
-                case "short:arr":
+                case "short[]":
                     return Short.toString((short)rv);
                 case "integer":
-                case "integer:arr":
+                case "integer[]":
                 case "int":
-                case "int:arr":
+                case "int[]":
                     return Integer.toString(rv);
                 case "long":
-                case "long:arr":
+                case "long[]":
                     return Long.toString((long)rv);
                 case "float":
-                case "float:arr":
+                case "float[]":
                     return Float.toString((float)rv);
                 case "double":
-                case "double:arr":
+                case "double[]":
                     return Double.toString((double)rv);
                 case "bool":
-                case "bool:arr":
+                case "bool[]":
                 case "boolean":
-                case "boolean:arr":
+                case "boolean[]":
                     return Boolean.toString(rv % 2 == 1);
                 case "char":
-                case "char:arr":
+                case "char[]":
                     return Character.toString((char)rv);
             }
         }

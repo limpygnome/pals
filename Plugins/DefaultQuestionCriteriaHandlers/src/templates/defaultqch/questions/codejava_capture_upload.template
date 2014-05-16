@@ -54,6 +54,7 @@
                                     &nbsp;
                                     <button type="submit" name="codejava_${aqid?c}_remove" value="${cn?html}">Remove</button>
                                 </div>
+                                <div class="clear"></div>
                             </li>
                         </#list>
                     </ul>

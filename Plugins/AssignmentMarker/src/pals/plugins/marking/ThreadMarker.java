@@ -95,7 +95,7 @@ public class ThreadMarker extends ExtendedThread
         am.getCore().getLogging().log("Ass. Marker", "Thread #"+number+" started.", Logging.EntryType.Info);
         
         // Iterate until the thread is stopped, checking for work to be processed
-        InstanceAssignmentCriteria iac;
+        InstanceAssignmentCriteria iac = null;
         while(!extended_isStopped())
         {
             try
@@ -132,7 +132,10 @@ public class ThreadMarker extends ExtendedThread
             }
             catch(Exception ex)
             {
-                am.getCore().getLogging().logEx("Ass. Marker", "Thread #"+number+" encountered exception during marking.", ex, Logging.EntryType.Warning);
+                if(iac != null && iac.getQC() != null && iac.getIAQ() != null)
+                    am.getCore().getLogging().logEx("Ass. Marker", "Thread #"+number+" encountered exception during marking for QCID '"+iac.getQC().getQCID()+"' / AIQID '"+iac.getIAQ().getAIQID()+"'.", ex, Logging.EntryType.Warning);
+                else
+                    am.getCore().getLogging().logEx("Ass. Marker", "Thread #"+number+" encountered exception during marking.", ex, Logging.EntryType.Warning);
             }
         }
         

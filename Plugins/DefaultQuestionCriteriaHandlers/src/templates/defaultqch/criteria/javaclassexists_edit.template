@@ -173,8 +173,15 @@
     </p>
 </#if>
 
-<#if crit_mode == 2 || crit_mode == 4>
+<#if crit_mode == 1 || crit_mode == 2 || crit_mode == 4>
     <h3>Notes</h3>
+</#if>
+
+<#if crit_mode == 1>
+    <p>
+        For interfaces, the modifier <i>abstract</i> may be required, as well as
+        <i>interface</i>.
+    </p>
 </#if>
 
 <#if crit_mode == 2>

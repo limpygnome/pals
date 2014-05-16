@@ -402,6 +402,8 @@ public class JavaSandbox
             return;
         }
         // Ensure standard output is flushed, although this should be redundant
+        System.out.println("");
+        System.out.flush();
         System.out.println("javasandbox-end-of-program");
         System.in.read();
         System.out.flush();
